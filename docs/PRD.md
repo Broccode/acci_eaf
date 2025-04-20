@@ -2,7 +2,7 @@
 
 * **Version:** 1.0 Draft
 * **Date:** 2025-04-20
-* **Author:** Coding Assistant (based on user input)
+* **Author:** Michael Walloschke
 * **Status:** Draft
 
 ## 1. Introduction & Vision
