@@ -618,3 +618,80 @@ This document provides a detailed breakdown of the functional requirements outli
 * Accuracy of dependency information
 * Performance impact on builds
 * Security implications of exposed information
+
+## FR-DEPLOY: Deployment
+
+### FR-DEPLOY-01: Offline Package Creation Process
+
+**Description:** Define a process within the CI/CD pipeline to generate a self-contained offline deployment package (tarball).
+
+**Acceptance Criteria:**
+
+* CI/CD job exists to create the tarball (e.g., `.tar.gz`).
+* Tarball includes all necessary application code, dependencies, configuration templates, and scripts.
+* Process is automated and repeatable.
+* Package includes version information.
+
+**Implementation Considerations:**
+
+* Choice of compression format and tooling.
+* Scripting for reliable package assembly.
+* Handling build artifacts correctly.
+
+### FR-DEPLOY-02: Package Contents
+
+**Description:** Specify the required contents of the offline deployment tarball.
+
+**Acceptance Criteria:**
+
+* Includes application Docker images saved via `docker save`.
+* Includes a reference `docker-compose.yml` file suitable for the target VM environment.
+* Includes a reference `.env.example` file detailing required environment variables.
+* Includes installation and update scripts (`install.sh`, `update.sh`).
+* Includes necessary documentation snippets (e.g., basic setup guide reference).
+* Includes database migration files.
+
+**Implementation Considerations:**
+
+* Ensuring all necessary Docker image layers are included.
+* Versioning of compose files and scripts alongside the application.
+* Clarity and completeness of the `.env.example` file.
+* Ensuring migration files are correctly placed for execution.
+
+### FR-DEPLOY-03: Installation and Update Scripts
+
+**Description:** Provide robust scripts within the tarball for initial installation and subsequent updates on the target VM.
+
+**Acceptance Criteria:**
+
+* `install.sh` script handles initial setup: loading Docker images, creating necessary volumes/networks, initializing environment from `.env` (if provided), starting containers via `docker-compose up`.
+* `update.sh` script handles updating to a new version: stopping containers, loading new Docker images, running migrations, restarting containers.
+* Scripts provide clear feedback to the user about progress and success/failure.
+* Scripts handle basic error checking (e.g., required tools available).
+* Scripts are documented regarding usage and prerequisites.
+
+**Implementation Considerations:**
+
+* Target environment assumptions (e.g., Docker, Docker Compose, `bash` availability).
+* User permissions required to run scripts.
+* Handling of configuration differences between environments (primarily via `.env` file).
+* Idempotency where feasible (e.g., network/volume creation).
+* Strategy for backup/rollback (basic considerations for V1, potentially manual steps).
+
+### FR-DEPLOY-04: Database Migration Mechanism
+
+**Description:** Ensure database migrations (using MikroORM migrations) can be executed reliably as part of the installation/update process in the offline environment.
+
+**Acceptance Criteria:**
+
+* Installation/update scripts trigger the database migration command at the appropriate step (e.g., after loading images, before starting application containers).
+* Mechanism correctly handles initial schema creation on first install.
+* Mechanism correctly applies subsequent migrations during updates.
+* Migration execution status (success/failure) is clearly logged or outputted by the scripts.
+
+**Implementation Considerations:**
+
+* Running migrations usually requires a dedicated command or a short-lived container based on the application image.
+* Ensuring the database is accessible when migrations run.
+* Permissions required for the database user performing migrations.
+* Handling migration failures gracefully within the script execution.
