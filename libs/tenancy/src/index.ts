@@ -1,1 +1,1 @@
-export * from './lib/tenancy.module';
+export * from './lib';

@@ -1,2 +1,2 @@
-export * from './lib/infrastructure.module';
+// Re-export everything from the internal lib directory
 export * from './lib';
