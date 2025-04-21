@@ -8,28 +8,28 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 
 ## Technology Table
 
-| Technology      | Description                                                      | Justification / ADR Link (TBD) |
-| -------------- | ---------------------------------------------------------------- | ------------------------------- |
-| TypeScript     | Main language (Strong typing, modern JS features)               |                                |
-| Node.js        | Runtime environment (V8 performance, large ecosystem)            |                                |
-| NestJS         | Backend framework (Modularity, DI, Decorators, TS support)       |                                |
-| PostgreSQL     | Database for event store and read models (Reliable, ACID, JSONB)   |                                |
-| MikroORM       | ORM with entity discovery and RLS filters (TS-first, UoW, Filters) |                                |
-| Redis          | Caching (Fast in-memory cache)                                  |                                |
-| Nx             | Monorepo management (Recommended: Code sharing, tooling)         |                                |
-| Jest           | Testing framework (Widely used, good ecosystem)                   |                                |
-| `suites`       | Unit testing utilities for DI components                         |                                |
-| Testcontainers | Integration testing with real DB/Cache (Reliable tests)          |                                |
-| `supertest`    | E2E testing HTTP requests                                       |                                |
-| `@nestjs/testing`| NestJS testing utilities                                        |                                |
-| `nestjs-i18n`  | Internationalization library (NestJS integration)               |                                |
-| `casl`         | RBAC/ABAC library (Recommended: Flexible, TS support)            | ADR-TBD                         |
-| `helmet`       | Security headers middleware (OWASP recommendation)                |                                |
-| `@nestjs/throttler` | Rate limiting middleware (Basic DoS protection)                 |                                |
-| `@nestjs/terminus` | Health checks module (Kubernetes readiness/liveness)          |                                |
-| OpenAPI        | API documentation standard (via NestJS)                           |                                |
-| `@cyclonedx/bom`| SBOM generation tool (Example, TBD)                             | ADR-TBD                         |
-| CycloneDX      | SBOM format (Example, TBD)                                       | ADR-TBD                         |
+| Technology      | Description                                                      | Justification / ADR Link | Status      |
+| -------------- | ---------------------------------------------------------------- | ------------------------ | ----------- |
+| TypeScript     | Main language (Strong typing, modern JS features)               |                          | Decided     |
+| Node.js        | Runtime environment (V8 performance, large ecosystem)            |                          | Decided     |
+| NestJS         | Backend framework (Modularity, DI, Decorators, TS support)       |                          | Decided     |
+| PostgreSQL     | Database for event store and read models (Reliable, ACID, JSONB)   |                          | Decided     |
+| MikroORM       | ORM with entity discovery and RLS filters (TS-first, UoW, Filters) | ADR-006 (Filters)        | Decided     |
+| Redis          | Caching (Fast in-memory cache)                                  |                          | Decided     |
+| Nx             | Monorepo management (Code sharing, tooling)                      |                          | Recommended |
+| Jest           | Testing framework (Widely used, good ecosystem)                   |                          | Decided     |
+| `suites`       | Unit testing utilities for DI components                         |                          | Decided     |
+| Testcontainers | Integration testing with real DB/Cache (Reliable tests)          |                          | Decided     |
+| `supertest`    | E2E testing HTTP requests                                       |                          | Decided     |
+| `@nestjs/testing`| NestJS testing utilities                                        |                          | Decided     |
+| `nestjs-i18n`  | Internationalization library (NestJS integration)               |                          | Decided     |
+| `casl`         | RBAC/ABAC library (Flexible, TS support)                         | ADR-001                  | Decided     |
+| `helmet`       | Security headers middleware (OWASP recommendation)                |                          | Decided     |
+| `@nestjs/throttler` | Rate limiting middleware (Basic DoS protection)                 |                          | Decided     |
+| `@nestjs/terminus` | Health checks module (Kubernetes readiness/liveness)          |                          | Decided     |
+| OpenAPI        | API documentation standard (via NestJS)                           |                          | Decided     |
+| `@cyclonedx/cyclonedx-npm` | SBOM generation tool                                          | ADR-002                  | Decided     |
+| CycloneDX (JSON) | SBOM format                                                      | ADR-002                  | Decided     |
 
 ## Core Architectural Patterns
 
@@ -50,19 +50,23 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 * **Event Flow:** `EventBus` (or polling the store) -> Event Handler / Projector (updates Read Model).
 * **Query Flow:** HTTP Request -> NestJS Controller -> `QueryBus` -> Query Handler -> Read Model Repository Adapter (reads from optimized Read Model DB) -> Response.
 * **Components:** Commands, Queries, Events (Domain/Integration), Handlers, Aggregate Roots, Event Store, Read Models, Projectors.
+* **Key Considerations:**
+  * **Event Schema Evolution (ADR-010):** Use explicit versioning in `event_type` (e.g., `UserRegistered.v1`) and implement upcasting functions to handle older versions during event loading or processing.
+  * **Idempotent Handlers (ADR-009):** Ensure event handlers can safely process the same event multiple times. Recommended approach: Use a tracking table (`processed_events`) storing `event_id` (and potentially handler name) to skip already processed events.
 
 ### Multi-Tenancy (Row-Level Security)
 
 * **Goal:** Securely isolate data for different tenants within the same database instance.
 * **Approach:** Utilize a `tenant_id` column in all tenant-specific tables.
 * **Context Propagation:** Extract `tenant_id` from request (e.g., JWT claim, header) via Middleware and make it available throughout the request lifecycle using `AsyncLocalStorage` (`libs/tenancy`).
-* **Enforcement:** Employ **MikroORM Filters** configured globally. These filters automatically append `WHERE tenant_id = :currentTenantId` to relevant SQL queries, parameterized dynamically using the `tenant_id` from `AsyncLocalStorage`.
+* **Enforcement (ADR-006):** Employ **MikroORM Global Filters** configured globally. These filters automatically append `WHERE tenant_id = :currentTenantId` to relevant SQL queries, parameterized dynamically using the `tenant_id` from `AsyncLocalStorage`.
 
 ### Plugin System
 
 * **Goal:** Allow extending EAF functionality without modifying core libraries.
 * **Approach:** Define a plugin interface, a loading mechanism (e.g., during app bootstrap), and registration points (e.g., for contributing modules, controllers, entities).
 * **Entity Discovery:** Leverage **MikroORM's** entity discovery via glob patterns (`ormconfig.entities`). Plugins can define their MikroORM entities within their own directories, which are then discovered by the central MikroORM configuration.
+* **Migrations (ADR-008):** Plugins provide their own MikroORM migration files within their structure. The main application's migration script/process is responsible for discovering and executing these plugin migrations alongside core migrations.
 * **Interaction:** Consider plugin interactions with tenancy, RBAC, and licensing (details TBD, likely through shared services/context).
 
 ## Architectural Diagrams
@@ -72,7 +76,8 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 * **Placeholder:** High-Level Component Overview (Monorepo Structure - C4 Container Diagram)
 * **Placeholder:** Request Flow - Command (Sequence Diagram)
 * **Placeholder:** Request Flow - Query (Sequence Diagram)
-* **Placeholder:** Tenant Context Propagation (Sequence Diagram)
+* **Placeholder:** Tenant Context Propagation & RLS Filter (Sequence Diagram)
+* **Placeholder:** Event Handling with Idempotency Check (Sequence Diagram)
 * **Placeholder:** Core Entity Relationships (UML Class Diagram - e.g., User, Tenant, Role)
 
 ## Component Overview (Planned)
@@ -95,17 +100,18 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 ### Data Persistence
 
 * **ORM:** MikroORM configured for PostgreSQL.
-* **Event Store:** Implemented as a standard PG table (e.g., `events`) with columns: `stream_id` (Aggregate ID), `version` (Event sequence), `event_type` (string identifier), `payload` (JSONB), `timestamp`, `tenant_id` (for tenant-specific streams).
-* **Read Models:** Separate PG tables, potentially denormalized and optimized for specific query use cases. Must include `tenant_id` if data is tenant-specific.
-* **RLS Enforcement:** Global MikroORM Filters automatically apply `tenant_id` constraints based on the current context.
+* **Event Store:** Implemented as a standard PG table (e.g., `events`) with columns: `stream_id` (Aggregate ID), `version` (Event sequence), `event_type` (string identifier, versioned - ADR-010), `payload` (JSONB), `timestamp`, `tenant_id` (for tenant-specific streams).
+* **Read Models:** Separate PG tables, potentially denormalized and optimized for specific query use cases. Must include `tenant_id` if data is tenant-specific. Idempotency tracking table (`processed_events`) as per ADR-009.
+* **RLS Enforcement (ADR-006):** Global MikroORM Filters automatically apply `tenant_id` constraints based on the current context (`AsyncLocalStorage`).
 * **Entity Discovery:** Glob patterns in MikroORM config (`mikro-orm.config.ts`) discover entities from core libs and potentially registered plugins.
 * **Unit of Work (UoW):** MikroORM's UoW pattern manages entity state changes and ensures transactional consistency.
+* **Migrations:** Central MikroORM CLI manages migrations, including discovering and running those defined within plugins (ADR-008).
 
 ### Authentication & Authorization
 
 * **Authentication:** Flexible NestJS Auth module. V1 includes JWT (bearer token) and Local (username/password) strategies. Strategy selection could potentially be tenant-configurable in the future.
-* **Authorization:** RBAC combined with basic ABAC (Ownership). Recommended library: `casl` for defining permissions (e.g., `manage`, `read`) on subjects (e.g., `Tenant`, `User`).
-* **Guards:** Standardized NestJS Guards (e.g., `@UseGuards(JwtAuthGuard, RolesGuard('admin'))`) protect endpoints/methods.
+* **Authorization (ADR-001):** RBAC combined with basic ABAC (Ownership) using `casl`. Defines permissions (e.g., `manage`, `read`) on subjects (e.g., `Tenant`, `User`).
+* **Guards:** Standardized NestJS Guards (e.g., `@UseGuards(JwtAuthGuard, CaslGuard('manage', 'Tenant'))`) protect endpoints/methods.
 * **Tenant Admin:** Provide backend services/API endpoints within the tenant's application scope for managing roles and permissions specific to that tenant.
 
 ### Observability
@@ -114,10 +120,10 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 * **Health Checks (V1):** Utilize `@nestjs/terminus` for standard health endpoints (`/health/live`, `/health/ready`) checking DB connectivity, cache, etc. Crucial for orchestrators like Kubernetes.
 * **Roadmap:** Integration of metrics export (Prometheus) and distributed tracing (OpenTelemetry).
 
-### License Validation
+### License Validation (ADR-003)
 
 * **Module:** Dedicated `libs/licensing` module/service.
-* **Logic:** Validation logic (Online/Offline, constraints - TBD via ADR/Open Questions) invoked on application startup and potentially periodically.
+* **Logic:** Implements hybrid validation (Offline file check mandatory, optional online check). Checks constraints like `tenantId`, `expiresAt`, `maxCpuCores`. Invoked on startup and potentially periodically.
 * **Security:** Must be robust against simple bypass and tampering.
 
 ### Testing Strategy Overview
@@ -126,9 +132,10 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 * **Integration Tests:** Use Jest + Testcontainers. Test infrastructure adapters (e.g., MikroORM repositories, Redis cache) against real database/cache instances spun up dynamically. Leverage MikroORM's testing utilities.
 * **E2E Tests:** Use Jest + `supertest` + `@nestjs/testing`. Test complete API request flows from HTTP entry point to response. Use a dedicated test database seeded via MikroORM.
 
-### SBOM
+### SBOM (ADR-002)
 
-* Integrate SBOM generation (e.g., using `@cyclonedx/bom` CLI tool) into the CI/CD build process for each deployable application (`apps/*`) and potentially core libraries (`libs/*`). Output format likely CycloneDX JSON/XML.
+* Integrate SBOM generation using `@cyclonedx/cyclonedx-npm` CLI tool into the CI/CD build process for each deployable application (`apps/*`) and potentially core libraries (`libs/*`).
+* Output format: CycloneDX JSON.
 
 ## Infrastructure
 
@@ -147,6 +154,7 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 
 ## Change Log
 
-| Change        | Story ID | Description                |
-| ------------- | -------- | -------------------------- |
-| Initial draft | N/A      | Initial architecture draft |
+| Change        | Story ID | Description                                      | ADRs Impacting |
+| ------------- | -------- | ------------------------------------------------ | -------------- |
+| Initial draft | N/A      | Initial architecture draft                       |                |
+| Update        | N/A      | Incorporate decisions from ADRs 001-010        | 001-010        |
