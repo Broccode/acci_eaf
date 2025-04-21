@@ -1,6 +1,6 @@
 # ADR-006: RLS Enforcement Strategy
 
-* **Status:** Proposed
+* **Status:** Accepted
 * **Date:** 2025-04-21
 * **Stakeholders:** [Names or roles]
 

@@ -1,6 +1,6 @@
 # ADR-003: Auswahl eines Lizenzvalidierungsmechanismus
 
-* **Status:** Vorgeschlagen
+* **Status:** Akzeptiert
 * **Datum:** 2025-04-26
 * **Autoren:** [Compliance-Architekt]
 

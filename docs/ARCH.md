@@ -2,9 +2,9 @@
 
 * **Version:** 1.0 Draft
 * **Date:** 2025-04-20
-* **Status:** Draft
+* **Status:** Approved
 
-## 1. Introduction
+## Technical Summary
 
 This document describes the high-level architecture of the **ACCI EAF** (Axians Competence Center Infrastructure Enterprise Application Framework). It explains the chosen architectural patterns, core components, technology stack, and fundamental design decisions. This document serves as a technical guide for developers and architects using or evolving the framework.
 

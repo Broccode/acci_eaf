@@ -1,9 +1,10 @@
-# Product Requirements Document: ACCI EAF
+# 1. Title: PRD for ACCI EAF
 
-* **Version:** 1.0 Draft
-* **Date:** 2025-04-21
-* **Author:** Michael Walloschke
-* **Status:** Draft
+<version>1.0 Draft</version>
+<date>2025-04-20</date>
+<author>Michael Walloschke</author>
+
+## Status: Approved
 
 ## 1. Introduction & Vision
 

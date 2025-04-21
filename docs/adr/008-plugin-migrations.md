@@ -1,6 +1,6 @@
 # ADR-008: Handling Plugin Database Migrations (Offline Deployment)
 
-* **Status:** Proposed
+* **Status:** Accepted
 * **Date:** 2025-04-21
 * **Stakeholders:** [Names or roles]
 

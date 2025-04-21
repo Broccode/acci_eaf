@@ -1,6 +1,6 @@
 # ADR-003: License Validation Mechanism
 
-* **Status:** Proposed
+* **Status:** Accepted
 * **Date:** 2025-04-25
 * **Authors:** [Product Architect]
 

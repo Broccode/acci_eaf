@@ -1,6 +1,6 @@
 # ADR-007: Control Plane Bootstrapping
 
-* **Status:** Proposed
+* **Status:** Accepted
 * **Date:** 2025-04-21
 * **Stakeholders:** [Names or roles]
 

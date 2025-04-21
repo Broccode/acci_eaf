@@ -3,7 +3,7 @@
 * **Version:** 1.0 Draft
 * **Datum:** 2025-04-21
 * **Autor:** Michael Walloschke
-* **Status:** Draft
+* **Status:** Approved
 
 ## 1. Einführung & Vision
 

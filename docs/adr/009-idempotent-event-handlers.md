@@ -1,6 +1,6 @@
 # ADR-009: Support for Idempotent Event Handlers
 
-* **Status:** Proposed
+* **Status:** Accepted
 * **Date:** 2025-04-21
 * **Stakeholders:** [Names or roles]
 

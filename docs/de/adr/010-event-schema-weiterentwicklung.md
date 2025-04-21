@@ -1,6 +1,6 @@
 # ADR-010: Strategie für Event Schema Evolution
 
-* **Status:** Vorgeschlagen
+* **Status:** Akzeptiert
 * **Datum:** 2025-04-21
 * **Beteiligte:** [Namen oder Rollen]
 

@@ -1,6 +1,6 @@
 # ADR-002: Selection of CycloneDX for SBOM Generation
 
-* **Status:** Proposed
+* **Status:** Accepted
 * **Date:** 2025-04-25
 * **Authors:** [Security Architect]
 

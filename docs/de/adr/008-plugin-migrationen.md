@@ -1,6 +1,6 @@
 # ADR-008: Handhabung von Plugin-Datenbankmigrationen (Offline Deployment)
 
-* **Status:** Vorgeschlagen
+* **Status:** Akzeptiert
 * **Datum:** 2025-04-21
 * **Beteiligte:** [Namen oder Rollen]
 

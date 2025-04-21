@@ -2,7 +2,7 @@
 
 * **Version:** 1.0 Draft
 * **Datum:** 2025-04-20
-* **Status:** Draft
+* **Status:** Approved
 
 ## 1. Einleitung
 

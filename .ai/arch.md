@@ -1,6 +1,6 @@
 # Architecture for ACCI EAF
 
-Status: Draft
+Status: Approved
 
 ## Technical Summary
 

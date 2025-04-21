@@ -1,6 +1,6 @@
 # ADR-001: Auswahl von CASL als RBAC-Implementierungsbibliothek
 
-* **Status:** Vorgeschlagen
+* **Status:** Akzeptiert
 * **Datum:** 2025-04-25
 * **Autoren:** [Systemarchitekt]
 
