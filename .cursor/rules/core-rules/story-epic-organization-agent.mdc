@@ -1,0 +1,28 @@
+---
+description: `Ensures that user stories belonging to a specific epic are organized within a dedicated subdirectory inside '.ai/stories/'. This rule should be loaded and considered whenever modifications occur within the '.ai/' directory, especially when creating or managing user stories that are part of an epic. It helps maintain a clear structure for project documentation.`
+globs: .ai/**
+alwaysApply: false
+---
+
+# Story Epic Organization
+
+## Critical Rules
+
+- User stories that are part of an epic MUST be placed within a subdirectory of `.ai/stories/`.
+- The name of this subdirectory MUST exactly match the name of the epic (e.g., `.ai/stories/EpicName/story-file.md`). Use kebab-case or a similar consistent naming convention for the directory name if the epic name contains spaces or special characters.
+- If the specific epic subdirectory does not exist when creating a new story, the agent MUST create it first.
+- This rule specifically applies when the PM agent (Picard, as defined in `core-rules/workflow-agile-manual`) handles user stories associated with an epic.
+
+## Examples
+
+<example>
+  User: "Picard, please create a story for adding MFA support as part of the 'Authentication Rework' epic."
+  Agent: (Creates the directory `.ai/stories/AuthenticationRework/` if it doesn't exist)
+  Agent: "Understood. I have created the user story document at `.ai/stories/AuthenticationRework/add-mfa-support-story.md`."
+</example>
+
+<example type="invalid">
+  User: "Picard, please create a story for adding MFA support as part of the 'Authentication Rework' epic."
+  Agent: "Understood. I have created the user story document at `.ai/stories/add-mfa-support-story.md`." 
+  (Reason: Story was placed directly in `.ai/stories/` instead of the epic subdirectory)
+</example>
