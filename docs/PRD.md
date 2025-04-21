@@ -1,7 +1,7 @@
 # Product Requirements Document: ACCI EAF
 
 * **Version:** 1.0 Draft
-* **Date:** 2025-04-20
+* **Date:** 2025-04-21
 * **Author:** Michael Walloschke
 * **Status:** Draft
 
@@ -32,7 +32,7 @@ The ACCI EAF aims to address these challenges by:
 * **Ensuring Traceability:** Through Event Sourcing and preparation for a dedicated audit trail.
 * **Enhancing Maintainability:** Clear separation of concerns, modularity, standardized processes (ADRs).
 * **Enabling Flexibility:** Through a plugin system (with MikroORM Entity Discovery) and configurability (e.g., AuthN methods per tenant).
-* **Supporting the Business Model:** Integrating a mechanism for license validation.
+* **Supporting the Business Model:** Integrating a mechanism for license validation (hybrid: offline/online).
 * **Supporting Compliance:** Providing features and documentation that aid in certification processes (ISO 27001, SOC2).
 
 ## 3. Target Audience
@@ -52,7 +52,7 @@ The ACCI EAF will be developed in phases.
   * **Control Plane API:** Separate API (in monorepo) for System Administrators to manage tenants (CRUD operations for basic tenant attributes).
   * **Standard Adapters:** PostgreSQL adapter (MikroORM for Event Store schema & Read Models), Redis adapter (for Caching).
   * **Internationalization (i18n):** Basic integration of `nestjs-i18n` for API responses (errors, validation) and locale detection.
-  * **License Validation:** Core mechanism to validate a provided license (implementation details TBD, see Open Questions).
+  * **License Validation:** Core mechanism to validate a provided license (hybrid: primarily offline-capable via file, optional online check). (Implementation details TBD, see Open Questions).
   * **Observability Basics:** Hooks/structure for structured logging; Health Check endpoints (`@nestjs/terminus`).
   * **Security Basics:** Standard Security Headers (`helmet`), Rate Limiting (`@nestjs/throttler`), Base Authentication (JWT validation, local password strategy), Base Authorization (RBAC Core logic and Enforcement Guards [recommendation: `casl`], Basic Ownership Check for `ownerUserId`), OWASP Top 10 consideration in design.
   * **Reliability Basics:** Hooks for Graceful Shutdown.
@@ -62,11 +62,12 @@ The ACCI EAF will be developed in phases.
   * **Development Practices:** Monorepo setup (recommendation: Nx), Use of Architecture Decision Records (ADRs), MikroORM Entity Discovery via glob patterns.
   * **Basic Documentation:** Setup guide, architecture overview, core concepts, ADRs.
   * **Project Template:** Basic template for creating new applications using the EAF.
+  * **Deployment Focus:** Support for offline deployment via tarball (incl. Docker Images via `docker save`/`load`, `docker-compose.yml`, scripts) onto customer VMs.
 
 * **Out of Scope (for V1):**
   * Application-specific business logic or domain implementations.
   * UI Frameworks, Frontend for the Control Plane, Frontend for tenant-specific RBAC administration.
-  * Complete, production-ready CI/CD pipeline templates.
+  * Complete, production-ready CI/CD pipeline templates (only basics for EAF internal dev).
   * Extensive library of pre-built plugins.
   * **Advanced Observability:** Metric export (Prometheus), Distributed Tracing (OpenTelemetry).
   * **Advanced AuthN:** OIDC, LDAP/AD integration.
@@ -78,6 +79,7 @@ The ACCI EAF will be developed in phases.
   * **Full ISO 27001 / SOC2 Support Tooling:** Dedicated compliance reports, fully automated control evidence (V1 *enables* this).
   * **CLI Enhancements:** Custom schematics for `nest g ...`.
   * **Admin UIs:** For Control Plane or tenant-specific administration (e.g., RBAC).
+  * **Online License Server:** Operation and API definition of the Axians license server.
 
 ### 4.2. Future Versions (Roadmap)
 
@@ -96,30 +98,32 @@ The ACCI EAF will be developed in phases.
 * **Control Plane API (FR-CP):** Separate API, Tenant CRUD, Admin AuthZ.
 * **Persistence Adapters (FR-PA):** MikroORM setup for PG (tenant-aware Entities via Discovery, RLS via Filters), Redis Cache Adapter.
 * **Authentication (FR-AUTHN):** AuthN module, JWT strategy, Local strategy (secure), User-Tenant linkage.
-* **Authorization (FR-AUTHZ):** RBAC module (Rec.: `casl`), Data model (MikroORM Entities, tenant-aware), RBAC Guards, Ownership check (`ownerUserId`), Tenant Admin APIs/Services for RBAC.
-* **License Validation (FR-LIC):** Validation module/service, checking constraints (details TBD).
+* **Authorization (FR-AUTHZ):** RBAC module (Rec.: `casl`), Data model (MikroORM Entities, tenant-aware), RBAC Guards, Ownership check (`ownerUserId`), Backend services/APIs for managing roles/permissions at the tenant level.
+* **License Validation (FR-LIC):** Hybrid validation module/service (Offline file primary, optional Online check), checking constraints (details TBD). Configuration for online mode.
 * **Observability (FR-OBS):** Structured logging (hooks/interface), Health Check endpoints.
 * **Security (FR-SEC):** `helmet` integration, `throttler` integration.
 * **Internationalization (FR-I18N):** `nestjs-i18n` setup, validation translation, error translation (base), service/context provision.
 * **API (FR-API):** Standard controller structure, DTO validation (i18n), OpenAPI setup.
 * **SBOM (FR-SBOM):** Integration of SBOM generation (e.g., CycloneDX) into the build process.
+* **Deployment (FR-DEPLOY):** CI/CD process to create offline tarball package (incl. `docker save`, scripts). Provision of reference `docker-compose.yml` and `.env.example`. Mechanism for running migrations in the offline setup.
 
 ## 6. Non-Functional Requirements (NFR) - V1
 
 | ID     | Category        | Requirement                                                                                                                                                                                             | Measurement/Target (Example)                               |
 | :----- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------------------- |
 | NFR-01 | Performance      | API response times for typical read operations (Queries) should be low. Command processing should be efficient. RLS (via Filters) should not cause significant bottlenecks.                                | P95 Latency < 200ms (Queries), Baseline Command Throughput |
-| NFR-02 | Scalability      | Architecture must allow horizontal scaling of read and write paths. Statelessness where possible.                                                                                                       | Scalability tests under load                               |
-| NFR-03 | Reliability      | Graceful Shutdown must be implemented. Basic error handling in adapters. Event processing for projections should be robust (Goal: Idempotency of handlers).                                             | Tests, Code Reviews                                        |
-| NFR-04 | Security         | **Must lay groundwork for ISO 27001/SOC2.** RLS implementation (via Filters) must be secure. Protection against common web attacks (OWASP Top 10 consideration). Secure AuthN/AuthZ base components. License validation robust. SBOM available. | Security Reviews, Pentest (later), OWASP Mapping Check    |
+| NFR-02 | Scalability      | Architecture must allow horizontal scaling of read and write paths (within the limits of a VM/Compose environment). Statelessness where possible.                                                        | Scalability tests under load (simulated)                 |
+| NFR-03 | Reliability      | Graceful Shutdown must be implemented. Basic error handling in adapters. Event processing for projections should be robust (Goal: Idempotency of handlers). Offline update process should be robust.       | Tests, Code Reviews, Test of update script             |
+| NFR-04 | Security         | **Must lay groundwork for ISO 27001/SOC2.** RLS implementation (via Filters) must be secure. Protection against common web attacks (OWASP Top 10 consideration). Secure AuthN/AuthZ base components. License validation (offline/online) robust. SBOM available. | Security Reviews, Pentest (later), OWASP Mapping Check    |
 | NFR-05 | Maintainability  | Code should follow SOLID principles, be well-documented (code comments, ADRs). High test coverage. Clear module boundaries (Hexagonal).                                                              | Code Coverage > 85% (Core Libs), Static Code Analysis    |
 | NFR-06 | Testability      | Core logic (Domain/Application) must be testable in isolation. Integration tests must be reliable (Testcontainers + MikroORM). Unit tests easy to write (`suites`).                                      | Test pyramid implemented                                 |
 | NFR-07 | Extensibility    | Plugin system must allow extensions without core changes (incl. Entity Discovery). Architecture should allow swapping adapters.                                                                       | Example plugin implementation, Design Review             |
-| NFR-08 | Documentation    | Comprehensive documentation: Setup, Architecture, Concepts (CQRS, ES, Multi-Tenancy, RBAC, Licensing, SBOM, MikroORM UoW/Filters), How-Tos, API Reference (framework parts), ADRs.                       | Availability & Quality of Docs                          |
+| NFR-08 | Documentation    | Comprehensive documentation: Setup (incl. Offline/Tarball), Architecture, Concepts (CQRS, ES, Multi-Tenancy, RBAC, Licensing, SBOM, MikroORM UoW/Filters), How-Tos, API Reference (framework parts), ADRs. | Availability & Quality of Docs                          |
 | NFR-09 | Developer Exp.   | Intuitive usage, good IDE support (TypeScript), clear error feedback, simple project setup (template), easy testability (`suites`), Monorepo tooling (Nx), easy plugin development.                      | Developer Feedback                                      |
 | NFR-10 | i18n Support     | Framework supports translation of API responses (validation, errors) based on locale via `nestjs-i18n`.                                                                                                 | Tests for localized responses                          |
-| NFR-11 | Licensing        | The validation mechanism must be reliable and secure against simple bypass.                                                                                                                          | Design Review, Tests                                      |
+| NFR-11 | Licensing        | The hybrid validation mechanism must be reliable and secure against simple bypass (esp. offline).                                                                                                      | Design Review, Tests                                      |
 | NFR-12 | Compliance       | Framework must support generation of SBOMs in standard formats (e.g., CycloneDX). Design considers compliance requirements.                                                                              | SBOM generation in build, Design Reviews                |
+| NFR-13 | Deployment       | The generated tarball package must contain all necessary artifacts for offline installation. Setup/update scripts must be robust.                                                                       | Test of installation/update from tarball              |
 
 ## 7. Design & Architecture (Overview)
 
@@ -134,17 +138,19 @@ The ACCI EAF will be developed in phases.
 * **Testing:** Jest, `suites` (Unit), Testcontainers (Integration with MikroORM), `supertest`, `@nestjs/testing`.
 * **Authorization:** Recommendation `casl`.
 * **SBOM:** Tooling TBD (e.g., `@cyclonedx/bom`), Format TBD (e.g., CycloneDX).
+* **Licensing:** Hybrid approach (Offline file + optional Online check).
+* **Deployment:** Docker Images in Offline Tarball with Docker Compose for VM installation.
 * **Decisions:** Documented via ADRs in `docs/adr/`.
 * **Diagrams:** Use of appropriate diagram types (C4, UML etc.) for visualization.
 
 ## 8. Release Criteria (for V1)
 
 * All functional requirements (FR) defined as "In Scope (V1)" are implemented and covered by tests.
-* Core NFRs (especially Security, Reliability, Testability, Documentation, Licensing Validation) are demonstrably met.
+* Core NFRs (especially Security, Reliability, Testability, Documentation, Licensing Validation, Deployment) are demonstrably met.
 * Defined code coverage targets are achieved.
-* Basic documentation is available and reviewable.
-* A functional sample project (`apps/sample-app`) demonstrates core features.
-* Successful build and test runs of all components in a reference CI environment.
+* Basic documentation (incl. Offline Setup) is available and reviewable.
+* A functional sample project (`apps/sample-app`) demonstrates core features and can be installed from the tarball.
+* Successful build and test runs of all components in a reference CI environment, including tarball creation.
 * Review and approval of the architecture and core components.
 
 ## 9. Success Metrics
@@ -153,16 +159,17 @@ The ACCI EAF will be developed in phases.
 * Reduction in initial development time for projects using the EAF (qualitative/quantitative).
 * Developer satisfaction (surveys).
 * Consistency and quality of applications built with the EAF (code reviews).
-* Successful use in customer projects including licensing.
+* Successful use in customer projects including licensing and offline installation.
 * Positive feedback regarding compliance/audit support.
 
 ## 10. Open Questions & Assumptions
 
 * **Licensing Details:**
   * Exact method for measuring CPU cores in customer environments?
-  * Exact validation logic: Online (own Axians license server?) vs. Offline (signed keys)? Frequency? Behavior on failure (grace period, feature degradation, stop)?
-  * Need/mechanism for secure metric reporting to Axians?
-  * Security aspects of the licensing mechanism? Is it optional for internal/non-licensed projects?
+  * Exact validation logic (Offline: file format, signature mechanism? Online: API specification of the Axians server? Frequency? Behavior on failure online/offline?)
+  * Secure reporting of metrics (if online)?
+  * Security aspects of the licensing mechanism? Is it optional for internal projects?
+  * Policy on network failure during optional online check (Fail Open/Closed)?
 * **RLS Enforcement (MikroORM Filters):** Best practices for configuring and dynamically passing parameters (`tenant_id`) to global filters in the NestJS context?
 * **Shared Data Access:** Exact specification where cross-tenant data resides and how access should be standardized (e.g., via config providers)?
 * **Control Plane Bootstrapping:** Concrete process for creating the first tenant (if needed) and the first system administrator?
@@ -171,14 +178,16 @@ The ACCI EAF will be developed in phases.
   * Long-term strategy for Event Schema Evolution (suggestion needed for V1?).
   * Framework support for idempotent Event Handlers?
 * **ISO/SOC2:** Which specific controls require *direct* support through framework features in *future* versions to significantly ease product certification?
-* **Plugins:** Exact interaction with Tenancy, Licensing, and RBAC? How are MikroORM entities from plugins reliably discovered and migrations managed?
+* **Plugins:** Exact interaction with Tenancy, Licensing, and RBAC? How are MikroORM entities from plugins reliably discovered and migrations managed/executed (esp. in offline setup)?
 * **Technology Choices:**
   * Concrete choice of RBAC library (`casl` recommended)? -> ADR required.
   * Concrete choice of SBOM tool and format? -> ADR required.
+* **Deployment:** Exact structure and content of setup/update scripts in the tarball? Backup/restore strategy for Docker volumes?
 * **Assumption:** The EAF provides backend APIs/logic for Tenant RBAC admin; the UI is application-specific.
 * **Assumption:** V1 focuses on the foundation; advanced enterprise features will follow iteratively according to the roadmap.
 * **Assumption:** RLS implementation uses a `tenant_id` column in relevant tables and is enforced via MikroORM Filters.
 * **Assumption:** MikroORM Entity Discovery is configured via glob patterns.
+* **Assumption:** The primary deployment method for customers is an offline tarball for VMs with Docker Compose.
 
 ## 11. Glossary (Optional)
 
