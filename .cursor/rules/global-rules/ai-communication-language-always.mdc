@@ -1,7 +1,6 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: Communication in German, documentation, story files and source code in English
+alwaysApply: true
 ---
 # AI Communication and Documentation Language
 

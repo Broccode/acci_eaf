@@ -1,0 +1,30 @@
+---
+description: Always propose NX CLI commands where possible
+alwaysApply: true
+---
+# Nx CLI Preferred
+
+## Critical Rules
+
+- Always suggest Nx commands when a task is supported by Nx (e.g., test, build, lint, serve, generate, affected, etc.)
+- Avoid direct usage of npm, npx, yarn, or node for tasks that Nx encapsulates
+- Only fall back to other CLI commands if Nx does not cover the task or the user explicitly requests it
+- Optionally explain why Nx is used (e.g., caching, targeting, monorepo optimization)
+- Show the full Nx command with the correct target/project
+
+## Examples
+
+<example>
+  User: "How do I test the core lib?"
+  Agent: "Use: nx test core"
+</example>
+
+<example>
+  User: "How do I build the API?"
+  Agent: "Use: nx build control-plane-api"
+</example>
+
+<example type="invalid">
+  Agent: "Use: npx jest libs/core/src/lib/ports/command-bus.interface.spec.ts"
+  Agent: "npm run test:core"
+</example>
