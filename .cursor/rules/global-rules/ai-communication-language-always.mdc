@@ -1,0 +1,28 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# AI Communication and Documentation Language
+
+## Critical Rules
+
+- All chat communication with the user must be in German, regardless of the topic.
+- All documentation, story files, and source code (including code comments) must always be written in English, unless the user explicitly requests a different language for a specific document or code section.
+- If the user requests a different language for a specific output, follow that request only for the relevant output.
+- Never mix languages within a single document or code file.
+- If unsure, ask the user for clarification before proceeding.
+
+## Examples
+
+<example>
+User: Bitte schreibe die nächste Story-Datei.
+Agent: (Antwort auf Deutsch) "Hier ist der Entwurf für die nächste Story-Datei. Alle Inhalte sind auf Englisch, wie gewünscht."
+
+Story-Datei-Inhalt: (komplett auf Englisch)
+
+<example type="invalid">
+- Chat-Antworten oder Erklärungen auf Englisch, obwohl der User Deutsch erwartet.
+- Dokumentation oder Quelltext in Deutsch, obwohl keine explizite Anweisung dazu vorliegt.
+- Vermischung von Deutsch und Englisch in einem Dokument oder Codefile.
+</example>
