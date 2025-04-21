@@ -1,212 +1,96 @@
-# Enterprise Application Framework - Erste Schritte
-
-Diese Anleitung führt Sie durch die Installation und Konfiguration des ACCI Enterprise Application Frameworks (EAF).
-
-## Voraussetzungen
-
-Bevor Sie beginnen, stellen Sie sicher, dass folgende Voraussetzungen erfüllt sind:
-
-* Node.js (v18.x oder höher)
-* npm (v9.x oder höher)
-* Docker (v20.x oder höher)
-* Docker Compose (v2.x oder höher)
-* Git
-
-## Installation
-
-### 1. Repository klonen
-
-```bash
-git clone https://github.com/acci-org/enterprise-application-framework.git
-cd enterprise-application-framework
-```
-
-### 2. Abhängigkeiten installieren
-
-```bash
-npm install
-```
-
-### 3. Umgebungsvariablen konfigurieren
-
-Kopieren Sie die Beispiel-Umgebungsdatei und passen Sie sie an Ihre Bedürfnisse an:
-
-```bash
-cp .env.example .env
-```
-
-Öffnen Sie die `.env`-Datei und konfigurieren Sie die folgenden wichtigen Variablen:
-
-```
-# Datenbank-Konfiguration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=eaf_db
-DB_USER=eaf_user
-DB_PASSWORD=your_secure_password
-
-# JWT-Konfiguration
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRATION=86400
-
-# API-Konfiguration
-API_PORT=3000
-API_BASE_URL=/api/v1
-
-# Umgebung
-NODE_ENV=development
-```
-
-### 4. Docker-Container starten
-
-Um die erforderlichen Dienste (Datenbank, Redis, usw.) zu starten:
-
-```bash
-docker-compose up -d
-```
-
-### 5. Datenbankmigrationen ausführen
-
-```bash
-npm run migrate
-```
-
-### 6. Anfangsdaten laden (optional)
-
-```bash
-npm run seed
-```
-
-## Entwicklungsserver starten
-
-Starten Sie den Entwicklungsserver mit:
-
-```bash
-npm run dev
-```
-
-Der Server ist nun unter <http://localhost:3000> erreichbar.
-
-## Produktionsaufbau
-
-Für eine Produktionsumgebung:
-
-1. Kompilieren Sie die Anwendung:
-
-```bash
-npm run build
-```
-
-2. Starten Sie den Produktionsserver:
-
-```bash
-npm run start
-```
-
-## Authentifizierung
-
-Nach der Installation erstellen Sie einen Admin-Benutzer:
-
-```bash
-npm run create:admin
-```
-
-Folgen Sie den Anweisungen auf dem Bildschirm, um die Admin-Benutzerdetails zu konfigurieren.
-
-## Konfiguration des RBAC-Systems
-
-Das RBAC-System (Role-Based Access Control) wird in der Datei `config/rbac.js` konfiguriert. Sie können Rollen und Berechtigungen nach Ihren organisatorischen Anforderungen definieren:
-
-```javascript
-// Beispiel für eine RBAC-Konfiguration
-module.exports = {
-  roles: {
-    admin: {
-      description: 'Administrator mit Vollzugriff',
-      permissions: ['*']
-    },
-    manager: {
-      description: 'Manager mit eingeschränktem Zugriff',
-      permissions: [
-        'users:read',
-        'users:create',
-        'reports:*'
-      ]
-    },
-    user: {
-      description: 'Standardbenutzer',
-      permissions: [
-        'profile:read',
-        'profile:update',
-        'documents:read'
-      ]
-    }
-  }
-};
-```
-
-## SBOM-Generierung
-
-Um eine Software Bill of Materials (SBOM) zu generieren:
-
-```bash
-npm run generate:sbom
-```
-
-Dies erzeugt eine CycloneDX-kompatible SBOM-Datei im `reports`-Verzeichnis.
-
-## Lizenzvalidierung
-
-Führen Sie die Lizenzvalidierung mit folgendem Befehl aus:
-
-```bash
-npm run validate:licenses
-```
-
-## Fehlerbehebung
-
-### Häufige Probleme
-
-1. **Verbindungsprobleme mit der Datenbank**
-
-   Stellen Sie sicher, dass Ihre Docker-Container laufen:
-
-   ```bash
-   docker-compose ps
-   ```
-
-   Überprüfen Sie die Datenbankverbindungsdetails in Ihrer `.env`-Datei.
-
-2. **Port-Konflikte**
-
-   Wenn der Port 3000 bereits verwendet wird, ändern Sie `API_PORT` in Ihrer `.env`-Datei.
-
-3. **Berechtigungsprobleme**
-
-   Auf Linux-/Unix-Systemen:
-
-   ```bash
-   chmod +x ./scripts/*.sh
-   ```
-
-### Logs überprüfen
-
-Bei Problemen überprüfen Sie die Anwendungslogs:
-
-```bash
-npm run logs
-```
-
-## Nächste Schritte
-
-* Machen Sie sich mit der [API-Dokumentation](../api/README.md) vertraut
-* Konfigurieren Sie [CI/CD-Pipelines](../ci-cd/README.md)
-* Richten Sie [Überwachung und Logging](../monitoring/README.md) ein
-
-## Support
-
-Für technischen Support wenden Sie sich bitte an:
-
-* E-Mail: <support@acci-org.com>
-* Helpdesk: <https://support.acci-org.com>
-* Dokumentation: <https://docs.acci-org.com>
+# ACCI EAF - Setup Guide
+
+## 1. Einführung
+
+    * Zweck des Dokuments (Installation & lokale Inbetriebnahme des EAF/Beispiel-App).
+    * Überblick über das ACCI EAF und die Monorepo-Struktur.
+    * Zielgruppe (Entwickler bei Axians).
+
+## 2. Voraussetzungen
+
+    * **Software:**
+        * Node.js (Spezifische LTS-Version angeben, z.B. >= 18.x).
+        * Paketmanager: npm / yarn / pnpm (Bevorzugten Manager und Version angeben).
+        * Docker & Docker Compose (Aktuelle Versionen).
+        * Git Client.
+        * (Optional) PostgreSQL Client (z.B. psql, DBeaver, pgAdmin) zur Datenbankinspektion.
+        * (Optional) Redis Client (z.B. redis-cli) zur Cache-Inspektion.
+        * (Optional) Nx CLI global installiert (`npm install -g nx`) oder Nutzung via `npx nx ...`.
+    * **Hardware:** (Mindestanforderungen an RAM, CPU falls relevant).
+    * **Zugriffsrechte:** Ggf. Zugriff auf das Axians Git-Repository, privates NPM-Registry (falls verwendet).
+
+## 3. Erste Schritte
+
+    * Repository klonen (`git clone <repository-url>`).
+    * Ins Projektverzeichnis wechseln (`cd acci-eaf-monorepo`).
+    * Installation der Abhängigkeiten (Root `package.json`, Befehl: `npm install` oder `yarn install` etc.).
+    * Kurze Erklärung der wichtigsten Verzeichnisse (`apps/`, `libs/`, `docs/`, `tools/`).
+
+## 4. Konfiguration
+
+    * `.env`-Dateien:
+        * Lokale `.env`-Datei(en) aus `.env.example` erstellen (z.B. im Root, in `apps/control-plane-api`, `apps/sample-app`).
+        * Erklärung der wichtigsten Umgebungsvariablen:
+            * `DATABASE_URL` (für MikroORM).
+            * `REDIS_URL`.
+            * `JWT_SECRET`, `JWT_EXPIRATION`.
+            * Logging-Level (`LOG_LEVEL`).
+            * Ports für die Anwendungen (z.B. `CONTROL_PLANE_PORT`, `SAMPLE_APP_PORT`).
+            * (Ggf. Variablen für Lizenzdatei-Pfad, AuthN-Provider etc.).
+    * Bezug zum `@nestjs/config` Modul.
+
+## 5. Lokale Entwicklungsumgebung starten
+
+    * **Abhängigkeiten starten (Docker Compose):**
+        * Befehl: `docker-compose up -d` (startet PostgreSQL, Redis etc. aus der `docker-compose.yml` im Root).
+        * Überprüfen, ob Container laufen (`docker ps`).
+    * **Datenbank-Migrationen ausführen:**
+        * Befehl: `npx nx run infrastructure-persistence:migration:up` (Beispiel, tatsächlicher Befehl hängt von Nx-Konfig und MikroORM CLI ab) oder `npm run migration:up`. Erklären, dass dies das Schema initialisiert/aktualisiert.
+    * **Anwendungen starten (Nx):**
+        * Control Plane API: `npx nx serve control-plane-api`.
+        * Beispiel-Anwendung: `npx nx serve sample-app`.
+        * Erwartete Ports und Log-Ausgaben.
+    * **Erster Admin / Bootstrap (Control Plane):**
+        * Ausführen des CLI-Befehls (ADR-007): `npx nx run control-plane-api:cli --args="setup-admin --email admin@example.com --password VERYsecurePASSWORD"` (Beispiel).
+    * **Zugriff testen:**
+        * Beispiel-`curl`-Aufrufe oder Postman-Anfragen an Health Checks oder einfache Endpunkte.
+
+## 6. Tests ausführen
+
+    * Alle Tests ausführen: `npx nx run-many --target=test --all`.
+    * Tests für ein spezifisches Projekt: `npx nx test <projektname>` (z.B. `nx test core-domain`).
+    * Nur Unit-Tests / Integrationstests ausführen (falls separate Targets konfiguriert sind oder über Dateinamen-Pattern).
+    * E2E-Tests ausführen: `npx nx e2e <app-name>-e2e`.
+    * Code Coverage anzeigen (Befehl und Speicherort des Reports).
+
+## 7. Anwendungen bauen
+
+    * Build für eine spezifische Anwendung: `npx nx build <app-name>`.
+    * Build aller betroffenen Projekte: `npx nx affected:build`.
+    * Erklärung des `dist/` Verzeichnisses.
+
+## 8. Deployment (Offline / Tarball - Für Produkt-Deployments)
+
+    * **8.1 Paket erstellen (CI/CD-Schritt):**
+        * Kurze Erklärung, wie der Tarball in der CI/CD gebaut wird (`docker save`, Skripte etc.). (Dies ist eher informativ für Entwickler).
+    * **8.2 Installation auf Ziel-VM (Kunden-Szenario):**
+        * Voraussetzungen auf der VM (Docker, Docker Compose).
+        * Tarball übertragen & entpacken.
+        * Docker Images laden (`docker load -i ...`).
+        * `.env`-Datei konfigurieren.
+        * Setup-Skript (`setup.sh`) ausführen (was macht es? inkl. Migrationen).
+        * Starten mit `docker-compose up -d`.
+    * **8.3 Update auf Ziel-VM (Kunden-Szenario):**
+        * Neuen Tarball übertragen & entpacken.
+        * Update-Skript (`update.sh`) ausführen (was macht es? `docker load`, `docker-compose down`, Backup-Hinweis, **Migrationen ausführen**, `docker-compose up -d`).
+    * **8.4 Datenbank-Migrationen ausführen (Manuell/Skript):**
+        * Detaillierter Befehl zum Ausführen der Migrationen im Container (z.B. `docker-compose run --rm <app_service_name> npm run migration:up`).
+    * **8.5 Backup & Restore (Empfehlungen):**
+        * Hinweis auf Wichtigkeit von Backups der Docker Volumes (insb. Postgres).
+        * Empfohlene Strategien oder Verweis auf externe Tools/Dokumentation.
+
+## 9. Troubleshooting
+
+    * Häufige Probleme beim Setup oder Start und deren Lösungen (z.B. Port-Konflikte, DB-Verbindungsfehler, Migrationsprobleme).
+    * Wie man Logs aus Docker Compose abruft (`docker-compose logs`).
+    * Wo man weitere Hilfe bekommt (interne Kontakte, Channels).
