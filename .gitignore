@@ -1,7 +1,11 @@
-
 .nx/installation
 .nx/cache
 .nx/workspace-data
 node_modules
 
 coverage/
+test-results/
+dist/
+
+vite.config.*.timestamp*
+vitest.config.*.timestamp*

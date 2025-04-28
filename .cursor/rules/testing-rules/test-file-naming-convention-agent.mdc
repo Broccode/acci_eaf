@@ -1,0 +1,49 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Test File Naming Convention
+
+## Critical Rules
+
+- Test files MUST end with the suffix `.spec.ts` or `.test.ts`.
+- Avoid using compound suffixes like `.integration-spec.ts`, `.e2e.test.ts`, or similar variations.
+- Use directory structure for categorizing test types (e.g., `integration-tests/feature.spec.ts`, `unit-tests/service.test.ts`, `e2e/flow.spec.ts`).
+- This ensures consistent discovery and correct type inference by Jest, the TypeScript compiler, and IDE linters.
+
+## Examples
+
+<example>
+```typescript
+// File: libs/my-feature/src/lib/my-component.spec.ts
+describe('MyComponent', () => {
+  it('should render correctly', () => {
+    // ... test logic using expect ...
+  });
+});
+
+// File: apps/my-app/src/integration-tests/user-flow.spec.ts 
+describe('User Flow Integration', () => {
+  // ... test logic ...
+}); 
+
+// File: libs/core/src/lib/services/calculation.test.ts
+test('should calculate correctly', () => {
+ // ... test logic ...
+});
+```
+</example>
+
+<example type="invalid">
+```typescript
+// File: libs/my-feature/src/lib/my-component.integration-spec.ts 
+// Reason: Uses compound suffix '.integration-spec.ts' instead of directory structure.
+
+// File: libs/core/src/lib/services/calculation.test-ts
+// Reason: Incorrect suffix '.test-ts' instead of '.test.ts'.
+
+// File: apps/my-app/src/e2e/user-flow.e2e.spec.ts
+// Reason: Uses compound suffix '.e2e.spec.ts'. Should be 'apps/my-app/src/e2e/user-flow.spec.ts'
+```
+</example>

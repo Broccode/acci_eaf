@@ -1,0 +1,27 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# NestJS Application Location and Structure
+
+## Critical Rules
+
+- All NestJS applications MUST be placed directly in the `apps` directory as standalone subdirectories (e.g. `apps/control-plane-api/`)
+- The directory name MUST match the name of the application
+- The standard project structure for NestJS applications should be maintained (src/app, etc.)
+- When using the Nx generator, use the parameter `--directory=apps/[app-name]`
+- For API applications, the directory name should be descriptive and end with `-api` if it is a pure API
+
+## Examples
+
+<example>
+  User: "How do I create a new NestJS application in the project?"
+  Agent: "Run the following command: nx generate @nx/nest:application --name=my-app --directory=apps/my-app"
+</example>
+
+<example type="invalid">
+  User: "How do I create a new NestJS application in the project?"
+  Agent: "Run the following command: nx generate @nx/nest:application --name=my-app --directory=libs/my-app"
+  (Reason: NestJS applications should not be created in the libs directory)
+</example>

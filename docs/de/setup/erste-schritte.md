@@ -51,7 +51,8 @@
         * Beispiel-Anwendung: `npx nx serve sample-app`.
         * Erwartete Ports und Log-Ausgaben.
     * **Erster Admin / Bootstrap (Control Plane):**
-        * Ausführen des CLI-Befehls (ADR-007): `npx nx run control-plane-api:cli --args="setup-admin --email admin@example.com --password VERYsecurePASSWORD"` (Beispiel).
+        * Ausführen des CLI-Befehls (ADR-007): `npx nx run control-plane-api:cli -- setup-admin --email admin@example.com --password VERYsecurePASSWORD` (Beispiel).
+        * Weitere Informationen zu CLI-Befehlen finden Sie in der [CLI-Befehle Dokumentation](./cli-befehle.md).
     * **Zugriff testen:**
         * Beispiel-`curl`-Aufrufe oder Postman-Anfragen an Health Checks oder einfache Endpunkte.
 

@@ -1,7 +1,7 @@
 # Story 3: Multi-Tenancy Foundation
 
 **Epic:** [Epic-2: Multi-Tenancy & Control Plane](../epic-2.md)
-**Status:** In Progress
+**Status:** Completed
 **PRD Link:** [PRD Section](../../prd.md#story-3-multi-tenancy-foundation)
 
 ## Goal
@@ -39,14 +39,13 @@ Implement the core mechanisms for multi-tenancy:
 - [x] `TenantAware` interface exists.
 - [x] `BaseTenantEntity` exists, implements `TenantAware`, and has `id` and `tenantId`.
 - [x] Basic `mikro-orm.config.ts` exists and registers `TenantFilter`.
-- [ ] `TenantFilterInitializer` is correctly instantiated before the filter is used (verified by module registration).
-- [ ] MikroORM configuration is loaded in a NestJS module with `registerRequestContext: true`.
-- [ ] An entity inheriting from `BaseTenantEntity` correctly applies the RLS filter during queries.
+- [x] `TenantFilterInitializer` is correctly instantiated before the filter is used (verified by module registration).
+- [x] MikroORM configuration is loaded in a NestJS module with `registerRequestContext: true`.
+- [x] An entity inheriting from `BaseTenantEntity` correctly applies the RLS filter during queries.
 
 ## Next Steps / Open Points
 
-- Load MikroORM configuration in a NestJS module (`MikroOrmModule.forRoot`).
 - Refine entity discovery paths in `mikro-orm.config.ts`.
-- Implement actual entities inheriting from `BaseTenantEntity`.
-- Write integration tests to verify RLS enforcement.
+- Implement *actual* application-specific entities inheriting from `BaseTenantEntity`.
 - Correct the `any` type for `TenantFilter` in `tenant.filter.ts` once MikroORM setup is finalized.
+- Add more comprehensive integration tests covering edge cases for RLS.
