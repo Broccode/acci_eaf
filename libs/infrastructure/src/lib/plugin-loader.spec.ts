@@ -144,7 +144,7 @@ describe('PluginLoader', () => {
     expect(nonExistentPlugin).toBeUndefined();
   });
 
-  // Neue Tests für bessere Abdeckung
+  // New tests for better coverage
 
   it('should emit error events when plugin loading fails', async () => {
     // Arrange
@@ -214,7 +214,7 @@ describe('PluginLoader', () => {
     const migrationEvents = events.filter(e => e.type === 'migration-applied');
     expect(migrationEvents).toHaveLength(2);
 
-    // Typ-Assertions für die Events
+    // Type assertions for the events
     const typedEvent1 = migrationEvents[0] as {
       type: 'migration-applied'; 
       plugin: Plugin; 
@@ -371,7 +371,7 @@ describe('PluginLoader', () => {
   });
 
   it('should support a full plugin lifecycle with multiple plugins', async () => {
-    // Arrange - Erstelle mehrere Plugins mit verschiedenen Eigenschaften
+    // Arrange - Create multiple plugins with different properties
     let pluginAInitialized = false;
     let pluginACleanedUp = false;
     let pluginBInitialized = false;
@@ -414,9 +414,9 @@ describe('PluginLoader', () => {
       events.push(event);
     });
     
-    // Act - Führe verschiedene Operationen auf dem Plugin-Loader aus
+    // Act - Perform various operations on the plugin loader
     
-    // 1. Lade Plugin A
+    // 1. Load Plugin A
     await loader.load(pluginA);
     expect(pluginAInitialized).toBe(true);
     expect(loader.getLoadedPlugins()).toHaveLength(1);
@@ -447,14 +447,14 @@ describe('PluginLoader', () => {
     await loader.unload('PluginB');
     expect(loader.getLoadedPlugins()).toHaveLength(0);
     
-    // Assert - Überprüfe, ob die richtigen Events ausgelöst wurden
+    // Assert - Check if the right events were triggered
     const pluginLoadedEvents = events.filter(e => e.type === 'plugin-loaded');
     const pluginUnloadedEvents = events.filter(e => e.type === 'plugin-unloaded');
     
     expect(pluginLoadedEvents).toHaveLength(2);
     expect(pluginUnloadedEvents).toHaveLength(2);
     
-    // Prüfe, ob die Events in der richtigen Reihenfolge ausgelöst wurden
+    // Check if the events were triggered in the right order
     const findPluginLoadedEvent = (pluginName: string) => events.findIndex(e => 
       e.type === 'plugin-loaded' && 
       ((e as {type: 'plugin-loaded', plugin: Plugin}).plugin).name === pluginName

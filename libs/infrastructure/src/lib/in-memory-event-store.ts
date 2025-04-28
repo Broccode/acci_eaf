@@ -2,20 +2,20 @@ import { EventStore } from '../../../core/src/lib/ports/event-store.interface';
 
 export class InMemoryEventStore implements EventStore {
   private streams = new Map<string, any[]>();
-  // Für Idempotency könnte hier eine Tracking-Tabelle ergänzt werden
+  // A tracking table could be added here for idempotency
 
   async appendToStream(streamId: string, events: any[]): Promise<void> {
     if (!this.streams.has(streamId)) {
       this.streams.set(streamId, []);
     }
-    // Event Evolution/Upcasting könnte hier beim Schreiben/Lesen erfolgen
+    // Event evolution/upcasting could be applied here during writing/reading
     this.streams.get(streamId)!.push(...events);
   }
 
   async readStream(streamId: string): Promise<any[]> {
-    // Hier könnte Upcasting/Versionierung angewendet werden
+    // Upcasting/versioning could be applied here
     return this.streams.get(streamId) || [];
   }
 
-  // Konzept: Methoden für Event-Schema-Evolution (Upcasting) und Idempotency können ergänzt werden
+  // Concept: Methods for event schema evolution (upcasting) and idempotency can be added
 } 
