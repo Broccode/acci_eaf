@@ -111,20 +111,20 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
 ## Epic 1: Story List (High Level - Details in separate .story.md files)
 
 - Story 1: Monorepo and Project Template Setup
-  Status: ''
+  Status: 'Completed'
   Requirements:
   - Set up Nx monorepo
   - Provide project scaffolding for apps/libs
 
 - Story 2: Core Architecture Implementation
-  Status: ''
+  Status: 'Completed'
   Requirements:
   - Implement Hexagonal Architecture base
   - Set up CQRS/ES mechanisms (Buses, Event Store interface, Evolution/Idempotency concepts)
   - Establish plugin system basics (Interface, Loader, Migration handling)
 
 - Story 3: Multi-Tenancy Foundation
-  Status: ''
+  Status: 'Completed'
   Requirements:
   - Implement tenant_id context extraction (Middleware) and propagation (AsyncLocalStorage)
   - Implement RLS via MikroORM Global Filters (ADR-006)
