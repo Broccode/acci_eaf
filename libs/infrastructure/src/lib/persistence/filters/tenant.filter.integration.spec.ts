@@ -1,6 +1,6 @@
 import { MikroOrmTestHelper, testDbManager } from 'testing'; // Add testDbManager import
 import { TenantContextService } from 'tenancy'; // Assumes 'tenancy' path mapping
-import { ExampleProject } from 'core'; // Assumes 'core' path mapping
+import { SampleTenantEntity } from '../entities/sample-tenant.entity'; // Korrigierter Import
 import { EntityManager, IDatabaseDriver, Connection } from '@mikro-orm/core';
 
 // Describe the integration test suite for the TenantFilter
@@ -20,19 +20,14 @@ describe('TenantFilter Integration Test', () => {
     testHelper = new MikroOrmTestHelper();
     const orm = await testHelper.setup();
     em = testHelper.getEntityManager();
-    // Get the global TenantContextService instance (assuming it's registered)
-    // In a full NestJS test environment, you'd get it from the module ref.
-    tenantContext = new TenantContextService(); // Direct instantiation for this isolated test
-
-    // Ensure the static instance used by the filter is set IF the initializer
-    // hasn't run in this test context. This is a workaround for isolated testing.
-    // Ideally, run tests within a full Nest context where modules initialize correctly.
-    if (!(global as any).__TENANT_CONTEXT_SERVICE_INSTANCE_SET__) {
-        const { TenantFilterInitializer } = await import('./tenant.filter');
-        new TenantFilterInitializer(tenantContext);
-        (global as any).__TENANT_CONTEXT_SERVICE_INSTANCE_SET__ = true;
-    }
-
+    // Stelle sicher, dass TenantContextService und TenantFilterInitializer korrekt initialisiert werden
+    tenantContext = new TenantContextService();
+    const { TenantFilterInitializer } = await import('./tenant.filter');
+    new TenantFilterInitializer(tenantContext);
+    // Debug-Log zur Kontrolle
+    // eslint-disable-next-line no-console
+    console.log('[Test] TenantContextService instance set:', typeof tenantContext.getTenantId === 'function');
+    (global as any).__TENANT_CONTEXT_SERVICE_INSTANCE_SET__ = true;
   }, JEST_TIMEOUT_MS); // Increase timeout for beforeAll
 
   // Teardown: Close ORM connection after all tests
@@ -45,22 +40,24 @@ describe('TenantFilter Integration Test', () => {
   // Cleanup: Clear the ExampleProject table before each test
   beforeEach(async () => {
     // Disable tenant filter for cleanup to delete across all tenants
-    await em.nativeDelete(ExampleProject, {}, { filters: { tenant: false } }); 
+    await em.nativeDelete(SampleTenantEntity, {}, { filters: { tenant: false } }); 
     await em.flush();
     em.clear(); // Clear identity map
+    // Setze explizit die Filter-Parameter für MikroORM
+    em.setFilterParams('tenant', {});
   });
 
   it('should only return entities for the current tenant context', async () => {
     // Arrange: Create entities for different tenants
-    const project1_t1 = em.create(ExampleProject, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
-    const project2_t1 = em.create(ExampleProject, { tenantId: tenant1, name: 'Project 2 Tenant 1' });
-    const project1_t2 = em.create(ExampleProject, { tenantId: tenant2, name: 'Project 1 Tenant 2' });
+    const project1_t1 = em.create(SampleTenantEntity, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
+    const project2_t1 = em.create(SampleTenantEntity, { tenantId: tenant1, name: 'Project 2 Tenant 1' });
+    const project1_t2 = em.create(SampleTenantEntity, { tenantId: tenant2, name: 'Project 1 Tenant 2' });
     await em.persistAndFlush([project1_t1, project2_t1, project1_t2]);
     em.clear();
 
     // Act: Run query within tenant 1 context
     const resultsTenant1 = await tenantContext.runWithTenant(tenant1, async () => {
-        return await em.find(ExampleProject, {});
+        return await em.find(SampleTenantEntity, {});
     });
 
     // Assert: Only tenant 1 entities should be returned
@@ -71,13 +68,13 @@ describe('TenantFilter Integration Test', () => {
 
   it('should return an empty array when querying for a different tenant context', async () => {
     // Arrange: Create entity for tenant 1
-    const project1_t1 = em.create(ExampleProject, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
+    const project1_t1 = em.create(SampleTenantEntity, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
     await em.persistAndFlush(project1_t1);
     em.clear();
 
     // Act: Run query within tenant 2 context
     const resultsTenant2 = await tenantContext.runWithTenant(tenant2, async () => {
-        return await em.find(ExampleProject, {});
+        return await em.find(SampleTenantEntity, {});
     });
 
     // Assert: No entities should be returned
@@ -86,14 +83,14 @@ describe('TenantFilter Integration Test', () => {
 
   it('should return an empty array when querying without a tenant context', async () => {
     // Arrange: Create entities for tenant 1 and tenant 2
-    const project1_t1 = em.create(ExampleProject, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
-    const project1_t2 = em.create(ExampleProject, { tenantId: tenant2, name: 'Project 1 Tenant 2' });
+    const project1_t1 = em.create(SampleTenantEntity, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
+    const project1_t2 = em.create(SampleTenantEntity, { tenantId: tenant2, name: 'Project 1 Tenant 2' });
     await em.persistAndFlush([project1_t1, project1_t2]);
     em.clear();
 
     // Act: Run query without setting tenant context (filter should block)
     // Note: This assumes the TenantFilter defaults to blocking access without context.
-    const resultsNoContext = await em.find(ExampleProject, {});
+    const resultsNoContext = await em.find(SampleTenantEntity, {});
 
     // Assert: No entities should be returned
     expect(resultsNoContext).toHaveLength(0);
@@ -101,15 +98,15 @@ describe('TenantFilter Integration Test', () => {
 
   it('should allow querying all entities if filter is disabled', async () => {
     // Arrange: Create entities for different tenants
-    const project1_t1 = em.create(ExampleProject, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
-    const project1_t2 = em.create(ExampleProject, { tenantId: tenant2, name: 'Project 1 Tenant 2' });
+    const project1_t1 = em.create(SampleTenantEntity, { tenantId: tenant1, name: 'Project 1 Tenant 1' });
+    const project1_t2 = em.create(SampleTenantEntity, { tenantId: tenant2, name: 'Project 1 Tenant 2' });
     await em.persistAndFlush([project1_t1, project1_t2]);
     em.clear();
 
     // Act: Run query with the tenant filter explicitly disabled
-    const resultsDisabled = await em.find(ExampleProject, {}, { filters: { tenant: false } });
+    const resultsDisabled = await em.find(SampleTenantEntity, {}, { filters: { tenant: false } });
     // Alternative (if using args parameter): 
-    // const resultsDisabled = await em.find(ExampleProject, {}, { filters: { tenant: { disabled: true } } });
+    // const resultsDisabled = await em.find(SampleTenantEntity, {}, { filters: { tenant: { disabled: true } } });
 
     // Assert: Both entities should be returned
     expect(resultsDisabled).toHaveLength(2);

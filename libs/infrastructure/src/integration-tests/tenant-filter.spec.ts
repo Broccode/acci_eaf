@@ -1,69 +1,63 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { MikroORM } from '@mikro-orm/core';
-import { EntityManager } from '@mikro-orm/postgresql'; // Or your specific driver
-import { InfrastructureModule } from '../lib/infrastructure.module';
-import { TenancyModule, TenantContextService } from 'tenancy';
+import { MikroOrmTestHelper, testDbManager } from 'testing';
 import { SampleTenantEntity } from '../lib/persistence/entities/sample-tenant.entity';
+import { TenantContextService } from 'tenancy';
+import { EntityManager, IDatabaseDriver, Connection } from '@mikro-orm/core';
 
 // Helper function to run code within a tenant context
 async function runInTenantContext<T>(
   tenantContextService: TenantContextService,
   tenantId: string,
-  fn: () => Promise<T>,
+  em: EntityManager<IDatabaseDriver<Connection>>,
+  fn: (em: EntityManager<IDatabaseDriver<Connection>>) => Promise<T>,
 ): Promise<T> {
-  return tenantContextService.runWithTenant(tenantId, fn);
+  await em.setFilterParams('tenant', { tenantId });
+  return tenantContextService.runWithTenant(tenantId, () => fn(em));
 }
 
-describe('TenantFilter Integration Test', () => {
-  let module: TestingModule;
-  let orm: MikroORM;
-  let em: EntityManager;
+describe('TenantFilter Integration Test (Testcontainers)', () => {
+  let testHelper: MikroOrmTestHelper;
+  let em: EntityManager<IDatabaseDriver<Connection>>;
   let tenantContextService: TenantContextService;
 
-  const tenant1 = 'tenant-uuid-1';
-  const tenant2 = 'tenant-uuid-2';
+  const tenant1 = 'd1b1f1a1-1b1a-4b1a-8b1a-1a1b1a1b1a1a';
+  const tenant2 = 'd2b2f2a2-2b2a-4b2a-8b2a-2a2b2a2b2a2a';
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [InfrastructureModule], // Imports TenancyModule and MikroOrmModule
-    }).compile();
-
-    orm = module.get(MikroORM);
-    em = module.get(EntityManager);
-    tenantContextService = module.get(TenantContextService);
-
-    // Ensure clean database schema for tests
-    const generator = orm.getSchemaGenerator();
-    await generator.dropSchema();
-    await generator.createSchema();
+    testHelper = new MikroOrmTestHelper();
+    await testHelper.setup();
+    em = testHelper.getEntityManager();
+    tenantContextService = new TenantContextService();
+    // TenantFilter global initialisieren
+    const { TenantFilterInitializer } = await import('../lib/persistence/filters/tenant.filter');
+    new TenantFilterInitializer(tenantContextService);
+    // eslint-disable-next-line no-console
+    console.log('[Test] ORM and schema initialized (Testcontainers)');
   });
 
   afterAll(async () => {
-    await orm.close(true);
-    await module.close();
+    await testHelper.teardown();
+    await testDbManager.stopDb();
   });
 
-  // Clear data before each test within a transaction
   beforeEach(async () => {
-    const generator = orm.getSchemaGenerator();
-    // Using refreshDatabase() or similar MikroORM testing utils can also work
-    await generator.clearDatabase();
-
-    // Seed data OUTSIDE specific tenant context initially
-    const emFork = em.fork();
-    const entity1Tenant1 = new SampleTenantEntity('Entity 1 Tenant 1', tenant1);
-    const entity2Tenant1 = new SampleTenantEntity('Entity 2 Tenant 1', tenant1);
-    const entity1Tenant2 = new SampleTenantEntity('Entity 1 Tenant 2', tenant2);
-    await emFork.persistAndFlush([entity1Tenant1, entity2Tenant1, entity1Tenant2]);
+    // Datenbank leeren (Filter deaktivieren)
+    await em.nativeDelete(SampleTenantEntity, {}, { filters: { tenant: false } });
+    await em.flush();
+    em.clear();
   });
 
   it('should only return entities for the current tenant context (tenant1)', async () => {
-    const results = await runInTenantContext(tenantContextService, tenant1, async () => {
-      // Use a new fork for the request scope simulation
-      const scopedEm = em.fork(); 
-      return scopedEm.find(SampleTenantEntity, {});
+    // Arrange
+    const entity1Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 1', tenantId: tenant1 });
+    const entity2Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 2 Tenant 1', tenantId: tenant1 });
+    const entity1Tenant2 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 2', tenantId: tenant2 });
+    await em.persistAndFlush([entity1Tenant1, entity2Tenant1, entity1Tenant2]);
+    em.clear();
+    // eslint-disable-next-line no-console
+    console.log('[Test] Running test for tenant1');
+    const results = await runInTenantContext(tenantContextService, tenant1, em, async (em) => {
+      return em.find(SampleTenantEntity, {});
     });
-
     expect(results).toHaveLength(2);
     expect(results.map(r => r.name).sort()).toEqual([
       'Entity 1 Tenant 1',
@@ -73,34 +67,49 @@ describe('TenantFilter Integration Test', () => {
   });
 
   it('should only return entities for the current tenant context (tenant2)', async () => {
-    const results = await runInTenantContext(tenantContextService, tenant2, async () => {
-      const scopedEm = em.fork();
-      return scopedEm.find(SampleTenantEntity, {});
+    // Arrange
+    const entity1Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 1', tenantId: tenant1 });
+    const entity2Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 2 Tenant 1', tenantId: tenant1 });
+    const entity1Tenant2 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 2', tenantId: tenant2 });
+    await em.persistAndFlush([entity1Tenant1, entity2Tenant1, entity1Tenant2]);
+    em.clear();
+    // eslint-disable-next-line no-console
+    console.log('[Test] Running test for tenant2');
+    const results = await runInTenantContext(tenantContextService, tenant2, em, async (em) => {
+      return em.find(SampleTenantEntity, {});
     });
-
     expect(results).toHaveLength(1);
     expect(results[0].name).toBe('Entity 1 Tenant 2');
     expect(results[0].tenantId).toBe(tenant2);
   });
 
   it('should return no entities if no tenant context is set', async () => {
-    const scopedEm = em.fork();
-    const results = await scopedEm.find(SampleTenantEntity, {});
-
-    // The filter defaults to a blocking condition if no tenantId is found
+    // Arrange
+    const entity1Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 1', tenantId: tenant1 });
+    const entity2Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 2 Tenant 1', tenantId: tenant1 });
+    const entity1Tenant2 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 2', tenantId: tenant2 });
+    await em.persistAndFlush([entity1Tenant1, entity2Tenant1, entity1Tenant2]);
+    em.clear();
+    // eslint-disable-next-line no-console
+    console.log('[Test] Running test for no tenant context');
+    const results = await em.find(SampleTenantEntity, {});
     expect(results).toHaveLength(0);
   });
 
   it('should return all entities if the filter is explicitly disabled', async () => {
-     // Run within a context, but disable the filter for the query
-     const results = await runInTenantContext(tenantContextService, tenant1, async () => {
-       const scopedEm = em.fork();
-       return scopedEm.find(SampleTenantEntity, {}, { filters: { tenant: false } }); // Disable filter
-     });
-
-     expect(results).toHaveLength(3);
-     // Check if we got entities from both tenants
-     expect(results.some(r => r.tenantId === tenant1)).toBe(true);
-     expect(results.some(r => r.tenantId === tenant2)).toBe(true);
+    // Arrange
+    const entity1Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 1', tenantId: tenant1 });
+    const entity2Tenant1 = em.create(SampleTenantEntity, { name: 'Entity 2 Tenant 1', tenantId: tenant1 });
+    const entity1Tenant2 = em.create(SampleTenantEntity, { name: 'Entity 1 Tenant 2', tenantId: tenant2 });
+    await em.persistAndFlush([entity1Tenant1, entity2Tenant1, entity1Tenant2]);
+    em.clear();
+    // eslint-disable-next-line no-console
+    console.log('[Test] Running test for filter disabled');
+    const results = await runInTenantContext(tenantContextService, tenant1, em, async (em) => {
+      return em.find(SampleTenantEntity, {}, { filters: { tenant: false } });
+    });
+    expect(results).toHaveLength(3);
+    expect(results.some(r => r.tenantId === tenant1)).toBe(true);
+    expect(results.some(r => r.tenantId === tenant2)).toBe(true);
   });
 }); 

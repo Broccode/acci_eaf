@@ -53,9 +53,8 @@ export const TenantFilter: any = {
     if (!tenantId) {
       // If no tenantId is in the context (e.g., system operation or error),
       // block access to tenant-specific data by default.
-      // Specific operations might need to disable this filter explicitly using em.setFilterParams('tenant', false)
       // Returning a condition that likely won't match any valid tenantId
-      return { tenantId: '__NO_TENANT_ACCESS__' };
+      return { tenantId: '00000000-0000-0000-0000-000000000000' };
     }
 
     // Apply the filter condition using the retrieved tenantId

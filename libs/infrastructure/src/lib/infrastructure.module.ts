@@ -3,6 +3,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { TenancyModule } from 'tenancy'; // Assuming 'tenancy' path mapping
 import { TenantFilterInitializer } from './persistence/filters/tenant.filter';
 import mikroOrmConfig from '../../../../mikro-orm.config'; // Adjust path as needed
+import { SampleTenantEntity } from './persistence/entities/sample-tenant.entity';
 
 // Making it Global might simplify dependency injection, but exporting is often cleaner.
 // Decide based on project needs. Let's export for now.
@@ -23,6 +24,7 @@ import mikroOrmConfig from '../../../../mikro-orm.config'; // Adjust path as nee
       },
       // registerRequestContext: true, // THIS IS WRONG for forRootAsync
     }),
+    MikroOrmModule.forFeature([SampleTenantEntity]),
   ],
   controllers: [],
   providers: [
@@ -31,6 +33,7 @@ import mikroOrmConfig from '../../../../mikro-orm.config'; // Adjust path as nee
   ],
   exports: [
     MikroOrmModule, // Export MikroOrmModule to make repositories injectable
+    MikroOrmModule.forFeature([SampleTenantEntity]),
     // Export other necessary providers...
   ],
 })

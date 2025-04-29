@@ -1,7 +1,7 @@
 import { MikroORM, Options, IDatabaseDriver, Connection } from '@mikro-orm/core';
 import mikroOrmConfig from '../../../../mikro-orm.config'; // Adjust path to root config
 import { testDbManager } from './test-db-manager';
-import { ExampleProject } from 'core'; // Import the specific entity
+import { SampleTenantEntity } from '../../../infrastructure/src/lib/persistence/entities/sample-tenant.entity';
 
 /**
  * Initializes MikroORM for integration testing.
@@ -24,8 +24,8 @@ export class MikroOrmTestHelper {
       user: testDbManager.getUsername(),
       password: testDbManager.getPassword(),
       dbName: testDbManager.getDatabase(),
-      // Override entity discovery for this test to ensure ExampleProject is found
-      entities: [ExampleProject], // Explicitly provide the entity class
+      // Override entity discovery for this test to ensure SampleTenantEntity is found
+      entities: [SampleTenantEntity], // Explicitly provide the entity class
       entitiesTs: [], // Clear TS discovery path as we provide entity directly
       allowGlobalContext: true, // Allows ORM to work without NestJS DI context in tests
       // Ensure debug logging is off for tests unless explicitly needed
@@ -40,7 +40,12 @@ export class MikroOrmTestHelper {
     // Initialize MikroORM
     this.orm = await MikroORM.init(testConfig as Options);
 
-    // Run migrations to set up the schema
+    // Generate schema for all registered entities
+    const generator = this.orm.getSchemaGenerator();
+    await generator.dropSchema();
+    await generator.createSchema();
+
+    // Run migrations to set up the schema (optional, falls vorhanden)
     const migrator = this.orm.getMigrator();
     await migrator.up();
 
