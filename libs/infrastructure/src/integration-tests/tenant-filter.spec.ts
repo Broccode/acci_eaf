@@ -3,6 +3,8 @@ import { SampleTenantEntity } from '../lib/persistence/entities/sample-tenant.en
 import { TenantContextService } from 'tenancy';
 import { EntityManager, IDatabaseDriver, Connection } from '@mikro-orm/core';
 
+jest.setTimeout(60000); // Increase timeout for integration tests to 60 seconds
+
 // Helper function to run code within a tenant context
 async function runInTenantContext<T>(
   tenantContextService: TenantContextService,
