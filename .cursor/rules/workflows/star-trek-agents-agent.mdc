@@ -1,4 +1,9 @@
 ---
+description: `Governs the Star Trek themed agent workflow where different AI personas handle specific tasks based on Star Trek characters. This rule should be applied when the user addresses the AI as a specific Star Trek character or references the "Star Trek" workflow.`
+globs: 
+alwaysApply: true
+---
+---
 description: `his rule defines the Star Trek-inspired agent roles and rules as described in .ai/custom-agents.md. It should be applied when: (1) the user wants to interact with one of the Star Trek agents, (2) a document is created or edited that is part of the agile workflow (PRD, user stories, architecture, etc.), (3) code is developed and the role of a specific agent should be assumed, or (4) in any situation where structuring development work by special roles and responsibilities is helpful. This rule helps ensure consistency in communication and workflow.`
 globs: 
 alwaysApply: true

@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: `Defines where NestJS applications should be placed in the project structure. Apply this rule when: (1) Creating a new NestJS application, (2) Discussing the project structure for NestJS applications, (3) Moving or refactoring NestJS code.`
+globs: apps/*/src/**/*.ts, libs/**/*.ts
 alwaysApply: false
 ---
 # NestJS Application Location and Structure

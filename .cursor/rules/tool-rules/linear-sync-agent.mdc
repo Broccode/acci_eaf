@@ -1,0 +1,61 @@
+---
+description: `Ensures all story and epic files in \".ai/stories/\" have corresponding issues in the Linear workspace. This rule should be applied when creating, updating, or managing story files and when interacting with Linear.`
+globs: .ai/**/*.md
+alwaysApply: false
+---
+# Linear Synchronization
+
+## Critical Rules
+
+- All story and epic files in `.ai/stories/` MUST have corresponding issues in the Linear workspace "ACCI"
+- When creating a new story or epic file, a corresponding issue MUST be created in Linear with matching title, description, and metadata
+- When updating the status of a story or epic in a file, the corresponding Linear issue MUST be updated accordingly
+- When adding tasks or acceptance criteria to a story, consider updating the description of the Linear issue
+- Use appropriate Linear API functions (`mcp_linear_linear_*`) to synchronize changes
+- Extract key information from story files: title, description, status, epic relationship, tasks
+- Maintain consistent priority mapping between files and Linear: High = 1, Normal = 2, Low = 3, No priority = 4
+- Every story file should contain a Linear URL reference once it has been synchronized
+
+## Examples
+
+<example>
+User: "I've updated the status of story-4 to 'Completed' in the file .ai/stories/Epic-2/story-4.md"
+Agent: "I'll sync this status change with Linear."
+(Agent checks the status in Linear, identifies the issue ID, and updates it):
+```javascript
+mcp_linear_linear_updateIssue({
+  id: "76054898-bdb2-4dd1-abf5-66c8f28060ca",
+  stateId: "f872111a-b489-4764-b6da-d5282e7825c3" // "Done" state ID
+})
+```
+</example>
+
+<example>
+User: "I've created a new story file at .ai/stories/Epic-3/story-7-rbac-implementation.md"
+Agent: "I'll create a corresponding issue in Linear."
+(Agent extracts information from the file and creates a new issue):
+```javascript
+mcp_linear_linear_createIssue({
+  title: "Story-7: RBAC Implementation",
+  description: "**As a** framework developer\n**I want** ...",
+  teamId: "9f2132a3-c66b-46f6-a418-06dbde153462",
+  priority: 2,
+  projectId: "439a3014-bfd6-4767-ba39-17b40249e995",
+  estimate: 5,
+  stateId: "57906cb8-2569-4e40-b442-e8092ae03286",
+  parentId: "993303d4-2bb6-4ca8-9499-685279a669e0"
+})
+```
+Then updates the story file to include the Linear URL.
+</example>
+
+<example type="invalid">
+User: "I've updated story-5.md with new acceptance criteria"
+Agent: "I see you've updated the story file. The changes look good."
+(Agent does not synchronize the changes with Linear)
+</example>
+
+<example type="invalid">
+User: "I've created a new epic file"
+Agent: (Creates a new Linear issue but doesn't extract the proper metadata from the file, resulting in mismatched information)
+</example>

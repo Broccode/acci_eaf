@@ -1,6 +1,7 @@
 ---
-description: Always propose NX CLI commands where possible
-alwaysApply: true
+description: `Ensures that Nx commands are used for tasks supported by Nx instead of direct npm, npx, yarn, or node commands. Apply when any command-line operation is discussed that involves building, testing, linting, or generating code in the project.`
+globs: 
+alwaysApply: false
 ---
 # Nx CLI Preferred
 

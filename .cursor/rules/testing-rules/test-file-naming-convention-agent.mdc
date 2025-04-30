@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: `Defines naming conventions for test files in the project. This rule should be applied when creating or modifying test files to ensure consistent discovery and correct type inference by Jest, TypeScript compiler, and IDE linters.`
+globs: **/*.{spec.ts,test.ts}
 alwaysApply: false
 ---
 # Test File Naming Convention

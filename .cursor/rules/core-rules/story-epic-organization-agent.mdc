@@ -3,7 +3,6 @@ description: `Ensures that user stories belonging to a specific epic are organiz
 globs: .ai/**
 alwaysApply: false
 ---
-
 # Story Epic Organization
 
 ## Critical Rules
@@ -26,3 +25,4 @@ alwaysApply: false
   Agent: "Understood. I have created the user story document at `.ai/stories/add-mfa-support-story.md`." 
   (Reason: Story was placed directly in `.ai/stories/` instead of the epic subdirectory)
 </example>
+
