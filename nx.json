@@ -3,7 +3,6 @@
     "version": "20.8.0"
   },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "nxCloudId": "6806988f13a7b41f1fbb954f",
   "plugins": [
     {
       "plugin": "@nx/webpack/plugin",

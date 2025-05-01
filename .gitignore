@@ -12,3 +12,6 @@ vitest.config.*.timestamp*
 
 .vscode/
 .idea/
+
+.env
+.env.control-plane

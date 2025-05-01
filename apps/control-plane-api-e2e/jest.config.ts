@@ -1,3 +1,4 @@
+/* eslint-disable */
 export default {
   displayName: 'control-plane-api-e2e',
   preset: '../../jest.preset.js',
@@ -15,4 +16,6 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   coverageDirectory: '../../coverage/control-plane-api-e2e',
+  testTimeout: 30000,
+  maxWorkers: 1,
 };

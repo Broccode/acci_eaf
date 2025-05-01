@@ -7,3 +7,5 @@ export * from './default-event-upcaster-registry';
 export * from './event-versioning-example';
 export * from './base-tenant.entity';
 export * from './example-project.entity';
+export * from './aggregate-root';
+export * from './tenant';
