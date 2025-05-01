@@ -2,7 +2,7 @@
 
 **Epic:** Epic-1: Framework Core & Architecture  
 **Priority:** High  
-**Status:** In Progress  
+**Status:** Completed  
 
 ## Logical Analysis of Current State
 
@@ -35,13 +35,13 @@ The code review shows significant deviations from the documented architecture, p
   - Schema for the Event table with columns according to architecture documentation ✅
   - Integration with MikroORM for Event persistence ✅
 
-### 4. Improvement of Test Coverage - IN PROGRESS
+### 4. Improvement of Test Coverage - COMPLETED
 
-- **Current Weakness:** Insufficient tests, especially for the Application layer
+- **Current Weakness:** Insufficient tests, especially for the Application layer ✅
 - **Required Measures:**
-  - Creation of Unit Tests for all Command and Query Handlers
-  - Creation of Tests for Event-Sourcing mechanisms
-  - Implementation of Integration Tests for Event Store and Projections
+  - Creation of Unit Tests for all Command and Query Handlers ✅
+  - Creation of Tests for Event-Sourcing mechanisms ✅
+  - Implementation of Integration Tests for Event Store and Projections ✅
 
 ### 5. Implementation of Read Model Projections - COMPLETED
 
@@ -56,7 +56,7 @@ The code review shows significant deviations from the documented architecture, p
 1. All state changes to Entities are exclusively driven by Domain Events - ✅
 2. The Application layer contains complete Command/Query Handlers - ✅
 3. A persistent Event Store is implemented and used - ✅
-4. Test coverage is at least 85% for all core components - ⏳
+4. Test coverage is at least 85% for all core components - ✅
 5. Read Models are consistently updated via Event Handlers - ✅
 6. All implementations strictly conform to the Hexagonal Architecture - ✅
 

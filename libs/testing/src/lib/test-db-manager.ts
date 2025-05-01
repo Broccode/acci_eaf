@@ -1,4 +1,4 @@
-import { StartedTestContainer, GenericContainer } from 'testcontainers';
+import { GenericContainer } from 'testcontainers';
 import { PostgreSqlContainer } from '@testcontainers/postgresql';
 
 // Default credentials used by PostgreSqlContainer unless overridden
@@ -7,7 +7,7 @@ const DEFAULT_USER = 'test';
 const DEFAULT_PASSWORD = 'test';
 
 export class TestDbManager {
-  private container: StartedTestContainer | null = null;
+  private container: any = null;
   // Store the config used, not the instance itself, as methods might be on StartedTestContainer
   private dbConfig = {
       database: DEFAULT_DB,
@@ -15,7 +15,7 @@ export class TestDbManager {
       password: DEFAULT_PASSWORD
   };
 
-  async startDb(): Promise<StartedTestContainer> {
+  async startDb(): Promise<any> {
     if (this.container) {
       return this.container;
     }

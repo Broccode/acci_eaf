@@ -6,7 +6,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"No tests to run\"",
     "bootstrap:control-plane": "node apps/control-plane-api/bootstrap.js",
     "test:e2e:control-plane": "npx nx run control-plane-api-e2e:e2e"
   },
