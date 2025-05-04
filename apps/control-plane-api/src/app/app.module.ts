@@ -1,6 +1,6 @@
 import { Global, Module, Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -20,6 +20,7 @@ import { ListTenantsHandler } from './queries/handlers/list-tenants.handler';
 import { CqrsModule } from './cqrs.module';
 import { AuditLogInterceptor } from './audit/audit-log.interceptor';
 import { AuditLogService } from './audit/audit-log.service';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 // Constants for dependency injection tokens
 export const COMMAND_BUS = 'COMMAND_BUS';
@@ -70,6 +71,18 @@ class CqrsRegistrationService implements OnModuleInit {
     TenantsModule,
     AuthModule,
     HealthModule,
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            ttl: config.get<number>('THROTTLE_TTL', 60),
+            limit: config.get<number>('THROTTLE_LIMIT', 10),
+          },
+        ],
+      }),
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -88,6 +101,10 @@ class CqrsRegistrationService implements OnModuleInit {
     {
       provide: APP_INTERCEPTOR,
       useClass: AuditLogInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

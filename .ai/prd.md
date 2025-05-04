@@ -137,7 +137,7 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
   - Implement bootstrapping procedure (ADR-007)
 
 - Story 5: Security & AuthN/AuthZ
-  Status: ''
+  Status: 'Completed'
   Requirements:
   - Integrate JWT and local AuthN strategies
   - Implement RBAC/ABAC (`casl` - ADR-001) core logic, guards, basic ownership check (`ownerUserId`)

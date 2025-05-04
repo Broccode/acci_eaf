@@ -10,9 +10,20 @@ import { AppModule } from './app/app.module';
 import { AuthService } from './app/auth/auth.service';
 import * as process from 'process';
 import { MikroORM } from '@mikro-orm/core';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Use Helmet for security headers
+  app.use(helmet());
+  
+  // Enable CORS
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
   
   // Sync schema automatically in test environment
   if (process.env.NODE_ENV === 'test') {
