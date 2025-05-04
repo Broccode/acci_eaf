@@ -1,6 +1,6 @@
 # Story 4: Control Plane API
 
-## Status: Todo
+## Status: Completed
 
 ## Description
 

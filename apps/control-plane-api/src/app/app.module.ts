@@ -1,7 +1,7 @@
 import { Global, Module, Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TenantsModule } from './tenants/tenants.module';
@@ -18,6 +18,8 @@ import { DeleteTenantHandler } from './commands/handlers/delete-tenant.handler';
 import { GetTenantByIdHandler } from './queries/handlers/get-tenant-by-id.handler';
 import { ListTenantsHandler } from './queries/handlers/list-tenants.handler';
 import { CqrsModule } from './cqrs.module';
+import { AuditLogInterceptor } from './audit/audit-log.interceptor';
+import { AuditLogService } from './audit/audit-log.service';
 
 // Constants for dependency injection tokens
 export const COMMAND_BUS = 'COMMAND_BUS';
@@ -78,9 +80,14 @@ class CqrsRegistrationService implements OnModuleInit {
     GetTenantByIdHandler,
     ListTenantsHandler,
     CqrsRegistrationService,
+    AuditLogService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditLogInterceptor,
     },
   ],
 })
