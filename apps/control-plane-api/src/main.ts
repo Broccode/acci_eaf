@@ -9,9 +9,17 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
 import { AuthService } from './app/auth/auth.service';
 import * as process from 'process';
+import { MikroORM } from '@mikro-orm/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Sync schema automatically in test environment
+  if (process.env.NODE_ENV === 'test') {
+    const orm = app.get(MikroORM);
+    // Ensure the test database matches entity definitions
+    await orm.getSchemaGenerator().createSchema();
+  }
   
   // Set global prefix
   const globalPrefix = 'api';

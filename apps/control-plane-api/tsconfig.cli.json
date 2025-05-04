@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/apps/control-plane-api-cli",
+    "module": "commonjs",
+    "target": "es2021",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "rootDir": "../.."
+  },
+  "include": [
+    "src/cli.ts",
+    "src/app/admin/cli/**/*.ts"
+  ],
+  "exclude": [
+    "../../libs/**/jest.config.ts",
+    "jest.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "../../libs/**/*.spec.ts",
+    "../../libs/**/*.test.ts"
+  ]
+} 

@@ -1,6 +1,8 @@
 import { Body, Controller, Post, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
+import { Public } from './decorators/is-public.decorator';
+import { IsString } from 'class-validator';
 
 export class LoginDto {
   username: string;
@@ -8,8 +10,11 @@ export class LoginDto {
 }
 
 export class CreateAdminDto {
+  @IsString()
   username: string;
+  @IsString()
   password: string;
+  @IsString()
   adminToken: string; // Used for bootstrapping only
 }
 
@@ -19,11 +24,13 @@ export class AuthController {
 
   @UseGuards(AuthGuard('local'))
   @Post('login')
+  @Public()
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
 
   @Post('create-admin')
+  @Public()
   async createAdmin(@Body() createAdminDto: CreateAdminDto) {
     // For bootstrapping only - this would be secured differently in production
     // e.g., with a special bootstrap token that is only valid once

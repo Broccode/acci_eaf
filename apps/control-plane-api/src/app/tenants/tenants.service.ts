@@ -1,5 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@mikro-orm/nestjs';
+import { BadRequestException, Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { TenantRepository } from './entities/tenant.repository';
 import { CreateTenantDto } from './dto/create-tenant.dto';
@@ -12,7 +11,7 @@ import { Tenant, TenantStatus } from './entities/tenant.entity';
 @Injectable()
 export class TenantsService {
   constructor(
-    @InjectRepository(Tenant)
+    @Inject(TenantRepository)
     private readonly tenantRepository: TenantRepository,
     private readonly em: EntityManager,
   ) {}

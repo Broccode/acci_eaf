@@ -8,6 +8,9 @@
         "-y",
         "tavily-mcp@0.1.3"
       ]
+    },
+    "nx-mcp": {
+      "url": "http://localhost:9214/sse"
     }
   }
 }

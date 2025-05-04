@@ -18,13 +18,9 @@
       }
     },
     "build-cli": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "executor": "nx:run-commands",
       "options": {
-        "outputPath": "dist/apps/control-plane-api-cli",
-        "main": "apps/control-plane-api/src/cli.ts",
-        "tsConfig": "apps/control-plane-api/tsconfig.app.json",
-        "assets": ["apps/control-plane-api/src/assets"]
+        "command": "tsc -p apps/control-plane-api/tsconfig.cli.json --outDir dist/apps/control-plane-api-cli"
       }
     },
     "serve": {

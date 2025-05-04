@@ -1,6 +1,7 @@
 import { Options } from '@mikro-orm/core';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
+import { SqliteDriver } from '@mikro-orm/sqlite';
 import { Logger } from '@nestjs/common';
 
 // Assuming you have a way to import the filter definition
@@ -9,6 +10,9 @@ import { TenantFilter } from './libs/infrastructure/src/lib/persistence/filters/
 
 // Basic logger for MikroORM
 const logger = new Logger('MikroORM');
+
+// Determine test environment for in-memory SQLite
+const isTestSqlite = process.env['DB_TYPE'] === 'better-sqlite';
 
 const config: Options = {
   // --- Core --- 
@@ -19,13 +23,18 @@ const config: Options = {
   debug: process.env['NODE_ENV'] !== 'production',
   logger: logger.log.bind(logger),
 
-  // --- Database Connection (PostgreSQL) --- 
-  driver: PostgreSqlDriver,
-  host: process.env['DB_HOST'] || 'localhost',
-  port: parseInt(process.env['DB_PORT'] || '5432', 10),
-  user: process.env['DB_USER'] || 'postgres',
-  password: process.env['DB_PASSWORD'] || 'password',
-  dbName: process.env['DB_NAME'] || 'acci_eaf_db',
+  // --- Database Connection ---
+  driver: isTestSqlite ? SqliteDriver : PostgreSqlDriver,
+  ...(isTestSqlite
+    ? { dbName: process.env['DB_NAME'] || ':memory:' }
+    : {
+        host: process.env['DB_HOST'] || 'localhost',
+        port: parseInt(process.env['DB_PORT'] || '5432', 10),
+        user: process.env['DB_USER'] || 'postgres',
+        password: process.env['DB_PASSWORD'] || 'password',
+        dbName: process.env['DB_NAME'] || 'acci_eaf_db',
+      }
+  ),
   // schema: 'public', // Optional: Specify schema if needed
   // pool: { min: 2, max: 10 }, // Optional: Configure connection pool
 

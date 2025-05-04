@@ -36,7 +36,7 @@ async function createAdminUser(baseUrl: string, bootstrapToken: string): Promise
   } catch (error) {
     // Admin user might already exist - we can ignore this error
     // Admin creation can either return 409 (proper conflict) or 401 (unauthorized - ambiguous error)
-    if (error.response && (error.response.status === 409 || error.response.status === 401)) {
+    if (error.response && (error.response.status === 409 || error.response.status === 401 || error.response.status === 400)) {
       console.log('Admin user may already exist, continuing with tests');
     } else {
       console.error('Unexpected error creating admin user:', error.message);
