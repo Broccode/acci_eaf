@@ -130,7 +130,7 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
   - Implement RLS via MikroORM Global Filters (ADR-006)
 
 - Story 4: Control Plane API
-  Status: ''
+  Status: 'Completed'
   Requirements:
   - Create API for tenant CRUD (Basic attributes)
   - Admin AuthZ for control plane
