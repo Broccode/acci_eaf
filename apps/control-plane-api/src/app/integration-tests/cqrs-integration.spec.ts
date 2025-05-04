@@ -12,6 +12,17 @@ import { GetTenantByIdHandler } from '../queries/handlers/get-tenant-by-id.handl
 import { TenantRepository } from '../tenants/entities/tenant.repository';
 import { TenantsService } from '../tenants/tenants.service';
 
+/**
+ * CQRS Integrationstest
+ * 
+ * Hinweis: Dieser Test verwendet absichtlich keine Suites Framework, da es sich um einen
+ * vollen Integrationstest handelt, der die gesamte CQRS-Fluss mit realen Komponenten testet.
+ * Für Integrationstests dieser Art, die mehrere Komponenten mit echten Implementierungen und
+ * einer Testdatenbank testen, ist der manuelle Setup-Ansatz oft flexibler.
+ * 
+ * Zukünftige Überlegung: Der Test könnte auf Suites sociable tests umgestellt werden,
+ * wenn nur bestimmte Teile des Systems getestet werden sollen, während andere gemockt werden.
+ */
 describe('CQRS Integration Flow', () => {
   let orm: MikroORM;
   let em: EntityManager;

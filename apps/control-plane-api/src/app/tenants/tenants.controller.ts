@@ -27,7 +27,7 @@ import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { Tenant } from './entities/tenant.entity';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { CommandBus, QueryBus } from 'core';
-import { COMMAND_BUS, QUERY_BUS } from '../app.module';
+import { COMMAND_BUS, QUERY_BUS } from '../cqrs.constants';
 import { CreateTenantCommand } from '../commands/impl/create-tenant.command';
 import { UpdateTenantCommand } from '../commands/impl/update-tenant.command';
 import { DeleteTenantCommand } from '../commands/impl/delete-tenant.command';

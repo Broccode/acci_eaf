@@ -1,20 +1,23 @@
-import { Test } from '@nestjs/testing';
+import { TestBed } from '@suites/unit';
 import { AppService } from './app.service';
 
-describe('AppService', () => {
-  let service: AppService;
+describe('AppService (Suites)', () => {
+  let underTest: AppService;
 
   beforeAll(async () => {
-    const app = await Test.createTestingModule({
-      providers: [AppService],
-    }).compile();
-
-    service = app.get<AppService>(AppService);
+    // Da der AppService keine Abhängigkeiten hat, ist solitary gleichwertig zu sociable
+    const { unit } = await TestBed.solitary<AppService>(AppService).compile();
+    
+    underTest = unit;
   });
 
   describe('getData', () => {
     it('should return "Hello API"', () => {
-      expect(service.getData()).toEqual({ message: 'Hello API' });
+      // Arrange & Act
+      const result = underTest.getData();
+      
+      // Assert
+      expect(result).toEqual({ message: 'Hello API' });
     });
   });
 });

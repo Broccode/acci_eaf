@@ -1,32 +1,25 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestBed } from '@suites/unit';
+import { Mocked } from '@suites/doubles.jest';
 import { UpdateTenantHandler } from './update-tenant.handler';
 import { TenantsService } from '../../tenants/tenants.service';
 import { UpdateTenantCommand } from '../impl/update-tenant.command';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 
-describe('UpdateTenantHandler', () => {
-  let handler: UpdateTenantHandler;
-  let service: TenantsService;
+describe('UpdateTenantHandler (Suites)', () => {
+  let underTest: UpdateTenantHandler;
+  let tenantsService: Mocked<TenantsService>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UpdateTenantHandler,
-        {
-          provide: TenantsService,
-          useValue: {
-            update: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
-
-    handler = module.get<UpdateTenantHandler>(UpdateTenantHandler);
-    service = module.get<TenantsService>(TenantsService);
+  beforeAll(async () => {
+    // Automatisches Mocking aller Dependencies mit solitary Test
+    const { unit, unitRef } = await TestBed.solitary<UpdateTenantHandler>(UpdateTenantHandler).compile();
+    
+    underTest = unit;
+    tenantsService = unitRef.get(TenantsService);
   });
 
   it('should call tenantsService.update with correct params and return the updated tenant', async () => {
-    const mockTenant = {
+    // Arrange
+    const mockTenant: Tenant = {
       id: 'uuid',
       name: 'UpdatedName',
       description: 'UpdatedDesc',
@@ -36,8 +29,9 @@ describe('UpdateTenantHandler', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     } as Tenant;
-    (service.update as jest.Mock).mockResolvedValue(mockTenant);
-
+    
+    tenantsService.update.mockResolvedValue(mockTenant);
+    
     const command = new UpdateTenantCommand(
       'uuid',
       'UpdatedName',
@@ -45,9 +39,12 @@ describe('UpdateTenantHandler', () => {
       'updated@example.com',
       {},
     );
-    const result = await handler.execute(command);
-
-    expect(service.update).toHaveBeenCalledWith('uuid', {
+    
+    // Act
+    const result = await underTest.execute(command);
+    
+    // Assert
+    expect(tenantsService.update).toHaveBeenCalledWith('uuid', {
       name: 'UpdatedName',
       description: 'UpdatedDesc',
       contactEmail: 'updated@example.com',

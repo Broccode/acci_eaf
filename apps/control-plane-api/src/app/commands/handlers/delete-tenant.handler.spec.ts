@@ -1,34 +1,31 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestBed } from '@suites/unit';
+import { Mocked } from '@suites/doubles.jest';
 import { DeleteTenantHandler } from './delete-tenant.handler';
 import { TenantsService } from '../../tenants/tenants.service';
 import { DeleteTenantCommand } from '../impl/delete-tenant.command';
 
-describe('DeleteTenantHandler', () => {
-  let handler: DeleteTenantHandler;
-  let service: TenantsService;
+describe('DeleteTenantHandler (Suites)', () => {
+  let underTest: DeleteTenantHandler;
+  let tenantsService: Mocked<TenantsService>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        DeleteTenantHandler,
-        {
-          provide: TenantsService,
-          useValue: { remove: jest.fn() },
-        },
-      ],
-    }).compile();
-
-    handler = module.get<DeleteTenantHandler>(DeleteTenantHandler);
-    service = module.get<TenantsService>(TenantsService);
+  beforeAll(async () => {
+    // Automatisches Mocking aller Dependencies mit solitary Test
+    const { unit, unitRef } = await TestBed.solitary<DeleteTenantHandler>(DeleteTenantHandler).compile();
+    
+    underTest = unit;
+    tenantsService = unitRef.get(TenantsService);
   });
 
   it('should call tenantsService.remove with correct id and return void', async () => {
-    (service.remove as jest.Mock).mockResolvedValue(undefined);
-
+    // Arrange
+    tenantsService.remove.mockResolvedValue(undefined);
     const command = new DeleteTenantCommand('uuid');
-    const result = await handler.execute(command);
-
-    expect(service.remove).toHaveBeenCalledWith('uuid');
+    
+    // Act
+    const result = await underTest.execute(command);
+    
+    // Assert
+    expect(tenantsService.remove).toHaveBeenCalledWith('uuid');
     expect(result).toBeUndefined();
   });
 }); 

@@ -1,32 +1,25 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { TestBed } from '@suites/unit';
+import { Mocked } from '@suites/doubles.jest';
 import { CreateTenantHandler } from './create-tenant.handler';
 import { TenantsService } from '../../tenants/tenants.service';
 import { CreateTenantCommand } from '../impl/create-tenant.command';
 import { Tenant } from '../../tenants/entities/tenant.entity';
 
-describe('CreateTenantHandler', () => {
-  let handler: CreateTenantHandler;
-  let service: TenantsService;
+describe('CreateTenantHandler (Suites)', () => {
+  let underTest: CreateTenantHandler;
+  let tenantsService: Mocked<TenantsService>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CreateTenantHandler,
-        {
-          provide: TenantsService,
-          useValue: {
-            create: jest.fn(),
-          },
-        },
-      ],
-    }).compile();
-
-    handler = module.get<CreateTenantHandler>(CreateTenantHandler);
-    service = module.get<TenantsService>(TenantsService);
+  beforeAll(async () => {
+    // Automatisches Mocking aller Dependencies mit solitary Test
+    const { unit, unitRef } = await TestBed.solitary<CreateTenantHandler>(CreateTenantHandler).compile();
+    
+    underTest = unit;
+    tenantsService = unitRef.get(TenantsService);
   });
 
   it('should call tenantsService.create with correct params and return the created tenant', async () => {
-    const mockTenant = {
+    // Arrange
+    const mockTenant: Tenant = {
       id: 'uuid',
       name: 'TestTenant',
       description: 'TestDescription',
@@ -36,12 +29,16 @@ describe('CreateTenantHandler', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     } as Tenant;
-    (service.create as jest.Mock).mockResolvedValue(mockTenant);
-
+    
+    tenantsService.create.mockResolvedValue(mockTenant);
+    
     const command = new CreateTenantCommand('TestTenant', 'TestDescription', 'test@example.com', {});
-    const result = await handler.execute(command);
-
-    expect(service.create).toHaveBeenCalledWith({
+    
+    // Act
+    const result = await underTest.execute(command);
+    
+    // Assert
+    expect(tenantsService.create).toHaveBeenCalledWith({
       name: 'TestTenant',
       description: 'TestDescription',
       contactEmail: 'test@example.com',
