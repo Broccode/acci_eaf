@@ -1,89 +1,89 @@
-# Testing Guide für control-plane-api
+# Testing Guide for control-plane-api
 
-## Einführung zu Suites Testing Framework
+## Introduction to the Suites Testing Framework
 
-Dieses Projekt verwendet das [Suites Testing Framework](https://suites.dev) für Unit-Tests. Suites ist ein Meta-Framework, das jest/vitest und andere Test-Tools mit Dependency Injection Frameworks wie NestJS integriert. Es bietet vor allem automatisches Mocking und eine klare Trennung zwischen "solitary" und "sociable" Tests.
+This project uses the [Suites Testing Framework](https://suites.dev) for unit tests. Suites is a meta testing framework that integrates jest/vitest and other test tools with dependency injection frameworks such as NestJS. Its main benefits are automatic mocking and a clear separation between "solitary" and "sociable" tests.
 
-## Grundkonzepte
+## Core Concepts
 
 ### Solitary Tests
 
-- Testen einer einzelnen Klasse in vollständiger Isolation
-- Alle Abhängigkeiten werden automatisch gemockt
-- Geeignet für Handler, Controller und einfache Services
-- Fokus auf die Logik der getesteten Klasse
+- Test a single class in complete isolation
+- All dependencies are automatically mocked
+- Suitable for handlers, controllers, and simple services
+- Focus on the logic of the class under test
 
 ```typescript
-// Beispiel für einen solitary test
+// Example of a solitary test
 const { unit, unitRef } = await TestBed.solitary<MyService>(MyService).compile();
 ```
 
 ### Sociable Tests
 
-- Testen einer Klasse mit einigen echten und einigen gemockten Abhängigkeiten
-- Ermöglicht das Testen von Interaktionen zwischen Komponenten
-- Geeignet für komplexere Services oder Domain-Logik
+- Test a class with some real and some mocked dependencies
+- Allows testing the interactions between components
+- Suitable for more complex services or domain logic
 
 ```typescript
-// Beispiel für einen sociable test
+// Example of a sociable test
 const { unit, unitRef } = await TestBed
   .sociable<MyService>(MyService)
   .expose(DependencyToUseReal)
   .compile();
 ```
 
-## Migrations-Checkliste
+## Migration Checklist
 
-- [x] Command Handler Tests migriert
+- [x] Command handler tests migrated
   - [x] CreateTenantHandler
   - [x] UpdateTenantHandler
   - [x] DeleteTenantHandler
-- [x] Controller Tests migriert
+- [x] Controller tests migrated
   - [x] AppController
-- [x] Service Tests migriert
+- [x] Service tests migrated
   - [x] AppService
   - [x] TenantsService
-- [x] Query Handler Tests migriert
+- [x] Query handler tests migrated
   - [x] ListTenantsHandler
   - [x] GetTenantByIdHandler
-- [ ] Weitere Controller/Services migrieren
-- [ ] Integrationstests evaluieren (Entscheidung: Beibehalten der manuellen Setup-Methode vorläufig)
+- [ ] Migrate additional controllers/services
+- [ ] Evaluate integration tests (decision: temporarily keep manual setup method)
 
 ## Best Practices
 
-### 1. Namenskonventionen
+### 1. Naming Conventions
 
-- `underTest` für die zu testende Klasse
-- `{dependencyName}` für gemockte Abhängigkeiten
-- AAA Pattern: Arrange-Act-Assert mit Kommentaren
+- `underTest` for the class under test
+- `{dependencyName}` for mocked dependencies
+- AAA pattern: Arrange–Act–Assert with comments
 
-### 2. Wann solitary vs. sociable Tests verwenden
+### 2. When to Use Solitary vs. Sociable Tests
 
-| Komponente | Empfohlener Ansatz | Begründung |
-|------------|---------------------|------------|
-| Controller | Solitary | Controller sollten dünn sein und nur Anfragen routing/transformieren |
-| Command/Query Handler | Solitary | Handler haben typischerweise eine einzelne Verantwortlichkeit |
-| Services mit wenig Logik | Solitary | Wenn die Service-Logik einfach und selbstständig ist |
-| Services mit komplexer Logik | Sociable | Wenn die Service-Logik stark mit anderen Komponenten interagiert |
-| Repositories | Individuell | Je nach Komplexität, oft mit TestContainers testen |
+| Component | Recommended Approach | Rationale |
+|-----------|---------------------|-----------|
+| Controller | Solitary | Controllers should be thin and only route/transform requests |
+| Command/Query Handler | Solitary | Handlers typically have a single responsibility |
+| Services with little logic | Solitary | If the service logic is simple and self-contained |
+| Services with complex logic | Sociable | When the service logic heavily interacts with other components |
+| Repositories | Case-by-case | Depending on complexity, often tested with TestContainers |
 
-### 3. Typische Test-Struktur
+### 3. Typical Test Structure
 
 ```typescript
-describe('MeineKlasse (Suites)', () => {
-  let underTest: MeineKlasse;
+describe('MyClass (Suites)', () => {
+  let underTest: MyClass;
   let dependency1: Mocked<Dependency1>;
   let dependency2: Mocked<Dependency2>;
 
   beforeAll(async () => {
-    const { unit, unitRef } = await TestBed.solitary<MeineKlasse>(MeineKlasse).compile();
+    const { unit, unitRef } = await TestBed.solitary<MyClass>(MyClass).compile();
     
     underTest = unit;
     dependency1 = unitRef.get(Dependency1);
     dependency2 = unitRef.get(Dependency2);
   });
 
-  it('sollte etwas spezifisches tun', () => {
+  it('should do something specific', () => {
     // Arrange
     dependency1.method.mockReturnValue(123);
     
@@ -97,48 +97,48 @@ describe('MeineKlasse (Suites)', () => {
 });
 ```
 
-## Häufige Muster
+## Common Patterns
 
-### 1. Mocking von Methoden mit Suites
+### 1. Mocking Methods with Suites
 
 ```typescript
-// Rückgabewert definieren
+// Define a return value
 mockService.getData.mockReturnValue({ id: 1 });
-mockService.getData.mockResolvedValue({ id: 1 }); // Für Promises
+mockService.getData.mockResolvedValue({ id: 1 }); // For promises
 
-// Implementierung überschreiben
+// Override the implementation
 mockService.getData.mockImplementation((id) => {
   if (id === 1) return { found: true };
   return { found: false };
 });
 
-// Fehler werfen
+// Throw an error
 mockService.getData.mockRejectedValue(new Error('Something went wrong'));
 ```
 
-### 2. Präzises Überprüfen von Aufrufen
+### 2. Precise Verification of Calls
 
 ```typescript
-// Überprüfen, ob aufgerufen
+// Verify that the method was called
 expect(mockService.method).toHaveBeenCalled();
 
-// Überprüfen mit bestimmten Parametern
+// Verify with specific parameters
 expect(mockService.method).toHaveBeenCalledWith('param1', 'param2');
 
-// Überprüfen der Anzahl von Aufrufen
+// Verify the number of calls
 expect(mockService.method).toHaveBeenCalledTimes(2);
 ```
 
-## Fehlerbehandlung
+## Error Handling
 
-Wenn Sie auf Fehler oder unerwartetes Verhalten stoßen, prüfen Sie:
+If you encounter errors or unexpected behavior, check the following:
 
-1. Ist die Typdefinition in `suites-typings.d.ts` korrekt?
-2. Werden die richtigen Abhängigkeiten injiziert?
-3. Ist der richtige Test-Typ (solitary/sociable) für den Anwendungsfall gewählt?
+1. Is the type definition in `suites-typings.d.ts` correct?
+2. Are the correct dependencies injected?
+3. Is the appropriate test type (solitary/sociable) chosen for the use case?
 
-## Ressourcen und Dokumentation
+## Resources and Documentation
 
-- [Suites Offizielle Dokumentation](https://suites.dev/docs)
-- [NestJS Testing Dokumentation](https://docs.nestjs.com/fundamentals/testing)
-- [Jest Dokumentation](https://jestjs.io/docs/getting-started)
+- [Suites Official Documentation](https://suites.dev/docs)
+- [NestJS Testing Documentation](https://docs.nestjs.com/fundamentals/testing)
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
