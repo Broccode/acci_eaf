@@ -33,7 +33,7 @@ The framework leverages modern technologies and proven architectural patterns:
 ### Core Architecture Patterns
 
 - 🔷 **Hexagonal Architecture (Ports & Adapters):** Isolating core logic from external dependencies
-- 🔀 **CQRS/ES with NestJS @nestjs/cqrs:** Controllers delegate write operations to command handlers and read operations to query handlers, using events as the single source of truth
+- 🔀 **CQRS/ES Pattern:** Controllers delegate write operations to command handlers and read operations to query handlers, using events as the single source of truth
 - 🏢 **Multi-Tenancy (via RLS):** Securely isolating data for different tenants within the same database
 - 🧩 **Plugin System:** Allowing extension without modifying core libraries
 
@@ -173,7 +173,7 @@ Das Framework nutzt moderne Technologien und bewährte Architekturmuster:
 ### Kern-Architekturmuster
 
 - 🔷 **Hexagonale Architektur (Ports & Adapter):** Isolierung der Kernlogik von externen Abhängigkeiten
-- 🔀 **CQRS/ES:** Trennung von Schreib- und Lesepfaden, Verwendung von Events als einzige Wahrheitsquelle
+- 🔀 **CQRS/ES Pattern:** Controllers delegate write operations to command handlers and read operations to query handlers, using events as the single source of truth
 - 🏢 **Multi-Tenancy (über RLS):** Sichere Isolierung von Daten verschiedener Mandanten in derselben Datenbank
 - 🧩 **Plugin-System:** Ermöglicht Erweiterungen ohne Änderung der Kernbibliotheken
 
