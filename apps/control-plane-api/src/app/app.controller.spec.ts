@@ -8,7 +8,7 @@ describe('AppController (Suites)', () => {
   let appService: Mocked<AppService>;
 
   beforeAll(async () => {
-    // Solitary test für den Controller mit gemocktem Service
+    // Solitary test for the controller with a mocked service
     const { unit, unitRef } = await TestBed.solitary<AppController>(AppController).compile();
     
     underTest = unit;

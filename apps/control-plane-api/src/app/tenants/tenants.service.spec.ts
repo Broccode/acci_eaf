@@ -12,7 +12,7 @@ describe('TenantsService (Suites)', () => {
   let entityManager: Mocked<EntityManager>;
 
   beforeAll(async () => {
-    // Solitary test für den Service mit gemockten Dependencies
+    // Solitary test for the service with mocked dependencies
     const { unit, unitRef } = await TestBed.solitary<TenantsService>(TenantsService).compile();
     
     underTest = unit;

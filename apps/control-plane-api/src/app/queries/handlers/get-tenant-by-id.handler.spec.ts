@@ -10,7 +10,7 @@ describe('GetTenantByIdHandler (Suites)', () => {
   let tenantsService: Mocked<TenantsService>;
 
   beforeAll(async () => {
-    // Solitary test für den Handler mit gemocktem Service
+    // Solitary test for the handler with a mocked service
     const { unit, unitRef } = await TestBed.solitary<GetTenantByIdHandler>(GetTenantByIdHandler).compile();
     
     underTest = unit;

@@ -15,13 +15,13 @@ import { TenantsService } from '../tenants/tenants.service';
 /**
  * CQRS Integrationstest
  * 
- * Hinweis: Dieser Test verwendet absichtlich keine Suites Framework, da es sich um einen
- * vollen Integrationstest handelt, der die gesamte CQRS-Fluss mit realen Komponenten testet.
- * Für Integrationstests dieser Art, die mehrere Komponenten mit echten Implementierungen und
- * einer Testdatenbank testen, ist der manuelle Setup-Ansatz oft flexibler.
+ * Note: This test intentionally does not use the Suites framework, as it is a
+ * full integration test that exercises the entire CQRS flow with real components.
+ * For integration tests of this kind, which test multiple components with real implementations and
+ * a test database, the manual setup approach is often more flexible.
  * 
- * Zukünftige Überlegung: Der Test könnte auf Suites sociable tests umgestellt werden,
- * wenn nur bestimmte Teile des Systems getestet werden sollen, während andere gemockt werden.
+ * Future consideration: The test could be converted to Suites sociable tests
+ * if only certain parts of the system should be tested while others are mocked.
  */
 describe('CQRS Integration Flow', () => {
   let orm: MikroORM;

@@ -5,7 +5,7 @@ describe('AppService (Suites)', () => {
   let underTest: AppService;
 
   beforeAll(async () => {
-    // Da der AppService keine Abhängigkeiten hat, ist solitary gleichwertig zu sociable
+    // Since AppService has no dependencies, solitary is equivalent to sociable
     const { unit } = await TestBed.solitary<AppService>(AppService).compile();
     
     underTest = unit;

@@ -20,7 +20,7 @@ describe('TenantFilter Integration Test', () => {
     testHelper = new MikroOrmTestHelper();
     const orm = await testHelper.setup();
     em = testHelper.getEntityManager();
-    // Stelle sicher, dass TenantContextService und TenantFilterInitializer korrekt initialisiert werden
+    // Ensure that TenantContextService and TenantFilterInitializer are initialized correctly
     tenantContext = new TenantContextService();
     const { TenantFilterInitializer } = await import('./tenant.filter');
     new TenantFilterInitializer(tenantContext);
@@ -43,7 +43,7 @@ describe('TenantFilter Integration Test', () => {
     await em.nativeDelete(SampleTenantEntity, {}, { filters: { tenant: false } }); 
     await em.flush();
     em.clear(); // Clear identity map
-    // Setze explizit die Filter-Parameter für MikroORM
+    // Explicitly set the filter parameters for MikroORM
     em.setFilterParams('tenant', {});
   });
 
