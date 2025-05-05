@@ -144,7 +144,7 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
   - Security headers (helmet), rate limiting (throttler)
 
 - Story 6: Observability & Health Checks
-  Status: ''
+  Status: 'Completed'
   Requirements:
   - Structured logging setup (hook/interface)
   - Health endpoints (`@nestjs/terminus`)
