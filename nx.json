@@ -1,5 +1,7 @@
 {
-  "installation": { "version": "20.8.0" },
+  "installation": {
+    "version": "20.8.0"
+  },
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "plugins": [
     {
@@ -12,12 +14,23 @@
         "watchDepsTargetName": "watch-deps"
       }
     },
-    { "plugin": "@nx/eslint/plugin", "options": { "targetName": "lint" } },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
     {
       "plugin": "@nx/jest/plugin",
-      "options": { "targetName": "test" },
+      "options": {
+        "targetName": "test"
+      },
       "exclude": ["apps/control-plane-api-e2e/**/*", "apps/sample-app-e2e/**/*"]
     }
   ],
-  "nxCloudId": "681667256830952886971353"
+  "nxCloudId": "681667256830952886971353",
+  "namedInputs": {
+    "sharedGlobals": ["{workspaceRoot}/.gitlab-ci.yml"],
+    "default": ["sharedGlobals"]
+  }
 }
