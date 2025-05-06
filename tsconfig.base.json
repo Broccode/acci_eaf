@@ -14,6 +14,8 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "core": ["libs/core/src/index.ts"],
       "infrastructure": ["libs/infrastructure/src/index.ts"],

@@ -8,4 +8,5 @@ export * from './plugin-migration.interface';
 export * from './persistence';
 export * from './infrastructure.module';
 export * from './observability';
-export * from './health'; 
+export * from './health';
+export * from './cache/redis-cache.service'; 

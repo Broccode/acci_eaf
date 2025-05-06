@@ -155,7 +155,7 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
   - Implement license validation module/service interface (Hybrid approach - ADR-003)
 
 - Story 8: Testing Framework
-  Status: ''
+  Status: 'In Progress'
   Requirements:
   - Set up unit (`suites`), integration (Testcontainers), and E2E testing (`supertest`) infrastructure
 
