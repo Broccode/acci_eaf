@@ -1,5 +1,5 @@
 <!-- Linear Issue: https://linear.app/acci/issue/ACCI-40/epic-2-story-5-security-and-authnauthz -->
-# Epic-2 - Story-5
+# Epic-1 - Story-5
 
 Security & AuthN/AuthZ
 

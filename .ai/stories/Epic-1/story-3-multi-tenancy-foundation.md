@@ -1,6 +1,8 @@
-# Story 3: Multi-Tenancy Foundation
+# Epic-1 - Story-3
 
-**Epic:** [Epic-2: Multi-Tenancy & Control Plane](../epic-2.md)
+Multi-Tenancy Foundation
+
+**Epic:** [Epic-1: Multi-Tenancy & Control Plane](../epic-1.md)
 **Status:** Completed
 **PRD Link:** [PRD Section](../../prd.md#story-3-multi-tenancy-foundation)
 

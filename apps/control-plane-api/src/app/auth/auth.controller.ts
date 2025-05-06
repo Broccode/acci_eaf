@@ -3,19 +3,26 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/is-public.decorator';
 import { IsString } from 'class-validator';
+import { Request as ExpressRequest } from 'express';
+import { AdminUser } from './auth.service';
+
+// Erweitere den Express.Request-Typ für den Auth-Kontext
+interface RequestWithUser extends ExpressRequest {
+  user: AdminUser;
+}
 
 export class LoginDto {
-  username: string;
-  password: string;
+  username!: string;
+  password!: string;
 }
 
 export class CreateAdminDto {
   @IsString()
-  username: string;
+  username!: string;
   @IsString()
-  password: string;
+  password!: string;
   @IsString()
-  adminToken: string; // Used for bootstrapping only
+  adminToken!: string; // Used for bootstrapping only
 }
 
 @Controller('auth')
@@ -25,7 +32,7 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   @Public()
-  async login(@Request() req) {
+  async login(@Request() req: RequestWithUser) {
     return this.authService.login(req.user);
   }
 
@@ -34,7 +41,7 @@ export class AuthController {
   async createAdmin(@Body() createAdminDto: CreateAdminDto) {
     // For bootstrapping only - this would be secured differently in production
     // e.g., with a special bootstrap token that is only valid once
-    const bootstrapToken = process.env.BOOTSTRAP_ADMIN_TOKEN;
+    const bootstrapToken = process.env['BOOTSTRAP_ADMIN_TOKEN'];
     
     // Debug output
     console.log('Creating admin, received token:', createAdminDto.adminToken);

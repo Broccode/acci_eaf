@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { TenantsModule } from './tenants/tenants.module';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { LicensesModule } from './licenses/licenses.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import defaultConfig from './config/default.config';
 import { PostgreSqlDriver } from '@mikro-orm/postgresql';
@@ -56,13 +57,13 @@ class CqrsRegistrationService implements OnModuleInit {
     }),
     MikroOrmModule.forRoot({
       // Use environment variables to determine database type
-      driver: process.env.DB_TYPE === 'better-sqlite' ? BetterSqliteDriver : PostgreSqlDriver,
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      dbName: process.env.DB_NAME || 'acci_eaf',
-      debug: process.env.NODE_ENV !== 'production',
+      driver: process.env['DB_TYPE'] === 'better-sqlite' ? BetterSqliteDriver : PostgreSqlDriver,
+      host: process.env['DB_HOST'] || 'localhost',
+      port: process.env['DB_PORT'] ? parseInt(process.env['DB_PORT'], 10) : 5432,
+      user: process.env['DB_USER'] || 'postgres',
+      password: process.env['DB_PASSWORD'] || 'postgres',
+      dbName: process.env['DB_NAME'] || 'acci_eaf',
+      debug: process.env['NODE_ENV'] !== 'production',
       registerRequestContext: true, // Required for repository pattern usage
       allowGlobalContext: true,
       autoLoadEntities: true,
@@ -71,6 +72,7 @@ class CqrsRegistrationService implements OnModuleInit {
     TenantsModule,
     AuthModule,
     HealthModule,
+    LicensesModule,
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

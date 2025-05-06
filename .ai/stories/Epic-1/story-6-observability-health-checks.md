@@ -1,4 +1,4 @@
-# Epic-2 - Story-6
+# Epic-1 - Story-6
 
 Observability & Health Checks
 

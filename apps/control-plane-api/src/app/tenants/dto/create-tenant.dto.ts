@@ -13,7 +13,7 @@ export class CreateTenantDto {
   @IsString()
   @IsNotEmpty()
   @Length(3, 100)
-  name: string;
+  name!: string;
 
   @ApiPropertyOptional({
     description: 'The description of the tenant',
