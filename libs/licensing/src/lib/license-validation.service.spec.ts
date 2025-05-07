@@ -5,6 +5,15 @@ import { HttpException } from '@nestjs/common';
 import { of } from 'rxjs';
 import * as crypto from 'crypto';
 
+// Mock crypto.createVerify to allow overriding
+jest.mock('crypto', () => {
+  const originalCrypto = jest.requireActual('crypto');
+  return {
+    ...originalCrypto,
+    createVerify: jest.fn(),
+  };
+});
+
 describe('LicenseValidationService', () => {
   let service: LicenseValidationService;
   let httpService: Partial<HttpService>;
@@ -36,7 +45,7 @@ describe('LicenseValidationService', () => {
 
     it('should throw if signature is invalid', async () => {
       (configService.get as jest.Mock).mockReturnValue('dummy-key');
-      jest.spyOn(crypto, 'createVerify').mockReturnValue({
+      (crypto.createVerify as jest.Mock).mockReturnValue({
         update: jest.fn(),
         verify: jest.fn().mockReturnValue(false),
       } as any);
@@ -46,7 +55,7 @@ describe('LicenseValidationService', () => {
 
     it('should throw if license is expired', async () => {
       (configService.get as jest.Mock).mockReturnValue('dummy-key');
-      jest.spyOn(crypto, 'createVerify').mockReturnValue({
+      (crypto.createVerify as jest.Mock).mockReturnValue({
         update: jest.fn(),
         verify: jest.fn().mockReturnValue(true),
       } as any);
@@ -56,7 +65,7 @@ describe('LicenseValidationService', () => {
 
     it('should return true for valid license', async () => {
       (configService.get as jest.Mock).mockReturnValue('dummy-key');
-      jest.spyOn(crypto, 'createVerify').mockReturnValue({
+      (crypto.createVerify as jest.Mock).mockReturnValue({
         update: jest.fn(),
         verify: jest.fn().mockReturnValue(true),
       } as any);

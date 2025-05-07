@@ -1,12 +1,13 @@
 import { ValidateLicenseQuery } from './validate-license.query';
 import { LicenseValidationService } from '../license-validation.service';
 import { LicenseValidatedEvent } from '../events/license-validated.event';
-import { EventBus } from 'core';
+import { EventBus, EVENT_BUS } from 'core';
+import { Inject } from '@nestjs/common';
 
 export class ValidateLicenseQueryHandler {
   constructor(
     private readonly validationService: LicenseValidationService,
-    private readonly eventBus: EventBus,
+    @Inject(EVENT_BUS) private readonly eventBus: EventBus,
   ) {}
 
   async execute(query: ValidateLicenseQuery): Promise<{ valid: boolean; message?: string }> {

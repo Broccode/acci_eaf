@@ -5,5 +5,6 @@ import { LicensesController } from './licenses.controller';
 @Module({
   imports: [LicensingModule],
   controllers: [LicensesController],
+  exports: [LicensingModule],
 })
 export class LicensesModule {} 

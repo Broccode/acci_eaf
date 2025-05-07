@@ -22,11 +22,8 @@ import { CqrsModule } from './cqrs.module';
 import { AuditLogInterceptor } from './audit/audit-log.interceptor';
 import { AuditLogService } from './audit/audit-log.service';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-
-// Constants for dependency injection tokens
-export const COMMAND_BUS = 'COMMAND_BUS';
-export const QUERY_BUS = 'QUERY_BUS';
-export const EVENT_BUS = 'EVENT_BUS';
+import { ValidateLicenseQueryHandler } from 'licensing';
+import { COMMAND_BUS, QUERY_BUS, EVENT_BUS } from 'core';
 
 @Injectable()
 class CqrsRegistrationService implements OnModuleInit {
@@ -38,6 +35,7 @@ class CqrsRegistrationService implements OnModuleInit {
     private readonly deleteTenantHandler: DeleteTenantHandler,
     private readonly getTenantByIdHandler: GetTenantByIdHandler,
     private readonly listTenantsHandler: ListTenantsHandler,
+    private readonly validateLicenseQueryHandler: ValidateLicenseQueryHandler,
   ) {}
 
   onModuleInit() {
@@ -46,6 +44,10 @@ class CqrsRegistrationService implements OnModuleInit {
     this.commandBus.register('DeleteTenantCommand', this.deleteTenantHandler.execute.bind(this.deleteTenantHandler));
     this.queryBus.register('GetTenantByIdQuery', this.getTenantByIdHandler.execute.bind(this.getTenantByIdHandler));
     this.queryBus.register('ListTenantsQuery', this.listTenantsHandler.execute.bind(this.listTenantsHandler));
+    this.queryBus.register(
+      'ValidateLicenseQuery',
+      this.validateLicenseQueryHandler.execute.bind(this.validateLicenseQueryHandler),
+    );
   }
 }
 
@@ -63,7 +65,7 @@ class CqrsRegistrationService implements OnModuleInit {
       user: process.env['DB_USER'] || 'postgres',
       password: process.env['DB_PASSWORD'] || 'postgres',
       dbName: process.env['DB_NAME'] || 'acci_eaf',
-      debug: process.env['NODE_ENV'] !== 'production',
+      debug: process.env['NODE_ENV'] !== 'production' && process.env['NODE_ENV'] !== 'test',
       registerRequestContext: true, // Required for repository pattern usage
       allowGlobalContext: true,
       autoLoadEntities: true,

@@ -5,7 +5,8 @@ import { TenantFilterInitializer } from './persistence/filters/tenant.filter';
 import mikroOrmConfig from '../../../../mikro-orm.config'; // Adjust path as needed
 import { SampleTenantEntity } from './persistence/entities/sample-tenant.entity';
 import { ConfigType } from '@nestjs/config';
-import { CommandBus, CqrsModule, EventBus, QueryBus } from '@nestjs/cqrs';
+import { CqrsModule } from '@nestjs/cqrs';
+import { COMMAND_BUS, EVENT_BUS, QUERY_BUS } from 'core';
 import { InMemoryCommandBus } from './in-memory-command-bus';
 import { InMemoryEventBus } from './in-memory-event-bus';
 import { InMemoryQueryBus } from './in-memory-query-bus';
@@ -63,19 +64,19 @@ export class InfrastructureModule {
           useValue: appConfig,
         },
         {
-          provide: CommandBus,
+          provide: COMMAND_BUS,
           useFactory: () => {
             return new InMemoryCommandBus();
           },
         },
         {
-          provide: EventBus,
+          provide: EVENT_BUS,
           useFactory: () => {
             return new InMemoryEventBus();
           },
         },
         {
-          provide: QueryBus,
+          provide: QUERY_BUS,
           useFactory: () => {
             return new InMemoryQueryBus();
           },

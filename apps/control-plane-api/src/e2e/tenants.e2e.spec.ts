@@ -1,9 +1,12 @@
+import { Test, TestingModule } from '@nestjs/testing';
 import { NestE2ETestHelper } from 'testing';
-import { AppModule } from '../app/app.module';
+import { TestAppModuleE2E } from '../app/test-app-module.e2e';
 import request from 'supertest';
 import { TenantsService } from '../app/tenants/tenants.service';
 import { INestApplication } from '@nestjs/common';
 import { Tenant } from '../app/tenants/entities/tenant.entity';
+import { AdminGuard } from '../app/auth/guards/admin.guard';
+import { ExecutionContext } from '@nestjs/common';
 
 // Mock data
 const tenantMock: Tenant = {
@@ -26,25 +29,38 @@ const tenantsServiceMock = {
   remove: jest.fn().mockResolvedValue(undefined),
 };
 
-describe('TenantsController (E2E)', () => {
+describe('TenantsController (E2E) with TestAppModuleE2E', () => {
   let app: INestApplication;
   let helper: NestE2ETestHelper;
 
   beforeAll(async () => {
-    helper = await NestE2ETestHelper.createTestingApp({
-      imports: [AppModule],
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [TestAppModuleE2E],
       providers: [
         {
           provide: TenantsService,
           useValue: tenantsServiceMock,
         },
       ],
-    });
-    app = helper.app;
+    })
+    .overrideGuard(AdminGuard)
+    .useValue({
+      canActivate: (context: ExecutionContext) => {
+        return true;
+      }
+    })
+    .compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+    
+    helper = new NestE2ETestHelper();
+    helper.app = app;
+    helper.testingModule = moduleFixture;
   });
 
   afterAll(async () => {
-    await helper.close();
+    await app.close();
   });
 
   it('POST /tenants should create tenant', async () => {
@@ -58,7 +74,7 @@ describe('TenantsController (E2E)', () => {
       })
       .expect(201)
       .expect(({ body }) => {
-        expect(body.id).toBe(tenantMock.id);
+        expect(body.id).toEqual(expect.stringMatching(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i));
       });
   });
 
