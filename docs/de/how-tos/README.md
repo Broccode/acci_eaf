@@ -1,36 +1,36 @@
-# ACCI EAF How-To Guides
+# ACCI EAF How-To Anleitungen
 
 Version: 1.0
-Date: 2025-05-07
-Status: Draft
+Datum: 2025-05-07
+Status: Entwurf
 
-Welcome to the How-To Guides for the ACCI Enterprise Application Framework (EAF). This section provides practical, step-by-step instructions for common development tasks and utilizing various framework features.
+Willkommen zu den How-To Anleitungen für das ACCI Enterprise Application Framework (EAF). Dieser Abschnitt bietet praktische Schritt-für-Schritt-Anweisungen für gängige Entwicklungsaufgaben und die Nutzung verschiedener Framework-Funktionen.
 
-## Table of Contents
+## Inhaltsverzeichnis
 
-1. [Using the Testing Framework (`@acci/testing`)](#1-using-the-testing-framework-accitesting)
-    * [Writing Unit Tests for Services/Handlers](#writing-unit-tests-for-serviceshandlers)
-    * [Writing Integration Tests with `MikroOrmTestHelper` and `testDbManager`](#writing-integration-tests-with-mikroormtesthelper-and-testdbmanager)
-    * [Writing E2E Tests with `NestE2ETestHelper`](#writing-e2e-tests-with-neste2etesthelper)
-    * [Testing Redis Integration with `testRedisManager`](#testing-redis-integration-with-testredismanager)
-2. [Implementing a New CQRS Command/Query Handler](#2-implementing-a-new-cqrs-commandquery-handler)
-3. [Adding a New Plugin](#3-adding-a-new-plugin)
-4. [Configuring and Using Health Check Endpoints](#4-configuring-and-using-health-check-endpoints)
-5. [Implementing Custom Authorization with `CaslGuard`](#5-implementing-custom-authorization-with-caslguard)
-6. [Working with Multi-Tenancy and RLS](#6-working-with-multi-tenancy-and-rls)
-7. [Managing Database Migrations (Core & Plugins)](#7-managing-database-migrations-core--plugins)
+1. [Verwendung des Testing Frameworks (`@acci/testing`)](#1-verwendung-des-testing-frameworks-accitesting)
+    * [Schreiben von Unit-Tests für Services/Handler](#schreiben-von-unit-tests-für-serviceshandler)
+    * [Schreiben von Integrationstests mit `MikroOrmTestHelper` und `testDbManager`](#schreiben-von-integrationstests-mit-mikroormtesthelper-und-testdbmanager)
+    * [Schreiben von E2E-Tests mit `NestE2ETestHelper`](#schreiben-von-e2e-tests-mit-neste2etesthelper)
+    * [Testen der Redis-Integration mit `testRedisManager`](#testen-der-redis-integration-mit-testredismanager)
+2. [Implementieren eines neuen CQRS Command/Query Handlers](#2-implementieren-eines-neuen-cqrs-commandquery-handlers)
+3. [Hinzufügen eines neuen Plugins](#3-hinzufügen-eines-neuen-plugins)
+4. [Konfigurieren und Verwenden von Health Check Endpunkten](#4-konfigurieren-und-verwenden-von-health-check-endpunkten)
+5. [Implementieren einer benutzerdefinierten Autorisierung mit `CaslGuard`](#5-implementieren-einer-benutzerdefinierten-autorisierung-mit-caslguard)
+6. [Arbeiten mit Mandantenfähigkeit und RLS](#6-arbeiten-mit-mandantenfähigkeit-und-rls)
+7. [Verwalten von Datenbankmigrationen (Kern & Plugins)](#7-verwalten-von-datenbankmigrationen-kern--plugins)
 
 ---
 
-## 1. Using the Testing Framework (`@acci/testing`)
+## 1. Verwendung des Testing Frameworks (`@acci/testing`)
 
-The `@acci/testing` library provides helpers to streamline writing unit, integration, and E2E tests for applications built with ACCI EAF.
+Die `@acci/testing`-Bibliothek stellt Hilfsprogramme bereit, um das Schreiben von Unit-, Integrations- und E2E-Tests für Anwendungen, die mit ACCI EAF erstellt wurden, zu optimieren.
 
-### Writing Unit Tests for Services/Handlers
+### Schreiben von Unit-Tests für Services/Handler
 
-Unit tests focus on isolated components like services or CQRS handlers. Dependencies are typically mocked.
+Unit-Tests konzentrieren sich auf isolierte Komponenten wie Services oder CQRS-Handler. Abhängigkeiten werden typischerweise gemockt.
 
-**Scenario:** Testing a `CreateTenantCommandHandler`.
+**Szenario:** Testen eines `CreateTenantCommandHandler`.
 
 ```typescript
 // libs/core/src/lib/application/commands/tenant/create-tenant.handler.spec.ts
@@ -92,11 +92,11 @@ it('should create a new tenant and publish an event', async () => {
 });
 ```
 
-### Writing Integration Tests with `MikroOrmTestHelper` and `testDbManager`
+### Schreiben von Integrationstests mit `MikroOrmTestHelper` und `testDbManager`
 
-Integration tests verify interactions between components, especially with the database. `@acci/testing` provides `MikroOrmTestHelper` (from `@mikro-orm/nestjs/testing` or a custom wrapper) and `testDbManager` (custom helper for Testcontainers).
+Integrationstests überprüfen Interaktionen zwischen Komponenten, insbesondere mit der Datenbank. `@acci/testing` stellt `MikroOrmTestHelper` (von `@mikro-orm/nestjs/testing` oder ein benutzerdefinierter Wrapper) und `testDbManager` (benutzerdefinierter Helfer für Testcontainers) bereit.
 
-**Scenario:** Testing `TenantRepository` (MikroORM implementation).
+**Szenario:** Testen von `TenantRepository` (MikroORM-Implementierung).
 
 ```typescript
 // libs/infrastructure/src/lib/persistence/tenant/tenant.repository.integration-spec.ts
@@ -159,14 +159,14 @@ describe('TenantRepositoryImpl - Integration', () => {
 });
 ```
 
-*Note: For real database integration, `testDbManager` would handle starting/stopping Docker containers (e.g., PostgreSQL via Testcontainers) and providing connection details to MikroORM.* Refer to `@acci/testing` examples for `testDbManager` usage.
+*Hinweis: Für eine echte Datenbankintegration würde `testDbManager` das Starten/Stoppen von Docker-Containern (z.B. PostgreSQL über Testcontainers) und die Bereitstellung von Verbindungsdetails für MikroORM übernehmen.* Beispiele für die Verwendung von `testDbManager` finden Sie in den `@acci/testing`-Beispielen.
 
-### Writing E2E Tests with `NestE2ETestHelper`
+### Schreiben von E2E-Tests mit `NestE2ETestHelper`
 
-End-to-end tests validate entire request flows through the API.
-`NestE2ETestHelper` (a custom helper or directly using `@nestjs/testing`) sets up the full NestJS application.
+End-to-End-Tests validieren ganze Anfrageabläufe durch die API.
+`NestE2ETestHelper` (ein benutzerdefinierter Helfer oder direkte Verwendung von `@nestjs/testing`) richtet die vollständige NestJS-Anwendung ein.
 
-**Scenario:** Testing the `/tenants` CRUD endpoints of `ControlPlaneApi`.
+**Szenario:** Testen der `/tenants` CRUD-Endpunkte von `ControlPlaneApi`.
 
 ```typescript
 // apps/control-plane-api-e2e/src/control-plane-api/tenants.e2e-spec.ts
@@ -231,11 +231,11 @@ it('/tenants (POST) - should create a new tenant', async () => {
 });
 ```
 
-### Testing Redis Integration with `testRedisManager`
+### Testen der Redis-Integration mit `testRedisManager`
 
-`testRedisManager` (custom helper from `@acci/testing`) would use Testcontainers to spin up a Redis instance for testing services that use Redis (e.g., for caching).
+`testRedisManager` (benutzerdefinierter Helfer von `@acci/testing`) würde Testcontainers verwenden, um eine Redis-Instanz zum Testen von Diensten, die Redis verwenden (z.B. für Caching), hochzufahren.
 
-**Scenario:** Testing a `RedisCacheService`.
+**Szenario:** Testen eines `RedisCacheService`.
 
 ```typescript
 // libs/infrastructure/src/lib/cache/redis-cache.service.integration-spec.ts
@@ -295,11 +295,11 @@ it('should store and retrieve a string value', async () => {
 });
 ```
 
-## 2. Implementing a New CQRS Command/Query Handler
+## 2. Implementieren eines neuen CQRS Command/Query Handlers
 
-CQRS is central to ACCI EAF. Here's how to add a new command and its handler.
+CQRS ist zentral für ACCI EAF. So fügen Sie einen neuen Befehl und seinen Handler hinzu.
 
-**A. Define the Command (in `libs/core/src/lib/application/commands/...`):**
+**A. Definieren des Befehls (in `libs/core/src/lib/application/commands/...`):**
 
 ```typescript
 // libs/core/src/lib/application/commands/some-feature/do-something.command.ts
@@ -308,7 +308,7 @@ export class DoSomethingCommand {
 }
 ```
 
-**B. Define the Command Handler (in `libs/core/src/lib/application/commands/...`):**
+**B. Definieren des Command Handlers (in `libs/core/src/lib/application/commands/...`):**
 
 ```typescript
 // libs/core/src/lib/application/commands/some-feature/do-something.handler.ts
@@ -334,12 +334,12 @@ export class DoSomethingCommandHandler implements ICommandHandler<DoSomethingCom
 
     // this.eventBus.publish(new SomethingDoneEvent(entityId, someData));
     console.log(`Handling DoSomethingCommand for entity ${entityId} with data: ${someData}`);
-    // Actual implementation would involve domain logic, repository interaction, and event publishing.
+    // Die tatsächliche Implementierung würde Domänenlogik, Repository-Interaktion und Event-Publishing beinhalten.
   }
 }
 ```
 
-**C. Register the Handler in a NestJS Module (e.g., in `libs/core` or a feature module):**
+**C. Registrieren des Handlers in einem NestJS-Modul (z.B. in `libs/core` oder einem Feature-Modul):**
 
 ```typescript
 // libs/core/src/lib/core.module.ts or a feature-specific module
@@ -361,7 +361,7 @@ export const CommandHandlers = [DoSomethingCommandHandler /*, other handlers */]
 export class CoreModule {}
 ```
 
-**D. Dispatch the Command from a Service or Controller (e.g., in `apps/control-plane-api`):**
+**D. Auslösen des Befehls von einem Service oder Controller (z.B. in `apps/control-plane-api`):**
 
 ```typescript
 // apps/control-plane-api/src/app/some-feature/some-feature.service.ts
@@ -379,19 +379,19 @@ export class SomeFeatureService {
 }
 ```
 
-*Follow a similar pattern for Queries and Query Handlers (using `@QueryHandler` and `IQueryHandler`).*
+*Folgen Sie einem ähnlichen Muster für Queries und Query Handler (mit `@QueryHandler` und `IQueryHandler`).*
 
-## 3. Adding a New Plugin
+## 3. Hinzufügen eines neuen Plugins
 
-Plugins extend EAF functionality. See `docs/concept/plugin-system.md` for core concepts.
+Plugins erweitern die EAF-Funktionalität. Siehe `docs/de/concept/plugin-system.md` für Kernkonzepte.
 
-1. **Create Plugin Directory:** Create a new library for your plugin, e.g., `libs/plugins/my-custom-plugin`.
+1. **Plugin-Verzeichnis erstellen:** Erstellen Sie eine neue Bibliothek für Ihr Plugin, z.B. `libs/plugins/my-custom-plugin`.
 
     ```bash
     npx nx generate @nx/nest:library my-custom-plugin --directory=libs/plugins --publishable --importPath=@my-scope/my-custom-plugin
     ```
 
-2. **Develop Plugin Module:** Implement your NestJS module(s), services, controllers, entities, etc., within this library.
+2. **Plugin-Modul entwickeln:** Implementieren Sie Ihr(e) NestJS-Modul(e), Services, Controller, Entitäten usw. innerhalb dieser Bibliothek.
 
     ```typescript
     // libs/plugins/my-custom-plugin/src/lib/my-custom-plugin.module.ts
@@ -405,23 +405,23 @@ Plugins extend EAF functionality. See `docs/concept/plugin-system.md` for core c
     export class MyCustomPluginModule {}
     ```
 
-3. **Define Entities (if any):** Place MikroORM entities in an `entities` subfolder.
-4. **Create Migrations (if any):** Initialize migrations for your plugin if it has entities (ADR-008).
-    * Update `mikro-orm.config.ts` in your plugin to point to its own migration path.
-    * Generate initial migration: `npx mikro-orm migration:create --initial -c ./libs/plugins/my-custom-plugin/src/mikro-orm.config.ts`
-5. **Update Main App's MikroORM Config:**
-    * Ensure the main application's `mikro-orm.config.ts` can discover entities from your plugin (e.g., add `'libs/plugins/my-custom-plugin/src/lib/entities/**/*.entity.js'` to `entities` glob patterns, adjust for your build output).
-    * Ensure the main migration config can discover plugin migrations (e.g., add path to `migrations.path` array or adjust `migrations.glob`).
-6. **Import Plugin Module:** Import `MyCustomPluginModule` into your main application module (e.g., `apps/sample-app/src/app.module.ts`).
+3. **Entitäten definieren (falls vorhanden):** Platzieren Sie MikroORM-Entitäten in einem `entities`-Unterordner.
+4. **Migrationen erstellen (falls vorhanden):** Initialisieren Sie Migrationen für Ihr Plugin, falls es Entitäten hat (ADR-008).
+    * Aktualisieren Sie `mikro-orm.config.ts` in Ihrem Plugin, um auf seinen eigenen Migrationspfad zu verweisen.
+    * Generieren Sie die initiale Migration: `npx mikro-orm migration:create --initial -c ./libs/plugins/my-custom-plugin/src/mikro-orm.config.ts`
+5. **MikroORM-Konfiguration der Haupt-App aktualisieren:**
+    * Stellen Sie sicher, dass die `mikro-orm.config.ts` der Hauptanwendung Entitäten aus Ihrem Plugin erkennen kann (z.B. fügen Sie `'libs/plugins/my-custom-plugin/src/lib/entities/**/*.entity.js'` zu den `entities`-Glob-Mustern hinzu, passen Sie es an Ihren Build-Output an).
+    * Stellen Sie sicher, dass die Hauptmigrationskonfiguration Plugin-Migrationen erkennen kann (z.B. fügen Sie den Pfad zum `migrations.path`-Array hinzu oder passen Sie `migrations.glob` an).
+6. **Plugin-Modul importieren:** Importieren Sie `MyCustomPluginModule` in Ihr Hauptanwendungsmodul (z.B. `apps/sample-app/src/app.module.ts`).
 
-## 4. Configuring and Using Health Check Endpoints
+## 4. Konfigurieren und Verwenden von Health Check Endpunkten
 
-Health checks are provided by `@nestjs/terminus`. (See `docs/concept/observability.md`).
+Health Checks werden von `@nestjs/terminus` bereitgestellt. (Siehe `docs/de/concept/observability.md`).
 
-**A. Install `@nestjs/terminus` (if not already present):**
+**A. Installieren von `@nestjs/terminus` (falls noch nicht vorhanden):**
    `npm install @nestjs/terminus`
 
-**B. Add Health Module to your Application (e.g., `apps/sample-app/src/app/health/health.module.ts`):**
+**B. Hinzufügen des Health-Moduls zu Ihrer Anwendung (z.B. `apps/sample-app/src/app/health/health.module.ts`):**
 
 ```typescript
 // apps/sample-app/src/app/health/health.module.ts
@@ -443,7 +443,7 @@ import { MikroOrmHealthIndicator } from './mikro-orm.health-indicator'; // Custo
 export class HealthModule {}
 ```
 
-**C. Create a Custom Health Indicator (e.g., for MikroORM):**
+**C. Erstellen eines benutzerdefinierten Health Indicators (z.B. für MikroORM):**
 
 ```typescript
 // apps/sample-app/src/app/health/mikro-orm.health-indicator.ts
@@ -469,7 +469,7 @@ export class MikroOrmHealthIndicator extends HealthIndicator {
 }
 ```
 
-**D. Create Health Controller (e.g., `apps/sample-app/src/app/health/health.controller.ts`):**
+**D. Erstellen des Health Controllers (z.B. `apps/sample-app/src/app/health/health.controller.ts`):**
 
 ```typescript
 // apps/sample-app/src/app/health/health.controller.ts
@@ -512,14 +512,14 @@ export class HealthController {
 }
 ```
 
-**E. Import `HealthModule` into your `AppModule`**.
+**E. Importieren Sie `HealthModule` in Ihr `AppModule`**.
 
-## 5. Implementing Custom Authorization with `CaslGuard`
+## 5. Implementieren einer benutzerdefinierten Autorisierung mit `CaslGuard`
 
-(See `docs/concept/security.md` and ADR-001).
-`casl` is used for RBAC/ABAC. A `CaslGuard` protects routes.
+(Siehe `docs/de/concept/security.md` und ADR-001).
+`casl` wird für RBAC/ABAC verwendet. Ein `CaslGuard` schützt Routen.
 
-1. **Define Abilities (e.g., in a feature module or `libs/rbac`):**
+1. **Fähigkeiten definieren (z.B. in einem Feature-Modul oder `libs/rbac`):**
 
     ```typescript
     // libs/rbac/src/lib/abilities.decorator.ts or similar
@@ -539,7 +539,7 @@ export class HealthController {
       SetMetadata(CHECK_ABILITY, requirements);
     ```
 
-2. **Create `CaslGuard` (typically in `libs/rbac/src/lib/guards/`):**
+2. **`CaslGuard` erstellen (typischerweise in `libs/rbac/src/lib/guards/`):**
 
     ```typescript
     // libs/rbac/src/lib/guards/casl.guard.ts
@@ -583,7 +583,7 @@ export class HealthController {
     }
     ```
 
-3. **Apply the Guard to a Controller Method:**
+3. **Guard auf eine Controller-Methode anwenden:**
 
     ```typescript
     // apps/control-plane-api/src/app/tenants/tenants.controller.ts
@@ -614,13 +614,50 @@ export class HealthController {
     }
     ```
 
-## 6. Working with Multi-Tenancy and RLS
+## 6. Arbeiten mit Mandantenfähigkeit und RLS
 
-(See `docs/concept/multi-tenancy.md` and ADR-006).
+(Siehe `docs/de/concept/multi-tenancy.md` und ADR-006).
 
-1. **Ensure `tenant_id` in Entities:** All tenant-specific entities must have a `tenant_id` column.
-2. **Tenant Context Propagation:**
-    * `TenantMiddleware` (in `libs/tenancy`) extracts `tenant_id` from requests (e.g., JWT or header) and stores it in `AsyncLocalStorage`.
-    * Register this middleware globally in your `main.ts` or `AppModule`.
+1. **Sicherstellen von `tenant_id` in Entitäten:** Alle mandantenspezifischen Entitäten müssen eine `tenant_id`-Spalte haben.
+2. **Weitergabe des Mandantenkontexts:**
+    * `TenantMiddleware` (in `libs/tenancy`) extrahiert `tenant_id` aus Anfragen (z.B. JWT oder Header) und speichert sie in `AsyncLocalStorage`.
+    * Registrieren Sie diese Middleware global in Ihrer `main.ts` oder `AppModule`.
 3. **MikroORM Global Filter:**
-    * A global filter named `
+    * Ein globaler Filter namens `tenantFilter` (o.ä.) ist in `libs/tenancy` oder Ihrer MikroORM-Konfiguration definiert.
+    * Dieser Filter fügt automatisch `WHERE tenant_id = :currentTenantId` zu Abfragen für Entitäten hinzu, für die dieser Filter aktiviert ist.
+    * Aktivieren Sie diesen Filter für Ihre mandantenspezifischen Entitäten: `@Filter({ name: 'tenantFilter', cond: args => ({ tenantId: args.tenantId }), default: true })`.
+    * Die `args.tenantId` wird dynamisch von MikroORM aus Parametern bereitgestellt, die Sie beim Aktivieren von Filtern für eine Anfrage übergeben, typischerweise aus `AsyncLocalStorage`.
+4. **Repositories und Services:** Im Allgemeinen müssen Repositories und Services keine `tenant_id`-Bedingungen manuell hinzufügen, wenn der globale Filter korrekt eingerichtet und standardmäßig aktiviert ist.
+5. **Zugriff auf `tenant_id`:** Wenn ein Dienst die aktuelle `tenant_id` für Logik benötigt (nicht zum Abfragen), kann er `TenantContextService` (aus `libs/tenancy`) injizieren.
+
+## 7. Verwalten von Datenbankmigrationen (Kern & Plugins)
+
+(Siehe ADR-008 für Plugin-Migrationen).
+
+1. **Kernanwendungsmigrationen:**
+    * Stellen Sie sicher, dass `mikro-orm.config.ts` in Ihrer Hauptanwendung (`apps/control-plane-api` oder `apps/sample-app`) korrekt für Migrationen eingerichtet ist (Pfad, Muster, Tabellenname).
+    * Wenn Sie eine Kernentität ändern: `npx mikro-orm migration:create -c ./apps/my-app/mikro-orm.config.ts`
+    * Um Migrationen auszuführen: `npx mikro-orm migration:up -c ./apps/my-app/mikro-orm.config.ts` (oder verwenden Sie das Nx-Target `nx run my-app:migration:run`).
+2. **Plugin-Migrationen:**
+    * Jedes Plugin mit Entitäten sollte sein eigenes minimales `mikro-orm.config.ts` haben, das auf seinen lokalen Migrationspfad verweist.
+    * Wenn Sie eine Plugin-Entität ändern: `npx mikro-orm migration:create -c ./libs/plugins/my-plugin/mikro-orm.config.ts`
+    * **Konfiguration der Haupt-App für Plugin-Migrationen:** Die `mikro-orm.config.ts` der Hauptanwendung muss so konfiguriert werden, dass sie auch diese Plugin-Migrationen erkennt und ausführt. Dies beinhaltet typischerweise:
+        * Setzen von `migrations.migrationsList` auf ein Array von Objekten, die jeweils einen Pfad zu einem Satz von Migrationen angeben (Kern und jedes Plugin).
+        * Oder Anpassen von `migrations.path` zu einem Array von Pfaden und `migrations.glob`, um Migrationsdateien über all diese Pfade korrekt abzugleichen.
+
+        ```typescript
+        // Example in main app's mikro-orm.config.ts (conceptual)
+        migrations: {
+          tableName: 'mikro_orm_migrations',
+          path: ['./dist/apps/my-app/migrations', './dist/libs/plugins/my-plugin/migrations'], // Path to JS files after build
+          glob: '!(*.d).{js,ts}',
+          transactional: true,
+          disableForeignKeys: false,
+          allOrNothing: true,
+          snapshot: true,
+        },
+        ```
+
+    * Das Ausführen von `npx mikro-orm migration:up` aus dem Kontext der Haupt-App führt dann alle ausstehenden Kern- und Plugin-Migrationen nacheinander aus (basierend auf ihren Namen/Zeitstempeln).
+
+*Testen Sie die Migrationsgenerierung und -ausführung immer gründlich in einer Entwicklungsumgebung.*
