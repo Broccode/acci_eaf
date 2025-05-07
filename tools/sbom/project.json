@@ -1,0 +1,27 @@
+{
+  "name": "sbom",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "root": "tools/sbom",
+  "sourceRoot": "tools/sbom",
+  "targets": {
+    "generate-sbom": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx cyclonedx-npm",
+        "args": [
+          "--output-file",
+          "dist/sbom.json",
+          "--ignore-npm-errors"
+        ],
+        "cwd": "."
+      }
+    },
+    "validate-sbom": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker run --rm -v $PWD:/data cyclonedx/cyclonedx-cli validate --input-file /data/dist/sbom.json --fail-on-errors"
+      }
+    }
+  }
+} 

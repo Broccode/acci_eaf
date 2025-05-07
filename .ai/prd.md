@@ -160,7 +160,7 @@ The ACCI EAF (Axians Competence Center Infrastructure Enterprise Application Fra
   - Set up unit (`suites`), integration (Testcontainers), and E2E testing (`supertest`) infrastructure
 
 - Story 9: Documentation & SBOM
-  Status: ''
+  Status: 'Completed'
   Requirements:
   - Provide initial setup and architecture docs
   - Integrate SBOM generation (`@cyclonedx/cyclonedx-npm` - ADR-002) into build process

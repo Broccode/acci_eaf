@@ -8,7 +8,8 @@
   "scripts": {
     "test": "echo \"No tests to run\"",
     "bootstrap:control-plane": "node apps/control-plane-api/bootstrap.js",
-    "test:e2e:control-plane": "npx nx run control-plane-api-e2e:e2e"
+    "test:e2e:control-plane": "npx nx run control-plane-api-e2e:e2e",
+    "generate:sbom": "nx run sbom:generate-sbom"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   "homepage": "https://github.com/Broccode/acci_eaf#readme",
   "description": "",
   "devDependencies": {
+    "@cyclonedx/cyclonedx-npm": "^1.10.0",
     "@eslint/js": "^9.8.0",
     "@mikro-orm/better-sqlite": "^6.4.13",
     "@mikro-orm/cli": "^6.4.13",

@@ -147,6 +147,31 @@ Internal use only. © Axians, All rights reserved.
 | Tenant listing (1000 tenants)  | 12ms          | 30ms          | 2000 req/s         |
 | Concurrent load (1000 clients) | 55ms          | 200ms         | 480 req/s         |
 
+## SBOM Generation & Validation
+
+You can generate a Software Bill of Materials (SBOM) for the entire monorepo using CycloneDX:
+
+```bash
+npm run generate:sbom
+# Output: dist/sbom.json
+```
+
+The command runs the Nx target `sbom:generate-sbom` which executes `cyclonedx-npm`.
+
+### CI Pipeline
+
+The GitLab CI pipeline automatically generates the SBOM and stores it as a pipeline artefact for every merge request and push to `main`.
+
+### Validation (Optional)
+
+To validate the generated SBOM against the CycloneDX schema, you can use the [cyclonedx-cli](https://github.com/CycloneDX/cyclonedx-cli) tool:
+
+```bash
+cyclonedx validate --input-file dist/sbom.json --fail-on-errors
+```
+
+For more details, see `docs/sbom/README.md`.
+
 ---
 
 # 🇩🇪 Deutsche Version
