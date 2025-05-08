@@ -15,3 +15,5 @@ vitest.config.*.timestamp*
 
 .env
 .env.control-plane
+
+**/.claude/settings.local.json
