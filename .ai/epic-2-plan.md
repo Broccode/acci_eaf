@@ -7,6 +7,7 @@ Epic-2 focuses on enhancing the multi-tenancy features and control plane functio
 ## Background
 
 In Epic-1, we successfully implemented:
+
 - Basic multi-tenancy foundation using Row-Level Security (RLS) with MikroORM Filters
 - Tenant context propagation via AsyncLocalStorage
 - Core Control Plane API with basic tenant CRUD operations
@@ -38,24 +39,28 @@ Epic-2 contains 10 stories that build upon each other in a logical progression:
 ## Key Components to Develop
 
 ### 1. Tenant Entity Enhancements
+
 - Expanded tenant model with additional metadata
 - Flexible configuration schema
 - Lifecycle state management
 - Resource quota tracking
 
 ### 2. Control Plane API Extensions
+
 - Configuration management endpoints
 - Tenant lifecycle transition APIs
 - Cross-tenant operation endpoints
 - Template management APIs
 
 ### 3. Advanced Security Features
+
 - Multi-factor authentication
 - IP restrictions
 - Session management
 - Enhanced audit logging
 
 ### 4. Monitoring and Analytics
+
 - Tenant health monitoring
 - Usage analytics
 - Admin dashboard backend APIs
@@ -63,16 +68,19 @@ Epic-2 contains 10 stories that build upon each other in a logical progression:
 ## Technical Considerations
 
 ### Data Isolation
+
 - Ensure all new features maintain strict tenant data isolation
 - Implement secure mechanisms for authorized cross-tenant operations
 - Apply RLS filters consistently to all tenant-related entities
 
 ### Performance
+
 - Consider caching strategies for frequently accessed tenant configurations
 - Monitor performance impact of quota enforcement
 - Optimize cross-tenant operations to minimize overhead
 
 ### Security
+
 - Implement comprehensive audit logging for all tenant management operations
 - Ensure proper authentication and authorization checks
 - Follow least-privilege principle for cross-tenant access
@@ -80,6 +88,7 @@ Epic-2 contains 10 stories that build upon each other in a logical progression:
 ## Dependencies
 
 Epic-2 has dependencies on:
+
 - Core architecture components from Epic-1
 - RBAC/ABAC implementation (ADR-001) for permission checks
 - RLS enforcement mechanism (ADR-006) for tenant isolation
@@ -96,6 +105,7 @@ Epic-2 has dependencies on:
 ## Story Prioritization
 
 The recommended implementation order is:
+
 1. Story 2: Tenant Configuration Management (foundational)
 2. Story 3: Tenant Lifecycle Management (foundational)
 3. Story 8: Advanced Control Plane Security (critical for admin operations)
