@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Always answer in English. For chat, code, code comments, commit messages, everything. The only exception is, when the user specifically asks for an answer in German, or if you are working with i18n files in other languages than English.
