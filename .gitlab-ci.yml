@@ -69,8 +69,8 @@ build:
     - npx nx run-many --target=build --all
   artifacts:
     paths:
-      - '**/build/libs/*.jar'
-      - 'libs/ui-foundation-kit/dist/'
+      - 'apps/iam-service/build/libs/*.jar'
+      - 'libs/eaf-sdk/eaf-core/build/libs/*.jar'
     expire_in: 1 day
 
 test:
@@ -99,8 +99,8 @@ archive_artifacts:
     - find . -name "dist" -type d
   artifacts:
     paths:
-      - '**/build/libs/*.jar'
-      - 'libs/ui-foundation-kit/dist/'
+      - 'apps/iam-service/build/libs/*.jar'
+      - 'libs/eaf-sdk/eaf-core/build/libs/*.jar'
     expire_in: 4 weeks
   only:
     - main
