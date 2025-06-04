@@ -23,6 +23,8 @@ cache:
 .setup_java_node: &setup_java_node
   image: eclipse-temurin:21-jdk
   before_script:
+    # Install git (required for Nx affected commands)
+    - apt-get update && apt-get install -y git
     # Install Node.js
     - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
     - apt-get install -y nodejs
@@ -30,6 +32,7 @@ cache:
     - java -version
     - node --version
     - npm --version
+    - git --version
     # Install dependencies
     - npm ci
     # Make gradlew executable
