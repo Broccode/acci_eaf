@@ -70,7 +70,7 @@ build:
   artifacts:
     paths:
       - '**/build/libs/*.jar'
-      - '**/dist/'
+      - 'libs/ui-foundation-kit/dist/'
     expire_in: 1 day
 
 test:
@@ -100,7 +100,7 @@ archive_artifacts:
   artifacts:
     paths:
       - '**/build/libs/*.jar'
-      - '**/dist/'
+      - 'libs/ui-foundation-kit/dist/'
     expire_in: 4 weeks
   only:
     - main
