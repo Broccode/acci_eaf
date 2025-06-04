@@ -40,17 +40,10 @@ setup:
   stage: setup
   script:
     - echo "Setup completed"
-  artifacts:
-    paths:
-      - node_modules/
-      - .gradle/
-    expire_in: 1 hour
 
 lint_backend:
   <<: *setup_java_node
   stage: lint
-  dependencies:
-    - setup
   script:
     - echo "Running Kotlin/Gradle formatting checks..."
     - ./gradlew spotlessCheck
@@ -59,8 +52,6 @@ lint_backend:
 lint_frontend:
   <<: *setup_java_node
   stage: lint
-  dependencies:
-    - setup
   script:
     - echo "Running frontend linting and formatting checks..."
     - npx nx run-many --target=lint --all
@@ -70,8 +61,6 @@ lint_frontend:
 build:
   <<: *setup_java_node
   stage: build
-  dependencies:
-    - setup
   script:
     - echo "Building all affected projects..."
     - npx nx affected:build --all
@@ -84,8 +73,6 @@ build:
 test:
   <<: *setup_java_node
   stage: test
-  dependencies:
-    - setup
   script:
     - echo "Running tests for all affected projects..."
     - npx nx affected:test --all
@@ -101,7 +88,7 @@ test:
 archive_artifacts:
   <<: *setup_java_node
   stage: artifact
-  dependencies:
+  needs:
     - build
   script:
     - echo "Archiving build artifacts..."
