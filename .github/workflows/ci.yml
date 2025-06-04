@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'eclipse-temurin'
+          distribution: 'temurin'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -65,7 +65,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'eclipse-temurin'
+          distribution: 'temurin'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -101,7 +101,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'eclipse-temurin'
+          distribution: 'temurin'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -154,7 +154,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'eclipse-temurin'
+          distribution: 'temurin'
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
