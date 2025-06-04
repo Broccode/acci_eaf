@@ -4,6 +4,7 @@ plugins {
     kotlin("plugin.jpa") version "2.0.21" apply false
     id("org.springframework.boot") version "3.4.1" apply false
     id("io.spring.dependency-management") version "1.1.6" apply false
+    id("dev.nx.gradle.project-graph") version "+"
 }
 
 allprojects {
@@ -13,6 +14,10 @@ allprojects {
     repositories {
         mavenCentral()
     }
+}
+
+allprojects {
+    apply(plugin = "dev.nx.gradle.project-graph")
 }
 
 subprojects {

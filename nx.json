@@ -16,6 +16,10 @@
   },
   "plugins": [
     {
+      "plugin": "@nx/gradle",
+      "options": {}
+    },
+    {
       "plugin": "@nx/js",
       "options": {}
     }
