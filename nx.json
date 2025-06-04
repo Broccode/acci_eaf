@@ -35,7 +35,27 @@
       "cache": true
     },
     "lint": {
-      "inputs": ["default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/.eslintignore"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore"
+      ],
+      "cache": true
+    },
+    "format": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.prettierrc",
+        "{workspaceRoot}/.prettierignore"
+      ],
+      "cache": true
+    },
+    "format:check": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.prettierrc",
+        "{workspaceRoot}/.prettierignore"
+      ],
       "cache": true
     }
   },
@@ -55,4 +75,4 @@
       }
     }
   }
-} 
+}

@@ -4,6 +4,7 @@ plugins {
     kotlin("plugin.jpa") version "2.0.21" apply false
     id("org.springframework.boot") version "3.4.1" apply false
     id("io.spring.dependency-management") version "1.1.6" apply false
+    id("com.diffplug.spotless") version "7.0.0.BETA4" apply false
     id("dev.nx.gradle.project-graph") version "+"
 }
 
@@ -22,7 +23,8 @@ allprojects {
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
-    
+    apply(plugin = "com.diffplug.spotless")
+
     afterEvaluate {
         if (plugins.hasPlugin("java")) {
             configure<JavaPluginExtension> {
@@ -32,7 +34,23 @@ subprojects {
             }
         }
     }
-    
+
+    // Configure Spotless for Kotlin formatting
+    configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+        kotlin {
+            target("src/**/*.kt")
+            ktlint("1.3.1")
+                .setEditorConfigPath("$rootDir/.editorconfig")
+            trimTrailingWhitespace()
+            indentWithSpaces(4)
+            endWithNewline()
+        }
+        kotlinGradle {
+            target("*.gradle.kts")
+            ktlint("1.3.1")
+        }
+    }
+
     tasks.withType<Test> {
         useJUnitPlatform()
     }
@@ -55,4 +73,4 @@ configure(subprojects.filter { it.path.startsWith(":apps:") }) {
 
 configure(subprojects.filter { it.path.startsWith(":libs:") }) {
     apply(plugin = "java-library")
-} 
+}

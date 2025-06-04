@@ -2,7 +2,11 @@
 
 ## Purpose
 
-To collaboratively work with the user to define and document the User Interface (UI) and User Experience (UX) specifications for the project. This involves understanding user needs, defining information architecture, outlining user flows, and ensuring a solid foundation for visual design and frontend development. The output will populate a new document called `front-end-spec.md` following the `front-end-spec-tmpl` template.
+To collaboratively work with the user to define and document the User Interface (UI) and User
+Experience (UX) specifications for the project. This involves understanding user needs, defining
+information architecture, outlining user flows, and ensuring a solid foundation for visual design
+and frontend development. The output will populate a new document called `front-end-spec.md`
+following the `front-end-spec-tmpl` template.
 
 ## Inputs
 
@@ -14,7 +18,8 @@ To collaboratively work with the user to define and document the User Interface 
 
 ### 1. Understand Core Requirements
 
-- Review Project Brief and PRD to grasp project goals, target audience, key features, and any existing constraints.
+- Review Project Brief and PRD to grasp project goals, target audience, key features, and any
+  existing constraints.
 - Ask clarifying questions about user needs, pain points, and desired outcomes.
 
 ### 2. Define Overall UX Goals & Principles (for `front-end-spec-tmpl`)
@@ -40,13 +45,16 @@ To collaboratively work with the user to define and document the User Interface 
 
 ### 5. Discuss Wireframes & Mockups Strategy (for `front-end-spec-tmpl`)
 
-- Clarify where detailed visual designs will be created (e.g., Figma, Sketch) and ensure the `front-end-spec-tmpl` correctly links to these primary design files.
+- Clarify where detailed visual designs will be created (e.g., Figma, Sketch) and ensure the
+  `front-end-spec-tmpl` correctly links to these primary design files.
 - If low-fidelity wireframes are needed first, offer to help conceptualize layouts for key screens.
 
 ### 6. Define Component Library / Design System Approach (for `front-end-spec-tmpl`)
 
 - Discuss if an existing design system will be used or if a new one needs to be developed.
-- If new, identify a few foundational components to start with (e.g., Button, Input, Card) and their key states/behaviors at a high level. Detailed technical specs will be in `front-end-architecture`.
+- If new, identify a few foundational components to start with (e.g., Button, Input, Card) and their
+  key states/behaviors at a high level. Detailed technical specs will be in
+  `front-end-architecture`.
 
 ### 7. Establish Branding & Style Guide Basics (for `front-end-spec-tmpl`)
 
@@ -65,21 +73,31 @@ To collaboratively work with the user to define and document the User Interface 
 
 ### 10. Output Generation & Iterative Refinement (Guided by `front-end-spec-tmpl`)
 
-- **a. Draft Section:** Incrementally populate one logical section of the `front-end-spec-tmpl` file based on your discussions.
-- **b. Present & Incorporate Initial Feedback:** Present the drafted section to the user for review. Discuss, explain and incorporate their initial feedback and revisions directly.
-- **c. [Offer Advanced Self-Refinement & Elicitation Options](#offer-advanced-self-refinement--elicitation-options)**
+- **a. Draft Section:** Incrementally populate one logical section of the `front-end-spec-tmpl` file
+  based on your discussions.
+- **b. Present & Incorporate Initial Feedback:** Present the drafted section to the user for review.
+  Discuss, explain and incorporate their initial feedback and revisions directly.
+- **c.
+  [Offer Advanced Self-Refinement & Elicitation Options](#offer-advanced-self-refinement--elicitation-options)**
 
 ## Offer Advanced Self-Refinement & Elicitation Options
 
 (This section is called when needed prior to this)
 
-Present the user with the following list of 'Advanced Reflective, Elicitation & Brainstorming Actions'. Explain that these are optional steps to help ensure quality, explore alternatives, and deepen the understanding of the current section before finalizing it and moving on. The user can select an action by number, or choose to skip this and proceed to finalize the section.
+Present the user with the following list of 'Advanced Reflective, Elicitation & Brainstorming
+Actions'. Explain that these are optional steps to help ensure quality, explore alternatives, and
+deepen the understanding of the current section before finalizing it and moving on. The user can
+select an action by number, or choose to skip this and proceed to finalize the section.
 
-"To ensure the quality of the current section: **[Specific Section Name]** and to ensure its robustness, explore alternatives, and consider all angles, I can perform any of the following actions. Please choose a number (8 to finalize and proceed):
+"To ensure the quality of the current section: **[Specific Section Name]** and to ensure its
+robustness, explore alternatives, and consider all angles, I can perform any of the following
+actions. Please choose a number (8 to finalize and proceed):
 
 **Advanced Reflective, Elicitation & Brainstorming Actions I Can Take:**
 
-{Instruction for AI Agent: Display the title of each numbered item below. If the user asks what a specific option means, provide a brief explanation of the action you will take, drawing from detailed descriptions tailored for the context.}
+{Instruction for AI Agent: Display the title of each numbered item below. If the user asks what a
+specific option means, provide a brief explanation of the action you will take, drawing from
+detailed descriptions tailored for the context.}
 
 1.  **Critical Self-Review & User Goal Alignment**
 2.  **Generate & Evaluate Alternative Design Solutions**
@@ -90,6 +108,9 @@ Present the user with the following list of 'Advanced Reflective, Elicitation & 
 7.  **Elicit 'Unforeseen User Needs' & Future Interaction Questions**
 8.  **Finalize this Section and Proceed.**
 
-After I perform the selected action, we can discuss the outcome and decide on any further revisions for this section."
+After I perform the selected action, we can discuss the outcome and decide on any further revisions
+for this section."
 
-REPEAT by Asking the user if they would like to perform another Reflective, Elicitation & Brainstorming Action UNIT the user indicates it is time to proceed ot the next section (or selects #8)
+REPEAT by Asking the user if they would like to perform another Reflective, Elicitation &
+Brainstorming Action UNIT the user indicates it is time to proceed ot the next section (or selects
+#8)

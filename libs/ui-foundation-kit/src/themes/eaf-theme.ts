@@ -4,22 +4,22 @@
  */
 
 export interface EafTheme {
-  name: string
+  name: string;
   colors: {
-    primary: string
-    secondary: string
-    accent: string
-    background: string
-    surface: string
-    text: string
-  }
+    primary: string;
+    secondary: string;
+    accent: string;
+    background: string;
+    surface: string;
+    text: string;
+  };
   spacing: {
-    xs: string
-    sm: string
-    md: string
-    lg: string
-    xl: string
-  }
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+  };
 }
 
 export const eafTheme: EafTheme = {
@@ -30,13 +30,13 @@ export const eafTheme: EafTheme = {
     accent: '#ff6b35',
     background: '#ffffff',
     surface: '#f5f5f5',
-    text: '#333333'
+    text: '#333333',
   },
   spacing: {
     xs: '0.25rem',
     sm: '0.5rem',
     md: '1rem',
     lg: '1.5rem',
-    xl: '2rem'
-  }
-} 
+    xl: '2rem',
+  },
+};

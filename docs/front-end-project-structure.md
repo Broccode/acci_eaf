@@ -1,9 +1,12 @@
 ## Detailed Frontend Directory Structure
 
-The frontend code for ACCI EAF applications (like the Control Plane) and the UI Foundation Kit will reside within the Nx monorepo, following Hilla conventions within their respective Gradle modules/Nx projects.
+The frontend code for ACCI EAF applications (like the Control Plane) and the UI Foundation Kit will
+reside within the Nx monorepo, following Hilla conventions within their respective Gradle modules/Nx
+projects.
 
-**Example for `apps/acci-eaf-control-plane/frontend/` (Hilla frontend part of the Control Plane Spring Boot module):**
-Based on `Hilla, Spring Boot, Gradle-Projekt` (sources: 1916-1917, 1920-1921, 1963-1965).
+**Example for `apps/acci-eaf-control-plane/frontend/` (Hilla frontend part of the Control Plane
+Spring Boot module):** Based on `Hilla, Spring Boot, Gradle-Projekt` (sources: 1916-1917, 1920-1921,
+1963-1965).
 
 ```plaintext
 apps/acci-eaf-control-plane/ # Nx project root for the Control Plane app
@@ -66,7 +69,11 @@ libs/ui-foundation-kit/
 
 ### Notes on Frontend Structure
 
-* The Hilla application (e.g., Control Plane) will have its frontend code co-located within its Spring Boot module's `src/main/frontend` directory, as per Hilla conventions.
-* The `ui-foundation-kit` will be a separate library in the Nx monorepo, publishable and consumable by any EAF frontend application.
-* `generated/` directory in Hilla applications is critical as it contains the bridge to the backend and should not be manually edited.
-* AI Agent (Developer) MUST adhere to this defined structure strictly. New files MUST be placed in the appropriate directory.
+- The Hilla application (e.g., Control Plane) will have its frontend code co-located within its
+  Spring Boot module's `src/main/frontend` directory, as per Hilla conventions.
+- The `ui-foundation-kit` will be a separate library in the Nx monorepo, publishable and consumable
+  by any EAF frontend application.
+- `generated/` directory in Hilla applications is critical as it contains the bridge to the backend
+  and should not be manually edited.
+- AI Agent (Developer) MUST adhere to this defined structure strictly. New files MUST be placed in
+  the appropriate directory.

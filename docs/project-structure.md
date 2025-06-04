@@ -1,6 +1,8 @@
 ## Project Structure
 
-The ACCI EAF will adopt a monorepo structure managed by Nx, containing Gradle multi-module projects for backend services and libraries, and JS/TS projects for frontend aspects (UI Foundation Kit, Control Plane frontend).
+The ACCI EAF will adopt a monorepo structure managed by Nx, containing Gradle multi-module projects
+for backend services and libraries, and JS/TS projects for frontend aspects (UI Foundation Kit,
+Control Plane frontend).
 
 ```plaintext
 acci-eaf-monorepo/
@@ -67,12 +69,19 @@ acci-eaf-monorepo/
 
 ### Key Directory Descriptions
 
-* **`apps/`**: Contains deployable EAF services and the Control Plane application. Each is an Nx project, typically corresponding to a Gradle sub-project (or a Hilla project combining backend and frontend).
-* **`libs/`**: Contains shared libraries.
-  * `eaf-sdk`: A key multi-module Gradle project itself, providing various client SDKs for EAF services and core framework functionalities.
-  * `ui-foundation-kit`: Contains the reusable Vaadin/Hilla/React components, themes, and Storybook setup.
-* **`tools/`**: Contains development tools like the ACCI EAF CLI.
-* **`docs/`**: Houses the source for the \"Launchpad\" Developer Portal.
-* **`infra/`**: Contains infrastructure definitions like Docker Compose files for local development and Ansible playbooks.
-* Root Gradle files (`build.gradle.kts`, `settings.gradle.kts`) manage the Gradle multi-project build for all backend components.
-* Root Nx files (`nx.json`, `package.json`, `tsconfig.base.json`) manage the overall monorepo, JS/TS tooling, and Nx-specific configurations.
+- **`apps/`**: Contains deployable EAF services and the Control Plane application. Each is an Nx
+  project, typically corresponding to a Gradle sub-project (or a Hilla project combining backend and
+  frontend).
+- **`libs/`**: Contains shared libraries.
+  - `eaf-sdk`: A key multi-module Gradle project itself, providing various client SDKs for EAF
+    services and core framework functionalities.
+  - `ui-foundation-kit`: Contains the reusable Vaadin/Hilla/React components, themes, and Storybook
+    setup.
+- **`tools/`**: Contains development tools like the ACCI EAF CLI.
+- **`docs/`**: Houses the source for the \"Launchpad\" Developer Portal.
+- **`infra/`**: Contains infrastructure definitions like Docker Compose files for local development
+  and Ansible playbooks.
+- Root Gradle files (`build.gradle.kts`, `settings.gradle.kts`) manage the Gradle multi-project
+  build for all backend components.
+- Root Nx files (`nx.json`, `package.json`, `tsconfig.base.json`) manage the overall monorepo, JS/TS
+  tooling, and Nx-specific configurations.

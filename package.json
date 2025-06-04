@@ -4,7 +4,11 @@
   "license": "MIT",
   "scripts": {
     "build": "nx build",
-    "test": "nx test"
+    "test": "nx test",
+    "lint": "nx run-many --target=lint --all",
+    "lint:fix": "nx run-many --target=lint --all --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "private": true,
   "devDependencies": {
@@ -12,12 +16,27 @@
     "@nx/react": "latest",
     "@nx/web": "latest",
     "@nx/js": "latest",
+    "@nx/jest": "latest",
     "@nx/workspace": "latest",
+    "@nx/eslint": "latest",
+    "@nx/eslint-plugin": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "nx": "latest",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
     "typescript": "~5.6.2"
   },
   "workspaces": [
     "apps/*",
     "libs/*"
   ]
-} 
+}

@@ -4,23 +4,23 @@
   "sourceRoot": "libs/eaf-sdk/eaf-core/src",
   "targets": {
     "build": {
-      "executor": "@nx/gradle:build",
+      "executor": "@nx/gradle:gradle",
       "options": {
         "task": "build"
       }
     },
     "test": {
-      "executor": "@nx/gradle:test",
+      "executor": "@nx/gradle:gradle",
       "options": {
         "task": "test"
       }
     },
     "clean": {
-      "executor": "@nx/gradle:clean",
+      "executor": "@nx/gradle:gradle",
       "options": {
         "task": "clean"
       }
     }
   },
   "tags": ["type:lib", "scope:eaf", "platform:backend"]
-} 
+}

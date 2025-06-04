@@ -8,4 +8,4 @@ class IamServiceApplication
 
 fun main(args: Array<String>) {
     runApplication<IamServiceApplication>(*args)
-} 
+}

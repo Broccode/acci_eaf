@@ -6,6 +6,6 @@ package com.axians.eaf.core
  */
 object EafCore {
     const val VERSION = "0.1.0-SNAPSHOT"
-    
+
     fun getVersion(): String = VERSION
-} 
+}

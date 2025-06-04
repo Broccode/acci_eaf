@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
 
 export interface EafButtonProps {
-  children: React.ReactNode
-  variant?: 'primary' | 'secondary' | 'danger'
-  size?: 'small' | 'medium' | 'large'
-  disabled?: boolean
-  onClick?: () => void
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'danger';
+  size?: 'small' | 'medium' | 'large';
+  disabled?: boolean;
+  onClick?: () => void;
 }
 
 /**
@@ -17,7 +17,7 @@ export const EafButton: React.FC<EafButtonProps> = ({
   variant = 'primary',
   size = 'medium',
   disabled = false,
-  onClick
+  onClick,
 }) => {
   // This is a basic placeholder implementation
   // In the real implementation, this would use @vaadin/react-components
@@ -29,5 +29,5 @@ export const EafButton: React.FC<EafButtonProps> = ({
     >
       {children}
     </button>
-  )
-} 
+  );
+};

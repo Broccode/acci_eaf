@@ -1,6 +1,8 @@
 # ACCI EAF Monorepo
 
-Welcome to the ACCI Enterprise Application Framework (EAF) monorepo. This workspace contains all EAF core services, libraries, and tools organized using Nx for efficient development and build management.
+Welcome to the ACCI Enterprise Application Framework (EAF) monorepo. This workspace contains all EAF
+core services, libraries, and tools organized using Nx for efficient development and build
+management.
 
 ## Prerequisites
 
@@ -50,7 +52,8 @@ acci-eaf-monorepo/
 
 ## Backend Development
 
-Backend services use Kotlin, Spring Boot, and Gradle. All backend projects are managed as Gradle sub-projects.
+Backend services use Kotlin, Spring Boot, and Gradle. All backend projects are managed as Gradle
+sub-projects.
 
 ```bash
 # Build backend projects

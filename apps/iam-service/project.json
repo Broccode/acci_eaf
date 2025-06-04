@@ -4,29 +4,29 @@
   "sourceRoot": "apps/iam-service/src",
   "targets": {
     "build": {
-      "executor": "@nx/gradle:build",
+      "executor": "@nx/gradle:gradle",
       "options": {
         "task": "build"
       }
     },
     "test": {
-      "executor": "@nx/gradle:test",
+      "executor": "@nx/gradle:gradle",
       "options": {
         "task": "test"
       }
     },
     "run": {
-      "executor": "@nx/gradle:run",
+      "executor": "@nx/gradle:gradle",
       "options": {
         "task": "bootRun"
       }
     },
     "clean": {
-      "executor": "@nx/gradle:clean",
+      "executor": "@nx/gradle:gradle",
       "options": {
         "task": "clean"
       }
     }
   },
   "tags": ["type:app", "scope:iam", "platform:backend"]
-} 
+}

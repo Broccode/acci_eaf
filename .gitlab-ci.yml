@@ -1,0 +1,116 @@
+stages:
+  - setup
+  - lint
+  - build
+  - test
+  - artifact
+
+variables:
+  GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.caching=true'
+  GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle'
+  NODE_OPTIONS: '--max_old_space_size=4096'
+
+cache:
+  key:
+    files:
+      - gradle/wrapper/gradle-wrapper.properties
+      - package-lock.json
+  paths:
+    - .gradle/
+    - node_modules/
+    - .nx/cache/
+
+.setup_java_node: &setup_java_node
+  image: eclipse-temurin:21-jdk
+  before_script:
+    # Install Node.js
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y nodejs
+    # Verify installations
+    - java -version
+    - node --version
+    - npm --version
+    # Install dependencies
+    - npm ci
+    # Make gradlew executable
+    - chmod +x ./gradlew
+
+setup:
+  <<: *setup_java_node
+  stage: setup
+  script:
+    - echo "Setup completed"
+  artifacts:
+    paths:
+      - node_modules/
+      - .gradle/
+    expire_in: 1 hour
+
+lint_backend:
+  <<: *setup_java_node
+  stage: lint
+  dependencies:
+    - setup
+  script:
+    - echo "Running Kotlin/Gradle formatting checks..."
+    - ./gradlew spotlessCheck
+  allow_failure: false
+
+lint_frontend:
+  <<: *setup_java_node
+  stage: lint
+  dependencies:
+    - setup
+  script:
+    - echo "Running frontend linting and formatting checks..."
+    - npx nx run-many --target=lint --all
+    - npx nx run-many --target=format:check --all
+  allow_failure: false
+
+build:
+  <<: *setup_java_node
+  stage: build
+  dependencies:
+    - setup
+  script:
+    - echo "Building all affected projects..."
+    - npx nx affected:build --all
+  artifacts:
+    paths:
+      - '**/build/libs/*.jar'
+      - '**/dist/'
+    expire_in: 1 day
+
+test:
+  <<: *setup_java_node
+  stage: test
+  dependencies:
+    - setup
+  script:
+    - echo "Running tests for all affected projects..."
+    - npx nx affected:test --all
+  artifacts:
+    reports:
+      junit:
+        - '**/build/test-results/test/*.xml'
+        - '**/test-results.xml'
+    paths:
+      - '**/build/reports/'
+    expire_in: 1 week
+
+archive_artifacts:
+  <<: *setup_java_node
+  stage: artifact
+  dependencies:
+    - build
+  script:
+    - echo "Archiving build artifacts..."
+    - find . -name "*.jar" -type f
+    - find . -name "dist" -type d
+  artifacts:
+    paths:
+      - '**/build/libs/*.jar'
+      - '**/dist/'
+    expire_in: 4 weeks
+  only:
+    - main

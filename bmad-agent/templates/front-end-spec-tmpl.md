@@ -2,7 +2,8 @@
 
 ## Introduction
 
-{State the purpose - to define the user experience goals, information architecture, user flows, and visual design specifications for the project's user interface.}
+{State the purpose - to define the user experience goals, information architecture, user flows, and
+visual design specifications for the project's user interface.}
 
 - **Link to Primary Design Files:** {e.g., Figma, Sketch, Adobe XD URL}
 - **Link to Deployed Storybook / Design System:** {URL, if applicable}
@@ -11,7 +12,8 @@
 
 - **Target User Personas:** {Reference personas or briefly describe key user types and their goals.}
 - **Usability Goals:** {e.g., Ease of learning, efficiency of use, error prevention.}
-- **Design Principles:** {List 3-5 core principles guiding the UI/UX design - e.g., "Clarity over cleverness", "Consistency", "Provide feedback".}
+- **Design Principles:** {List 3-5 core principles guiding the UI/UX design - e.g., "Clarity over
+  cleverness", "Consistency", "Provide feedback".}
 
 ## Information Architecture (IA)
 
@@ -25,7 +27,8 @@
       C --> F[Notification Settings];
   ```
   _(Or provide a list of all screens/pages)_
-- **Navigation Structure:** {Describe primary navigation (e.g., top bar, sidebar), secondary navigation, breadcrumbs, etc.}
+- **Navigation Structure:** {Describe primary navigation (e.g., top bar, sidebar), secondary
+  navigation, breadcrumbs, etc.}
 
 ## User Flows
 
@@ -52,9 +55,11 @@
 
 ## Wireframes & Mockups
 
-{Reference the main design file link above. Optionally embed key mockups or describe main screen layouts.}
+{Reference the main design file link above. Optionally embed key mockups or describe main screen
+layouts.}
 
-- **Screen / View Name 1:** {Description of layout and key elements. Link to specific Figma frame/page.}
+- **Screen / View Name 1:** {Description of layout and key elements. Link to specific Figma
+  frame/page.}
 - **Screen / View Name 2:** {...}
 
 ## Component Library / Design System Reference
@@ -71,14 +76,16 @@
 ## Accessibility (AX) Requirements
 
 - **Target Compliance:** {e.g., WCAG 2.1 AA}
-- **Specific Requirements:** {Keyboard navigation patterns, ARIA landmarks/attributes for complex components, color contrast minimums.}
+- **Specific Requirements:** {Keyboard navigation patterns, ARIA landmarks/attributes for complex
+  components, color contrast minimums.}
 
 ## Responsiveness
 
 - **Breakpoints:** {Define pixel values for mobile, tablet, desktop, etc.}
-- **Adaptation Strategy:** {Describe how layout and components adapt across breakpoints. Reference designs.}
+- **Adaptation Strategy:** {Describe how layout and components adapt across breakpoints. Reference
+  designs.}
 
 ## Change Log
 
-| Change        | Date       | Version | Description         | Author         |
-| ------------- | ---------- | ------- | ------------------- | -------------- |
+| Change | Date | Version | Description | Author |
+| ------ | ---- | ------- | ----------- | ------ |

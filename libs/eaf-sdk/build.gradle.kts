@@ -36,4 +36,4 @@ subprojects {
             freeCompilerArgs.add("-Xjsr305=strict")
         }
     }
-} 
+}

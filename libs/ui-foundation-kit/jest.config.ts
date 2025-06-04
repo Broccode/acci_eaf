@@ -3,11 +3,14 @@ export default {
   preset: '../../jest.preset.js',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.[tj]sx?$': ['ts-jest', { 
-      presets: [['@babel/preset-env', { targets: { node: 'current' } }]]
-    }]
+    '^.+\\.[tj]sx?$': [
+      'ts-jest',
+      {
+        presets: [['@babel/preset-env', { targets: { node: 'current' } }]],
+      },
+    ],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/libs/ui-foundation-kit',
-  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts']
-} 
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+};

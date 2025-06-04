@@ -8,9 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 @EnableAutoConfiguration(exclude = [DataSourceAutoConfiguration::class])
 class IamServiceApplicationTest {
-
     @Test
     fun `should load application context`() {
         // This test verifies that the Spring Boot application context loads successfully
     }
-} 
+}

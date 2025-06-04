@@ -1,0 +1,30 @@
+# Build outputs
+dist/
+build/
+.nx/
+node_modules/
+
+# Generated files
+*.generated.*
+generated/
+
+# Gradle build files
+.gradle/
+**/build/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.*.local
