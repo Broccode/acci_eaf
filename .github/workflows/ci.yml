@@ -130,8 +130,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build all affected projects
-        run: npx nx affected:build --all
+      - name: Build all projects
+        run: npx nx run-many --target=build --all
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -183,8 +183,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests for all affected projects
-        run: npx nx affected:test --all
+      - name: Run tests for all projects
+        run: npx nx run-many --target=test --all
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

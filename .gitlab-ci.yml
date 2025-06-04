@@ -65,8 +65,8 @@ build:
   <<: *setup_java_node
   stage: build
   script:
-    - echo "Building all affected projects..."
-    - npx nx affected:build --all
+    - echo "Building all projects..."
+    - npx nx run-many --target=build --all
   artifacts:
     paths:
       - '**/build/libs/*.jar'
@@ -77,8 +77,8 @@ test:
   <<: *setup_java_node
   stage: test
   script:
-    - echo "Running tests for all affected projects..."
-    - npx nx affected:test --all
+    - echo "Running tests for all projects..."
+    - npx nx run-many --target=test --all
   artifacts:
     reports:
       junit:
