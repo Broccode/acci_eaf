@@ -1,0 +1,26 @@
+{
+  "name": "eaf-sdk",
+  "projectType": "library",
+  "sourceRoot": "libs/eaf-sdk/eaf-core/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/gradle:build",
+      "options": {
+        "task": "build"
+      }
+    },
+    "test": {
+      "executor": "@nx/gradle:test",
+      "options": {
+        "task": "test"
+      }
+    },
+    "clean": {
+      "executor": "@nx/gradle:clean",
+      "options": {
+        "task": "clean"
+      }
+    }
+  },
+  "tags": ["type:lib", "scope:eaf", "platform:backend"]
+} 

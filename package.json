@@ -1,0 +1,23 @@
+{
+  "name": "acci-eaf-monorepo",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "nx build",
+    "test": "nx test"
+  },
+  "private": true,
+  "devDependencies": {
+    "@nx/gradle": "latest",
+    "@nx/react": "latest",
+    "@nx/web": "latest",
+    "@nx/js": "latest",
+    "@nx/workspace": "latest",
+    "nx": "latest",
+    "typescript": "~5.6.2"
+  },
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ]
+} 
