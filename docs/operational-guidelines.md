@@ -127,6 +127,7 @@ Testing is a cornerstone of ACCI EAF, with TDD being mandatory.
   - **Scope:** Enforce architectural rules like layer dependencies (Hexagonal), DDD constraints,
     naming conventions, and domain purity (no infrastructure dependencies in domain code).
   - **Location:** Can be part of the main test suite or a dedicated test module.
+  - **Implementation:** See detailed ArchUnit guidance below.
 - **End-to-End (E2E) Tests:**
   - **Scope:** Validate complete user flows or critical paths for applications like the ACCI EAF
     Control Plane MVP and the pilot application.
@@ -188,3 +189,216 @@ Security is paramount for ACCI EAF.
   product certification.
 - **Regular Security Reviews & Testing:** Incorporate security testing (SAST, DAST, potentially
   penetration testing for mature EAF versions) into the development lifecycle.
+
+## ArchUnit - Architectural Rule Testing
+
+ArchUnit is a critical component of the ACCI EAF quality assurance strategy, providing automated enforcement of architectural integrity through code analysis. It ensures that the codebase adheres to the mandated Hexagonal Architecture, DDD principles, and established naming conventions.
+
+### Purpose and Benefits
+
+ArchUnit tests serve as living documentation of our architectural decisions and act as guardrails to prevent architectural drift. They provide:
+
+- **Automated Architecture Enforcement:** Programmatically verify that code follows Hexagonal Architecture layer separation
+- **Continuous Compliance:** Ensure DDD principles are maintained throughout development
+- **Early Violation Detection:** Catch architectural violations during development, not in code review
+- **Documentation:** Self-documenting architectural rules that evolve with the codebase
+- **Onboarding Support:** Help new developers understand and follow EAF architectural patterns
+
+### Core Architectural Rules
+
+#### Layer Dependency Rules (Hexagonal Architecture)
+
+The EAF enforces strict layer separation to maintain clean architecture:
+
+```kotlin
+// Domain layer must not depend on infrastructure
+ArchRuleDefinition.noClasses()
+    .that().resideInAPackage("..domain..")
+    .should().dependOnClassesThat().resideInAPackage("..infrastructure..")
+    .because("Domain layer must not depend on infrastructure concerns")
+
+// Domain must not depend on Spring Framework
+ArchRuleDefinition.noClasses()
+    .that().resideInAPackage("..domain..")
+    .should().dependOnClassesThat().resideInAnyPackage("org.springframework..")
+    .because("Domain layer must remain framework-agnostic")
+```
+
+#### Naming Convention Rules
+
+Consistent naming enhances code readability and maintainability:
+
+```kotlin
+// Events should end with "Event" and be in domain.event packages
+ArchRuleDefinition.classes()
+    .that().haveSimpleNameEndingWith("Event")
+    .should().resideInAPackage("..domain.event..")
+    .because("Events should be clearly identified and properly located")
+
+// Aggregates should end with "Aggregate" and be in domain.model packages
+ArchRuleDefinition.classes()
+    .that().haveSimpleNameEndingWith("Aggregate")
+    .should().resideInAPackage("..domain.model..")
+    .because("Aggregates are core domain concepts")
+```
+
+### Running ArchUnit Tests Locally
+
+#### Command Line Execution
+
+```bash
+# Run all tests (including ArchUnit tests)
+./gradlew test
+
+# Run tests for specific module
+./gradlew libs:eaf-sdk:eaf-core:test
+
+# Run tests with verbose output
+./gradlew test --info
+
+# Run only architecture tests (if using naming convention)
+./gradlew test --tests "*ArchTest*"
+```
+
+#### IDE Integration
+
+ArchUnit tests run as standard JUnit 5 tests, so they integrate seamlessly with your IDE:
+
+1. **IntelliJ IDEA:** Right-click on test classes/methods and select "Run"
+2. **VS Code:** Use the Test Explorer or CodeLens "Run Test" links
+3. **Command Palette:** Use "Java: Run Tests" commands
+
+### Test Organization
+
+#### Current Structure
+
+```
+libs/eaf-sdk/eaf-core/src/test/kotlin/com/axians/eaf/core/arch/
+├── EafArchitectureTest.kt          # Common EAF architectural rules
+└── SimpleArchTest.kt               # Basic validation tests
+
+apps/iam-service/src/test/kotlin/com/axians/eaf/iam/arch/
+└── IamServiceArchitectureTest.kt   # Service-specific rules
+```
+
+#### Test File Naming
+
+- Architecture test files should end with `ArchTest.kt` or `ArchitectureTest.kt`
+- Place in `arch` package within the test source tree
+- Use descriptive class names (e.g., `EafArchitectureTest`, `IamServiceArchitectureTest`)
+
+### Adding New Architectural Rules
+
+#### Step 1: Identify the Rule
+
+Before writing a new ArchUnit rule, clearly define:
+
+- **What** architectural constraint you want to enforce
+- **Why** this constraint is important for the EAF
+- **Where** the rule should be located (common EAF rules vs. service-specific)
+
+#### Step 2: Choose the Appropriate Test Location
+
+- **Common EAF Rules:** Add to `libs/eaf-sdk/eaf-core/src/test/kotlin/.../arch/EafArchitectureTest.kt`
+- **Service-Specific Rules:** Add to the service's own architecture test class
+- **New Service:** Create a new `{ServiceName}ArchitectureTest.kt` file
+
+#### Step 3: Write the Rule
+
+Use ArchUnit's fluent API to express your architectural constraint:
+
+```kotlin
+@Test
+fun `application layer should not depend on infrastructure details`() {
+    ArchRuleDefinition.noClasses()
+        .that().resideInAPackage("..application..")
+        .should().dependOnClassesThat().resideInAnyPackage(
+            "jakarta.persistence..",
+            "org.springframework.data.jpa..",
+            "org.springframework.web.."
+        )
+        .because("Application layer should remain independent of infrastructure implementations")
+        .check(importedClasses)
+}
+```
+
+#### Step 4: Test the Rule
+
+1. **Run the Test:** Ensure your new rule passes against the current codebase
+2. **Verify Enforcement:** Intentionally violate the rule to confirm it catches violations
+3. **Update Documentation:** Add your rule to this documentation if it's a common pattern
+
+### Common ArchUnit Patterns
+
+#### Package-Based Rules
+
+```kotlin
+// Classes in specific packages should follow conventions
+ArchRuleDefinition.classes()
+    .that().resideInAPackage("..application.service..")
+    .should().haveSimpleNameEndingWith("Service")
+    .andShould().beAnnotatedWith(org.springframework.stereotype.Service::class.java)
+```
+
+#### Annotation-Based Rules
+
+```kotlin
+// All repositories should be in infrastructure layer
+ArchRuleDefinition.classes()
+    .that().areAnnotatedWith(Repository::class.java)
+    .should().resideInAPackage("..infrastructure.adapter.out..")
+```
+
+#### Dependency Rules
+
+```kotlin
+// Prevent circular dependencies
+ArchRuleDefinition.slices()
+    .matching("com.axians.eaf.(*)..")
+    .should().beFreeOfCycles()
+```
+
+### Integration with CI Pipeline
+
+ArchUnit tests are automatically executed as part of the CI pipeline:
+
+- **GitLab CI:** Tests run during the `test` stage via `npx nx run-many --target=test --all`
+- **GitHub Actions:** Tests run in the `test` job with the same command
+- **Failure Handling:** Any ArchUnit test failure will cause the entire build to fail
+
+### Troubleshooting Common Issues
+
+#### "No classes found" Errors
+
+This typically happens when:
+
+- Package names in rules don't match actual package structure
+- Classes haven't been compiled yet (run `./gradlew compileKotlin` first)
+
+#### Performance Issues
+
+- Use `allowEmptyShould(true)` for rules that might not find matching classes in MVP state
+- Consider using more specific package patterns to reduce the scope of analysis
+
+#### False Positives
+
+- Review package naming conventions
+- Check if generated code should be excluded from analysis
+- Consider using `ignoreDependency()` for acceptable violations
+
+### Best Practices
+
+1. **Start Simple:** Begin with basic layer dependency rules before adding complex constraints
+2. **Clear Messaging:** Always include a meaningful `because()` clause explaining the rule's purpose
+3. **Regular Review:** Periodically review and update rules as the architecture evolves
+4. **Team Agreement:** Ensure all team members understand and agree with architectural rules
+5. **Incremental Addition:** Add new rules gradually to avoid overwhelming the team
+
+### Future Enhancements
+
+As the EAF matures, consider adding:
+
+- **Complexity Rules:** Enforce maximum cyclomatic complexity
+- **Size Rules:** Limit class/method sizes
+- **Dependency Direction:** Ensure dependencies flow in the correct direction
+- **API Rules:** Enforce public API design constraints

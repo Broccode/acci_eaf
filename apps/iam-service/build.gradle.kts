@@ -23,4 +23,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.12")
     testImplementation("org.testcontainers:junit-jupiter:1.19.3")
     testImplementation("org.testcontainers:postgresql:1.19.3")
+
+    // ArchUnit for architectural testing
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
 }
