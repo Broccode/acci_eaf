@@ -23,16 +23,11 @@ cache:
 .setup_java_node: &setup_java_node
   image: eclipse-temurin:21-jdk
   before_script:
-    # Configure DNS and update package lists with retries
-    - echo "nameserver 8.8.8.8" > /etc/resolv.conf
-    - echo "nameserver 1.1.1.1" >> /etc/resolv.conf
-    - for i in 1 2 3; do apt-get update && break || sleep 5; done
-    # Install essential packages with error handling
-    - apt-get install -y --no-install-recommends ca-certificates curl gnupg git
-    # Install Node.js with official repository
-    - curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-    - echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" > /etc/apt/sources.list.d/nodesource.list
-    - apt-get update && apt-get install -y nodejs
+    # Install git (required for Nx affected commands)
+    - apt-get update && apt-get install -y git
+    # Install Node.js
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y nodejs
     # Verify installations
     - java -version
     - node --version
