@@ -1,0 +1,59 @@
+services:
+  # NATS Server with JetStream enabled for EAF MVP
+  nats:
+    image: nats:latest
+    container_name: eaf-nats
+    ports:
+      # Client connections
+      - "4222:4222"
+      # HTTP monitoring interface
+      - "8222:8222"
+      # Routing port for clustering (future use)
+      - "6222:6222"
+    volumes:
+      # Mount NATS configuration file
+      - ./nats-server-simple.conf:/etc/nats/nats-server.conf:ro
+      # Mount data directory for JetStream persistence
+      - ./nats-data:/data
+    command: [
+      "--config", "/etc/nats/nats-server.conf"
+    ]
+    environment:
+      # Optional: Enable debug logging during development
+      - NATS_DEBUG=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nats", "server", "check", "--server", "nats://localhost:4222"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - eaf-network
+
+  # Example PostgreSQL service (referenced in architecture for Event Store)
+  # Uncomment when needed for full EAF stack
+  # postgres:
+  #   image: postgres:15
+  #   container_name: eaf-postgres
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_DB: eaf_eventstore
+  #     POSTGRES_USER: eaf_user
+  #     POSTGRES_PASSWORD: eaf_password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - eaf-network
+
+networks:
+  eaf-network:
+    driver: bridge
+    name: eaf-network
+
+volumes:
+  # Uncomment when PostgreSQL is added
+  # postgres_data:
+  nats_data:
+    driver: local
