@@ -105,6 +105,129 @@ applications built on EAF. Linting and formatting tools will enforce many of the
 
 Testing is a cornerstone of ACCI EAF, with TDD being mandatory.
 
+### Test-Driven Development (TDD) Workflow
+
+TDD is **mandatory** for all ACCI EAF development. The red-green-refactor cycle ensures high-quality, well-tested code from the start.
+
+#### The Red-Green-Refactor Cycle
+
+1. **🔴 RED:** Write a failing test first
+   - Write the smallest possible test that fails
+   - Ensure the test fails for the right reason (missing implementation, not syntax errors)
+   - Run the test to confirm it fails
+
+2. **🟢 GREEN:** Write minimal code to make the test pass
+   - Implement just enough code to make the test pass
+   - Don't worry about perfect design yet
+   - Run the test to confirm it passes
+
+3. **🔵 REFACTOR:** Improve the code while keeping tests green
+   - Clean up the implementation
+   - Improve design, remove duplication
+   - Ensure all tests still pass after each change
+
+#### Backend TDD (Kotlin/Spring)
+
+**Example Reference:** See `libs/eaf-sdk/eaf-core/src/test/kotlin/com/axians/eaf/core/example/calculator/CalculatorServiceTest.kt`
+
+**Tools:**
+
+- JUnit 5 for test framework
+- MockK for mocking dependencies
+- AssertJ for fluent assertions (optional)
+
+**Test Structure:**
+
+```kotlin
+class ServiceTest {
+    @Test
+    fun `should do something when given valid input`() {
+        // Given (Arrange)
+        val input = "test"
+        
+        // When (Act)
+        val result = service.doSomething(input)
+        
+        // Then (Assert)
+        assertEquals(expected, result)
+    }
+}
+```
+
+**Running Backend Tests:**
+
+```bash
+# Run all tests
+./gradlew test
+
+# Run specific module tests
+./gradlew :libs:eaf-sdk:eaf-core:test
+
+# Run specific test class
+./gradlew test --tests "CalculatorServiceTest"
+```
+
+#### Frontend TDD (React/TypeScript)
+
+**Example Reference:** See `libs/ui-foundation-kit/src/components/SimpleCounter/SimpleCounter.test.tsx`
+
+**Tools:**
+
+- Vitest for test framework (fast, Vite-integrated)
+- React Testing Library for component testing
+- jsdom for browser environment simulation
+
+**Test Structure:**
+
+```typescript
+describe('ComponentName', () => {
+  it('should render correctly when given props', () => {
+    // Given (Arrange)
+    render(<ComponentName prop="value" />)
+    
+    // When (Act)
+    const element = screen.getByTestId('element-id')
+    
+    // Then (Assert)
+    expect(element).toHaveTextContent('Expected Text')
+  })
+})
+```
+
+**Running Frontend Tests:**
+
+```bash
+# Navigate to ui-foundation-kit
+cd libs/ui-foundation-kit
+
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with UI
+npm run test:ui
+```
+
+#### TDD Best Practices for EAF
+
+1. **Test Names:** Use descriptive names with backticks in Kotlin, clear descriptions in TypeScript
+2. **Test Organization:** Follow Given-When-Then structure for clarity
+3. **One Assertion Per Test:** Focus each test on a single behavior
+4. **Mock External Dependencies:** Keep unit tests isolated and fast
+5. **Test Edge Cases:** Include boundary conditions and error scenarios
+6. **Refactor Regularly:** Don't skip the refactor step - it's crucial for maintainable code
+
+#### Integration with CI/CD
+
+All tests must pass before code can be merged:
+
+- Backend tests run via `./gradlew test`
+- Frontend tests run via `npm test` in each frontend module
+- ArchUnit tests enforce architectural compliance
+- Coverage reports help identify untested code paths
+
 - **Tools (Backend):** JUnit 5, MockK (for Kotlin mocking), Spring Boot Test utilities, AssertJ (for
   fluent assertions), ArchUnit (for architecture rule validation), Testcontainers (for integration
   tests with PostgreSQL, NATS, etc.).
