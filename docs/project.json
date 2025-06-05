@@ -1,0 +1,81 @@
+{
+  "name": "docs",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "docs",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus build",
+        "cwd": "docs"
+      },
+      "outputs": ["{projectRoot}/build"]
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus start",
+        "cwd": "docs"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus start",
+        "cwd": "docs"
+      }
+    },
+    "clear": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus clear",
+        "cwd": "docs"
+      }
+    },
+    "swizzle": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus swizzle",
+        "cwd": "docs"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus deploy",
+        "cwd": "docs"
+      },
+      "dependsOn": ["build"]
+    },
+    "write-translations": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus write-translations",
+        "cwd": "docs"
+      }
+    },
+    "write-heading-ids": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docusaurus write-heading-ids",
+        "cwd": "docs"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit",
+        "cwd": "docs"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "eslint . --ext .ts,.tsx,.js,.jsx",
+        "cwd": "docs"
+      }
+    }
+  },
+  "tags": ["type:app", "scope:docs"]
+}

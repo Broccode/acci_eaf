@@ -381,3 +381,9 @@ logs/
 *.out
 
 # End of https://www.gitignore.io/api/osx,java,linux,kotlin,windows,eclipse,java-web,intellij+all,visualstudiocode,gradle,maven
+
+# Docusaurus
+.docusaurus/
+**/build/
+docs/node_modules/
+docs/package-lock.json
