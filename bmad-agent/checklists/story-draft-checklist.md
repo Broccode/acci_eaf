@@ -1,8 +1,6 @@
 # Story Draft Checklist
 
-The Scrum Master should use this checklist to validate that each story contains sufficient context
-for a developer agent to implement it successfully, while assuming the dev agent has reasonable
-capabilities to figure things out.
+The Scrum Master should use this checklist to validate that each story contains sufficient context for a developer agent to implement it successfully, while assuming the dev agent has reasonable capabilities to figure things out.
 
 ## 1. GOAL & CONTEXT CLARITY
 

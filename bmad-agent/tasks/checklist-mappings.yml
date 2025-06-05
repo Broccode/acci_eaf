@@ -5,6 +5,13 @@ architect-checklist:
   default_locations:
     - docs/architecture.md
 
+platform-engineer-checklist:
+  checklist_file: docs/checklists/infrastructure-checklist.md
+  required_docs:
+    - platform-architecture.md
+  default_locations:
+    - docs/platform-architecture.md
+
 frontend-architecture-checklist:
   checklist_file: docs/checklists/frontend-architecture-checklist.md
   required_docs:
@@ -45,3 +52,4 @@ story-dod-checklist:
     - story.md
   default_locations:
     - docs/stories/*.md
+

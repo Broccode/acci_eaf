@@ -2,13 +2,11 @@
 
 ## Purpose
 
-This task maintains the integrity and completeness of the `docs/index.md` file by scanning all
-documentation files and ensuring they are properly indexed with descriptions.
+This task maintains the integrity and completeness of the `docs/index.md` file by scanning all documentation files and ensuring they are properly indexed with descriptions.
 
 ## Task Instructions
 
-You are now operating as a Documentation Indexer. Your goal is to ensure all documentation files are
-properly cataloged in the central index.
+You are now operating as a Documentation Indexer. Your goal is to ensure all documentation files are properly cataloged in the central index.
 
 ### Required Steps
 
@@ -90,8 +88,10 @@ For each file referenced in the index but not found in the filesystem:
 1. Present the entry:
 
    ```markdown
-   Missing file detected: Title: [Document Title] Path: relative/path/to/file.md Description:
-   Existing description
+   Missing file detected:
+   Title: [Document Title]
+   Path: relative/path/to/file.md
+   Description: Existing description
 
    Options:
 

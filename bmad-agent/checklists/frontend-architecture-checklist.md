@@ -2,9 +2,7 @@
 
 ## Purpose
 
-This checklist is for the Design Architect to use after completing the "Frontend Architecture Mode"
-and populating the `front-end-architecture-tmpl.txt` (or `.md`) document. It ensures all sections
-are comprehensively covered and meet quality standards before finalization.
+This checklist is for the Design Architect to use after completing the "Frontend Architecture Mode" and populating the `front-end-architecture-tmpl.txt` (or `.md`) document. It ensures all sections are comprehensively covered and meet quality standards before finalization.
 
 ---
 
@@ -14,24 +12,18 @@ are comprehensively covered and meet quality standards before finalization.
 - [ ] Is the link to the Main Architecture Document present and correct?
 - [ ] Is the link to the UI/UX Specification present and correct?
 - [ ] Is the link to the Primary Design Files (Figma, Sketch, etc.) present and correct?
-- [ ] Is the link to a Deployed Storybook / Component Showcase included, if applicable and
-      available?
+- [ ] Is the link to a Deployed Storybook / Component Showcase included, if applicable and available?
 
 ## II. Overall Frontend Philosophy & Patterns
 
-- [ ] Are the chosen Framework & Core Libraries clearly stated and aligned with the main
-      architecture document?
-- [ ] Is the Component Architecture (e.g., Atomic Design, Presentational/Container) clearly
-      described?
-- [ ] Is the State Management Strategy (e.g., Redux Toolkit, Zustand) clearly described at a high
-      level?
+- [ ] Are the chosen Framework & Core Libraries clearly stated and aligned with the main architecture document?
+- [ ] Is the Component Architecture (e.g., Atomic Design, Presentational/Container) clearly described?
+- [ ] Is the State Management Strategy (e.g., Redux Toolkit, Zustand) clearly described at a high level?
 - [ ] Is the Data Flow (e.g., Unidirectional) clearly explained?
 - [ ] Is the Styling Approach (e.g., CSS Modules, Tailwind CSS) clearly defined?
 - [ ] Are Key Design Patterns to be employed (e.g., Provider, Hooks) listed?
-- [ ] Does this section align with "Definitive Tech Stack Selections" in the main architecture
-      document?
-- [ ] Are implications from overall system architecture (monorepo/polyrepo, backend services)
-      considered?
+- [ ] Does this section align with "Definitive Tech Stack Selections" in the main architecture document?
+- [ ] Are implications from overall system architecture (monorepo/polyrepo, backend services) considered?
 
 ## III. Detailed Frontend Directory Structure
 
@@ -45,58 +37,47 @@ are comprehensively covered and meet quality standards before finalization.
 ### Component Naming & Organization
 
 - [ ] Are conventions for naming components (e.g., PascalCase) described?
-- [ ] Is the organization of components on the filesystem clearly explained (reiterating from
-      directory structure if needed)?
+- [ ] Is the organization of components on the filesystem clearly explained (reiterating from directory structure if needed)?
 
 ### Template for Component Specification
 
 - [ ] Is the "Template for Component Specification" itself complete and well-defined?
   - [ ] Does it include fields for: Purpose, Source File(s), Visual Reference?
   - [ ] Does it include a table structure for Props (Name, Type, Required, Default, Description)?
-  - [ ] Does it include a table structure for Internal State (Variable, Type, Initial Value,
-        Description)?
+  - [ ] Does it include a table structure for Internal State (Variable, Type, Initial Value, Description)?
   - [ ] Does it include a section for Key UI Elements / Structure (textual or pseudo-HTML)?
   - [ ] Does it include a section for Events Handled / Emitted?
   - [ ] Does it include a section for Actions Triggered (State Management, API Calls)?
   - [ ] Does it include a section for Styling Notes?
   - [ ] Does it include a section for Accessibility Notes?
-- [ ] Is there a clear statement that this template should be used for most feature-specific
-      components?
+- [ ] Is there a clear statement that this template should be used for most feature-specific components?
 
 ### Foundational/Shared Components (if any specified upfront)
 
-- [ ] If any foundational/shared UI components are specified, do they follow the "Template for
-      Component Specification"?
+- [ ] If any foundational/shared UI components are specified, do they follow the "Template for Component Specification"?
 - [ ] Is the rationale for specifying these components upfront clear?
 
 ## V. State Management In-Depth
 
-- [ ] Is the chosen State Management Solution reiterated and rationale briefly provided (if not
-      fully covered in main arch doc)?
-- [ ] Are conventions for Store Structure / Slices clearly defined (e.g., location, feature-based
-      slices)?
+- [ ] Is the chosen State Management Solution reiterated and rationale briefly provided (if not fully covered in main arch doc)?
+- [ ] Are conventions for Store Structure / Slices clearly defined (e.g., location, feature-based slices)?
 - [ ] If a Core Slice Example (e.g., `sessionSlice`) is provided:
   - [ ] Is its purpose clear?
   - [ ] Is its State Shape defined (e.g., using TypeScript interface)?
   - [ ] Are its Key Reducers/Actions listed?
-- [ ] Is a Feature Slice Template provided, outlining purpose, state shape, and key reducers/actions
-      to be filled in?
+- [ ] Is a Feature Slice Template provided, outlining purpose, state shape, and key reducers/actions to be filled in?
 - [ ] Are conventions for Key Selectors noted (e.g., use `createSelector`)?
 - [ ] Are examples of Key Selectors for any core slices provided?
 - [ ] Are conventions for Key Actions / Reducers / Thunks (especially async) described?
-- [ ] Is an example of a Core Action/Thunk (e.g., `authenticateUser`) provided, detailing its
-      purpose and dispatch flow?
+- [ ] Is an example of a Core Action/Thunk (e.g., `authenticateUser`) provided, detailing its purpose and dispatch flow?
 - [ ] Is a Feature Action/Thunk Template provided for feature-specific async operations?
 
 ## VI. API Interaction Layer
 
-- [ ] Is the HTTP Client Setup detailed (e.g., Axios instance, Fetch wrapper, base URL, default
-      headers, interceptors)?
+- [ ] Is the HTTP Client Setup detailed (e.g., Axios instance, Fetch wrapper, base URL, default headers, interceptors)?
 - [ ] Are Service Definitions conventions explained?
-- [ ] Is an example of a service (e.g., `userService.ts`) provided, including its purpose and
-      example functions?
-- [ ] Is Global Error Handling for API calls described (e.g., toast notifications, global error
-      state)?
+- [ ] Is an example of a service (e.g., `userService.ts`) provided, including its purpose and example functions?
+- [ ] Is Global Error Handling for API calls described (e.g., toast notifications, global error state)?
 - [ ] Is guidance on Specific Error Handling within components provided?
 - [ ] Is any client-side Retry Logic for API calls detailed and configured?
 
@@ -112,15 +93,13 @@ are comprehensively covered and meet quality standards before finalization.
 ## VIII. Build, Bundling, and Deployment
 
 - [ ] Are Key Build Scripts (e.g., `npm run build`) listed and their purpose explained?
-- [ ] Is the handling of Environment Variables during the build process described for different
-      environments?
+- [ ] Is the handling of Environment Variables during the build process described for different environments?
 - [ ] Is Code Splitting strategy detailed (e.g., route-based, component-based)?
 - [ ] Is Tree Shaking confirmed or explained?
 - [ ] Is Lazy Loading strategy (for components, images, routes) outlined?
 - [ ] Is Minification & Compression by build tools mentioned?
 - [ ] Is the Target Deployment Platform (e.g., Vercel, Netlify) specified?
-- [ ] Is the Deployment Trigger (e.g., Git push via CI/CD) described, referencing the main CI/CD
-      pipeline?
+- [ ] Is the Deployment Trigger (e.g., Git push via CI/CD) described, referencing the main CI/CD pipeline?
 - [ ] Is the Asset Caching Strategy (CDN/browser) for static assets outlined?
 
 ## IX. Frontend Testing Strategy
@@ -143,8 +122,7 @@ are comprehensively covered and meet quality standards before finalization.
 ## X. Accessibility (AX) Implementation Details
 
 - [ ] Is there an emphasis on using Semantic HTML?
-- [ ] Are guidelines for ARIA Implementation (roles, states, properties for custom components)
-      provided?
+- [ ] Are guidelines for ARIA Implementation (roles, states, properties for custom components) provided?
 - [ ] Are requirements for Keyboard Navigation (all interactive elements focusable/operable) stated?
 - [ ] Is Focus Management (for modals, dynamic content) addressed?
 - [ ] Are Testing Tools for AX (e.g., Axe DevTools, Lighthouse) listed?
@@ -169,10 +147,7 @@ are comprehensively covered and meet quality standards before finalization.
 
 ## Final Review Sign-off
 
-- [ ] Have all placeholders (e.g., `{Project Name}`, `{e.g., ...}`) been filled in or removed where
-      appropriate?
-- [ ] Has the document been reviewed for clarity, consistency, and completeness by the Design
-      Architect?
-- [ ] Are all linked documents (Main Architecture, UI/UX Spec) finalized or stable enough for this
-      document to rely on?
+- [ ] Have all placeholders (e.g., `{Project Name}`, `{e.g., ...}`) been filled in or removed where appropriate?
+- [ ] Has the document been reviewed for clarity, consistency, and completeness by the Design Architect?
+- [ ] Are all linked documents (Main Architecture, UI/UX Spec) finalized or stable enough for this document to rely on?
 - [ ] Is the document ready to be shared with the development team?

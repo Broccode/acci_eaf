@@ -1,8 +1,6 @@
 # Product Manager (PM) Requirements Checklist
 
-This checklist serves as a comprehensive framework to ensure the Product Requirements Document (PRD)
-and Epic definitions are complete, well-structured, and appropriately scoped for MVP development.
-The PM should systematically work through each item during the product definition process.
+This checklist serves as a comprehensive framework to ensure the Product Requirements Document (PRD) and Epic definitions are complete, well-structured, and appropriately scoped for MVP development. The PM should systematically work through each item during the product definition process.
 
 ## 1. PROBLEM DEFINITION & CONTEXT
 
@@ -107,8 +105,7 @@ The PM should systematically work through each item during the product definitio
 - [ ] Stories are sized appropriately (not too large)
 - [ ] Stories are independent where possible
 - [ ] Stories include necessary context
-- [ ] Local testability requirements (e.g., via CLI) defined in ACs for relevant backend/data
-      stories
+- [ ] Local testability requirements (e.g., via CLI) defined in ACs for relevant backend/data stories
 
 ## 5. NON-FUNCTIONAL REQUIREMENTS
 
@@ -185,8 +182,7 @@ The PM should systematically work through each item during the product definitio
 
 - [ ] Decision criteria for technical choices provided
 - [ ] Trade-offs articulated for key decisions
-- [ ] Rationale for selecting primary approach over considered alternatives documented (for key
-      design/feature choices)
+- [ ] Rationale for selecting primary approach over considered alternatives documented (for key design/feature choices)
 - [ ] Non-negotiable technical requirements highlighted
 - [ ] Areas requiring technical investigation identified
 - [ ] Guidance on technical debt approach provided
@@ -248,17 +244,17 @@ The PM should systematically work through each item during the product definitio
 
 ### Category Statuses
 
-| Category                         | Status            | Critical Issues |
-| -------------------------------- | ----------------- | --------------- |
-| 1. Problem Definition & Context  | PASS/FAIL/PARTIAL |                 |
-| 2. MVP Scope Definition          | PASS/FAIL/PARTIAL |                 |
-| 3. User Experience Requirements  | PASS/FAIL/PARTIAL |                 |
-| 4. Functional Requirements       | PASS/FAIL/PARTIAL |                 |
-| 5. Non-Functional Requirements   | PASS/FAIL/PARTIAL |                 |
-| 6. Epic & Story Structure        | PASS/FAIL/PARTIAL |                 |
-| 7. Technical Guidance            | PASS/FAIL/PARTIAL |                 |
-| 8. Cross-Functional Requirements | PASS/FAIL/PARTIAL |                 |
-| 9. Clarity & Communication       | PASS/FAIL/PARTIAL |                 |
+| Category | Status | Critical Issues |
+|----------|--------|----------------|
+| 1. Problem Definition & Context | PASS/FAIL/PARTIAL | |
+| 2. MVP Scope Definition | PASS/FAIL/PARTIAL | |
+| 3. User Experience Requirements | PASS/FAIL/PARTIAL | |
+| 4. Functional Requirements | PASS/FAIL/PARTIAL | |
+| 5. Non-Functional Requirements | PASS/FAIL/PARTIAL | |
+| 6. Epic & Story Structure | PASS/FAIL/PARTIAL | |
+| 7. Technical Guidance | PASS/FAIL/PARTIAL | |
+| 8. Cross-Functional Requirements | PASS/FAIL/PARTIAL | |
+| 9. Clarity & Communication | PASS/FAIL/PARTIAL | |
 
 ### Critical Deficiencies
 
@@ -270,7 +266,5 @@ The PM should systematically work through each item during the product definitio
 
 ### Final Decision
 
-- **READY FOR ARCHITECT**: The PRD and epics are comprehensive, properly structured, and ready for
-  architectural design.
-- **NEEDS REFINEMENT**: The requirements documentation requires additional work to address the
-  identified deficiencies.
+- **READY FOR ARCHITECT**: The PRD and epics are comprehensive, properly structured, and ready for architectural design.
+- **NEEDS REFINEMENT**: The requirements documentation requires additional work to address the identified deficiencies.
