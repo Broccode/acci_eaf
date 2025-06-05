@@ -1,9 +1,8 @@
 package com.axians.eaf.core.example.calculator
 
-import io.mockk.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
 
 /**
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.assertThrows
  * This serves as a reference implementation for EAF developers practicing TDD.
  */
 class CalculatorServiceTest {
-
     private lateinit var calculatorService: CalculatorService
 
     @BeforeEach
