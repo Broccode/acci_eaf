@@ -16,9 +16,10 @@ dependencyResolutionManagement {
 // Include backend applications
 include(":apps:iam-service")
 
-// Include backend libraries  
+// Include backend libraries
 include(":libs:eaf-sdk")
 include(":libs:eaf-sdk:eaf-core")
+include(":libs:eaf-sdk:eaf-eventing-sdk")
 
 // Include tools
-// include(":tools:acci-eaf-cli")  // Will be uncommented when ready 
+// include(":tools:acci-eaf-cli")  // Will be uncommented when ready
