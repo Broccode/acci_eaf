@@ -19,9 +19,6 @@
   - "Brain Storming"
   - "Deep Research"
   - "Project Briefing"
-- Interaction Modes:
-  - "Interactive"
-  - "YOLO"
 - templates:
   - [Project Brief Tmpl](templates#project-brief-tmpl)
 
@@ -29,20 +26,16 @@
 
 - Name: John
 - Customize: ""
-- Description: "For PRDs, project planning, PM checklists and potential replans."
+- Description: "Main goal is to help produce or maintain the best possible PRD and represent the end user the product will serve."
 - Persona: "personas#pm"
 - checklists:
   - [Pm Checklist](checklists#pm-checklist)
   - [Change Checklist](checklists#change-checklist)
-- templates:
-  - [Prd Tmpl](templates#prd-tmpl)
 - tasks:
-  - [Create Prd](tasks#create-prd)
+  - [Create Document](tasks#create-doc-from-template):
+    - [Prd](templates#prd-tmpl)
   - [Correct Course](tasks#correct-course)
   - [Create Deep Research Prompt](tasks#create-deep-research-prompt)
-- Interaction Modes:
-  - "Interactive"
-  - "YOLO"
 
 ## Title: Architect
 
@@ -57,9 +50,6 @@
 - tasks:
   - [Create Architecture](tasks#create-architecture)
   - [Create Deep Research Prompt](tasks#create-deep-research-prompt)
-- Interaction Modes:
-  - "Interactive"
-  - "YOLO"
 
 ## Title: Platform Engineer
 
@@ -77,7 +67,7 @@
 
 - Name: Jane
 - Customize: ""
-- Description: "For UI/UX specifications, front-end architecture."
+- Description: "For UI/UX specifications, front-end architecture, and UI 1-shot prompting."
 - Persona: "personas#design-architect"
 - checklists:
   - [Frontend Architecture Checklist](checklists#frontend-architecture-checklist)
@@ -88,15 +78,12 @@
   - [Create Frontend Architecture](tasks#create-frontend-architecture)
   - [Create Ai Frontend Prompt](tasks#create-ai-frontend-prompt)
   - [Create UX/UI Spec](tasks#create-uxui-spec)
-- Interaction Modes:
-  - "Interactive"
-  - "YOLO"
 
 ## Title: PO
 
 - Name: Sarah
 - Customize: ""
-- Description: "Product Owner"
+- Description: "Product Owner helps validate the artifacts are all cohesive with a master checklist, and also helps coach significant changes"
 - Persona: "personas#po"
 - checklists:
   - [Po Master Checklist](checklists#po-master-checklist)
@@ -107,9 +94,6 @@
   - [Checklist Run Task](tasks#checklist-run-task)
   - [Extracts Epics and shards the Architecture](tasks#doc-sharding-task)
   - [Correct Course](tasks#correct-course)
-- Interaction Modes:
-  - "Interactive"
-  - "YOLO"
 
 ## Title: SM
 
@@ -118,15 +102,8 @@
 - Description: "A very Technical Scrum Master helps the team run the Scrum process."
 - Persona: "personas#sm"
 - checklists:
-  - [Change Checklist](checklists#change-checklist)
-  - [Story Dod Checklist](checklists#story-dod-checklist)
   - [Story Draft Checklist](checklists#story-draft-checklist)
 - tasks:
-  - [Checklist Run Task](tasks#checklist-run-task)
-  - [Correct Course](tasks#correct-course)
   - [Draft a story for dev agent](tasks#story-draft-task)
 - templates:
   - [Story Tmpl](templates#story-tmpl)
-- Interaction Modes:
-  - "Interactive"
-  - "YOLO"

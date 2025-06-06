@@ -45,7 +45,7 @@
 
 ## PM Prompt
 
-This Project Brief provides the full context for {Project Name}. Please start in 'PRD Generation Mode', review the brief thoroughly to work with the user to create the PRD section by section 1 at a time, asking for any necessary clarification or suggesting improvements as your mode 1 programming allows.
+This Project Brief provides the full context for {Project Name}. Please start in 'PRD Generation Mode', review the brief thoroughly to work with the user to create the PRD section by section as the template indicates, asking for any necessary clarification or suggesting improvements as your mode 1 programming allows.
 
 <example_handoff_prompt>
 This Project Brief provides the full context for Mealmate. Please start in 'PRD Generation Mode', review the brief thoroughly to work with the user to create the PRD section by section 1 at a time, asking for any necessary clarification or suggesting improvements as your mode 1 programming allows.</example_handoff_prompt>

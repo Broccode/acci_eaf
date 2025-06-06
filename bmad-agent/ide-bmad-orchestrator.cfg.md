@@ -14,7 +14,7 @@ Example: If above cfg has `agent-root: root/foo/` and `tasks: (agent-root)/tasks
 
 ## Title: Analyst
 
-- Name: Wendy
+- Name: Mary
 - Customize: ""
 - Description: "Research assistant, brain storming coach, requirements gathering, project briefs."
 - Persona: "analyst.md"
@@ -25,18 +25,19 @@ Example: If above cfg has `agent-root: root/foo/` and `tasks: (agent-root)/tasks
 
 ## Title: Product Manager (PM)
 
-- Name: Bill
+- Name: John
 - Customize: ""
-- Description: "Jack has only one goal - to produce or maintain the best possible PRD - or discuss the product with you to ideate or plan current or future efforts related to the product."
+- Description: "Main goal is to help produce or maintain the best possible PRD and represent the end user the product will serve."
 - Persona: "pm.md"
 - Tasks:
-  - [Create PRD](create-prd.md)
+  - [Create Document](tasks#create-doc-from-template):
+    - [Prd](templates#prd-tmpl)
 
 ## Title: Architect
 
-- Name: Timmy
+- Name: Fred
 - Customize: ""
-- Description: "Generates Architecture, Can help plan a story, and will also help update PRD level epic and stories."
+- Description: "For system architecture, technical design, architecture checklists."
 - Persona: "architect.md"
 - Tasks:
   - [Create Architecture](create-architecture.md)
@@ -46,30 +47,34 @@ Example: If above cfg has `agent-root: root/foo/` and `tasks: (agent-root)/tasks
 
 ## Title: Design Architect
 
-- Name: Karen
+- Name: Jane
 - Customize: ""
-- Description: "Help design a website or web application, produce prompts for UI GEneration AI's, and plan a full comprehensive front end architecture."
+- Description: "For UI/UX specifications, front-end architecture, and UI 1-shot prompting."
 - Persona: "design-architect.md"
 - Tasks:
   - [Create Frontend Architecture](create-frontend-architecture.md)
   - [Create Next Story](create-ai-frontend-prompt.md)
   - [Slice Documents](create-uxui-spec.md)
 
-## Title: Product Owner AKA PO
+## Title: PO
 
-- Name: Jimmy
+- Name: Sarah
 - Customize: ""
-- Description: "Jack of many trades, from PRD Generation and maintenance to the mid sprint Course Correct. Also able to draft masterful stories for the dev agent."
+- Description: "Product Owner helps validate the artifacts are all cohesive with a master checklist, and also helps coach significant changes"
 - Persona: "po.md"
-- Tasks:
-  - [Create PRD](create-prd.md)
-  - [Create Next Story](create-next-story-task.md)
-  - [Slice Documents](doc-sharding-task.md)
-  - [Correct Course](correct-course.md)
+- checklists:
+  - [Po Master Checklist](checklists#po-master-checklist)
+  - [Change Checklist](checklists#change-checklist)
+- templates:
+  - [Story Tmpl](templates#story-tmpl)
+- tasks:
+  - [Checklist Run Task](tasks#checklist-run-task)
+  - [Extracts Epics and shards the Architecture](tasks#doc-sharding-task)
+  - [Correct Course](tasks#correct-course)
 
 ## Title: Frontend Dev
 
-- Name: Rodney
+- Name: Ellyn
 - Customize: "Specialized in NextJS, React, Typescript, HTML, Tailwind"
 - Description: "Master Front End Web Application Developer"
 - Persona: "dev.ide.md"
@@ -94,7 +99,7 @@ Example: If above cfg has `agent-root: root/foo/` and `tasks: (agent-root)/tasks
 
 ## Title: Scrum Master: SM
 
-- Name: Fran
+- Name: Bob
 - Customize: ""
 - Description: "Specialized in Next Story Generation"
 - Persona: "sm.md"
