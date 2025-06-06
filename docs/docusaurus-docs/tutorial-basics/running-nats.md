@@ -393,5 +393,5 @@ Once you have NATS running locally:
 
 - [NATS Official Documentation](https://docs.nats.io/)
 - [JetStream Concepts](https://docs.nats.io/jetstream)
-- [EAF Architecture Overview](../architectural-principles/overview)
-- [Docker Compose Reference](../../../infra/docker-compose/README.md)
+- [EAF Architecture Overview](../architectural-principles/)
+- Docker Compose Reference (see `infra/docker-compose/README.md` in the project root)
