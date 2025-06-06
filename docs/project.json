@@ -7,7 +7,7 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docusaurus build",
+        "command": "npm run build",
         "cwd": "docs"
       },
       "outputs": ["{projectRoot}/build"]
