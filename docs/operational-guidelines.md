@@ -158,13 +158,13 @@ class ServiceTest {
 
 ```bash
 # Run all tests
-./gradlew test
+nx run-many -t test
 
 # Run specific module tests
-./gradlew :libs:eaf-sdk:eaf-core:test
+nx test eaf-core
 
 # Run specific test class
-./gradlew test --tests "CalculatorServiceTest"
+nx test eaf-core --args="--tests \"CalculatorServiceTest\""
 ```
 
 #### Frontend TDD (React/TypeScript)
@@ -223,7 +223,7 @@ npm run test:ui
 
 All tests must pass before code can be merged:
 
-- Backend tests run via `./gradlew test`
+- Backend tests run via `nx run-many -t test`
 - Frontend tests run via `npm test` in each frontend module
 - ArchUnit tests enforce architectural compliance
 - Coverage reports help identify untested code paths
@@ -371,16 +371,16 @@ ArchRuleDefinition.classes()
 
 ```bash
 # Run all tests (including ArchUnit tests)
-./gradlew test
+nx run-many -t test
 
 # Run tests for specific module
-./gradlew libs:eaf-sdk:eaf-core:test
+nx test eaf-core
 
 # Run tests with verbose output
-./gradlew test --info
+nx test eaf-core --args="--info"
 
 # Run only architecture tests (if using naming convention)
-./gradlew test --tests "*ArchTest*"
+nx test eaf-core --args="--tests \"*ArchTest*\""
 ```
 
 #### IDE Integration
@@ -496,7 +496,7 @@ ArchUnit tests are automatically executed as part of the CI pipeline:
 This typically happens when:
 
 - Package names in rules don't match actual package structure
-- Classes haven't been compiled yet (run `./gradlew compileKotlin` first)
+- Classes haven't been compiled yet (run `nx run eaf-core:compileKotlin` first)
 
 #### Performance Issues
 

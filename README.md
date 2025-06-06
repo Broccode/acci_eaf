@@ -30,7 +30,7 @@ npx nx build iam-service
 npx nx build ui-foundation-kit
 
 # Run a specific service
-npx nx run iam-service
+npx nx serve iam-service
 ```
 
 ## Project Structure
@@ -52,18 +52,18 @@ acci-eaf-monorepo/
 
 ## Backend Development
 
-Backend services use Kotlin, Spring Boot, and Gradle. All backend projects are managed as Gradle
-sub-projects.
+Backend services use Kotlin, Spring Boot, and Gradle. All Gradle tasks are wrapped by Nx targets for
+consistency.
 
 ```bash
-# Build backend projects
-./gradlew build
+# Build a backend service (e.g., iam-service)
+npx nx build iam-service
 
-# Run tests
-./gradlew test
+# Run tests for a service
+npx nx test iam-service
 
 # Run a specific service
-./gradlew :apps:iam-service:bootRun
+npx nx serve iam-service
 ```
 
 ## Frontend Development
@@ -108,4 +108,4 @@ The EAF follows a microservices architecture with:
 
 - Check the `docs/` directory for detailed documentation
 - Use `npx nx --help` for Nx commands
-- Use `./gradlew tasks` for available Gradle tasks
+- Use `npx nx show project <project-name>` to see available targets for a project

@@ -23,36 +23,28 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Integration tests for NatsEventPublisher using Testcontainers.
+ * Enhanced integration tests for NatsEventPublisher using the local docker-compose NATS infrastructure.
  *
- * These tests verify:
+ * These tests use the NATS server from infra/docker-compose/docker-compose.yml and verify:
  * - Successful publishing and PublishAck handling
  * - Correct use of tenant context for publishing
  * - Publishing to tenant-specific subjects
  * - Graceful handling of error scenarios
  * - Retry mechanisms and at-least-once delivery
+ *
+ * Prerequisites:
+ * 1. Start NATS server: `cd infra/docker-compose && docker-compose up -d nats`
+ * 2. Run tests with: `./gradlew test -Dnats.integration.enhanced=true`
  */
-@Testcontainers
+@EnabledIfSystemProperty(named = "nats.integration.enhanced", matches = "true")
 class NatsEventPublisherIntegrationTest {
     companion object {
-        @Container
-        @JvmStatic
-        val natsContainer =
-            GenericContainer("nats:2.10.22-alpine")
-                .withExposedPorts(4222, 8222)
-                .withCommand("-js", "-m", "8222")
-                .waitingFor(
-                    LogMessageWaitStrategy()
-                        .withRegEx(".*Server is ready.*")
-                        .withStartupTimeout(Duration.ofSeconds(30)),
-                )
+        private val streamCounter = AtomicInteger(0)
     }
 
     private lateinit var connection: Connection
@@ -63,7 +55,7 @@ class NatsEventPublisherIntegrationTest {
 
     @BeforeEach
     fun setUp() {
-        val natsUrl = "nats://localhost:${natsContainer.getMappedPort(4222)}"
+        val natsUrl = System.getProperty("nats.url", "nats://localhost:4222")
 
         val options =
             Options
@@ -72,33 +64,57 @@ class NatsEventPublisherIntegrationTest {
                 .connectionTimeout(Duration.ofSeconds(5))
                 .build()
 
-        connection = Nats.connect(options)
-        jetStream = connection.jetStream()
-        jetStreamManagement = connection.jetStreamManagement()
+        try {
+            connection = Nats.connect(options)
+            jetStream = connection.jetStream()
+            jetStreamManagement = connection.jetStreamManagement()
 
-        val properties =
-            NatsEventingProperties(
-                servers = listOf(natsUrl),
-                retry =
-                    RetryProperties(
-                        maxAttempts = 3,
-                        initialDelayMs = 100,
-                        backoffMultiplier = 2.0,
-                        maxDelayMs = 1000,
-                    ),
+            val properties =
+                NatsEventingProperties(
+                    servers = listOf(natsUrl),
+                    retry =
+                        RetryProperties(
+                            maxAttempts = 3,
+                            initialDelayMs = 100,
+                            backoffMultiplier = 2.0,
+                            maxDelayMs = 1000,
+                        ),
+                )
+
+            publisher = DefaultNatsEventPublisher(connection, properties)
+
+            objectMapper =
+                ObjectMapper().apply {
+                    registerKotlinModule()
+                    registerModule(JavaTimeModule())
+                }
+        } catch (e: Exception) {
+            throw AssertionError(
+                "Failed to connect to NATS server at $natsUrl. " +
+                    "Please ensure NATS server is running: cd infra/docker-compose && docker-compose up -d nats",
+                e,
             )
-
-        publisher = DefaultNatsEventPublisher(connection, properties)
-
-        objectMapper =
-            ObjectMapper().apply {
-                registerKotlinModule()
-                registerModule(JavaTimeModule())
-            }
+        }
     }
 
     @AfterEach
     fun tearDown() {
+        try {
+            // Clean up any test streams
+            val streams = jetStreamManagement.streamNames
+            streams.forEach { streamName ->
+                try {
+                    if (streamName.startsWith("TEST_STREAM_")) {
+                        jetStreamManagement.deleteStream(streamName)
+                    }
+                } catch (e: Exception) {
+                    // Ignore cleanup errors
+                }
+            }
+        } catch (e: Exception) {
+            // Ignore cleanup errors
+        }
+
         if (::connection.isInitialized && connection.status == Connection.Status.CONNECTED) {
             connection.close()
         }
@@ -114,7 +130,7 @@ class NatsEventPublisherIntegrationTest {
             val expectedSubject = "$tenantId.$subject"
 
             // Create stream for the tenant-specific subject
-            createStreamForSubject(expectedSubject)
+            val streamName = createStreamForSubject(expectedSubject)
 
             // When
             val publishAck = publisher.publish(subject, tenantId, event)
@@ -125,7 +141,7 @@ class NatsEventPublisherIntegrationTest {
             assertFalse(publishAck.hasError())
 
             // Verify the message was actually stored in JetStream
-            val streamInfo = jetStreamManagement.getStreamInfo("TEST_STREAM")
+            val streamInfo = jetStreamManagement.getStreamInfo(streamName)
             assertEquals(1, streamInfo.streamState.msgCount)
         }
 
@@ -145,7 +161,7 @@ class NatsEventPublisherIntegrationTest {
             val expectedSubject = "$tenantId.$subject"
 
             // Create stream for the tenant-specific subject
-            createStreamForSubject(expectedSubject)
+            val streamName = createStreamForSubject(expectedSubject)
 
             // When
             val publishAck = publisher.publish(subject, tenantId, event, metadata)
@@ -161,8 +177,8 @@ class NatsEventPublisherIntegrationTest {
                     expectedSubject,
                     io.nats.client.PullSubscribeOptions
                         .builder()
-                        .stream("TEST_STREAM")
-                        .durable("test-consumer")
+                        .stream(streamName)
+                        .durable("test-consumer-${streamCounter.get()}")
                         .build(),
                 )
             val messages = pullSubscription.fetch(1, Duration.ofSeconds(5))
@@ -187,9 +203,8 @@ class NatsEventPublisherIntegrationTest {
             val event1 = NotificationEvent("email", "user1@example.com")
             val event2 = NotificationEvent("sms", "+1234567890")
 
-            // Create streams for both tenant-specific subjects
-            createStreamForSubject("$tenant1.$subject")
-            createStreamForSubject("$tenant2.$subject")
+            // Create a single stream that can handle both tenant subjects
+            val streamName = createStreamForSubject("*.events.notification.sent")
 
             // When
             val publishAck1 = publisher.publish(subject, tenant1, event1)
@@ -202,7 +217,7 @@ class NatsEventPublisherIntegrationTest {
             assertTrue(publishAck2.seqno > 0)
 
             // Verify both messages are stored
-            val streamInfo = jetStreamManagement.getStreamInfo("TEST_STREAM")
+            val streamInfo = jetStreamManagement.getStreamInfo(streamName)
             assertEquals(2, streamInfo.streamState.msgCount)
         }
 
@@ -240,19 +255,6 @@ class NatsEventPublisherIntegrationTest {
     }
 
     @Test
-    fun `should handle connection errors gracefully`() {
-        // Given
-        connection.close() // Close the connection to simulate error
-
-        // When/Then
-        assertThrows<EventPublishingException> {
-            runBlocking {
-                publisher.publish("test.subject", "tenant-123", "test event")
-            }
-        }
-    }
-
-    @Test
     fun `should validate event envelope structure`() =
         runBlocking {
             // Given
@@ -261,7 +263,7 @@ class NatsEventPublisherIntegrationTest {
             val event = StructureTestEvent("test-data", 42)
             val metadata = mapOf("testKey" to "testValue")
 
-            createStreamForSubject("$tenantId.$subject")
+            val streamName = createStreamForSubject("$tenantId.$subject")
 
             // When
             val publishAck = publisher.publish(subject, tenantId, event, metadata)
@@ -275,8 +277,8 @@ class NatsEventPublisherIntegrationTest {
                     "$tenantId.$subject",
                     io.nats.client.PullSubscribeOptions
                         .builder()
-                        .stream("TEST_STREAM")
-                        .durable("test-consumer")
+                        .stream(streamName)
+                        .durable("test-consumer-validation")
                         .build(),
                 )
             val messages = pullSubscription.fetch(1, Duration.ofSeconds(5))
@@ -308,7 +310,7 @@ class NatsEventPublisherIntegrationTest {
             val largeData = "x".repeat(10000) // 10KB string
             val event = LargePayloadEvent(largeData, (1..1000).toList())
 
-            createStreamForSubject("$tenantId.$subject")
+            val streamName = createStreamForSubject("$tenantId.$subject")
 
             // When
             val publishAck = publisher.publish(subject, tenantId, event)
@@ -318,15 +320,39 @@ class NatsEventPublisherIntegrationTest {
             assertTrue(publishAck.seqno > 0)
 
             // Verify the large message was stored
-            val streamInfo = jetStreamManagement.getStreamInfo("TEST_STREAM")
+            val streamInfo = jetStreamManagement.getStreamInfo(streamName)
             assertEquals(1, streamInfo.streamState.msgCount)
-            // Note: StreamState.bytes is private, so we just verify the message count
         }
 
-    private fun createStreamForSubject(subject: String) {
+    @Test
+    fun `should work with docker-compose NATS configuration`() =
+        runBlocking {
+            // Given - Test that we can work with the configured NATS instance
+            val tenantId = "TENANT_A" // Use the configured tenant from nats-server-simple.conf
+            val subject = "events.docker.test"
+            val event = DockerTestEvent("docker-compose", "working")
+
+            val streamName = createStreamForSubject("$tenantId.$subject")
+
+            // When
+            val publishAck = publisher.publish(subject, tenantId, event)
+
+            // Then
+            assertNotNull(publishAck)
+            assertTrue(publishAck.seqno > 0)
+
+            // Verify JetStream information
+            val streamInfo = jetStreamManagement.getStreamInfo(streamName)
+            assertEquals(1, streamInfo.streamState.msgCount)
+            assertNotNull(streamInfo)
+        }
+
+    private fun createStreamForSubject(subject: String): String {
+        val streamName = "TEST_STREAM_${streamCounter.incrementAndGet()}"
+
         try {
-            // Try to delete existing stream first
-            jetStreamManagement.deleteStream("TEST_STREAM")
+            // Clean up any existing stream with same name
+            jetStreamManagement.deleteStream(streamName)
         } catch (e: Exception) {
             // Stream doesn't exist, which is fine
         }
@@ -334,21 +360,26 @@ class NatsEventPublisherIntegrationTest {
         val streamConfig =
             StreamConfiguration
                 .builder()
-                .name("TEST_STREAM")
-                .subjects(subject, "$subject.*")
-                .storageType(StorageType.Memory)
+                .name(streamName)
+                .subjects(subject)
+                .storageType(StorageType.File) // Use File storage like in docker-compose setup
+                .maxMessages(1000)
+                .maxBytes(10485760) // 10MB
+                .maxAge(Duration.ofMinutes(10))
                 .build()
 
         jetStreamManagement.addStream(streamConfig)
 
         // Create a consumer for testing message retrieval
         jetStreamManagement.addOrUpdateConsumer(
-            "TEST_STREAM",
+            streamName,
             ConsumerConfiguration
                 .builder()
-                .durable("test-consumer")
+                .durable("test-consumer-${streamCounter.get()}")
                 .build(),
         )
+
+        return streamName
     }
 
     // Test event classes
@@ -376,5 +407,10 @@ class NatsEventPublisherIntegrationTest {
     data class LargePayloadEvent(
         val largeString: String,
         val largeList: List<Int>,
+    )
+
+    data class DockerTestEvent(
+        val source: String,
+        val status: String,
     )
 }

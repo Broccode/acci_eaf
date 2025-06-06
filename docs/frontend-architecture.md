@@ -387,7 +387,7 @@ detailed design docs.)
     minification, tree-shaking, etc..
   - Within Nx, this Gradle build task will be orchestrated via an Nx target (e.g.,
     `nx build acci-eaf-control-plane-backend --configuration=production`).
-  - Development mode (`./gradlew :apps:acci-eaf-control-plane:backend:bootRun` or
+  - Development mode (`nx run acci-eaf-control-plane:bootRun` or
     `nx serve acci-eaf-control-plane-backend`) uses Vite's dev server for HMR and rapid updates.
 - **Environment Configuration Management:**
   - Frontend-specific environment variables (e.g., feature flags client keys) can be managed using

@@ -45,6 +45,15 @@ data class NatsEventingProperties(
      * Retry configuration for event publishing.
      */
     val retry: RetryProperties = RetryProperties(),
+    /**
+     * Default tenant ID for single-tenant setups.
+     * Default: "TENANT_A"
+     */
+    val defaultTenantId: String = "TENANT_A",
+    /**
+     * Consumer configuration defaults.
+     */
+    val consumer: ConsumerProperties = ConsumerProperties(),
 )
 
 /**
@@ -71,4 +80,30 @@ data class RetryProperties(
      * Default: 10000ms (10 seconds)
      */
     val maxDelayMs: Long = 10000,
+)
+
+/**
+ * Consumer configuration defaults for JetStream consumers.
+ */
+data class ConsumerProperties(
+    /**
+     * Default acknowledgment wait timeout in milliseconds.
+     * Default: 30000ms (30 seconds)
+     */
+    val defaultAckWait: Long = 30000,
+    /**
+     * Default maximum number of delivery attempts.
+     * Default: 3
+     */
+    val defaultMaxDeliver: Int = 3,
+    /**
+     * Default maximum number of outstanding messages.
+     * Default: 1000
+     */
+    val defaultMaxAckPending: Int = 1000,
+    /**
+     * Whether to enable consumer startup on application startup.
+     * Default: true
+     */
+    val autoStartup: Boolean = true,
 )

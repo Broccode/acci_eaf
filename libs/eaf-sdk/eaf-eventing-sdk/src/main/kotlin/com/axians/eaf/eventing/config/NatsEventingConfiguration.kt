@@ -1,13 +1,17 @@
 package com.axians.eaf.eventing.config
 
+import com.axians.eaf.eventing.consumer.NatsJetStreamListenerProcessor
 import io.nats.client.Connection
+import io.nats.client.JetStream
 import io.nats.client.Nats
 import io.nats.client.Options
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.event.EventListener
 import java.time.Duration
 
 /**
@@ -50,6 +54,40 @@ class NatsEventingConfiguration {
         } catch (e: Exception) {
             logger.error("Failed to connect to NATS servers: {}", properties.servers, e)
             throw IllegalStateException("Unable to establish NATS connection", e)
+        }
+    }
+
+    /**
+     * Creates a JetStream context bean for stream-based messaging.
+     *
+     * @param connection NATS connection
+     * @return JetStream context
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    fun jetStream(connection: Connection): JetStream =
+        try {
+            val jetStream = connection.jetStream()
+            logger.info("JetStream context created successfully")
+            jetStream
+        } catch (e: Exception) {
+            logger.error("Failed to create JetStream context", e)
+            throw IllegalStateException("Unable to create JetStream context", e)
+        }
+
+    /**
+     * Starts NATS JetStream listeners when the application is ready.
+     */
+    @EventListener(ApplicationReadyEvent::class)
+    fun startNatsListeners(
+        properties: NatsEventingProperties,
+        listenerProcessor: NatsJetStreamListenerProcessor,
+    ) {
+        if (properties.consumer.autoStartup) {
+            logger.info("Starting NATS JetStream listeners...")
+            listenerProcessor.startListeners()
+        } else {
+            logger.info("Auto-startup disabled for NATS JetStream listeners")
         }
     }
 }

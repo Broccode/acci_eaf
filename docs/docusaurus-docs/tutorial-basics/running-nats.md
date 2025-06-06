@@ -226,7 +226,7 @@ nats consumer sub TENANT_A_USER_EVENTS user_service
 
 ### HTTP Monitoring Interface
 
-Access the NATS monitoring dashboard at: **<http://localhost:8222>**
+Access the NATS monitoring dashboard at: **[http://localhost:8222](http://localhost:8222)**
 
 This provides real-time information about:
 
@@ -394,4 +394,4 @@ Once you have NATS running locally:
 - [NATS Official Documentation](https://docs.nats.io/)
 - [JetStream Concepts](https://docs.nats.io/jetstream)
 - [EAF Architecture Overview](../architectural-principles/overview)
-- [Docker Compose Reference](../../infra/docker-compose/README.md)
+- [Docker Compose Reference](../../../infra/docker-compose/README.md)

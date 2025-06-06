@@ -204,7 +204,7 @@ All tests run automatically in the CI pipeline:
 
 ```bash
 # Backend tests
-./gradlew test
+nx run-many -t test
 
 # Frontend tests
 npm test

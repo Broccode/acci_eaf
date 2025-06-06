@@ -28,8 +28,8 @@ cd acci-eaf
 # Install Node.js dependencies for frontend and tooling
 npm install
 
-# Install Gradle dependencies (backend)
-./gradlew build
+# Build all backend projects using Nx
+nx run-many -t build
 ```
 
 ### 3. Start Local Infrastructure
@@ -42,8 +42,8 @@ docker-compose -f infra/docker-compose/dev.yml up -d
 ### 4. Run Your First EAF Service
 
 ```bash
-# Start the IAM service
-./gradlew :apps:iam-service:bootRun
+# Start the IAM service using Nx
+nx run iam-service:bootRun
 ```
 
 ## Next Steps

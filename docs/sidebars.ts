@@ -33,6 +33,8 @@ const sidebars: SidebarsConfig = {
       label: 'Core Services',
       items: [
         'core-services/index',
+        'core-services/nats-event-consumption',
+        'core-services/nats-integration-testing',
       ],
     },
     {
@@ -46,6 +48,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Tutorial Examples',
       items: [
+        'tutorial-basics/running-nats',
         'tutorial-basics/create-a-document',
         'tutorial-basics/create-a-page',
         'tutorial-basics/create-a-blog-post',
