@@ -1,0 +1,17 @@
+# Build outputs
+build/
+.docusaurus/
+node_modules/
+
+# Generated files
+*.generated.*
+
+# Package manager files
+package-lock.json
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp

@@ -1,0 +1,54 @@
+# Build outputs
+dist/
+build/
+**/build/
+.nx/
+node_modules/
+.docusaurus/
+**/.docusaurus/
+
+# Generated files
+*.generated.*
+generated/
+
+# Gradle build files
+.gradle/
+**/build/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+
+# Configuration files that don't need linting
+*.config.js
+*.config.ts
+jest.config.*
+webpack.config.*
+rollup.config.*
+vite.config.*
+
+# Documentation build artifacts
+**/storybook-static/
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
