@@ -1,4 +1,5 @@
 plugins {
+    id("dev.nx.gradle.project-graph")
     kotlin("jvm")
     `java-library`
 }

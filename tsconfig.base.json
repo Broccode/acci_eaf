@@ -15,8 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@acci-eaf/ui-foundation-kit": ["libs/ui-foundation-kit/src/index.ts"],
-      "@acci-eaf/eaf-sdk": ["libs/eaf-sdk/src/index.ts"]
+      "@acci-eaf/eaf-sdk": ["libs/eaf-sdk/src/index.ts"],
+      "@acci-eaf/ui-foundation-kit": ["libs/ui-foundation-kit/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

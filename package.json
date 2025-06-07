@@ -12,14 +12,14 @@
   },
   "private": true,
   "devDependencies": {
-    "@nx/gradle": "latest",
-    "@nx/react": "latest",
-    "@nx/web": "latest",
-    "@nx/js": "latest",
-    "@nx/jest": "latest",
-    "@nx/workspace": "latest",
     "@nx/eslint": "latest",
     "@nx/eslint-plugin": "latest",
+    "@nx/gradle": "21.1.2",
+    "@nx/jest": "latest",
+    "@nx/js": "latest",
+    "@nx/react": "latest",
+    "@nx/web": "latest",
+    "@nx/workspace": "latest",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.57.0",
@@ -38,5 +38,6 @@
   "workspaces": [
     "apps/*",
     "libs/*"
-  ]
+  ],
+  "dependencies": {}
 }

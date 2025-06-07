@@ -1,5 +1,6 @@
 package com.axians.eaf.eventsourcing.adapter
 
+import com.axians.eaf.eventsourcing.TestConfiguration
 import com.axians.eaf.eventsourcing.exception.OptimisticLockingFailureException
 import com.axians.eaf.eventsourcing.model.AggregateSnapshot
 import com.axians.eaf.eventsourcing.model.PersistedEvent
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -25,6 +27,7 @@ import java.util.UUID
 
 @Testcontainers
 @SpringBootTest(classes = [com.axians.eaf.eventsourcing.TestApplication::class])
+@Import(TestConfiguration::class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class JdbcEventStoreRepositoryIntegrationTest {
     companion object {
