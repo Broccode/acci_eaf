@@ -281,21 +281,24 @@ acci-eaf-monorepo/
 │   │   └── build.gradle.kts
 │   └── # ... other EAF core service applications (e.g., Config Service MVP) ...
 ├── libs/                                # Sharable libraries
-│   ├── eaf-sdk/                         # Core EAF SDK (Kotlin, Nx project, Gradle multi-module project)
-│   │   ├── eaf-core/                    # Common utilities, base classes for EAF
-│   │   │   └── src/main/kotlin/...
-│   │   ├── eaf-iam-client/              # Client library for IAM service
-│   │   │   └── src/main/kotlin/...
-│   │   ├── eaf-eventing-sdk/            # NATS/JetStream integration, event publishing/consuming helpers
-│   │   │   └── src/main/kotlin/...
-│   │   ├── eaf-eventsourcing-sdk/       # Helpers for CQRS/ES, Axon integration, EventStore interaction via PostgreSQL
-│   │   │   └── src/main/kotlin/...
-│   │   ├── eaf-featureflag-client/      # Client library for Feature Flag service
-│   │   │   └── src/main/kotlin/...
-│   │   ├── eaf-license-client/          # Client library for License service
-│   │   │   └── src/main/kotlin/...
-│   │   └── build.gradle.kts             # (Root for eaf-sdk multi-module)
-│   │   └── settings.gradle.kts          # (Defines sub-modules of eaf-sdk)
+│   ├── eaf-core/                        # Common utilities, base classes for EAF (Kotlin, Nx project, Gradle sub-project)
+│   │   └── src/main/kotlin/...
+│   │   └── build.gradle.kts
+│   ├── eaf-eventing-sdk/                # NATS/JetStream integration, event publishing/consuming helpers (Kotlin, Nx project, Gradle sub-project)
+│   │   └── src/main/kotlin/...
+│   │   └── build.gradle.kts
+│   ├── eaf-eventsourcing-sdk/           # Helpers for CQRS/ES, EventStore interaction via PostgreSQL (Kotlin, Nx project, Gradle sub-project)
+│   │   └── src/main/kotlin/...
+│   │   └── build.gradle.kts
+│   ├── eaf-iam-client/                  # Client library for IAM service (Kotlin, Nx project, Gradle sub-project)
+│   │   └── src/main/kotlin/...
+│   │   └── build.gradle.kts
+│   ├── eaf-featureflag-client/          # Client library for Feature Flag service (Kotlin, Nx project, Gradle sub-project)
+│   │   └── src/main/kotlin/...
+│   │   └── build.gradle.kts
+│   ├── eaf-license-client/              # Client library for License service (Kotlin, Nx project, Gradle sub-project)
+│   │   └── src/main/kotlin/...
+│   │   └── build.gradle.kts
 │   ├── shared-domain-kernel/            # Optional: Shared pure domain primitives (Kotlin, Nx project, Gradle sub-project)
 │   │   └── src/main/kotlin/com/axians/eaf/shared/kernel/...
 │   │   └── build.gradle.kts
@@ -330,8 +333,8 @@ acci-eaf-monorepo/
   project, typically corresponding to a Gradle sub-project (or a Hilla project combining backend and
   frontend).
 - **`libs/`**: Contains shared libraries.
-  - `eaf-sdk`: A key multi-module Gradle project itself, providing various client SDKs for EAF
-    services and core framework functionalities.
+  - EAF SDK components (`eaf-core`, `eaf-eventing-sdk`, `eaf-eventsourcing-sdk`, etc.): Individual
+    Gradle sub-projects providing client SDKs for EAF services and core framework functionalities.
   - `ui-foundation-kit`: Contains the reusable Vaadin/Hilla/React components, themes, and Storybook
     setup.
 - **`tools/`**: Contains development tools like the ACCI EAF CLI.
