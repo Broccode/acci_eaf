@@ -33,6 +33,7 @@ const sidebars: SidebarsConfig = {
       label: 'Core Services',
       items: [
         'core-services/index',
+        'core-services/nats-event-publishing',
         'core-services/nats-event-consumption',
         'core-services/nats-integration-testing',
       ],
