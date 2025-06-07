@@ -1,0 +1,26 @@
+{
+  "name": "eaf-eventsourcing-sdk",
+  "projectType": "library",
+  "sourceRoot": "libs/eaf-eventsourcing-sdk/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "task": "build"
+      }
+    },
+    "test": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "task": "test"
+      }
+    },
+    "check": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "task": "check"
+      }
+    }
+  },
+  "tags": ["type:library", "domain:eventsourcing", "platform:backend"]
+}

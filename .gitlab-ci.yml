@@ -67,8 +67,11 @@ build:
   script:
     - echo "Installing docs dependencies..."
     - cd docs && npm ci && cd ..
-    - echo "Building all projects..."
-    - npx nx run-many --target=build --all
+    - echo "Building backend projects..."
+    - ./gradlew build
+    - echo "Building frontend projects..."
+    - npx nx build ui-foundation-kit
+    - npx nx build docs
   artifacts:
     paths:
       - 'apps/iam-service/build/libs/*.jar'
@@ -81,8 +84,11 @@ test:
   script:
     - echo "Installing docs dependencies..."
     - cd docs && npm ci && cd ..
-    - echo "Running tests for all projects..."
-    - npx nx run-many --target=test --all
+    - echo "Running backend tests..."
+    - ./gradlew test
+    - echo "Running frontend tests..."
+    - npx nx test ui-foundation-kit
+    - npx nx test docs
   artifacts:
     reports:
       junit:

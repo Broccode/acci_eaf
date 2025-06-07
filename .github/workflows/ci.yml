@@ -134,8 +134,13 @@ jobs:
         run: npm ci
         working-directory: docs
 
-      - name: Build all projects
-        run: npx nx run-many --target=build --all
+      - name: Build backend projects
+        run: ./gradlew build
+
+      - name: Build frontend projects
+        run: |
+          npx nx build ui-foundation-kit
+          npx nx build docs
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -191,8 +196,13 @@ jobs:
         run: npm ci
         working-directory: docs
 
-      - name: Run tests for all projects
-        run: npx nx run-many --target=test --all
+      - name: Run backend tests
+        run: ./gradlew test
+
+      - name: Run frontend tests
+        run: |
+          npx nx test ui-foundation-kit
+          npx nx test docs
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
