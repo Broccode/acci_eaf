@@ -1,6 +1,7 @@
 # EAF Event Sourcing SDK Guide
 
-The EAF Event Sourcing SDK provides powerful abstractions for building event-sourced aggregates in Kotlin/Spring, seamlessly integrating with the EAF Event Store and Eventing Bus.
+The EAF Event Sourcing SDK provides powerful abstractions for building event-sourced aggregates in
+Kotlin/Spring, seamlessly integrating with the EAF Event Store and Eventing Bus.
 
 ## Core Abstractions
 
@@ -24,7 +25,7 @@ Identifies the unique identifier property of an aggregate:
 class Ticket private constructor() : AbstractAggregateRoot<String>() {
     @AggregateIdentifier
     private lateinit var ticketId: String
-    
+
     // ... rest of implementation
 }
 ```
@@ -148,11 +149,11 @@ class Ticket private constructor() : AbstractAggregateRoot<String>() {
     // Assignment command handler
     @EafCommandHandler
     fun handle(command: AssignTicketCommand) {
-        require(this.tenantId == command.tenantId) { 
-            "Ticket belongs to different tenant" 
+        require(this.tenantId == command.tenantId) {
+            "Ticket belongs to different tenant"
         }
-        require(status == TicketStatus.OPEN) { 
-            "Can only assign open tickets" 
+        require(status == TicketStatus.OPEN) {
+            "Can only assign open tickets"
         }
 
         val event = TicketAssignedEvent(
@@ -166,11 +167,11 @@ class Ticket private constructor() : AbstractAggregateRoot<String>() {
     // Closing command handler
     @EafCommandHandler
     fun handle(command: CloseTicketCommand) {
-        require(this.tenantId == command.tenantId) { 
-            "Ticket belongs to different tenant" 
+        require(this.tenantId == command.tenantId) {
+            "Ticket belongs to different tenant"
         }
-        require(status != TicketStatus.CLOSED) { 
-            "Ticket is already closed" 
+        require(status != TicketStatus.CLOSED) {
+            "Ticket is already closed"
         }
 
         val event = TicketClosedEvent(
@@ -236,18 +237,18 @@ class TicketRepository(
 class TicketApplicationService(
     private val ticketRepository: TicketRepository,
 ) {
-    
+
     fun createTicket(command: CreateTicketCommand) {
         val ticket = Ticket(command)
         ticketRepository.save(ticket)
     }
-    
+
     fun assignTicket(command: AssignTicketCommand) {
         val ticket = ticketRepository.load(command.ticketId, command.tenantId)
         ticket.handle(command)
         ticketRepository.save(ticket)
     }
-    
+
     fun closeTicket(command: CloseTicketCommand) {
         val ticket = ticketRepository.load(command.ticketId, command.tenantId)
         ticket.handle(command)
@@ -282,7 +283,7 @@ class TicketTest {
         assertEquals("Fix bug", ticket.getTitle())
         assertEquals(TicketStatus.OPEN, ticket.getStatus())
         assertEquals("tenant-1", ticket.getTenantId())
-        
+
         // Verify events
         val events = ticket.getUncommittedChanges()
         assertEquals(1, events.size)
@@ -313,7 +314,7 @@ class TicketTest {
 
         // Then
         assertEquals("user-456", ticket.getAssigneeId())
-        
+
         val events = ticket.getUncommittedChanges()
         assertEquals(1, events.size)
         assertTrue(events[0] is TicketAssignedEvent)
@@ -450,7 +451,7 @@ fun handle(command: AssignTicketCommand) {
     if (assigneeId == command.assigneeId) {
         return // Idempotent - no event needed
     }
-    
+
     // Apply change
     apply(TicketAssignedEvent(ticketId, command.assigneeId, tenantId))
 }

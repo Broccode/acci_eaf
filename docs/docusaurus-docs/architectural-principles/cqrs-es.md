@@ -167,4 +167,5 @@ class TenantProjector(
 
 ## Learn More
 
-For hands-on guidance on implementing event-sourced aggregates with the EAF SDK, see the comprehensive [EAF Event Sourcing SDK Guide](./eaf-eventsourcing-sdk.md).
+For hands-on guidance on implementing event-sourced aggregates with the EAF SDK, see the
+comprehensive [EAF Event Sourcing SDK Guide](./eaf-eventsourcing-sdk.md).

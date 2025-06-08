@@ -35,7 +35,8 @@ nx run-many -t build
 
 ### 3. Run Your First EAF Service (with Auto Infrastructure)
 
-EAF services are configured with Spring Boot's Docker Compose integration, which automatically starts required infrastructure services:
+EAF services are configured with Spring Boot's Docker Compose integration, which automatically
+starts required infrastructure services:
 
 ```bash
 # Start the IAM service - this will automatically start NATS via Docker Compose
