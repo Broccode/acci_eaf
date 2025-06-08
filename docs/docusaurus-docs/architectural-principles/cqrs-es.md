@@ -165,5 +165,6 @@ class TenantProjector(
 4. **Separate concerns**: Don't mix command and query logic
 5. **Monitor event streams**: Track processing lag and failures
 
-_This is a placeholder document. Detailed CQRS/ES patterns and EAF SDK usage will be documented as
-the framework develops._
+## Learn More
+
+For hands-on guidance on implementing event-sourced aggregates with the EAF SDK, see the comprehensive [EAF Event Sourcing SDK Guide](./eaf-eventsourcing-sdk.md).
