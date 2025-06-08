@@ -59,7 +59,7 @@ npx nx build iam-service
 npx nx build ui-foundation-kit
 
 # Run backend service
-npx nx run iam-service
+npx nx run iam-service:run
 
 # Start documentation site
 npx nx serve docs
@@ -108,7 +108,7 @@ npx nx build iam-service
 npx nx test iam-service
 
 # 🚀 Start the service
-npx nx run iam-service
+npx nx run iam-service:run
 
 # 🧹 Clean build artifacts
 npx nx clean iam-service

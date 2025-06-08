@@ -6,25 +6,25 @@
     "build": {
       "executor": "@nx/gradle:gradle",
       "options": {
-        "task": "build"
+        "taskName": "build"
       }
     },
     "test": {
       "executor": "@nx/gradle:gradle",
       "options": {
-        "task": "test"
+        "taskName": "test"
       }
     },
     "run": {
       "executor": "@nx/gradle:gradle",
       "options": {
-        "task": "bootRun"
+        "taskName": "bootRun"
       }
     },
     "clean": {
       "executor": "@nx/gradle:gradle",
       "options": {
-        "task": "clean"
+        "taskName": "clean"
       }
     }
   },
