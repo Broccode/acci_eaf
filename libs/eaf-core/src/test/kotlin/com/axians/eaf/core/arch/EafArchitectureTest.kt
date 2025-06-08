@@ -126,7 +126,7 @@ class EafArchitectureTest {
                 .and()
                 .haveSimpleNameNotContaining("Test")
                 .should()
-                .resideInAnyPackage("..domain.command..", "..application.port.in..")
+                .resideInAnyPackage("..domain.command..", "..application.port.inbound..")
                 .because("Command classes should be in appropriate packages")
                 .allowEmptyShould(true)
 

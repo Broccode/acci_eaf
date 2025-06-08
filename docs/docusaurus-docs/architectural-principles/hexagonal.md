@@ -105,5 +105,7 @@ src/main/kotlin/com/axians/eaf/service/
 3. **Interface segregation**: Create focused, single-purpose ports
 4. **Adapter responsibility**: Handle serialization, validation, error translation
 
-_This is a placeholder document. Detailed Hexagonal Architecture patterns for ACCI EAF will be
-documented as the framework evolves._
+## Learn More
+
+For comprehensive implementation guidance with step-by-step examples and code samples, see the
+[Hexagonal Architecture Implementation Guide](./hexagonal-architecture-guide.md).
