@@ -75,6 +75,12 @@
         "command": "eslint . --ext .ts,.tsx,.js,.jsx",
         "cwd": "docs"
       }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "echo 'Docs project uses manual testing and documentation validation'"
+      }
     }
   },
   "tags": ["type:app", "scope:docs"]

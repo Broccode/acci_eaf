@@ -9,6 +9,7 @@
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/eslint.config.js",
       "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/vitest.config.[jt]s",
       "!{projectRoot}/src/test-setup.[jt]s",
       "!{projectRoot}/test-setup.[jt]s",
       "!{projectRoot}/src/test/**/*"
@@ -23,6 +24,10 @@
     {
       "plugin": "@nx/js",
       "options": {}
+    },
+    {
+      "plugin": "@nx/vite",
+      "options": {}
     }
   ],
   "targetDefaults": {
@@ -32,7 +37,7 @@
       "cache": true
     },
     "test": {
-      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
+      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js", "{projectRoot}/vitest.config.[jt]s"],
       "cache": true
     },
     "lint": {

@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-nx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-nx-
 
@@ -77,12 +77,15 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-nx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-nx-
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Clear Nx cache for clean run
+        run: npx nx reset
 
       - name: Run frontend linting and formatting checks
         run: |
@@ -123,7 +126,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-nx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-nx-
 
@@ -133,6 +136,9 @@ jobs:
       - name: Install docs dependencies
         run: npm ci
         working-directory: docs
+
+      - name: Clear Nx cache for clean build
+        run: npx nx reset
 
       - name: Build backend projects
         run: ./gradlew build
@@ -185,7 +191,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-nx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-nx-
 
@@ -195,6 +201,9 @@ jobs:
       - name: Install docs dependencies
         run: npm ci
         working-directory: docs
+
+      - name: Clear Nx cache for clean test run
+        run: npx nx reset
 
       - name: Run backend tests
         run: ./gradlew test

@@ -14,15 +14,17 @@
       }
     },
     "test": {
-      "executor": "nx:run-commands",
+      "executor": "@nx/vite:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "command": "echo 'Tests temporarily disabled for ui-foundation-kit due to Jest configuration issues'"
+        "configFile": "libs/ui-foundation-kit/vitest.config.ts"
       }
     },
     "lint": {
-      "executor": "nx:run-commands",
+      "executor": "@nx/eslint:eslint",
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "command": "echo 'Linting temporarily disabled for ui-foundation-kit due to dependency conflicts'"
+        "lintFilePatterns": ["libs/ui-foundation-kit/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "storybook": {

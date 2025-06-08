@@ -9,6 +9,13 @@ variables:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.caching=true'
   GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle'
   NODE_OPTIONS: '--max_old_space_size=4096'
+  # Docker-in-Docker configuration for Testcontainers
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  # Testcontainers configuration
+  TESTCONTAINERS_RYUK_DISABLED: "true"
 
 cache:
   key:
@@ -35,6 +42,40 @@ cache:
     - git --version
     # Install dependencies
     - npm ci
+    # Clear Nx cache for clean runs
+    - npx nx reset
+    # Make gradlew executable
+    - chmod +x ./gradlew
+
+.setup_java_node_docker: &setup_java_node_docker
+  image: eclipse-temurin:21-jdk
+  services:
+    - docker:27-dind
+  before_script:
+    # Install git (required for Nx affected commands)
+    - apt-get update && apt-get install -y git
+    # Install Node.js
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y nodejs
+    # Install Docker CLI for Testcontainers
+    - apt-get install -y ca-certificates curl
+    - install -m 0755 -d /etc/apt/keyrings
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    - chmod a+r /etc/apt/keyrings/docker.asc
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - apt-get update && apt-get install -y docker-ce-cli
+    # Wait for Docker daemon to be ready
+    - until docker info; do sleep 1; done
+    # Verify installations
+    - java -version
+    - node --version
+    - npm --version
+    - git --version
+    - docker --version
+    # Install dependencies
+    - npm ci
+    # Clear Nx cache for clean runs
+    - npx nx reset
     # Make gradlew executable
     - chmod +x ./gradlew
 
@@ -62,7 +103,7 @@ lint_frontend:
   allow_failure: false
 
 build:
-  <<: *setup_java_node
+  <<: *setup_java_node_docker
   stage: build
   script:
     - echo "Installing docs dependencies..."
@@ -79,7 +120,7 @@ build:
     expire_in: 1 day
 
 test:
-  <<: *setup_java_node
+  <<: *setup_java_node_docker
   stage: test
   script:
     - echo "Installing docs dependencies..."
