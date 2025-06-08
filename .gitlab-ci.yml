@@ -10,10 +10,15 @@ variables:
   GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle'
   NODE_OPTIONS: '--max_old_space_size=4096'
   # Docker-in-Docker configuration for Testcontainers
+  # Use TLS-enabled configuration for secure Docker communication
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_TLS_VERIFY: 1
   DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+  # Alternative configuration if TLS issues persist:
+  # DOCKER_HOST: tcp://docker:2375
+  # DOCKER_TLS_CERTDIR: ""
+  # DOCKER_TLS_VERIFY: 0
   # Testcontainers configuration
   TESTCONTAINERS_RYUK_DISABLED: "true"
 
@@ -50,7 +55,12 @@ cache:
 .setup_java_node_docker: &setup_java_node_docker
   image: eclipse-temurin:21-jdk
   services:
-    - docker:27-dind
+    - name: docker:27-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  variables:
+    # Ensure proper TLS certificate directory configuration
+    DOCKER_TLS_CERTDIR: "/certs"
   before_script:
     # Install git (required for Nx affected commands)
     - apt-get update && apt-get install -y git
@@ -64,8 +74,12 @@ cache:
     - chmod a+r /etc/apt/keyrings/docker.asc
     - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
     - apt-get update && apt-get install -y docker-ce-cli
-    # Wait for Docker daemon to be ready
+    # Wait for Docker daemon to be ready and TLS certificates to be generated
+    - echo "Waiting for Docker daemon and TLS certificates..."
     - until docker info; do sleep 1; done
+    # Verify TLS certificate setup and connection
+    - ls -la $DOCKER_TLS_CERTDIR/client/ || echo "TLS certificates not found, but Docker is working"
+    - docker version
     # Verify installations
     - java -version
     - node --version
