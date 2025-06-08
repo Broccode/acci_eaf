@@ -13,6 +13,8 @@
     applicable.
   - Dockerfiles and Docker Compose files will be provided for all EAF services and for setting up
     local/dev environments.
+  - **Development Environment:** Spring Boot services leverage automatic Docker Compose integration
+    for seamless local development (requires `spring-boot-docker-compose` dependency).
 - **Deployment Strategy:**
   - EAF services will be packaged as Docker images.
   - Deployment to target environments (VMs) will likely involve Docker Compose for simpler setups or

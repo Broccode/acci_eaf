@@ -78,6 +78,10 @@ applications built on EAF. Linting and formatting tools will enforce many of the
   - Module-level READMEs for significant libraries or services.
 - **Dependency Management:** Use Gradle Version Catalogs (`libs.versions.toml`) for managing
   dependency versions. Avoid hardcoding versions in `build.gradle.kts` files.
+- **Development Dependencies:** Use appropriate Gradle configurations:
+  - `developmentOnly` for tools that are only needed during development (e.g., `spring-boot-docker-compose`)
+  - `testImplementation` for testing libraries
+  - `implementation` for runtime dependencies
 - **Error Handling:** Use exceptions for error states. Define and use specific EAF exceptions. Avoid
   swallowing exceptions or catching generic `Exception` without specific handling or re-throwing.
 - **Logging:** Use SLF4J for logging. Log meaningful messages with appropriate context (correlation

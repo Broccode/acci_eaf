@@ -18,6 +18,8 @@ dependencies {
 
     runtimeOnly("org.postgresql:postgresql")
 
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
     testImplementation("io.mockk:mockk:1.13.12")

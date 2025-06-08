@@ -33,17 +33,24 @@ npm install
 nx run-many -t build
 ```
 
-### 3. Start Local Infrastructure
+### 3. Run Your First EAF Service (with Auto Infrastructure)
+
+EAF services are configured with Spring Boot's Docker Compose integration, which automatically starts required infrastructure services:
+
+```bash
+# Start the IAM service - this will automatically start NATS via Docker Compose
+nx run iam-service:bootRun
+```
+
+**Alternative: Manual Infrastructure Management**
+
+If you prefer to manage infrastructure manually:
 
 ```bash
 # Start NATS and PostgreSQL using Docker Compose
-docker-compose -f infra/docker-compose/dev.yml up -d
-```
+docker-compose -f infra/docker-compose/docker-compose.yml up -d
 
-### 4. Run Your First EAF Service
-
-```bash
-# Start the IAM service using Nx
+# Then start the service
 nx run iam-service:bootRun
 ```
 
