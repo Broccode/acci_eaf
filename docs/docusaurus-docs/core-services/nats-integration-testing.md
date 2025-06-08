@@ -99,12 +99,12 @@ nx test eaf-eventing-sdk --args="-Dnats.integration.enabled=true"
 
 ## Test Categories Overview
 
-| Test Type              | Activation                         | Infrastructure | Purpose                       |
-| ---------------------- | ---------------------------------- | -------------- | ----------------------------- |
-| **Unit Tests**         | Automatic                          | Mocks          | Fast feedback loop            |
-| **Basic Integration**  | `-Dnats.integration.enabled=true`  | Local NATS     | Simple JetStream tests        |
+| Test Type                | Activation                         | Infrastructure | Purpose                       |
+| ------------------------ | ---------------------------------- | -------------- | ----------------------------- |
+| **Unit Tests**           | Automatic                          | Mocks          | Fast feedback loop            |
+| **Basic Integration**    | `-Dnats.integration.enabled=true`  | Local NATS     | Simple JetStream tests        |
 | **Enhanced Integration** | `-Dnats.integration.enhanced=true` | Docker-Compose | Complete infrastructure tests |
-| **Full Integration**   | Disabled                           | Testcontainers | Isolated container tests      |
+| **Full Integration**     | Disabled                           | Testcontainers | Isolated container tests      |
 
 ## Docker-Compose Configuration
 
@@ -149,7 +149,8 @@ docker-compose ps
 JetStream not enabled
 ```
 
-**Solution**: The docker-compose configuration enables JetStream automatically. Ensure the correct container is running:
+**Solution**: The docker-compose configuration enables JetStream automatically. Ensure the correct
+container is running:
 
 ```bash
 docker-compose logs nats
@@ -188,7 +189,8 @@ docker-compose down
 
 ### Adding New Integration Tests
 
-1. **Enhanced Tests**: Extend existing test classes with `@EnabledIfSystemProperty(named = "nats.integration.enhanced")`
+1. **Enhanced Tests**: Extend existing test classes with
+   `@EnabledIfSystemProperty(named = "nats.integration.enhanced")`
 2. **Basic Tests**: Use `@EnabledIfSystemProperty(named = "nats.integration.enabled")`
 3. **Use TENANT_A**: Utilize pre-configured tenant structure
 

@@ -269,9 +269,9 @@ acci-eaf-monorepo/
     licenses). Will use the `eaf-sdk` and `ui-foundation-kit`.
   - **`apps/iam-service`**: Core IAM service implementing RBAC/ABAC, user management, and
     federation.
-  - **EAF SDK components (`libs/eaf-core`, `libs/eaf-eventing-sdk`, `libs/eaf-eventsourcing-sdk`, etc.)**:
-    Individual Gradle sub-projects providing client SDKs for EAF services and core framework
-    functionalities (eventing, event sourcing helpers, core utilities).
+  - **EAF SDK components (`libs/eaf-core`, `libs/eaf-eventing-sdk`, `libs/eaf-eventsourcing-sdk`,
+    etc.)**: Individual Gradle sub-projects providing client SDKs for EAF services and core
+    framework functionalities (eventing, event sourcing helpers, core utilities).
   - **`libs/ui-foundation-kit`**: The shared UI component library and Storybook environment
     (Vaadin/Hilla/React).
   - **`tools/acci-eaf-cli`**: The command-line interface for developers.

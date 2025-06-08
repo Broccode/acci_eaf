@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 /**
  * TDD Example: Simple Counter React component demonstrating Test-Driven Development.
@@ -7,11 +7,11 @@ import React, { useState } from 'react'
  * This serves as a reference implementation for EAF developers practicing TDD with React components.
  */
 export const SimpleCounter: React.FC = () => {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
-  const increment = () => setCount(prev => prev + 1)
-  const decrement = () => setCount(prev => prev - 1)
-  const reset = () => setCount(0)
+  const increment = () => setCount(prev => prev + 1);
+  const decrement = () => setCount(prev => prev - 1);
+  const reset = () => setCount(0);
 
   return (
     <div>
@@ -26,5 +26,5 @@ export const SimpleCounter: React.FC = () => {
         Reset
       </button>
     </div>
-  )
-}
+  );
+};

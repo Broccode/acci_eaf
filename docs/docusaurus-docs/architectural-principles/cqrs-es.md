@@ -1,6 +1,7 @@
 # CQRS/Event Sourcing in ACCI EAF
 
-Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) are core architectural patterns in ACCI EAF that enable scalable, auditable, and resilient applications.
+Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) are core architectural
+patterns in ACCI EAF that enable scalable, auditable, and resilient applications.
 
 ## CQRS Overview
 
@@ -52,7 +53,8 @@ class GetTenantQueryHandler(
 
 ## Event Sourcing
 
-Instead of storing current state, Event Sourcing persists the sequence of events that led to the current state.
+Instead of storing current state, Event Sourcing persists the sequence of events that led to the
+current state.
 
 ### Event Store Structure
 
@@ -78,7 +80,7 @@ Aggregates are rebuilt by replaying events:
 ```kotlin
 class Tenant private constructor() {
     private val domainEvents = mutableListOf<DomainEvent>()
-    
+
     companion object {
         fun fromEvents(events: List<DomainEvent>): Tenant {
             val tenant = Tenant()
@@ -86,7 +88,7 @@ class Tenant private constructor() {
             return tenant
         }
     }
-    
+
     private fun apply(event: DomainEvent) {
         when (event) {
             is TenantCreatedEvent -> {
@@ -163,4 +165,5 @@ class TenantProjector(
 4. **Separate concerns**: Don't mix command and query logic
 5. **Monitor event streams**: Track processing lag and failures
 
-*This is a placeholder document. Detailed CQRS/ES patterns and EAF SDK usage will be documented as the framework develops.*
+_This is a placeholder document. Detailed CQRS/ES patterns and EAF SDK usage will be documented as
+the framework develops._

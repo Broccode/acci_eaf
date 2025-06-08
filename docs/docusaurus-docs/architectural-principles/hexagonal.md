@@ -1,6 +1,7 @@
 # Hexagonal Architecture in ACCI EAF
 
-Hexagonal Architecture (also known as Ports and Adapters) ensures that your application core remains independent of external concerns like databases, messaging systems, and user interfaces.
+Hexagonal Architecture (also known as Ports and Adapters) ensures that your application core remains
+independent of external concerns like databases, messaging systems, and user interfaces.
 
 ## Core Concepts
 
@@ -104,4 +105,5 @@ src/main/kotlin/com/axians/eaf/service/
 3. **Interface segregation**: Create focused, single-purpose ports
 4. **Adapter responsibility**: Handle serialization, validation, error translation
 
-*This is a placeholder document. Detailed Hexagonal Architecture patterns for ACCI EAF will be documented as the framework evolves.*
+_This is a placeholder document. Detailed Hexagonal Architecture patterns for ACCI EAF will be
+documented as the framework evolves._

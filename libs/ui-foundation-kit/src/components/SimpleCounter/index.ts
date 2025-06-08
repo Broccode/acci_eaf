@@ -1,1 +1,1 @@
-export { SimpleCounter } from './SimpleCounter'
+export { SimpleCounter } from './SimpleCounter';

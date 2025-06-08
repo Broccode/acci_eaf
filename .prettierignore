@@ -7,6 +7,7 @@ node_modules/
 # Generated files
 *.generated.*
 generated/
+.docusaurus/
 
 # Gradle build files
 .gradle/
@@ -28,3 +29,11 @@ pnpm-lock.yaml
 .env
 .env.local
 .env.*.local
+
+# Documentation build outputs
+docs/build/
+docs/.docusaurus/
+
+# Stories that shouldn't be formatted
+# (these are managed by the agent)
+stories/

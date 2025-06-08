@@ -4,11 +4,13 @@ sidebar_position: 2
 
 # NATS JetStream Event Consumption
 
-The EAF NATS SDK provides powerful abstractions for consuming events from NATS JetStream streams with full support for multi-tenancy, ordered processing, and reliable acknowledgment.
+The EAF NATS SDK provides powerful abstractions for consuming events from NATS JetStream streams
+with full support for multi-tenancy, ordered processing, and reliable acknowledgment.
 
 ## Overview
 
-The `@NatsJetStreamListener` annotation enables declarative event consumption that feels familiar to any Spring developer. It handles the complexity of:
+The `@NatsJetStreamListener` annotation enables declarative event consumption that feels familiar to
+any Spring developer. It handles the complexity of:
 
 - JetStream consumer management
 - Automatic event deserialization
@@ -79,15 +81,15 @@ class PaymentEventHandler {
     )
     fun handlePaymentEvent(event: PaymentEvent, context: MessageContext) {
         val correlationId = context.getHeader("correlation-id")
-        
+
         try {
             processPayment(event, correlationId)
             context.ack() // Manually acknowledge success
-            
+
         } catch (e: TemporaryPaymentException) {
             // Retry after 30 seconds
             context.nak(Duration.ofSeconds(30))
-            
+
         } catch (e: InvalidPaymentException) {
             // Terminate - this is a poison pill
             context.term()
@@ -98,17 +100,18 @@ class PaymentEventHandler {
 
 ## Error Handling
 
-The EAF SDK provides a sophisticated error handling mechanism using exception types to control message acknowledgment:
+The EAF SDK provides a sophisticated error handling mechanism using exception types to control
+message acknowledgment:
 
 ### Exception Types
 
 ```kotlin
 // Retryable errors - message will be nak'd and retried
-class RetryableEventException(message: String, cause: Throwable? = null) 
+class RetryableEventException(message: String, cause: Throwable? = null)
     : EventConsumptionException(message, cause)
 
 // Non-retryable errors - message will be terminated
-class PoisonPillEventException(message: String, cause: Throwable? = null) 
+class PoisonPillEventException(message: String, cause: Throwable? = null)
     : EventConsumptionException(message, cause)
 ```
 
@@ -125,14 +128,14 @@ class RobustEventHandler {
             if (event.payload.isEmpty()) {
                 throw PoisonPillEventException("Empty payload - invalid event")
             }
-            
+
             // Attempt to sync data
             dataService.syncData(event.payload)
-            
+
         } catch (e: DatabaseConnectionException) {
             // Temporary issue - retry
             throw RetryableEventException("Database temporarily unavailable", e)
-            
+
         } catch (e: ValidationException) {
             // Data issue - don't retry
             throw PoisonPillEventException("Invalid data format", e)
@@ -143,7 +146,8 @@ class RobustEventHandler {
 
 ## Idempotency Patterns
 
-Building idempotent event consumers is crucial for reliable event processing. Here are proven patterns:
+Building idempotent event consumers is crucial for reliable event processing. Here are proven
+patterns:
 
 ### 1. Natural Idempotency
 
@@ -186,7 +190,7 @@ class OrderHandler {
         try {
             // Process the event
             orderService.markAsPaid(event.orderId, event.paymentId)
-            
+
             // Mark as processed
             processedEventRepository.save(
                 ProcessedEvent(
@@ -214,8 +218,8 @@ eaf:
   eventing:
     nats:
       servers:
-        - "nats://localhost:4222"
-      defaultTenantId: "TENANT_A"
+        - 'nats://localhost:4222'
+      defaultTenantId: 'TENANT_A'
       consumer:
         defaultAckWait: 30000
         defaultMaxDeliver: 3
@@ -225,16 +229,16 @@ eaf:
 
 ### Annotation Parameters
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `subject` | NATS subject pattern to subscribe to | Required |
-| `durableName` | Durable consumer name | `{ClassName}-{methodName}-consumer` |
-| `deliverPolicy` | Message delivery policy | `DeliverPolicy.All` |
-| `ackPolicy` | Acknowledgment policy | `AckPolicy.Explicit` |
-| `maxDeliver` | Maximum delivery attempts | `3` |
-| `ackWait` | Acknowledgment timeout (ms) | `30000` |
-| `maxAckPending` | Max outstanding messages | `1000` |
-| `autoAck` | Automatic acknowledgment | `true` |
+| Parameter       | Description                          | Default                             |
+| --------------- | ------------------------------------ | ----------------------------------- |
+| `subject`       | NATS subject pattern to subscribe to | Required                            |
+| `durableName`   | Durable consumer name                | `{ClassName}-{methodName}-consumer` |
+| `deliverPolicy` | Message delivery policy              | `DeliverPolicy.All`                 |
+| `ackPolicy`     | Acknowledgment policy                | `AckPolicy.Explicit`                |
+| `maxDeliver`    | Maximum delivery attempts            | `3`                                 |
+| `ackWait`       | Acknowledgment timeout (ms)          | `30000`                             |
+| `maxAckPending` | Max outstanding messages             | `1000`                              |
+| `autoAck`       | Automatic acknowledgment             | `true`                              |
 
 ## Best Practices
 
@@ -246,7 +250,8 @@ eaf:
 
 ### 2. Error Handling
 
-- **Be specific with exceptions**: Use `RetryableEventException` for temporary issues, `PoisonPillEventException` for data problems
+- **Be specific with exceptions**: Use `RetryableEventException` for temporary issues,
+  `PoisonPillEventException` for data problems
 - **Log comprehensively**: Include correlation IDs and event details
 - **Monitor poison pills**: Set up alerts for events that are repeatedly terminated
 
@@ -261,7 +266,7 @@ class TenantAwareHandler {
     @NatsJetStreamListener("events.user.>")
     fun handleUserEvent(event: UserEvent, context: MessageContext) {
         val tenantId = context.tenantId
-        
+
         // All operations are automatically scoped to the tenant
         userService.processUser(event, tenantId)
     }

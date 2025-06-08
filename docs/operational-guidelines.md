@@ -107,16 +107,19 @@ Testing is a cornerstone of ACCI EAF, with TDD being mandatory.
 
 ### Test-Driven Development (TDD) Workflow
 
-TDD is **mandatory** for all ACCI EAF development. The red-green-refactor cycle ensures high-quality, well-tested code from the start.
+TDD is **mandatory** for all ACCI EAF development. The red-green-refactor cycle ensures
+high-quality, well-tested code from the start.
 
 #### The Red-Green-Refactor Cycle
 
 1. **🔴 RED:** Write a failing test first
+
    - Write the smallest possible test that fails
    - Ensure the test fails for the right reason (missing implementation, not syntax errors)
    - Run the test to confirm it fails
 
 2. **🟢 GREEN:** Write minimal code to make the test pass
+
    - Implement just enough code to make the test pass
    - Don't worry about perfect design yet
    - Run the test to confirm it passes
@@ -128,7 +131,8 @@ TDD is **mandatory** for all ACCI EAF development. The red-green-refactor cycle 
 
 #### Backend TDD (Kotlin/Spring)
 
-**Example Reference:** See `libs/eaf-sdk/eaf-core/src/test/kotlin/com/axians/eaf/core/example/calculator/CalculatorServiceTest.kt`
+**Example Reference:** See
+`libs/eaf-sdk/eaf-core/src/test/kotlin/com/axians/eaf/core/example/calculator/CalculatorServiceTest.kt`
 
 **Tools:**
 
@@ -144,10 +148,10 @@ class ServiceTest {
     fun `should do something when given valid input`() {
         // Given (Arrange)
         val input = "test"
-        
+
         // When (Act)
         val result = service.doSomething(input)
-        
+
         // Then (Assert)
         assertEquals(expected, result)
     }
@@ -169,7 +173,8 @@ nx test eaf-core --args="--tests \"CalculatorServiceTest\""
 
 #### Frontend TDD (React/TypeScript)
 
-**Example Reference:** See `libs/ui-foundation-kit/src/components/SimpleCounter/SimpleCounter.test.tsx`
+**Example Reference:** See
+`libs/ui-foundation-kit/src/components/SimpleCounter/SimpleCounter.test.tsx`
 
 **Tools:**
 
@@ -184,10 +189,10 @@ describe('ComponentName', () => {
   it('should render correctly when given props', () => {
     // Given (Arrange)
     render(<ComponentName prop="value" />)
-    
+
     // When (Act)
     const element = screen.getByTestId('element-id')
-    
+
     // Then (Assert)
     expect(element).toHaveTextContent('Expected Text')
   })
@@ -315,15 +320,20 @@ Security is paramount for ACCI EAF.
 
 ## ArchUnit - Architectural Rule Testing
 
-ArchUnit is a critical component of the ACCI EAF quality assurance strategy, providing automated enforcement of architectural integrity through code analysis. It ensures that the codebase adheres to the mandated Hexagonal Architecture, DDD principles, and established naming conventions.
+ArchUnit is a critical component of the ACCI EAF quality assurance strategy, providing automated
+enforcement of architectural integrity through code analysis. It ensures that the codebase adheres
+to the mandated Hexagonal Architecture, DDD principles, and established naming conventions.
 
 ### Purpose and Benefits
 
-ArchUnit tests serve as living documentation of our architectural decisions and act as guardrails to prevent architectural drift. They provide:
+ArchUnit tests serve as living documentation of our architectural decisions and act as guardrails to
+prevent architectural drift. They provide:
 
-- **Automated Architecture Enforcement:** Programmatically verify that code follows Hexagonal Architecture layer separation
+- **Automated Architecture Enforcement:** Programmatically verify that code follows Hexagonal
+  Architecture layer separation
 - **Continuous Compliance:** Ensure DDD principles are maintained throughout development
-- **Early Violation Detection:** Catch architectural violations during development, not in code review
+- **Early Violation Detection:** Catch architectural violations during development, not in code
+  review
 - **Documentation:** Self-documenting architectural rules that evolve with the codebase
 - **Onboarding Support:** Help new developers understand and follow EAF architectural patterns
 
@@ -422,7 +432,8 @@ Before writing a new ArchUnit rule, clearly define:
 
 #### Step 2: Choose the Appropriate Test Location
 
-- **Common EAF Rules:** Add to `libs/eaf-sdk/eaf-core/src/test/kotlin/.../arch/EafArchitectureTest.kt`
+- **Common EAF Rules:** Add to
+  `libs/eaf-sdk/eaf-core/src/test/kotlin/.../arch/EafArchitectureTest.kt`
 - **Service-Specific Rules:** Add to the service's own architecture test class
 - **New Service:** Create a new `{ServiceName}ArchitectureTest.kt` file
 

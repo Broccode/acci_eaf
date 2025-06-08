@@ -1,6 +1,7 @@
 # Test-Driven Development (TDD) in ACCI EAF
 
-Test-Driven Development is **mandatory** in ACCI EAF. It ensures high-quality, well-designed code through the red-green-refactor cycle.
+Test-Driven Development is **mandatory** in ACCI EAF. It ensures high-quality, well-designed code
+through the red-green-refactor cycle.
 
 ## The TDD Cycle
 
@@ -15,7 +16,7 @@ class TenantServiceTest {
         // Given
         val command = CreateTenantCommand("Acme Corp", "admin@acme.com")
         val tenantService = TenantService()
-        
+
         // When & Then
         assertThrows<NotImplementedError> {
             tenantService.createTenant(command)
@@ -52,16 +53,16 @@ class TenantService(
 ) {
     fun createTenant(command: CreateTenantCommand): TenantCreatedEvent {
         validateCommand(command)
-        
+
         val tenant = Tenant.create(command.tenantName, command.adminEmail)
         tenantRepository.save(tenant)
-        
+
         val event = tenant.getUncommittedEvents().first()
         eventPublisher.publish(event)
-        
+
         return event as TenantCreatedEvent
     }
-    
+
     private fun validateCommand(command: CreateTenantCommand) {
         require(command.tenantName.isNotBlank()) { "Tenant name cannot be blank" }
         require(command.adminEmail.contains("@")) { "Invalid email format" }
@@ -99,10 +100,10 @@ class TenantTest {
         // Given
         val tenantName = "Acme Corp"
         val adminEmail = "admin@acme.com"
-        
+
         // When
         val tenant = Tenant.create(tenantName, adminEmail)
-        
+
         // Then
         val events = tenant.getUncommittedEvents()
         assertThat(events).hasSize(1)
@@ -121,10 +122,10 @@ Test component interactions:
 class TenantServiceIntegrationTest {
     @Container
     static val postgres = PostgreSQLContainer("postgres:15")
-    
+
     @Autowired
     lateinit var tenantService: TenantService
-    
+
     @Test
     fun `should persist tenant and publish event`() {
         // Test with real database and event bus
@@ -170,10 +171,10 @@ fun `should calculate correct total when applying discount`() {
     // Given
     val order = Order(items = listOf(item1, item2))
     val discount = Discount.percentage(10)
-    
+
     // When
     val total = order.calculateTotal(discount)
-    
+
     // Then
     assertThat(total).isEqualTo(Money.of(90.0))
 }
@@ -189,10 +190,10 @@ fun `should send email when tenant is created`() {
     // Given
     val emailService = mockk<EmailService>()
     val tenantService = TenantService(tenantRepository, emailService)
-    
+
     // When
     tenantService.createTenant(command)
-    
+
     // Then
     verify { emailService.sendWelcomeEmail(any()) }
 }
@@ -220,4 +221,5 @@ npm test
 4. **Quality**: Bugs are caught early in development
 5. **Architecture**: Forces thinking about dependencies and interfaces
 
-*This is a placeholder document. Detailed TDD practices and EAF-specific testing patterns will be documented as the framework evolves.*
+_This is a placeholder document. Detailed TDD practices and EAF-specific testing patterns will be
+documented as the framework evolves._

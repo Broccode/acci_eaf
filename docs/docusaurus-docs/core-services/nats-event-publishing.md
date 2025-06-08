@@ -4,17 +4,24 @@ sidebar_position: 1
 
 # NATS JetStream Event Publishing
 
-The EAF NATS SDK provides a robust, tenant-aware `NatsEventPublisher` service to reliably publish domain events to NATS JetStream.
+The EAF NATS SDK provides a robust, tenant-aware `NatsEventPublisher` service to reliably publish
+domain events to NATS JetStream.
 
 ## Overview
 
-The `NatsEventPublisher` abstracts away the complexities of NATS communication, offering a simple interface for publishing events while handling:
+The `NatsEventPublisher` abstracts away the complexities of NATS communication, offering a simple
+interface for publishing events while handling:
 
-- **Automatic JSON Serialization**: Kotlin objects are automatically wrapped in a standardized `EventEnvelope` and serialized to JSON.
-- **Tenant-Aware Subject Mapping**: Events are automatically published to tenant-specific subjects (e.g., `TENANT_A.events.user.created`).
-- **At-Least-Once Delivery**: Utilizes JetStream's `PublishAck` mechanism to ensure messages are successfully persisted.
-- **Configurable Retries**: Automatic retry logic with exponential backoff for transient publishing failures.
-- **Centralized Configuration**: All connection and publishing settings are managed via Spring Boot properties.
+- **Automatic JSON Serialization**: Kotlin objects are automatically wrapped in a standardized
+  `EventEnvelope` and serialized to JSON.
+- **Tenant-Aware Subject Mapping**: Events are automatically published to tenant-specific subjects
+  (e.g., `TENANT_A.events.user.created`).
+- **At-Least-Once Delivery**: Utilizes JetStream's `PublishAck` mechanism to ensure messages are
+  successfully persisted.
+- **Configurable Retries**: Automatic retry logic with exponential backoff for transient publishing
+  failures.
+- **Centralized Configuration**: All connection and publishing settings are managed via Spring Boot
+  properties.
 
 ## Basic Usage
 
@@ -27,7 +34,7 @@ eaf:
   eventing:
     nats:
       servers:
-        - "nats://localhost:4222" # Your NATS server URL
+        - 'nats://localhost:4222' # Your NATS server URL
       # Optional: Credentials for a specific tenant user
       # username: "tenant_a_user"
       # password: "tenant_a_password_456!"
@@ -51,14 +58,14 @@ class UserService(
 
     fun createUser(name: String, email: String) {
         val tenantId = tenantContext.getCurrentTenantId()
-        
+
         // Define the domain event payload
         val userCreatedEvent = UserCreatedPayload(
             userId = UUID.randomUUID(),
             name = name,
             email = email
         )
-        
+
         // Publish the event
         eventPublisher.publish(
             subject = "events.user.created",
@@ -78,7 +85,8 @@ data class UserCreatedPayload(
 
 ## Event Envelope
 
-The SDK automatically wraps your event payload in a standardized `EventEnvelope` before publishing. This ensures all events have a consistent structure.
+The SDK automatically wraps your event payload in a standardized `EventEnvelope` before publishing.
+This ensures all events have a consistent structure.
 
 ```kotlin
 data class EventEnvelope(
@@ -114,12 +122,13 @@ For the example above, the JSON payload sent to NATS would look like this:
 
 ### Publishing with Custom Metadata
 
-You can add custom metadata to your events, which is useful for tracing, routing, or providing additional context without polluting your domain event payload.
+You can add custom metadata to your events, which is useful for tracing, routing, or providing
+additional context without polluting your domain event payload.
 
 ```kotlin
 fun updateUser(userId: UUID, newEmail: String, correlationId: String) {
     val event = UserEmailUpdatedPayload(userId, newEmail)
-    
+
     eventPublisher.publish(
         subject = "events.user.email.updated",
         tenantId = tenantContext.getCurrentTenantId(),
@@ -134,7 +143,8 @@ fun updateUser(userId: UUID, newEmail: String, correlationId: String) {
 
 ### Error Handling
 
-If the publisher fails to send an event after all retry attempts, it will throw an `EventPublishingException`. Your application code should be prepared to handle this exception.
+If the publisher fails to send an event after all retry attempts, it will throw an
+`EventPublishingException`. Your application code should be prepared to handle this exception.
 
 ```kotlin
 try {
@@ -149,19 +159,25 @@ try {
 
 ## Configuration Reference
 
-All publisher settings are configured under the `eaf.eventing.nats.publisher` key in `application.yml`.
+All publisher settings are configured under the `eaf.eventing.nats.publisher` key in
+`application.yml`.
 
-| Property                   | Description                                  | Default |
-| -------------------------- | -------------------------------------------- | ------- |
-| `retry.max-attempts`       | Maximum number of publish attempts.          | `3`     |
-| `retry.initial-delay-ms`   | Initial delay before the first retry.        | `100`   |
-| `retry.backoff-multiplier` | Multiplier for the delay between retries.    | `2.0`   |
-| `retry.max-delay-ms`       | Maximum delay between retries.               | `10000` |
+| Property                   | Description                               | Default |
+| -------------------------- | ----------------------------------------- | ------- |
+| `retry.max-attempts`       | Maximum number of publish attempts.       | `3`     |
+| `retry.initial-delay-ms`   | Initial delay before the first retry.     | `100`   |
+| `retry.backoff-multiplier` | Multiplier for the delay between retries. | `2.0`   |
+| `retry.max-delay-ms`       | Maximum delay between retries.            | `10000` |
 
 ## Best Practices
 
-1. **Keep Payloads Small**: NATS is optimized for small, frequent messages. Avoid large event payloads.
-2. **Use Specific Subjects**: Use a clear and hierarchical subject naming strategy (e.g., `<domain>.<entity>.<action>`).
-3. **Handle Publish Failures**: While the SDK retries, persistent failures can occur. Ensure your business logic can handle cases where an event cannot be published.
-4. **Leverage Metadata**: Use metadata for operational concerns like tracing (`correlationId`) and diagnostics, keeping your domain `payload` clean.
-5. **Immutable Events**: Design your event data classes to be immutable (`val` properties in Kotlin data classes).
+1. **Keep Payloads Small**: NATS is optimized for small, frequent messages. Avoid large event
+   payloads.
+2. **Use Specific Subjects**: Use a clear and hierarchical subject naming strategy (e.g.,
+   `<domain>.<entity>.<action>`).
+3. **Handle Publish Failures**: While the SDK retries, persistent failures can occur. Ensure your
+   business logic can handle cases where an event cannot be published.
+4. **Leverage Metadata**: Use metadata for operational concerns like tracing (`correlationId`) and
+   diagnostics, keeping your domain `payload` clean.
+5. **Immutable Events**: Design your event data classes to be immutable (`val` properties in Kotlin
+   data classes).

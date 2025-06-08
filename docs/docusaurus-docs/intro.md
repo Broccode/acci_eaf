@@ -4,11 +4,15 @@ sidebar_position: 1
 
 # Welcome to ACCI EAF Launchpad
 
-Welcome to the **ACCI EAF (Axians Competence Center Infrastructure - Enterprise Application Framework) Launchpad**, your comprehensive developer portal for building modern, enterprise-grade applications.
+Welcome to the **ACCI EAF (Axians Competence Center Infrastructure - Enterprise Application
+Framework) Launchpad**, your comprehensive developer portal for building modern, enterprise-grade
+applications.
 
 ## What is ACCI EAF?
 
-ACCI EAF is a modern foundational platform designed to replace the outdated DCA framework at Axians. It delivers a stable, secure, maintainable, and highly usable Enterprise Application Framework that accelerates the development of high-quality, multi-tenant software products.
+ACCI EAF is a modern foundational platform designed to replace the outdated DCA framework at Axians.
+It delivers a stable, secure, maintainable, and highly usable Enterprise Application Framework that
+accelerates the development of high-quality, multi-tenant software products.
 
 ## Key Features
 
@@ -39,4 +43,5 @@ Explore reusable components and design patterns for EAF applications
 
 ## Get Help
 
-Need assistance? Check our documentation sections or reach out to the EAF team through the appropriate channels.
+Need assistance? Check our documentation sections or reach out to the EAF team through the
+appropriate channels.

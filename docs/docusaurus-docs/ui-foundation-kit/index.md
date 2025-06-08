@@ -1,6 +1,7 @@
 # UI Foundation Kit
 
-The ACCI EAF UI Foundation Kit provides a comprehensive collection of reusable React components, design tokens, and patterns built on top of Vaadin with Hilla integration.
+The ACCI EAF UI Foundation Kit provides a comprehensive collection of reusable React components,
+design tokens, and patterns built on top of Vaadin with Hilla integration.
 
 ## Overview
 
@@ -94,7 +95,7 @@ function CreateTenantForm() {
       <Button onClick={() => setIsOpen(true)}>
         Create Tenant
       </Button>
-      
+
       <Dialog isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <TextField
           label="Tenant Name"
@@ -118,7 +119,7 @@ import { DataGrid } from '@acci-eaf/ui-foundation-kit';
 
 function TenantList() {
   const tenants = useEndpoint(TenantService, (service) => service.getAllTenants());
-  
+
   return (
     <DataGrid
       items={tenants}
@@ -202,4 +203,5 @@ Storybook provides:
 4. **Consistency**: Follow the established patterns and naming conventions
 5. **Documentation**: Keep Storybook stories up to date
 
-*This is a placeholder document. Detailed component documentation, design guidelines, and usage examples will be added as the UI Foundation Kit evolves.*
+_This is a placeholder document. Detailed component documentation, design guidelines, and usage
+examples will be added as the UI Foundation Kit evolves._

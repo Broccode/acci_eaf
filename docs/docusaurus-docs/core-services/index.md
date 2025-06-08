@@ -1,6 +1,7 @@
 # Core Services Overview
 
-ACCI EAF provides a suite of core services that handle common enterprise application concerns, allowing you to focus on your business logic while leveraging robust, tested functionality.
+ACCI EAF provides a suite of core services that handle common enterprise application concerns,
+allowing you to focus on your business logic while leveraging robust, tested functionality.
 
 ## Available Services
 
@@ -129,4 +130,5 @@ All services include:
 3. **Authentication**: All services require IAM authentication
 4. **SDK Integration**: Add the appropriate client SDKs to your project
 
-*This is a placeholder document. Detailed service documentation will be added as each service is implemented and stabilized.*
+_This is a placeholder document. Detailed service documentation will be added as each service is
+implemented and stabilized._

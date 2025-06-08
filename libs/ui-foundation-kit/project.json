@@ -21,10 +21,24 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:eslint",
+      "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["libs/ui-foundation-kit/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --write 'src/**/*.{ts,tsx,js,jsx,json,md}' '*.{ts,tsx,js,jsx,json,md}'",
+        "cwd": "libs/ui-foundation-kit"
+      }
+    },
+    "format:check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --check 'src/**/*.{ts,tsx,js,jsx,json,md}' '*.{ts,tsx,js,jsx,json,md}'",
+        "cwd": "libs/ui-foundation-kit"
       }
     },
     "storybook": {

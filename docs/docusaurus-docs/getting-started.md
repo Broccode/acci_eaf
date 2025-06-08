@@ -1,6 +1,7 @@
 # Getting Started with ACCI EAF
 
-Welcome to the ACCI EAF Getting Started guide. This section will walk you through setting up your development environment and building your first EAF application.
+Welcome to the ACCI EAF Getting Started guide. This section will walk you through setting up your
+development environment and building your first EAF application.
 
 ## Prerequisites
 
@@ -52,4 +53,5 @@ nx run iam-service:bootRun
 - [Learn about Core Services](/docs/core-services)
 - [Browse the UI Foundation Kit](/docs/ui-foundation-kit)
 
-*This is a placeholder document. Detailed setup instructions will be added as the EAF development progresses.*
+_This is a placeholder document. Detailed setup instructions will be added as the EAF development
+progresses._

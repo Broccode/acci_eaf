@@ -1,6 +1,7 @@
 # Domain-Driven Design (DDD) in ACCI EAF
 
-Domain-Driven Design is a software development approach that emphasizes collaboration between technical teams and domain experts to create a model that accurately reflects the business domain.
+Domain-Driven Design is a software development approach that emphasizes collaboration between
+technical teams and domain experts to create a model that accurately reflects the business domain.
 
 ## Key Concepts
 
@@ -69,4 +70,5 @@ ACCI EAF organizes functionality into distinct bounded contexts:
 - Keep domain services pure and testable
 - Inject dependencies through constructor
 
-*This is a placeholder document. Detailed DDD guidance specific to ACCI EAF will be added as patterns emerge during development.*
+_This is a placeholder document. Detailed DDD guidance specific to ACCI EAF will be added as
+patterns emerge during development._

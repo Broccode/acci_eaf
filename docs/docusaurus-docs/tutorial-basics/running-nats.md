@@ -4,7 +4,8 @@ sidebar_position: 1
 
 # Running NATS/JetStream for Local Development
 
-This guide explains how to set up and run the NATS/JetStream eventing backbone for ACCI EAF local development, including multi-tenant configuration and basic troubleshooting.
+This guide explains how to set up and run the NATS/JetStream eventing backbone for ACCI EAF local
+development, including multi-tenant configuration and basic troubleshooting.
 
 ## Overview
 
@@ -80,7 +81,7 @@ The NATS server is pre-configured with three accounts for strict tenant isolatio
 
 **Regular User**:
 
-- **User**: `tenant_b_user`  
+- **User**: `tenant_b_user`
 - **Password**: `tenant_b_password_456!`
 - **Permitted Subjects**: `TENANT_B.>`, `tenant-b.>`
 
@@ -100,7 +101,7 @@ First, install the NATS CLI:
 # macOS
 brew install nats-io/nats-tools/nats
 
-# Linux/Windows - Go install  
+# Linux/Windows - Go install
 go install github.com/nats-io/natscli/nats@latest
 ```
 
@@ -111,7 +112,7 @@ Create and use tenant contexts:
 nats context save tenant-a \
   --server nats://tenant_a_user:tenant_a_password_456!@localhost:4222
 
-# Create Tenant B context  
+# Create Tenant B context
 nats context save tenant-b \
   --server nats://tenant_b_user:tenant_b_password_456!@localhost:4222
 
@@ -120,7 +121,7 @@ nats context select tenant-a
 nats pub TENANT_A.events.test "Hello from Tenant A"
 
 # Switch to Tenant B and publish a message
-nats context select tenant-b  
+nats context select tenant-b
 nats pub TENANT_B.events.test "Hello from Tenant B"
 ```
 
@@ -156,19 +157,22 @@ import { connect } from 'nats';
 
 // Connect as Tenant A user
 const nc = await connect({
-    servers: 'nats://tenant_a_user:tenant_a_password_456!@localhost:4222'
+  servers: 'nats://tenant_a_user:tenant_a_password_456!@localhost:4222',
 });
 
 // Publish an event
-nc.publish('TENANT_A.events.user.login', JSON.stringify({
+nc.publish(
+  'TENANT_A.events.user.login',
+  JSON.stringify({
     userId: '123',
-    timestamp: new Date().toISOString()
-}));
+    timestamp: new Date().toISOString(),
+  })
+);
 
 // Subscribe to events
 const sub = nc.subscribe('TENANT_A.events.user.>');
 for await (const msg of sub) {
-    console.log('Received:', new TextDecoder().decode(msg.data));
+  console.log('Received:', new TextDecoder().decode(msg.data));
 }
 ```
 
@@ -218,7 +222,7 @@ nats consumer create TENANT_A_USER_EVENTS user_service \
 # Consume messages one by one
 nats consumer next TENANT_A_USER_EVENTS user_service
 
-# Consume messages continuously  
+# Consume messages continuously
 nats consumer sub TENANT_A_USER_EVENTS user_service
 ```
 
@@ -337,7 +341,7 @@ docker-compose up -d
 # View live NATS logs
 docker-compose logs -f nats
 
-# Access NATS server logs inside container  
+# Access NATS server logs inside container
 docker exec -it eaf-nats cat /data/nats-server.log
 
 # Test basic connectivity
@@ -361,15 +365,14 @@ docker-compose down
 # Remove all persistent data
 rm -rf infra/docker-compose/nats-data/*
 
-# Restart services  
+# Restart services
 docker-compose up -d
 ```
 
 ## Security Considerations
 
-:::warning Development Only
-The credentials shown in this guide are for **local development only**. Never use these passwords in production environments.
-:::
+:::warning Development Only The credentials shown in this guide are for **local development only**.
+Never use these passwords in production environments. :::
 
 For production deployments:
 

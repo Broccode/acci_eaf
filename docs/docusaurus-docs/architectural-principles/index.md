@@ -1,6 +1,7 @@
 # Architectural Principles
 
-The ACCI EAF is built on a foundation of proven architectural patterns and development practices that ensure scalability, maintainability, and developer productivity.
+The ACCI EAF is built on a foundation of proven architectural patterns and development practices
+that ensure scalability, maintainability, and developer productivity.
 
 ## Core Principles
 
@@ -8,7 +9,8 @@ ACCI EAF mandates the use of four key architectural principles:
 
 ### 🏗️ [Domain-Driven Design (DDD)](/docs/architectural-principles/ddd)
 
-Model your business domain with precision using aggregates, entities, value objects, and domain events.
+Model your business domain with precision using aggregates, entities, value objects, and domain
+events.
 
 ### 🔷 [Hexagonal Architecture](/docs/architectural-principles/hexagonal)
 
@@ -34,6 +36,10 @@ These architectural patterns work together to create applications that are:
 
 ## Getting Started
 
-Begin with the [Domain-Driven Design guide](/docs/architectural-principles/ddd) to understand how to model your business domain, then explore how [Hexagonal Architecture](/docs/architectural-principles/hexagonal) helps organize your code structure.
+Begin with the [Domain-Driven Design guide](/docs/architectural-principles/ddd) to understand how to
+model your business domain, then explore how
+[Hexagonal Architecture](/docs/architectural-principles/hexagonal) helps organize your code
+structure.
 
-*This documentation provides guidance for implementing these principles within the ACCI EAF context.*
+_This documentation provides guidance for implementing these principles within the ACCI EAF
+context._
