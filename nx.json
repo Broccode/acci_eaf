@@ -63,6 +63,14 @@
         "{workspaceRoot}/.prettierignore"
       ],
       "cache": true
+    },
+    "spotlessCheck": {
+      "inputs": ["default"],
+      "cache": true
+    },
+    "spotlessApply": {
+      "inputs": ["default"],
+      "cache": true
     }
   },
   "generators": {

@@ -4,11 +4,15 @@ stages:
   - build
   - test
   - artifact
+  - deploy
+
+image: eclipse-temurin:21-jdk
 
 variables:
   GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.caching=true'
   GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle'
   NODE_OPTIONS: '--max_old_space_size=4096'
+  GIT_DEPTH: 0
   # Docker-in-Docker configuration for Testcontainers
   # Use TLS-disabled configuration for better compatibility
   DOCKER_HOST: tcp://docker:2375
@@ -20,20 +24,27 @@ variables:
   TESTCONTAINERS_HOST_OVERRIDE: "localhost"
 
 cache:
-  key:
-    files:
-      - gradle/wrapper/gradle-wrapper.properties
-      - package-lock.json
-  paths:
-    - .gradle/
-    - node_modules/
-    - .nx/cache/
+  - key:
+      files:
+        - package-lock.json
+        - docs/package-lock.json
+    paths:
+      - node_modules/
+      - docs/node_modules/
+      - .npm/
+  - key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
+    paths:
+      - .gradle/
+  - key: nx-cache
+    paths:
+      - .nx/cache/
 
-.setup_java_node: &setup_java_node
-  image: eclipse-temurin:21-jdk
+.setup_environment: &setup_environment
   before_script:
-    # Install git (required for Nx affected commands)
-    - apt-get update && apt-get install -y git
+    # Install git and curl (required for Nx affected commands and Node.js)
+    - apt-get update && apt-get install -y git ca-certificates curl gnupg
     # Install Node.js
     - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
     - apt-get install -y nodejs
@@ -43,25 +54,18 @@ cache:
     - npm --version
     - git --version
     # Install dependencies
-    - npm ci
-    # Clear Nx cache for clean runs
-    - npx nx reset
+    - npm ci --cache .npm --prefer-offline
+    - cd docs && npm ci && cd ..
     # Make gradlew executable
     - chmod +x ./gradlew
 
-.setup_java_node_docker: &setup_java_node_docker
-  image: eclipse-temurin:21-jdk
+.setup_docker: &setup_docker
   services:
     - name: docker:27.3.1-dind
       alias: docker
       command: ["--tls=false"]
-  variables:
-    # Override global Docker variables for this job
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_DRIVER: overlay2
   before_script:
-    # Install essential packages
+    # Install git and essential packages
     - apt-get update && apt-get install -y git ca-certificates curl gnupg
     # Install Node.js
     - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
@@ -73,13 +77,8 @@ cache:
     - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
     - apt-get update && apt-get install -y docker-ce-cli
     # Wait for Docker daemon to be ready
-    - echo "Waiting for Docker daemon to be ready..."
     - timeout 30 sh -c 'until docker info >/dev/null 2>&1; do sleep 1; done'
-    # Verify Docker is working
     - docker version
-    - docker info
-    # Test Docker functionality
-    - docker run --rm hello-world
     # Verify installations
     - java -version
     - node --version
@@ -87,85 +86,62 @@ cache:
     - git --version
     - docker --version
     # Install dependencies
-    - npm ci
-    # Clear Nx cache for clean runs
-    - npx nx reset
+    - npm ci --cache .npm --prefer-offline
+    - cd docs && npm ci && cd ..
     # Make gradlew executable
     - chmod +x ./gradlew
 
-setup:
-  <<: *setup_java_node
-  stage: setup
+main:
+  <<: *setup_docker
+  interruptible: true
+  only:
+    - main
+    - merge_requests
   script:
-    - echo "Setup completed"
+    # Set up Nx affected command variables
+    - NX_HEAD=$CI_COMMIT_SHA
+    - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
+    - echo "Running affected commands from $NX_BASE to $NX_HEAD"
 
-lint_backend:
-  <<: *setup_java_node
-  stage: lint
-  script:
-    - echo "Running Kotlin/Gradle formatting checks..."
-    - ./gradlew spotlessCheck
-  allow_failure: false
+    # Optional: Connect to Nx Cloud for distributed task execution
+    # Uncomment the following line to enable distributed execution
+    # - npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
 
-lint_frontend:
-  <<: *setup_java_node
-  stage: lint
-  script:
-    - echo "Running frontend linting and formatting checks..."
-    - npx nx run-many --target=lint --all
-    - npx nx run-many --target=format:check --all
-  allow_failure: false
+    # Run formatting check
+    - npx nx-cloud record -- nx format:check --base=$NX_BASE --head=$NX_HEAD
 
-build:
-  <<: *setup_java_node_docker
-  stage: build
-  script:
-    - echo "Installing docs dependencies..."
-    - cd docs && npm ci && cd ..
-    - echo "Building backend projects..."
-    - ./gradlew build -x test
-    - echo "Building frontend projects..."
-    - npx nx build ui-foundation-kit
-    - npx nx build docs
+    # Run affected linting, testing, and building
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint test build
+
+    # Run Kotlin/Gradle formatting check for affected backend projects
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t spotlessCheck
+
   artifacts:
-    paths:
-      - 'apps/iam-service/build/libs/*.jar'
-      - 'libs/eaf-core/build/libs/*.jar'
-    expire_in: 1 day
-
-test:
-  <<: *setup_java_node_docker
-  stage: test
-  script:
-    - echo "Installing docs dependencies..."
-    - cd docs && npm ci && cd ..
-    - echo "Running backend tests..."
-    - ./gradlew test
-    - echo "Running frontend tests..."
-    - npx nx test ui-foundation-kit
-    - npx nx test docs
-  artifacts:
+    when: always
     reports:
       junit:
         - '**/build/test-results/test/*.xml'
         - '**/test-results.xml'
     paths:
+      - '**/build/libs/*.jar'
+      - '**/dist/'
       - '**/build/reports/'
     expire_in: 1 week
 
-archive_artifacts:
-  <<: *setup_java_node
-  stage: artifact
+# Separate job for main branch deployments
+deploy:
+  <<: *setup_environment
+  stage: deploy
+  only:
+    - main
   needs:
-    - build
+    - main
   script:
-    - echo "Archiving build artifacts..."
+    - echo "Deploying artifacts from main branch..."
     - find . -name "*.jar" -type f
     - find . -name "dist" -type d
   artifacts:
     paths:
-      - 'apps/iam-service/build/libs/*.jar'
-      - 'libs/eaf-core/build/libs/*.jar'
+      - '**/build/libs/*.jar'
+      - '**/dist/'
     expire_in: 4 weeks
-  only:
-    - main
