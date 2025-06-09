@@ -17,9 +17,9 @@ variables:
   # No DOCKER_HOST needed - uses default unix socket
   DOCKER_DRIVER: overlay2
   # Testcontainers configuration for socket binding
-  TESTCONTAINERS_RYUK_DISABLED: "true"
+  TESTCONTAINERS_RYUK_DISABLED: 'true'
   # Use default docker host for socket binding
-  TESTCONTAINERS_HOST_OVERRIDE: "localhost"
+  TESTCONTAINERS_HOST_OVERRIDE: 'localhost'
 
 cache:
   - key:

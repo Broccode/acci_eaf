@@ -23,15 +23,15 @@ jobs:
         image: docker:27.3.1-dind
         options: --privileged --name docker
         env:
-          DOCKER_TLS_CERTDIR: ""
+          DOCKER_TLS_CERTDIR: ''
         ports:
           - 2375:2375
     env:
       # Docker configuration for Testcontainers
       DOCKER_HOST: tcp://localhost:2375
-      DOCKER_TLS_CERTDIR: ""
-      TESTCONTAINERS_RYUK_DISABLED: "true"
-      TESTCONTAINERS_HOST_OVERRIDE: "localhost"
+      DOCKER_TLS_CERTDIR: ''
+      TESTCONTAINERS_RYUK_DISABLED: 'true'
+      TESTCONTAINERS_HOST_OVERRIDE: 'localhost'
     steps:
       - uses: actions/checkout@v4
         with:
