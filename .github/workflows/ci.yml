@@ -13,6 +13,7 @@ permissions:
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.caching=true
   NODE_OPTIONS: --max_old_space_size=4096
+  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
 jobs:
   main:
