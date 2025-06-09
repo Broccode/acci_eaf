@@ -35,9 +35,14 @@ cache:
         - gradle/wrapper/gradle-wrapper.properties
     paths:
       - .gradle/
+  - key: nx-cache-$CI_COMMIT_REF_SLUG
+    paths:
+      - .nx/cache/
+    policy: pull-push
   - key: nx-cache
     paths:
       - .nx/cache/
+    policy: pull
 
 .setup_environment: &setup_environment
   environment:
@@ -96,12 +101,8 @@ main:
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
     - echo "Running affected commands from $NX_BASE to $NX_HEAD"
 
-    # Optional: Connect to Nx Cloud for distributed task execution
-    # Uncomment the following line to enable distributed execution
-    # - npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
-
     # Run formatting check
-    - npx nx-cloud record -- nx format:check --base=$NX_BASE --head=$NX_HEAD
+    - npx nx format:check --base=$NX_BASE --head=$NX_HEAD
 
     # Run affected linting, testing, and building
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint test build

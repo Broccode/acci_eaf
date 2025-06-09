@@ -13,7 +13,6 @@ permissions:
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.caching=true
   NODE_OPTIONS: --max_old_space_size=4096
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
 
 jobs:
   main:
@@ -70,6 +69,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-npm-
 
+      - name: Cache Nx
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
       - name: Install dependencies
         run: npm ci
 
@@ -80,13 +87,9 @@ jobs:
       # Derive appropriate SHAs for nx affected commands
       - uses: nrwl/nx-set-shas@v4
 
-      # Optional: Connect to Nx Cloud for distributed task execution
-      # Uncomment the following line to enable distributed execution
-      # - run: npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e-ci"
-
       # Run formatting check
       - name: Check formatting
-        run: npx nx-cloud record -- nx format:check
+        run: npx nx format:check
 
       # Run affected linting, testing, and building
       - name: Run affected lint, test, and build
