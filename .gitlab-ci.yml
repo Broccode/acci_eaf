@@ -63,6 +63,10 @@ cache:
   before_script:
     # Install git and curl (required for Nx affected commands and Node.js)
     - apt-get update && apt-get install -y git ca-certificates curl gnupg
+    # Install Docker CLI for socket binding
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    - echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - apt-get update && apt-get install -y docker-ce-cli
     # Install Node.js
     - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
     - apt-get install -y nodejs
