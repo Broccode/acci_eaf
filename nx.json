@@ -17,18 +17,9 @@
     "sharedGlobals": []
   },
   "plugins": [
-    {
-      "plugin": "@nx/gradle",
-      "options": {}
-    },
-    {
-      "plugin": "@nx/js",
-      "options": {}
-    },
-    {
-      "plugin": "@nx/vite",
-      "options": {}
-    }
+    { "plugin": "@nx/gradle", "options": {} },
+    { "plugin": "@nx/js", "options": {} },
+    { "plugin": "@nx/vite", "options": {} }
   ],
   "targetDefaults": {
     "build": {
@@ -37,7 +28,12 @@
       "cache": true
     },
     "test": {
-      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js", "{projectRoot}/vitest.config.[jt]s"],
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/jest.preset.js",
+        "{projectRoot}/vitest.config.[jt]s"
+      ],
       "cache": true
     },
     "lint": {
@@ -64,29 +60,15 @@
       ],
       "cache": true
     },
-    "spotlessCheck": {
-      "inputs": ["default"],
-      "cache": true
-    },
-    "spotlessApply": {
-      "inputs": ["default"],
-      "cache": true
-    }
+    "spotlessCheck": { "inputs": ["default"], "cache": true },
+    "spotlessApply": { "inputs": ["default"], "cache": true }
   },
   "generators": {
     "@nx/react": {
-      "application": {
-        "style": "css",
-        "linter": "eslint",
-        "bundler": "vite"
-      },
-      "component": {
-        "style": "css"
-      },
-      "library": {
-        "style": "css",
-        "linter": "eslint"
-      }
+      "application": { "style": "css", "linter": "eslint", "bundler": "vite" },
+      "component": { "style": "css" },
+      "library": { "style": "css", "linter": "eslint" }
     }
-  }
+  },
+  "nxCloudId": "681667256830952886971353"
 }
