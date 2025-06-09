@@ -24,7 +24,7 @@ dependencies {
 
     // Flyway for database migrations
     implementation("org.flywaydb:flyway-core:10.8.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
+    implementation("org.flywaydb:flyway-database-postgresql:11.9.1")
 
     // Kotlin coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
