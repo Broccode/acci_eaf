@@ -64,24 +64,24 @@ cache:
 .setup_docker: &setup_docker
   image: docker:27.3.1
   services:
-    - docker:27.3.1-dind
-  variables:
-    # When you use the dind service, you must instruct Docker to talk with
-    # the daemon started inside of the service. The daemon is available
-    # with a network connection instead of the default
-    # /var/run/docker.sock socket.
-    DOCKER_HOST: tcp://docker:2375
-    # Specify to Docker where to create the certificates. Docker
-    # creates them automatically on boot, and creates
-    # `/certs/client` to share between the service and job
-    # container, thanks to volume mount from config.toml
-    DOCKER_TLS_CERTDIR: ""
+    - name: docker:27.3.1-dind
+      alias: docker
   before_script:
     # Install Java 21
     - apk add --no-cache openjdk21
     # Install git and essential packages
     - apk add --no-cache git ca-certificates curl gnupg nodejs npm
-    # Wait for Docker daemon and verify
+    # Wait for Docker daemon to be ready (ignore health check warnings)
+    - |
+      for i in $(seq 1 30); do
+        if docker info >/dev/null 2>&1; then
+          echo "Docker daemon is ready!"
+          break
+        fi
+        echo "Waiting for Docker daemon... (attempt $i/30)"
+        sleep 2
+      done
+    # Verify Docker is working
     - docker info
     # Verify installations
     - java -version
