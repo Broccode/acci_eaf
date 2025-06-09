@@ -21,7 +21,8 @@
 ### Functional
 
 [[LLM: Each Requirement will be a bullet markdown and an identifier sequence starting with FR`.]]
-@{example: - FR6: The Todo List uses AI to detect and warn against adding potentially duplicate todo items that are worded differently.}
+@{example: - FR6: The Todo List uses AI to detect and warn against adding potentially duplicate todo
+items that are worded differently.}
 
 ### Non Functional
 
@@ -32,7 +33,8 @@
 
 ## User Interface Design Goals
 
-[[LLM: Capture high-level UI/UX vision to guide Design Architect and to inform story creation. Steps:
+[[LLM: Capture high-level UI/UX vision to guide Design Architect and to inform story creation.
+Steps:
 
 1. Pre-fill all subsections with educated guesses based on project context
 2. Present the complete rendered section to user
@@ -54,8 +56,7 @@
 - Login Screen
 - Main Dashboard
 - Item Detail Page
-- Settings Page
-  @{/example}
+- Settings Page @{/example}
 
 ### Accessibility: { None, WCAG, etc }
 
@@ -65,14 +66,13 @@
 
 @{example}
 
-- Replicate the look and feel of early 1900s black and white cinema, including animated effects replicating film damage or projector glitches during page or state transitions.
-- Attached is the full color pallet and tokens for our corporate branding.
-  @{/example}
+- Replicate the look and feel of early 1900s black and white cinema, including animated effects
+  replicating film damage or projector glitches during page or state transitions.
+- Attached is the full color pallet and tokens for our corporate branding. @{/example}
 
 ### Target Device and Platforms
 
-@{example}
-"Web Responsive, and all mobile platforms", "IPhone Only", "ASCII Windows Desktop"
+@{example} "Web Responsive, and all mobile platforms", "IPhone Only", "ASCII Windows Desktop"
 @{/example}
 
 ^^/CONDITION: has_ui^^
@@ -104,16 +104,27 @@
 
 ## Epics
 
-[[LLM: First, present a high-level list of all epics for user approval, the epic_list and immediately execute tasks#advanced-elicitation display. Each epic should have a title and a short (1 sentence) goal statement. This allows the user to review the overall structure before diving into details.
+[[LLM: First, present a high-level list of all epics for user approval, the epic_list and
+immediately execute tasks#advanced-elicitation display. Each epic should have a title and a short (1
+sentence) goal statement. This allows the user to review the overall structure before diving into
+details.
 
 CRITICAL: Epics MUST be logically sequential following agile best practices:
 
-- Each epic should deliver a significant, end-to-end, fully deployable increment of testable functionality
-- Epic 1 must establish foundational project infrastructure (app setup, Git, CI/CD, core services) unless we are adding new functionality to an existing app, while also delivering an initial piece of functionality, even as simple as a health-check route or display of a simple canary page
-- Each subsequent epic builds upon previous epics' functionality delivering major blocks of functionality that provide tangible value to users or business when deployed
-- Not every project needs multiple epics, an epic needs to deliver value. For example, an API completed can deliver value even if a UI is not complete and planned for a separate epic.
-- Err on the side of less epics, but let the user know your rationale and offer options for splitting them if it seems some are too large or focused on disparate things.
-- Cross Cutting Concerns should flow through epics and stories and not be final stories. For example, adding a logging framework as a last story of an epic, or at the end of a project as a final epic or story would be terrible as we would not have logging from the beginning.]]
+- Each epic should deliver a significant, end-to-end, fully deployable increment of testable
+  functionality
+- Epic 1 must establish foundational project infrastructure (app setup, Git, CI/CD, core services)
+  unless we are adding new functionality to an existing app, while also delivering an initial piece
+  of functionality, even as simple as a health-check route or display of a simple canary page
+- Each subsequent epic builds upon previous epics' functionality delivering major blocks of
+  functionality that provide tangible value to users or business when deployed
+- Not every project needs multiple epics, an epic needs to deliver value. For example, an API
+  completed can deliver value even if a UI is not complete and planned for a separate epic.
+- Err on the side of less epics, but let the user know your rationale and offer options for
+  splitting them if it seems some are too large or focused on disparate things.
+- Cross Cutting Concerns should flow through epics and stories and not be final stories. For
+  example, adding a logging framework as a last story of an epic, or at the end of a project as a
+  final epic or story would be terrible as we would not have logging from the beginning.]]
 
 <<REPEAT: epic_list>>
 
@@ -123,7 +134,8 @@ CRITICAL: Epics MUST be logically sequential following agile best practices:
 
 @{example: epic_list}
 
-1. Foundation & Core Infrastructure: Establish project setup, authentication, and basic user management
+1. Foundation & Core Infrastructure: Establish project setup, authentication, and basic user
+   management
 2. Core Business Entities: Create and manage primary domain objects with CRUD operations
 3. User Workflows & Interactions: Enable key user journeys and business processes
 4. Reporting & Analytics: Provide insights and data visualization for users
@@ -136,7 +148,8 @@ CRITICAL: Epics MUST be logically sequential following agile best practices:
 
 ## Epic {{epic_number}} {{epic_title}}
 
-{{epic_goal}} [[LLM: Expanded goal - 2-3 sentences describing the objective and value all the stories will achieve]]
+{{epic_goal}}
+[[LLM: Expanded goal - 2-3 sentences describing the objective and value all the stories will achieve]]
 
 [[LLM: CRITICAL STORY SEQUENCING REQUIREMENTS:
 
@@ -144,10 +157,14 @@ CRITICAL: Epics MUST be logically sequential following agile best practices:
 - Each story should be a "vertical slice" delivering complete functionality
 - No story should depend on work from a later story or epic
 - Identify and note any direct prerequisite stories
-- Focus on "what" and "why" not "how" (leave technical implementation to Architect) yet be precise enough to support a logical sequential order of operations from story to story.
-- Ensure each story delivers clear user or business value, try to avoid enablers and build them into stories that deliver value.
-- Size stories for AI agent execution: Each story must be completable by a single AI agent in one focused session without context overflow
-- Think "junior developer working for 2-4 hours" - stories must be small, focused, and self-contained
+- Focus on "what" and "why" not "how" (leave technical implementation to Architect) yet be precise
+  enough to support a logical sequential order of operations from story to story.
+- Ensure each story delivers clear user or business value, try to avoid enablers and build them into
+  stories that deliver value.
+- Size stories for AI agent execution: Each story must be completable by a single AI agent in one
+  focused session without context overflow
+- Think "junior developer working for 2-4 hours" - stories must be small, focused, and
+  self-contained
 - If a story seems complex, break it down further as long as it can deliver a vertical slice
 - Each story should result in working, testable code before the agent's context window fills]]
 
@@ -155,9 +172,7 @@ CRITICAL: Epics MUST be logically sequential following agile best practices:
 
 ### Story {{epic_number}}.{{story_number}} {{story_title}}
 
-As a {{user_type}},
-I want {{action}},
-so that {{benefit}}.
+As a {{user_type}}, I want {{action}}, so that {{benefit}}.
 
 #### Acceptance Criteria
 
@@ -174,9 +189,7 @@ so that {{benefit}}.
 
 - {{criterion number}}: {{criteria}}
 
-<</REPEAT>>
-<</REPEAT>>
-<</REPEAT>>
+<</REPEAT>> <</REPEAT>> <</REPEAT>>
 
 ## Change Log
 

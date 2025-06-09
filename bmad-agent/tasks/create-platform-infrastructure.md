@@ -2,11 +2,15 @@
 
 ## Purpose
 
-To implement a comprehensive platform infrastructure stack based on the Infrastructure Architecture Document, including foundation infrastructure, container orchestration, GitOps workflows, service mesh, and developer experience platforms. This integrated approach ensures all platform components work synergistically to provide a complete, secure, and operationally excellent platform foundation.
+To implement a comprehensive platform infrastructure stack based on the Infrastructure Architecture
+Document, including foundation infrastructure, container orchestration, GitOps workflows, service
+mesh, and developer experience platforms. This integrated approach ensures all platform components
+work synergistically to provide a complete, secure, and operationally excellent platform foundation.
 
 ## Inputs
 
-- **Infrastructure Architecture Document** (`docs/infrastructure-architecture.md` - from Architect Agent)
+- **Infrastructure Architecture Document** (`docs/infrastructure-architecture.md` - from Architect
+  Agent)
 - Infrastructure Change Request (`docs/infrastructure/{ticketNumber}.change.md`)
 - Infrastructure Guidelines (`docs/infrastructure/guidelines.md`)
 - Technology Stack Document (`docs/tech-stack.md`)
@@ -16,9 +20,12 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 
 ### 1. Confirm Interaction Mode
 
-- Ask the user: "How would you like to proceed with platform infrastructure implementation? We can work:
-  A. **Incrementally (Default & Recommended):** We'll implement each platform layer step-by-step (Foundation → Container Platform → GitOps → Service Mesh → Developer Experience), validating integration at each stage. This ensures thorough testing and operational readiness.
-  B. **"YOLO" Mode:** I'll implement the complete platform stack in logical groups, with validation at major integration milestones. This is faster but requires comprehensive end-to-end testing."
+- Ask the user: "How would you like to proceed with platform infrastructure implementation? We can
+  work: A. **Incrementally (Default & Recommended):** We'll implement each platform layer
+  step-by-step (Foundation → Container Platform → GitOps → Service Mesh → Developer Experience),
+  validating integration at each stage. This ensures thorough testing and operational readiness. B.
+  **"YOLO" Mode:** I'll implement the complete platform stack in logical groups, with validation at
+  major integration milestones. This is faster but requires comprehensive end-to-end testing."
 - Request the user to select their preferred mode and proceed accordingly.
 
 ### 2. Architecture Review & Implementation Planning
@@ -28,7 +35,8 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 - Create integrated implementation roadmap with proper dependency sequencing
 - Plan resource allocation, security policies, and operational procedures across all platform layers
 - Document rollback procedures and risk mitigation strategies for the entire platform
-- <critical_rule>Verify the infrastructure change request is approved before beginning implementation. If not, HALT and inform the user.</critical_rule>
+- <critical_rule>Verify the infrastructure change request is approved before beginning
+  implementation. If not, HALT and inform the user.</critical_rule>
 
 ### 3. Joint Implementation Planning Session
 
@@ -39,10 +47,13 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
     - Clarify any ambiguous or unclear architectural specifications
     - Document agreed-upon implementation approach for each architectural component
   - **Implementation Strategy Collaboration:**
-    - **Technology Implementation Planning:** Collaborate on specific technology versions, configurations, and deployment patterns
-    - **Security Implementation Planning:** Align on security control implementation approach and validation methods
+    - **Technology Implementation Planning:** Collaborate on specific technology versions,
+      configurations, and deployment patterns
+    - **Security Implementation Planning:** Align on security control implementation approach and
+      validation methods
     - **Integration Planning:** Plan component integration sequence and validation checkpoints
-    - **Operational Considerations:** Discuss operational patterns, monitoring strategies, and maintenance approaches
+    - **Operational Considerations:** Discuss operational patterns, monitoring strategies, and
+      maintenance approaches
     - **Resource Planning:** Confirm resource allocation, sizing, and optimization strategies
   - **Risk & Constraint Discussion:**
     - Identify potential implementation risks and mitigation strategies
@@ -58,11 +69,13 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
     - Plan documentation approach and knowledge transfer requirements
     - Define operational runbooks and troubleshooting guide requirements
     - Establish ongoing collaboration points for implementation support
-- <critical_rule>Complete joint planning session before beginning platform implementation. Document all planning outcomes and agreements.</critical_rule>
+- <critical_rule>Complete joint planning session before beginning platform implementation. Document
+  all planning outcomes and agreements.</critical_rule>
 
 ### 4. Foundation Infrastructure Implementation
 
 - **If "Incremental Mode" was selected:**
+
   - **a. Foundation Infrastructure Setup:**
     - Present foundation infrastructure scope and its role in the platform stack
     - Implement core cloud resources, networking, storage, and security foundations
@@ -77,6 +90,7 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 ### 5. Container Platform Implementation
 
 - **If "Incremental Mode" was selected:**
+
   - **b. Container Orchestration Platform:**
     - Present container platform scope and integration with foundation infrastructure
     - Install and configure container orchestration platform (Kubernetes/AKS/EKS/GKE)
@@ -91,6 +105,7 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 ### 6. GitOps Workflows Implementation
 
 - **If "Incremental Mode" was selected:**
+
   - **c. GitOps Configuration Management:**
     - Present GitOps scope and integration with container platform
     - Implement GitOps operators and configuration management systems
@@ -105,6 +120,7 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 ### 7. Service Mesh Implementation
 
 - **If "Incremental Mode" was selected:**
+
   - **d. Service Communication Platform:**
     - Present service mesh scope and integration with existing platform layers
     - Install and configure service mesh control and data planes
@@ -119,6 +135,7 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 ### 8. Developer Experience Platform Implementation
 
 - **If "Incremental Mode" was selected:**
+
   - **e. Developer Experience Platform:**
     - Present developer platform scope and integration with complete platform stack
     - Implement developer portals, self-service capabilities, and golden path templates
@@ -151,7 +168,8 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 ### 11. BMAD Workflow Integration
 
 - Verify complete platform supports all BMAD agent workflows:
-  - **Frontend/Backend Development** - Test complete application development and deployment workflows
+  - **Frontend/Backend Development** - Test complete application development and deployment
+    workflows
   - **Infrastructure Development** - Validate infrastructure-as-code development and deployment
   - **Cross-Agent Collaboration** - Ensure seamless collaboration between all agent types
   - **CI/CD Integration** - Test complete continuous integration and deployment pipelines
@@ -199,22 +217,37 @@ To implement a comprehensive platform infrastructure stack based on the Infrastr
 
 Fully operational and integrated platform infrastructure with:
 
-1. **Complete Foundation Infrastructure** - Cloud resources, networking, storage, and security foundations
-2. **Production-Ready Container Platform** - Orchestration with proper security, monitoring, and resource management
-3. **Operational GitOps Workflows** - Version-controlled operations with automated sync and policy enforcement
-4. **Service Mesh Communication Platform** - Advanced service communication with security and observability
-5. **Developer Experience Platform** - Self-service capabilities with productivity tooling and golden paths
-6. **Integrated Platform Operations** - Comprehensive monitoring, automation, and operational excellence
-7. **BMAD Workflow Support** - Verified integration supporting all agent development and deployment patterns
-8. **Platform Documentation** - Complete operational guides, troubleshooting resources, and developer documentation
-9. **Joint Planning Documentation** - Collaborative planning outcomes and architectural alignment records
-10. **Implementation Review Results** - Post-implementation validation and architect collaboration outcomes
+1. **Complete Foundation Infrastructure** - Cloud resources, networking, storage, and security
+   foundations
+2. **Production-Ready Container Platform** - Orchestration with proper security, monitoring, and
+   resource management
+3. **Operational GitOps Workflows** - Version-controlled operations with automated sync and policy
+   enforcement
+4. **Service Mesh Communication Platform** - Advanced service communication with security and
+   observability
+5. **Developer Experience Platform** - Self-service capabilities with productivity tooling and
+   golden paths
+6. **Integrated Platform Operations** - Comprehensive monitoring, automation, and operational
+   excellence
+7. **BMAD Workflow Support** - Verified integration supporting all agent development and deployment
+   patterns
+8. **Platform Documentation** - Complete operational guides, troubleshooting resources, and
+   developer documentation
+9. **Joint Planning Documentation** - Collaborative planning outcomes and architectural alignment
+   records
+10. **Implementation Review Results** - Post-implementation validation and architect collaboration
+    outcomes
 
 ## Offer Advanced Self-Refinement & Elicitation Options
 
-Present the user with the following list of 'Advanced Reflective, Elicitation & Brainstorming Actions'. Explain that these are optional steps to help ensure quality, explore alternatives, and deepen the understanding of the current platform layer before finalizing it and moving to the next. The user can select an action by number, or choose to skip this and proceed.
+Present the user with the following list of 'Advanced Reflective, Elicitation & Brainstorming
+Actions'. Explain that these are optional steps to help ensure quality, explore alternatives, and
+deepen the understanding of the current platform layer before finalizing it and moving to the next.
+The user can select an action by number, or choose to skip this and proceed.
 
-"To ensure the quality of the current platform layer: **[Specific Platform Layer Name]** and to ensure its robustness, explore alternatives, and consider all angles, I can perform any of the following actions. Please choose a number (8 to finalize and proceed):
+"To ensure the quality of the current platform layer: **[Specific Platform Layer Name]** and to
+ensure its robustness, explore alternatives, and consider all angles, I can perform any of the
+following actions. Please choose a number (8 to finalize and proceed):
 
 **Advanced Reflective, Elicitation & Brainstorming Actions I Can Take:**
 
@@ -227,6 +260,9 @@ Present the user with the following list of 'Advanced Reflective, Elicitation & 
 7. **BMAD Agent Workflow Integration & Cross-Platform Testing**
 8. **Finalize this Platform Layer and Proceed.**
 
-After I perform the selected action, we can discuss the outcome and decide on any further improvements for this platform layer."
+After I perform the selected action, we can discuss the outcome and decide on any further
+improvements for this platform layer."
 
-REPEAT by Asking the user if they would like to perform another Reflective, Elicitation & Brainstorming Action UNTIL the user indicates it is time to proceed to the next platform layer (or selects #8)
+REPEAT by Asking the user if they would like to perform another Reflective, Elicitation &
+Brainstorming Action UNTIL the user indicates it is time to proceed to the next platform layer (or
+selects #8)

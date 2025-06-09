@@ -52,4 +52,3 @@ story-dod-checklist:
     - story.md
   default_locations:
     - docs/stories/*.md
-

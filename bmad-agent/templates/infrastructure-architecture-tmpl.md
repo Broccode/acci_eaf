@@ -103,7 +103,9 @@
 
 ### Validation Framework
 
-This infrastructure architecture will be validated using the comprehensive `infrastructure-checklist.md`, with particular focus on Section 12: Architecture Documentation Validation. The checklist ensures:
+This infrastructure architecture will be validated using the comprehensive
+`infrastructure-checklist.md`, with particular focus on Section 12: Architecture Documentation
+Validation. The checklist ensures:
 
 - Completeness of architecture documentation
 - Consistency with broader system architecture
@@ -120,7 +122,8 @@ The architecture documentation validation should be performed:
 - Before major implementation phases
 - During periodic architecture reviews
 
-The Platform Engineer should use the infrastructure checklist to systematically validate all aspects of this architecture document.
+The Platform Engineer should use the infrastructure checklist to systematically validate all aspects
+of this architecture document.
 
 ## Infrastructure Evolution
 

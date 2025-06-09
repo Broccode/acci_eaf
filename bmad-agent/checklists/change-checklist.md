@@ -1,22 +1,28 @@
 # Change Navigation Checklist
 
-**Purpose:** To systematically guide the selected Agent and user through the analysis and planning required when a significant change (pivot, tech issue, missing requirement, failed story) is identified during the BMAD workflow.
+**Purpose:** To systematically guide the selected Agent and user through the analysis and planning
+required when a significant change (pivot, tech issue, missing requirement, failed story) is
+identified during the BMAD workflow.
 
-**Instructions:** Review each item with the user. Mark `[x]` for completed/confirmed, `[N/A]` if not applicable, or add notes for discussion points.
+**Instructions:** Review each item with the user. Mark `[x]` for completed/confirmed, `[N/A]` if not
+applicable, or add notes for discussion points.
 
 ---
 
 ## 1. Understand the Trigger & Context
 
-- [ ] **Identify Triggering Story:** Clearly identify the story (or stories) that revealed the issue.
+- [ ] **Identify Triggering Story:** Clearly identify the story (or stories) that revealed the
+      issue.
 - [ ] **Define the Issue:** Articulate the core problem precisely.
   - [ ] Is it a technical limitation/dead-end?
   - [ ] Is it a newly discovered requirement?
   - [ ] Is it a fundamental misunderstanding of existing requirements?
   - [ ] Is it a necessary pivot based on feedback or new information?
   - [ ] Is it a failed/abandoned story needing a new approach?
-- [ ] **Assess Initial Impact:** Describe the immediate observed consequences (e.g., blocked progress, incorrect functionality, non-viable tech).
-- [ ] **Gather Evidence:** Note any specific logs, error messages, user feedback, or analysis that supports the issue definition.
+- [ ] **Assess Initial Impact:** Describe the immediate observed consequences (e.g., blocked
+      progress, incorrect functionality, non-viable tech).
+- [ ] **Gather Evidence:** Note any specific logs, error messages, user feedback, or analysis that
+      supports the issue definition.
 
 ## 2. Epic Impact Assessment
 
@@ -30,7 +36,8 @@
   - [ ] Does the issue invalidate any future epics?
   - [ ] Does the issue necessitate the creation of entirely new epics?
   - [ ] Should the order/priority of future epics be changed?
-- [ ] **Summarize Epic Impact:** Briefly document the overall effect on the project's epic structure and flow.
+- [ ] **Summarize Epic Impact:** Briefly document the overall effect on the project's epic structure
+      and flow.
 
 ## 3. Artifact Conflict & Impact Analysis
 
@@ -38,7 +45,8 @@
   - [ ] Does the issue conflict with the core goals or requirements stated in the PRD?
   - [ ] Does the PRD need clarification or updates based on the new understanding?
 - [ ] **Review Architecture Document:**
-  - [ ] Does the issue conflict with the documented architecture (components, patterns, tech choices)?
+  - [ ] Does the issue conflict with the documented architecture (components, patterns, tech
+        choices)?
   - [ ] Are specific components/diagrams/sections impacted?
   - [ ] Does the technology list need updating?
   - [ ] Do data models or schemas need revision?
@@ -48,7 +56,8 @@
   - [ ] Are specific FE components or user flows impacted?
 - [ ] **Review Other Artifacts (if applicable):**
   - [ ] Consider impact on deployment scripts, IaC, monitoring setup, etc.
-- [ ] **Summarize Artifact Impact:** List all artifacts requiring updates and the nature of the changes needed.
+- [ ] **Summarize Artifact Impact:** List all artifacts requiring updates and the nature of the
+      changes needed.
 
 ## 4. Path Forward Evaluation
 
@@ -67,7 +76,8 @@
   - [ ] Does the MVP scope need reduction (removing features/epics)?
   - [ ] Do the core MVP goals need modification?
   - [ ] Are alternative approaches needed to meet the original MVP intent?
-  - [ ] **Extreme Case:** Does the issue necessitate a fundamental replan or potentially a new PRD V2 (to be handled by PM)?
+  - [ ] **Extreme Case:** Does the issue necessitate a fundamental replan or potentially a new PRD
+        V2 (to be handled by PM)?
 - [ ] **Select Recommended Path:** Based on the evaluation, agree on the most viable path forward.
 
 ## 5. Sprint Change Proposal Components
@@ -87,6 +97,7 @@
 - [ ] **Review Checklist:** Confirm all relevant items were discussed.
 - [ ] **Review Sprint Change Proposal:** Ensure it accurately reflects the discussion and decisions.
 - [ ] **User Approval:** Obtain explicit user approval for the proposal.
-- [ ] **Confirm Next Steps:** Reiterate the handoff plan and the next actions to be taken by specific agents.
+- [ ] **Confirm Next Steps:** Reiterate the handoff plan and the next actions to be taken by
+      specific agents.
 
 ---

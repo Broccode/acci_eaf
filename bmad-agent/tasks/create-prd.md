@@ -4,13 +4,15 @@
 
 - Transform inputs into core product definition documents conforming to a PRD template
 - Define clear MVP scope focused on essential functionality
-- Provide foundation for Architect and Design Architect to help create technical artifacts which will in turn later draft further details for very junior engineers or simple dev ai agents.
+- Provide foundation for Architect and Design Architect to help create technical artifacts which
+  will in turn later draft further details for very junior engineers or simple dev ai agents.
 
 ## Instructions
 
 ### 1. Review Inputs
 
-Review all provided inputs including project brief, research documents, prd template and user ideas to guide PRD generation.
+Review all provided inputs including project brief, research documents, prd template and user ideas
+to guide PRD generation.
 
 ### 2. Determine Interaction Mode
 
@@ -18,7 +20,8 @@ Confirm with the user their preferred interaction style:
 
 - **Incremental:** Work through sections one at a time via chat messages as defined in the template.
 
-- **YOLO Mode:** Draft the complete PRD making assumptions as necessary. Present full document at once, noting which sections required assumptions.
+- **YOLO Mode:** Draft the complete PRD making assumptions as necessary. Present full document at
+  once, noting which sections required assumptions.
 
 ### 3. Execute Template
 
@@ -33,7 +36,8 @@ Confirm with the user their preferred interaction style:
 
 Process all template elements according to `templates#template-format` conventions.
 
-**CRITICAL: Never display or output template markup formatting, LLM instructions or examples - they MUST be used by you the agent only, AND NEVER shown to users in chat or document output**
+**CRITICAL: Never display or output template markup formatting, LLM instructions or examples - they
+MUST be used by you the agent only, AND NEVER shown to users in chat or document output**
 
 **Content Presentation Guidelines:**
 
@@ -86,4 +90,5 @@ Based on PRD content, prepare appropriate next-step prompts:
 - This task is template-agnostic - users may specify custom templates
 - All detailed instructions are embedded in templates, not this task file
 - Focus on orchestration and workflow
-- **Template markup is for AI processing only - users should never see output indicators from templates#template-format**
+- **Template markup is for AI processing only - users should never see output indicators from
+  templates#template-format**

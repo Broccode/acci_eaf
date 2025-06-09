@@ -1,10 +1,13 @@
 # Checklist Validation Task
 
-This task provides instructions for validating documentation against checklists. The agent should follow these instructions to ensure thorough and systematic validation of documents.
+This task provides instructions for validating documentation against checklists. The agent should
+follow these instructions to ensure thorough and systematic validation of documents.
 
 ## Context
 
-The BMAD Method uses various checklists to ensure quality and completeness of different artifacts. The mapping between checklists and their required documents is defined in `checklist-mappings`. This allows for easy addition of new checklists without modifying this task.
+The BMAD Method uses various checklists to ensure quality and completeness of different artifacts.
+The mapping between checklists and their required documents is defined in `checklist-mappings`. This
+allows for easy addition of new checklists without modifying this task.
 
 ## Instructions
 
@@ -13,7 +16,8 @@ The BMAD Method uses various checklists to ensure quality and completeness of di
    - Check `checklist-mappings` for available checklists
    - If user provides a checklist name:
      - Look for exact match in checklist-mappings.yml
-     - If no exact match, try fuzzy matching (e.g. "architecture checklist" -> "architect-checklist")
+     - If no exact match, try fuzzy matching (e.g. "architecture checklist" ->
+       "architect-checklist")
      - If multiple matches found, ask user to clarify
      - Once matched, use the checklist_file path from the mapping
    - If no checklist specified:
@@ -122,14 +126,17 @@ The checklist validation is complete when:
 
 ## Example Interaction
 
-Agent: "Let me check the available checklists... According to checklist-mappings.yml, we have several options. Which would you like to use?"
+Agent: "Let me check the available checklists... According to checklist-mappings.yml, we have
+several options. Which would you like to use?"
 
 User: "The architect checklist"
 
-Agent: "Would you like to work through it section by section (interactive) or get a complete analysis all at once (YOLO mode)?"
+Agent: "Would you like to work through it section by section (interactive) or get a complete
+analysis all at once (YOLO mode)?"
 
 User: "Interactive please"
 
-Agent: "According to the mappings, I need to check for architecture.md. The default location is docs/architecture.md. Should I look there?"
+Agent: "According to the mappings, I need to check for architecture.md. The default location is
+docs/architecture.md. Should I look there?"
 
 [Continue interaction based on user responses...]

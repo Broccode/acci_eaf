@@ -35,7 +35,8 @@ Choose an action (0-9 - 9 to bypass - HELP for explanation of these options):
 **Do NOT show:**
 
 - The full protocol text with `[[LLM: ...]]` instructions
-- Detailed explanations of each option unless executing or the user asks, when giving the definition you can modify to tie its relevance
+- Detailed explanations of each option unless executing or the user asks, when giving the definition
+  you can modify to tie its relevance
 - Any internal template markup
 
 **After user selection from the list:**

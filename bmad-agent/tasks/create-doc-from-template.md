@@ -12,7 +12,8 @@
 
 - Determine which template to use (user-provided or list available for selection to user)
 
-  - agent-config specific agents will list what docs they have available under this task, for each item consider it a unique task. So if the user had for example:
+  - agent-config specific agents will list what docs they have available under this task, for each
+    item consider it a unique task. So if the user had for example:
 
     @{example}
 
@@ -26,9 +27,11 @@
 
     @{/example}
 
-    you would list `Create Document PRD` and `Create Document Architecture` as tasks the agent could perform.
+    you would list `Create Document PRD` and `Create Document Architecture` as tasks the agent could
+    perform.
 
-- Gather all relevant inputs, or ask for them, or else rely on user providing necessary details to complete the document
+- Gather all relevant inputs, or ask for them, or else rely on user providing necessary details to
+  complete the document
 - Understand the document purpose and target audience
 
 ### 2. Determine Interaction Mode
@@ -36,7 +39,8 @@
 Confirm with the user their preferred interaction style:
 
 - **Incremental:** Work through chunks of the document.
-- **YOLO Mode:** Draft complete document making reasonable assumptions in one shot. (Can be entered also after starting incremental by just typing /yolo)
+- **YOLO Mode:** Draft complete document making reasonable assumptions in one shot. (Can be entered
+  also after starting incremental by just typing /yolo)
 
 ### 3. Execute Template
 

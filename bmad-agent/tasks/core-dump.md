@@ -2,7 +2,10 @@
 
 ## Purpose
 
-To create a concise memory recording file (`.ai/core-dump-n.md`) that captures the essential context of the current agent session, enabling seamless continuation of work in future agent sessions. This task ensures persistent context across agent conversations while maintaining minimal token usage for efficient context loading.
+To create a concise memory recording file (`.ai/core-dump-n.md`) that captures the essential context
+of the current agent session, enabling seamless continuation of work in future agent sessions. This
+task ensures persistent context across agent conversations while maintaining minimal token usage for
+efficient context loading.
 
 ## Inputs for this Task
 
@@ -18,11 +21,13 @@ To create a concise memory recording file (`.ai/core-dump-n.md`) that captures t
 
 Before proceeding, check if `.ai/core-dump.md` already exists:
 
-- If file exists, ask user: "Core dump file exists. Should I: 1. Overwrite, 2. Update, 3. Append or 4. Create new?"
+- If file exists, ask user: "Core dump file exists. Should I: 1. Overwrite, 2. Update, 3. Append
+  or 4. Create new?"
 - **Overwrite**: Replace entire file with new content
 - **Update**: Merge new session info with existing content, updating relevant sections
 - **Append**: Add new session as a separate entry while preserving existing content
-- **Create New**: Create a new file, appending the next possible -# to the file, such as core-dump-3.md if 1 and 2 already exist.
+- **Create New**: Create a new file, appending the next possible -# to the file, such as
+  core-dump-3.md if 1 and 2 already exist.
 - If file doesn't exist, proceed with creation of `core-dump-1.md`
 
 ### 1. Analyze Session Context
