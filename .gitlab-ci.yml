@@ -42,6 +42,8 @@ cache:
       - .nx/cache/
 
 .setup_environment: &setup_environment
+  environment:
+    name: ci
   before_script:
     # Install git and curl (required for Nx affected commands and Node.js)
     - apt-get update && apt-get install -y git ca-certificates curl gnupg
