@@ -13,14 +13,12 @@ variables:
   GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle'
   NODE_OPTIONS: '--max_old_space_size=4096'
   GIT_DEPTH: 0
-  # Docker-in-Docker configuration for Testcontainers
-  # Use TLS-disabled configuration per GitLab docs
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
+  # Docker socket binding configuration for Testcontainers
+  # No DOCKER_HOST needed - uses default unix socket
   DOCKER_DRIVER: overlay2
-  # Testcontainers configuration
+  # Testcontainers configuration for socket binding
   TESTCONTAINERS_RYUK_DISABLED: "true"
-  # Additional Testcontainers settings for GitLab CI
+  # Use default docker host for socket binding
   TESTCONTAINERS_HOST_OVERRIDE: "localhost"
 
 cache:
@@ -62,26 +60,13 @@ cache:
     - chmod +x ./gradlew
 
 .setup_docker: &setup_docker
-  image: docker:27.3.1
-  services:
-    - name: docker:27.3.1-dind
-      alias: docker
   before_script:
-    # Install Java 21
-    - apk add --no-cache openjdk21
-    # Install git and essential packages
-    - apk add --no-cache git ca-certificates curl gnupg nodejs npm
-    # Wait for Docker daemon to be ready (ignore health check warnings)
-    - |
-      for i in $(seq 1 30); do
-        if docker info >/dev/null 2>&1; then
-          echo "Docker daemon is ready!"
-          break
-        fi
-        echo "Waiting for Docker daemon... (attempt $i/30)"
-        sleep 2
-      done
-    # Verify Docker is working
+    # Install git and curl (required for Nx affected commands and Node.js)
+    - apt-get update && apt-get install -y git ca-certificates curl gnupg
+    # Install Node.js
+    - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+    - apt-get install -y nodejs
+    # Verify Docker is available via socket binding
     - docker info
     # Verify installations
     - java -version
