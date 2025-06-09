@@ -10,17 +10,14 @@ variables:
   GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle'
   NODE_OPTIONS: '--max_old_space_size=4096'
   # Docker-in-Docker configuration for Testcontainers
-  # Use TLS-enabled configuration for secure Docker communication
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_TLS_VERIFY: 1
-  DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-  # Alternative configuration if TLS issues persist:
-  # DOCKER_HOST: tcp://docker:2375
-  # DOCKER_TLS_CERTDIR: ""
-  # DOCKER_TLS_VERIFY: 0
+  # Use TLS-disabled configuration for better compatibility
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
   # Testcontainers configuration
   TESTCONTAINERS_RYUK_DISABLED: "true"
+  # Additional Testcontainers settings for GitLab CI
+  TESTCONTAINERS_HOST_OVERRIDE: "localhost"
 
 cache:
   key:
@@ -55,31 +52,34 @@ cache:
 .setup_java_node_docker: &setup_java_node_docker
   image: eclipse-temurin:21-jdk
   services:
-    - name: docker:27-dind
-      variables:
-        HEALTHCHECK_TCP_PORT: "2376"
+    - name: docker:27.3.1-dind
+      alias: docker
+      command: ["--tls=false"]
   variables:
-    # Ensure proper TLS certificate directory configuration
-    DOCKER_TLS_CERTDIR: "/certs"
+    # Override global Docker variables for this job
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_DRIVER: overlay2
   before_script:
-    # Install git (required for Nx affected commands)
-    - apt-get update && apt-get install -y git
+    # Install essential packages
+    - apt-get update && apt-get install -y git ca-certificates curl gnupg
     # Install Node.js
     - curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
     - apt-get install -y nodejs
-    # Install Docker CLI for Testcontainers
-    - apt-get install -y ca-certificates curl
+    # Install Docker CLI
     - install -m 0755 -d /etc/apt/keyrings
-    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    - curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
     - chmod a+r /etc/apt/keyrings/docker.asc
-    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
     - apt-get update && apt-get install -y docker-ce-cli
-    # Wait for Docker daemon to be ready and TLS certificates to be generated
-    - echo "Waiting for Docker daemon and TLS certificates..."
-    - until docker info; do sleep 1; done
-    # Verify TLS certificate setup and connection
-    - ls -la $DOCKER_TLS_CERTDIR/client/ || echo "TLS certificates not found, but Docker is working"
+    # Wait for Docker daemon to be ready
+    - echo "Waiting for Docker daemon to be ready..."
+    - timeout 30 sh -c 'until docker info >/dev/null 2>&1; do sleep 1; done'
+    # Verify Docker is working
     - docker version
+    - docker info
+    # Test Docker functionality
+    - docker run --rm hello-world
     # Verify installations
     - java -version
     - node --version
@@ -123,14 +123,14 @@ build:
     - echo "Installing docs dependencies..."
     - cd docs && npm ci && cd ..
     - echo "Building backend projects..."
-    - ./gradlew build
+    - ./gradlew build -x test
     - echo "Building frontend projects..."
     - npx nx build ui-foundation-kit
     - npx nx build docs
   artifacts:
     paths:
       - 'apps/iam-service/build/libs/*.jar'
-      - 'libs/eaf-sdk/eaf-core/build/libs/*.jar'
+      - 'libs/eaf-core/build/libs/*.jar'
     expire_in: 1 day
 
 test:
@@ -165,7 +165,7 @@ archive_artifacts:
   artifacts:
     paths:
       - 'apps/iam-service/build/libs/*.jar'
-      - 'libs/eaf-sdk/eaf-core/build/libs/*.jar'
+      - 'libs/eaf-core/build/libs/*.jar'
     expire_in: 4 weeks
   only:
     - main

@@ -51,6 +51,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Clear Nx cache for clean run
+        run: npx nx reset
+
       - name: Run Kotlin/Gradle formatting checks
         run: ./gradlew spotlessCheck
 
@@ -83,9 +86,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Clear Nx cache for clean run
-        run: npx nx reset
 
       - name: Run frontend linting and formatting checks
         run: |
@@ -140,8 +140,18 @@ jobs:
       - name: Clear Nx cache for clean build
         run: npx nx reset
 
-      - name: Build backend projects
-        run: ./gradlew build
+      - name: Build core libraries first (dependency order)
+        run: |
+          echo "Building eaf-core library first..."
+          ./gradlew :libs:eaf-core:build -x test
+          echo "Building other SDK libraries..."
+          ./gradlew :libs:eaf-eventing-sdk:build -x test
+          ./gradlew :libs:eaf-eventsourcing-sdk:build -x test
+
+      - name: Build application services
+        run: |
+          echo "Building IAM service..."
+          ./gradlew :apps:iam-service:build -x test
 
       - name: Build frontend projects
         run: |
@@ -204,6 +214,13 @@ jobs:
 
       - name: Clear Nx cache for clean test run
         run: npx nx reset
+
+      - name: Build dependencies before testing
+        run: |
+          echo "Building dependencies for testing..."
+          ./gradlew :libs:eaf-core:build -x test
+          ./gradlew :libs:eaf-eventing-sdk:build -x test
+          ./gradlew :libs:eaf-eventsourcing-sdk:build -x test
 
       - name: Run backend tests
         run: ./gradlew test
