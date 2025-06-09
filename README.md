@@ -27,13 +27,13 @@
 
 ### Prerequisites
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Node.js** | 18+ | Frontend tooling and Nx |
-| **npm** | 8+ | Package management |
-| **Java** | 17+ | Backend services |
-| **Docker** | Latest | Local development environment |
-| **Docker Compose** | Latest | Service orchestration |
+| Technology         | Version | Purpose                       |
+| ------------------ | ------- | ----------------------------- |
+| **Node.js**        | 18+     | Frontend tooling and Nx       |
+| **npm**            | 8+      | Package management            |
+| **Java**           | 17+     | Backend services              |
+| **Docker**         | Latest  | Local development environment |
+| **Docker Compose** | Latest  | Service orchestration         |
 
 ### Installation & Setup
 
@@ -150,7 +150,7 @@ The EAF follows a **modern microservices architecture** with these key principle
 ### 🎯 Core Services
 
 - **🔐 IAM Service** - Identity and Access Management
-- **📜 License Management** - Software licensing and entitlements  
+- **📜 License Management** - Software licensing and entitlements
 - **🚩 Feature Flags** - Dynamic feature control
 
 ### 🛠️ Shared Libraries
@@ -176,12 +176,12 @@ The EAF follows a **modern microservices architecture** with these key principle
 
 ## 📚 Documentation
 
-| Document | Description |
-|----------|-------------|
-| [📋 Project Structure](docs/project-structure.md) | Detailed project organization |
-| [🛠️ Tech Stack](docs/tech-stack.md) | Technology choices and versions |
-| [📐 Operational Guidelines](docs/operational-guidelines.md) | Coding standards and practices |
-| [🐳 Docker Setup](infra/docker-compose/README.md) | Local development environment |
+| Document                                                    | Description                     |
+| ----------------------------------------------------------- | ------------------------------- |
+| [📋 Project Structure](docs/project-structure.md)           | Detailed project organization   |
+| [🛠️ Tech Stack](docs/tech-stack.md)                         | Technology choices and versions |
+| [📐 Operational Guidelines](docs/operational-guidelines.md) | Coding standards and practices  |
+| [🐳 Docker Setup](infra/docker-compose/README.md)           | Local development environment   |
 
 ### 🚀 Getting Started Guides
 
@@ -195,7 +195,7 @@ The EAF follows a **modern microservices architecture** with these key principle
 ## 🔄 Development Workflow
 
 1. **🎯 Isolation First** - Each feature/service is developed independently
-2. **📚 Shared Libraries** - Common code goes into the `libs/` directory  
+2. **📚 Shared Libraries** - Common code goes into the `libs/` directory
 3. **⚡ Nx Optimization** - Use Nx for dependency management and affected builds
 4. **📐 Standards Compliance** - Follow coding standards in operational guidelines
 5. **🧪 Test-Driven** - Comprehensive testing at all levels
@@ -213,7 +213,7 @@ npx nx graph
 # 🎯 Run affected tests only
 npx nx affected -t test
 
-# 🏗️ Build affected projects only  
+# 🏗️ Build affected projects only
 npx nx affected -t build
 
 # 🧹 Reset Nx cache
@@ -250,6 +250,6 @@ npx nx reset
 
 **Built with ❤️ by the ACCI Engineering Team**
 
-*Empowering enterprise applications with modern architecture*
+_Empowering enterprise applications with modern architecture_
 
 </div>

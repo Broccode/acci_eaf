@@ -1,6 +1,7 @@
 # ACCI EAF Docker Compose Setup
 
-This directory contains the Docker Compose configuration for running the ACCI EAF local development environment.
+This directory contains the Docker Compose configuration for running the ACCI EAF local development
+environment.
 
 ## Services
 
@@ -37,7 +38,7 @@ This directory contains the Docker Compose configuration for running the ACCI EA
    ```bash
    # All services
    docker-compose logs -f
-   
+
    # NATS only
    docker-compose logs -f nats
    ```
@@ -50,7 +51,9 @@ This directory contains the Docker Compose configuration for running the ACCI EA
 
 ## NATS Multi-Tenant Configuration
 
-> **Current Status**: The active configuration uses `nats-server-simple.conf` which includes System Account and Tenant A only. A full configuration with Tenant B is available in `nats-server.conf` but requires debugging before activation.
+> **Current Status**: The active configuration uses `nats-server-simple.conf` which includes System
+> Account and Tenant A only. A full configuration with Tenant B is available in `nats-server.conf`
+> but requires debugging before activation.
 
 The NATS server is currently configured with two accounts for multi-tenant isolation:
 
@@ -70,12 +73,14 @@ The NATS server is currently configured with two accounts for multi-tenant isola
 
 ### Tenant B Account (TENANT_B) - **PLANNED**
 
-> **Note**: Tenant B configuration is available in `nats-server.conf` but not currently active due to startup issues. To enable:
+> **Note**: Tenant B configuration is available in `nats-server.conf` but not currently active due
+> to startup issues. To enable:
 >
 > 1. Debug the startup issues in `nats-server.conf`
 > 2. Update `docker-compose.yml` to mount `./nats-server.conf:/etc/nats/nats-server.conf:ro`
 
 - **Regular User** (when enabled):
+
   - **User**: `tenant_b_user`
   - **Password**: `tenant_b_password_456!`
   - **Subjects**: `TENANT_B.>`, `tenant-b.>`
@@ -94,7 +99,7 @@ The NATS server is currently configured with two accounts for multi-tenant isola
    ```bash
    # macOS
    brew install nats-io/nats-tools/nats
-   
+
    # Go install
    go install github.com/nats-io/natscli/nats@latest
    ```
@@ -104,7 +109,7 @@ The NATS server is currently configured with two accounts for multi-tenant isola
    ```bash
    nats context save tenant-a \
      --server nats://tenant_a_user:tenant_a_password_456!@localhost:4222
-   
+
    nats context select tenant-a
    nats pub TENANT_A.events.test "Hello from Tenant A"
    ```
@@ -115,7 +120,7 @@ The NATS server is currently configured with two accounts for multi-tenant isola
    # Note: This will only work after switching to nats-server.conf
    nats context save tenant-b \
      --server nats://tenant_b_user:tenant_b_password_456!@localhost:4222
-   
+
    nats context select tenant-b
    nats pub TENANT_B.events.test "Hello from Tenant B"
    ```
@@ -139,7 +144,7 @@ val connection = Nats.connect(options)
 // Tenant A connection
 const { connect } = require('nats');
 const nc = await connect({
-    servers: 'nats://tenant_a_user:tenant_a_password_456!@localhost:4222'
+  servers: 'nats://tenant_a_user:tenant_a_password_456!@localhost:4222',
 });
 ```
 
@@ -191,16 +196,19 @@ nats server check --server nats://localhost:4222
 ### Common Issues
 
 1. **Connection Refused**:
+
    - Check if the service is running: `docker-compose ps`
    - Verify port 4222 is not in use by another process
    - Check logs: `docker-compose logs nats`
 
 2. **Permission Denied**:
+
    - Verify you're using the correct credentials for the tenant
    - Check that your subject matches the tenant's allowed patterns
    - Ensure you're connecting to the right account
 
 3. **JetStream Not Available**:
+
    - Verify JetStream is enabled in the configuration
    - Check that the data directory has proper permissions
    - Ensure sufficient disk space is available
@@ -234,7 +242,8 @@ docker-compose up -d
 
 ## Security Notes
 
-⚠️ **Important**: The passwords in this configuration are for **development only**. In production environments:
+⚠️ **Important**: The passwords in this configuration are for **development only**. In production
+environments:
 
 1. Use strong, randomly generated passwords
 2. Consider using TLS/SSL encryption
