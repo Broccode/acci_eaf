@@ -90,11 +90,36 @@ jobs:
 
       # Run affected linting, testing, and building
       - name: Run affected lint, test, and build
+        id: build
         run: npx nx affected -t lint test build
 
       # Run Kotlin/Gradle formatting check for affected backend projects
       - name: Run affected Kotlin formatting checks
         run: npx nx affected -t spotlessCheck
+
+      # Clean Kotlin compilation caches on build failure
+      - name: Clean Kotlin caches on failure
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          echo "Build failed, performing thorough cache cleanup..."
+          # Clean Kotlin incremental compilation caches
+          find . -name "build" -type d -path "*/kotlin/compile*" -exec rm -rf {} + 2>/dev/null || true
+          find . -name "caches-jvm" -type d -exec rm -rf {} + 2>/dev/null || true
+          find . -name "*.kotlin_module" -delete 2>/dev/null || true
+          # Clean Gradle daemon and build cache
+          ./gradlew --stop 2>/dev/null || true
+          rm -rf ~/.gradle/daemon/ ~/.gradle/caches/build-cache-* 2>/dev/null || true
+          # Clean project-specific Kotlin compilation artifacts
+          find . -name "*.kotlin_builtins" -delete 2>/dev/null || true
+          find . -name "*.kotlin_metadata" -delete 2>/dev/null || true
+        continue-on-error: true
+
+      # Retry build after cache cleanup if it failed
+      - name: Retry build after cache cleanup
+        if: failure() && steps.build.outcome == 'failure'
+        run: |
+          echo "Retrying build after cache cleanup..."
+          npx nx affected -t build --skip-nx-cache
 
       # Upload artifacts only if we built something
       - name: Upload build artifacts
@@ -118,3 +143,15 @@ jobs:
             **/test-results.xml
             **/build/reports/
           retention-days: 7
+
+      # Upload cache cleanup logs for debugging
+      - name: Upload cache cleanup logs
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cache-cleanup-logs
+          path: |
+            **/build/kotlin/compile*/cacheable/
+            ~/.gradle/daemon/
+          retention-days: 7
+        continue-on-error: true
