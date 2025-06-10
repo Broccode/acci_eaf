@@ -4,6 +4,14 @@ plugins {
 }
 
 dependencies {
+    // EAF Core
+    implementation(project(":libs:eaf-core"))
+
+    // Spring Security for context management
+    implementation("org.springframework.security:spring-security-core:6.2.1")
+    implementation("org.springframework:spring-context:6.1.2")
+    implementation("org.springframework.boot:spring-boot-autoconfigure:3.2.1")
+
     // Core dependencies
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlin.reflect)

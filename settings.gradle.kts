@@ -20,6 +20,7 @@ include(":apps:iam-service")
 include(":libs:eaf-core")
 include(":libs:eaf-eventing-sdk")
 include(":libs:eaf-eventsourcing-sdk")
+include(":libs:eaf-iam-client")
 
 // Include tools
 // include(":tools:acci-eaf-cli")  // Will be uncommented when ready

@@ -5,7 +5,7 @@ allowing you to focus on your business logic while leveraging robust, tested fun
 
 ## Available Services
 
-### 🔐 IAM Service
+### 🔐 IAM Service & Security Context
 
 **Identity and Access Management**
 
@@ -16,12 +16,16 @@ The IAM Service handles authentication, authorization, and multi-tenancy:
 - **RBAC/ABAC**: Role-based and attribute-based access control
 - **Multi-tenant Isolation**: Strict data separation between tenants
 - **Token Management**: JWT-based authentication with secure token lifecycle
+- **Security Context**: Automatic context propagation across services and async operations
 
 **Key APIs:**
 
 - `POST /api/v1/tenants` - Create new tenant
 - `POST /api/v1/tenants/{tenantId}/users` - Manage tenant users
 - `POST /api/v1/auth/token` - Authenticate and get token
+
+📖 **[Security Context Access Guide](./security-context-access.md)** - Learn how to access tenant,
+user, and permission context in your services
 
 ### 🎫 License Management Service
 
