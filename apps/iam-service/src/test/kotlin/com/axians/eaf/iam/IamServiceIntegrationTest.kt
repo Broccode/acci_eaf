@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 
@@ -21,6 +22,11 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @ActiveProfiles("test")
 @Transactional
 @Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
+@TestPropertySource(
+    properties = [
+        "eaf.system.initialize-default-tenant=false", // Disable auto-initialization for clean database test
+    ],
+)
 class IamServiceIntegrationTest {
     @Autowired
     private lateinit var tenantJpaRepository: TenantJpaRepository

@@ -1,6 +1,8 @@
 package com.axians.eaf.iam.test
 
+import com.axians.eaf.iam.infrastructure.config.SystemInitializationProperties
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 
 /**
  * A dedicated Spring Boot application class for running integration tests.
@@ -21,4 +23,5 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
         "com.axians.eaf.iam.web",
     ],
 )
+@EnableConfigurationProperties(SystemInitializationProperties::class)
 class TestIamServiceApplication

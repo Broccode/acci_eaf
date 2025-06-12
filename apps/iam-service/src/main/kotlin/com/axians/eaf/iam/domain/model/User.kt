@@ -40,6 +40,26 @@ data class User(
         }
 
         /**
+         * Factory method to create a SuperAdmin user.
+         * SuperAdmins have system-wide privileges and are associated with a tenant.
+         */
+        fun createSuperAdmin(
+            tenantId: String,
+            email: String,
+        ): User {
+            require(tenantId.isNotBlank()) { "Tenant ID cannot be blank" }
+            require(email.isNotBlank()) { "Email cannot be blank" }
+            require(isValidEmail(email)) { "Email must be valid" }
+
+            return User(
+                tenantId = tenantId,
+                email = email.trim().lowercase(),
+                role = UserRole.SUPER_ADMIN,
+                status = UserStatus.ACTIVE, // SuperAdmins are created active
+            )
+        }
+
+        /**
          * Factory method to create a regular user within a tenant.
          */
         fun createUser(
@@ -117,6 +137,11 @@ data class User(
      * Domain method to check if user is a tenant administrator.
      */
     fun isTenantAdmin(): Boolean = role == UserRole.TENANT_ADMIN
+
+    /**
+     * Domain method to check if user is a super administrator.
+     */
+    fun isSuperAdmin(): Boolean = role == UserRole.SUPER_ADMIN
 }
 
 /**

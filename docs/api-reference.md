@@ -20,12 +20,18 @@ with multi-tenancy, security (AuthN/AuthZ via IAM service), and versioning in mi
 - **IAM Service API (REST/Hilla):**
   - Purpose: Manage tenants (SuperAdmin), users within tenants (TenantAdmin), roles, permissions.
     Validate tokens.
-  - Endpoints (Conceptual):
-    - `POST /api/v1/tenants` (SuperAdmin: Create Tenant)
-    - `GET /api/v1/tenants/{tenantId}`
-    - `POST /api/v1/tenants/{tenantId}/users` (TenantAdmin: Create User in own tenant)
-    - `POST /api/v1/auth/token` (Issue EAF token based on credentials or IdP assertion)
-    - `GET /api/v1/auth/introspect` (Validate EAF token)
+  - Endpoints (Implemented in Story 2.5.3):
+    - `POST /api/v1/tenants` (SuperAdmin: Create Tenant - Implemented in 2.5.1)
+    - `POST /api/v1/users` (TenantAdmin: Create User in own tenant)
+      - **Request:** `{ "tenantId": "string", "email": "string", "username": "string?" }`
+      - **Response:** `{ "userId": "string", ... }`
+    - `GET /api/v1/users?tenantId={tenantId}` (TenantAdmin: List users in own tenant)
+      - **Response:** `{ "tenantId": "string", "users": [UserSummary] }`
+    - `PUT /api/v1/users/{userId}/status` (TenantAdmin: Update user status in own tenant)
+      - **Request:** `{ "newStatus": "ACTIVE|INACTIVE|SUSPENDED" }`
+      - **Response:** `{ "userId": "string", "previousStatus": "string", "newStatus": "string" }`
+    - `POST /api/v1/auth/token` (Conceptual: Issue EAF token)
+    - `GET /api/v1/auth/introspect` (Conceptual: Validate EAF token)
 - **License Management Service API (REST/Hilla):**
   - Purpose: Manage license creation, activation, validation.
   - Endpoints (Conceptual):
