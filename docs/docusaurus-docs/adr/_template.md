@@ -32,4 +32,6 @@ Proposed | Accepted | Superseded by ADR <x> | Deprecated
 2. **<Alternative B>** — why not chosen
 
 ---
-_Maintain ADRs in chronological order under `docs/docusaurus-docs/adr/` and link from the Architecture doc where relevant._
+
+_Maintain ADRs in chronological order under `docs/docusaurus-docs/adr/` and link from the
+Architecture doc where relevant._
