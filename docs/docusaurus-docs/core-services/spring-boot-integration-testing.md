@@ -1,6 +1,7 @@
 # Spring Boot Integration Testing Setup
 
-This guide provides patterns and templates for setting up robust integration tests in EAF Spring Boot services, based on lessons learned from the IAM service implementation.
+This guide provides patterns and templates for setting up robust integration tests in EAF Spring
+Boot services, based on lessons learned from the IAM service implementation.
 
 ## Overview
 
@@ -21,7 +22,7 @@ For any EAF service, create this test structure:
 src/test/kotlin/com/axians/eaf/{service}/
 ├── test/
 │   └── Test{Service}Application.kt          # Dedicated test boot class
-├── {Service}TestcontainerConfiguration.kt   # Testcontainer setup  
+├── {Service}TestcontainerConfiguration.kt   # Testcontainer setup
 └── infrastructure/adapter/outbound/persistence/
     └── *PersistenceAdapterTest.kt           # Integration tests
 ```
@@ -37,7 +38,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 
 /**
  * Dedicated Spring Boot application for integration tests.
- * 
+ *
  * Key differences from main application:
  * - Does NOT exclude DataSourceAutoConfiguration (allows @ServiceConnection)
  * - Refined component scanning to avoid conflicts with main app
@@ -46,7 +47,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 @SpringBootApplication(
     scanBasePackages = [
         "com.axians.eaf.{service}.application",
-        "com.axians.eaf.{service}.domain", 
+        "com.axians.eaf.{service}.domain",
         "com.axians.eaf.{service}.infrastructure",
         "com.axians.eaf.{service}.web"
     ]
@@ -66,13 +67,13 @@ import org.testcontainers.containers.PostgreSQLContainer
 
 @TestConfiguration
 class {Service}TestcontainerConfiguration {
-    
+
     @Bean
     @ServiceConnection
     fun postgresContainer(): PostgreSQLContainer<*> {
         return PostgreSQLContainer("postgres:15-alpine")
             .withDatabaseName("test")
-            .withUsername("test") 
+            .withUsername("test")
             .withPassword("test")
     }
 }
@@ -104,7 +105,7 @@ debug=true
 # Disable Docker Compose integration for tests (Testcontainers handles PostgreSQL)
 spring.docker.compose.enabled=false
 
-# JPA/Hibernate configuration for tests  
+# JPA/Hibernate configuration for tests
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.hibernate.ddl-auto=create-drop
 spring.jpa.show-sql=true
@@ -149,14 +150,14 @@ Integration tests should:
 fun `should save and retrieve entity correctly`() {
     // Given
     val entity = SomeEntity.create("test-data")
-    
+
     // When
     val saved = repository.save(entity)
-    
+
     // Then
     assertNotNull(saved.id)
     assertEquals("test-data", saved.someProperty)
-    
+
     // Verify persistence
     val retrieved = repository.findById(saved.id!!)
     assertTrue(retrieved.isPresent)
@@ -201,10 +202,10 @@ fun `should save and retrieve entity correctly`() {
 
 ```kotlin
 class SomePersistenceAdapterTest {
-    
+
     @Autowired
     private lateinit var repository: SomeJpaRepository
-    
+
     @AfterEach
     fun cleanup() {
         repository.deleteAll()
@@ -240,16 +241,19 @@ Avoid testing:
 When integration tests fail:
 
 1. **Check application context loading**
+
    - Verify test application class is in separate package
    - Ensure required configurations are imported
    - Check for conflicting auto-configurations
 
 2. **Verify database setup**
+
    - Confirm PostgreSQL dialect in test properties
    - Check DDL auto-creation is enabled
    - Verify Testcontainer is starting successfully
 
 3. **Examine dependency injection**
+
    - Ensure JPA repositories are available as beans
    - Check entity scanning configuration
    - Verify transaction manager setup
@@ -270,6 +274,6 @@ When integration tests fail:
 - [Spring Boot Testing Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing)
 - [Testcontainers Documentation](https://testcontainers.com/guides/getting-started-with-testcontainers-for-java/)
 
-:::info Troubleshooting Reference
-This guide is based on real troubleshooting experience from the IAM service implementation. The original detailed troubleshooting log is available in `docs/troubleshooting/iam-integration-test-solution-attempts.md` for historical reference.
-:::
+:::info Troubleshooting Reference This guide is based on real troubleshooting experience from the
+IAM service implementation. The original detailed troubleshooting log is available in
+`docs/troubleshooting/iam-integration-test-solution-attempts.md` for historical reference. :::

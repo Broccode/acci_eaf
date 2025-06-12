@@ -27,6 +27,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
     testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.testcontainers:junit-jupiter:1.19.3")
     testImplementation("org.testcontainers:postgresql:1.19.3")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")

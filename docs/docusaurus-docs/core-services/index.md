@@ -27,6 +27,9 @@ The IAM Service handles authentication, authorization, and multi-tenancy:
 📖 **[Security Context Access Guide](./security-context-access.md)** - Learn how to access tenant,
 user, and permission context in your services
 
+📖 **[EAF IAM Client SDK](./eaf-iam-client-sdk.md)** - Complete guide for integrating JWT
+authentication, RBAC, and multi-tenant context in your Spring Boot applications
+
 ### 🎫 License Management Service
 
 **Software Licensing and Activation**
@@ -131,11 +134,13 @@ All services include:
 
 ### Integration Testing
 
-📖 **[Spring Boot Integration Testing Setup](./spring-boot-integration-testing.md)** - Complete guide for setting up robust integration tests with Testcontainers, JPA, and PostgreSQL
+📖 **[Spring Boot Integration Testing Setup](./spring-boot-integration-testing.md)** - Complete
+guide for setting up robust integration tests with Testcontainers, JPA, and PostgreSQL
 
 ### Event Integration
 
-📖 **[NATS Integration Testing](./nats-integration-testing.md)** - Patterns for testing event-driven architectures
+📖 **[NATS Integration Testing](./nats-integration-testing.md)** - Patterns for testing event-driven
+architectures
 
 ## Getting Started
 

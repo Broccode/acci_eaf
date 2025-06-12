@@ -6,7 +6,7 @@ import com.axians.eaf.core.hexagonal.port.InboundPort
  * Inbound port for updating a user's status within a tenant.
  * This use case is typically invoked by a TENANT_ADMIN to activate/deactivate users.
  */
-interface UpdateUserStatusUseCase : InboundPort {
+interface UpdateUserStatusUseCase : InboundPort<UpdateUserStatusCommand, UpdateUserStatusResult> {
     /**
      * Update the status of a user within the specified tenant.
      *
@@ -14,6 +14,11 @@ interface UpdateUserStatusUseCase : InboundPort {
      * @return The result containing the updated user information
      */
     fun updateUserStatus(command: UpdateUserStatusCommand): UpdateUserStatusResult
+
+    /**
+     * Handle method required by InboundPort interface.
+     */
+    override fun handle(command: UpdateUserStatusCommand): UpdateUserStatusResult = updateUserStatus(command)
 }
 
 /**

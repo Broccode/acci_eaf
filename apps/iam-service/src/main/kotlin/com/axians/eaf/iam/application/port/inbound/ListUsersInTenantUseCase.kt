@@ -6,7 +6,7 @@ import com.axians.eaf.core.hexagonal.port.InboundPort
  * Inbound port for listing all users within a specific tenant.
  * This use case is typically invoked by a TENANT_ADMIN to view users in their tenant.
  */
-interface ListUsersInTenantUseCase : InboundPort {
+interface ListUsersInTenantUseCase : InboundPort<ListUsersInTenantQuery, ListUsersInTenantResult> {
     /**
      * List all users within the specified tenant.
      *
@@ -14,6 +14,11 @@ interface ListUsersInTenantUseCase : InboundPort {
      * @return The result containing the list of users in the tenant
      */
     fun listUsers(query: ListUsersInTenantQuery): ListUsersInTenantResult
+
+    /**
+     * Handle method required by InboundPort interface.
+     */
+    override fun handle(command: ListUsersInTenantQuery): ListUsersInTenantResult = listUsers(command)
 }
 
 /**

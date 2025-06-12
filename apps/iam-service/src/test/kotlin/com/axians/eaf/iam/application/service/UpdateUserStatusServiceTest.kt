@@ -24,47 +24,42 @@ class UpdateUserStatusServiceTest {
     @Test
     fun `should activate user successfully when valid command provided`() {
         // Given
-        val command =
-            UpdateUserStatusCommand(
-                tenantId = "tenant-123",
-                userId = "user-123",
-                newStatus = "ACTIVE",
-            )
         val existingUser =
             User.createUser(
                 tenantId = "tenant-123",
                 email = "user@example.com",
                 username = "testuser",
             )
+        val command =
+            UpdateUserStatusCommand(
+                tenantId = "tenant-123",
+                userId = existingUser.userId,
+                newStatus = "ACTIVE",
+            )
         val activatedUser = existingUser.activate()
 
-        every { findUsersByTenantIdPort.findUserByIdAndTenantId("user-123", "tenant-123") } returns existingUser
+        every { findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123") } returns
+            existingUser
         every { findUsersByTenantIdPort.saveUser(any()) } returns activatedUser
 
         // When
         val result = updateUserStatusService.updateUserStatus(command)
 
         // Then
-        assertEquals("user-123", result.userId)
+        assertEquals(existingUser.userId, result.userId)
         assertEquals("tenant-123", result.tenantId)
         assertEquals("user@example.com", result.email)
         assertEquals("testuser", result.username)
         assertEquals("PENDING_ACTIVATION", result.previousStatus)
         assertEquals("ACTIVE", result.newStatus)
 
-        verify { findUsersByTenantIdPort.findUserByIdAndTenantId("user-123", "tenant-123") }
+        verify { findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123") }
         verify { findUsersByTenantIdPort.saveUser(any()) }
     }
 
     @Test
     fun `should deactivate user successfully when valid command provided`() {
         // Given
-        val command =
-            UpdateUserStatusCommand(
-                tenantId = "tenant-123",
-                userId = "user-123",
-                newStatus = "INACTIVE",
-            )
         val existingUser =
             User
                 .createUser(
@@ -72,20 +67,27 @@ class UpdateUserStatusServiceTest {
                     email = "user@example.com",
                     username = "testuser",
                 ).activate()
+        val command =
+            UpdateUserStatusCommand(
+                tenantId = "tenant-123",
+                userId = existingUser.userId,
+                newStatus = "INACTIVE",
+            )
         val deactivatedUser = existingUser.deactivate()
 
-        every { findUsersByTenantIdPort.findUserByIdAndTenantId("user-123", "tenant-123") } returns existingUser
+        every { findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123") } returns
+            existingUser
         every { findUsersByTenantIdPort.saveUser(any()) } returns deactivatedUser
 
         // When
         val result = updateUserStatusService.updateUserStatus(command)
 
         // Then
-        assertEquals("user-123", result.userId)
+        assertEquals(existingUser.userId, result.userId)
         assertEquals("ACTIVE", result.previousStatus)
         assertEquals("INACTIVE", result.newStatus)
 
-        verify { findUsersByTenantIdPort.findUserByIdAndTenantId("user-123", "tenant-123") }
+        verify { findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123") }
         verify { findUsersByTenantIdPort.saveUser(any()) }
     }
 
@@ -121,14 +123,6 @@ class UpdateUserStatusServiceTest {
                 userId = "user-123",
                 newStatus = "INVALID_STATUS",
             )
-        val existingUser =
-            User.createUser(
-                tenantId = "tenant-123",
-                email = "user@example.com",
-                username = "testuser",
-            )
-
-        every { findUsersByTenantIdPort.findUserByIdAndTenantId("user-123", "tenant-123") } returns existingUser
 
         // When & Then
         val exception =
@@ -136,11 +130,15 @@ class UpdateUserStatusServiceTest {
                 updateUserStatusService.updateUserStatus(command)
             }
 
+        // The error message should match the format from the service implementation
+        // UserStatus.entries.joinToString(", ") { it.name } produces the enum values in declaration order
         assertEquals(
             "Invalid status: INVALID_STATUS. Valid statuses are: PENDING_ACTIVATION, ACTIVE, INACTIVE, SUSPENDED",
             exception.message,
         )
-        verify { findUsersByTenantIdPort.findUserByIdAndTenantId("user-123", "tenant-123") }
+
+        // Repository methods should NOT be called when status validation fails
+        verify(exactly = 0) { findUsersByTenantIdPort.findUserByIdAndTenantId(any(), any()) }
         verify(exactly = 0) { findUsersByTenantIdPort.saveUser(any()) }
     }
 

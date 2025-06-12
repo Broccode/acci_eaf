@@ -1,31 +1,37 @@
 package com.axians.eaf.iam.web
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.MethodArgumentNotValidException
-import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestControllerAdvice
 
-@ControllerAdvice
+/**
+ * Global exception handler for the IAM service.
+ * Maps application exceptions to appropriate HTTP status codes.
+ */
+@RestControllerAdvice
 class GlobalExceptionHandler {
-    data class ErrorResponse(
-        val error: String,
-    )
+    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
+    /**
+     * Handles IllegalArgumentException and maps to 400 Bad Request.
+     * This covers cases like duplicate email, invalid status, etc.
+     */
     @ExceptionHandler(IllegalArgumentException::class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
-        // For business logic validation errors
-        val status =
-            if (ex.message?.contains("already exists") == true) {
-                HttpStatus.CONFLICT
-            } else {
-                HttpStatus.BAD_REQUEST
-            }
-        return ResponseEntity.status(status).body(ErrorResponse(ex.message ?: "Invalid request"))
+    fun handleIllegalArgumentException(exception: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+        logger.warn("Bad request: {}", exception.message)
+
+        val errorResponse =
+            ErrorResponse(
+                error = exception.message ?: "Bad request",
+            )
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
@@ -52,4 +58,11 @@ class GlobalExceptionHandler {
         ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body(ErrorResponse("Access denied"))
+
+    /**
+     * Generic error response structure.
+     */
+    data class ErrorResponse(
+        val error: String,
+    )
 }

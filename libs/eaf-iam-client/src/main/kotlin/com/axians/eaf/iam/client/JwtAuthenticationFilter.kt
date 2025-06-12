@@ -19,8 +19,8 @@ import java.time.Duration
  * JWT Authentication Filter for EAF services.
  * Validates JWT tokens by calling the IAM service introspection endpoint.
  */
-class JwtAuthenticationFilter(
-    private val iamServiceUrl: String,
+open class JwtAuthenticationFilter(
+    private val eafIamProperties: EafIamProperties,
     private val webClient: WebClient = WebClient.builder().build(),
     private val objectMapper: ObjectMapper =
         ObjectMapper().apply {
@@ -78,7 +78,7 @@ class JwtAuthenticationFilter(
         try {
             webClient
                 .post()
-                .uri("$iamServiceUrl$INTROSPECT_ENDPOINT")
+                .uri("${eafIamProperties.serviceUrl}$INTROSPECT_ENDPOINT")
                 .header(HttpHeaders.AUTHORIZATION, "$BEARER_PREFIX$token")
                 .retrieve()
                 .bodyToMono(String::class.java)

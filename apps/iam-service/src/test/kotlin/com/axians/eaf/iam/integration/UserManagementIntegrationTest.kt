@@ -7,7 +7,7 @@ import com.axians.eaf.iam.web.UpdateUserStatusRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
@@ -29,13 +29,13 @@ import org.testcontainers.junit.jupiter.Testcontainers
  */
 @SpringBootTest(
     classes = [TestIamServiceApplication::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    webEnvironment = SpringBootTest.WebEnvironment.MOCK,
     properties = ["eaf.system.initialize-default-tenant=false"],
 )
 @Testcontainers
 @ActiveProfiles("test")
 @Transactional
-@AutoConfigureWebMvc
+@AutoConfigureMockMvc
 @Import(UserManagementTestcontainerConfiguration::class, JpaConfig::class)
 class UserManagementIntegrationTest {
     @Autowired
