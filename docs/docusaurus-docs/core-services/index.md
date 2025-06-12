@@ -127,6 +127,16 @@ All services include:
 - **Logging**: Structured JSON logging with correlation IDs
 - **Tracing**: Distributed tracing support
 
+## Development Guides
+
+### Integration Testing
+
+📖 **[Spring Boot Integration Testing Setup](./spring-boot-integration-testing.md)** - Complete guide for setting up robust integration tests with Testcontainers, JPA, and PostgreSQL
+
+### Event Integration
+
+📖 **[NATS Integration Testing](./nats-integration-testing.md)** - Patterns for testing event-driven architectures
+
 ## Getting Started
 
 1. **Development Setup**: Use the provided Docker Compose configuration

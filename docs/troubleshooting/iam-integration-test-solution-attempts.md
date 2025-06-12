@@ -1,5 +1,6 @@
 # Troubleshooting Log – IAM Service Integration Test (`TenantPersistenceAdapterTest`)
 
+> **STATUS: ✅ RESOLVED** (2025-06-12)  
 > **Context:** Spring Boot 3 / JUnit 5 integration tests for `apps/iam-service` failed to start the `ApplicationContext` with
 > `NoSuchBeanDefinitionException: TenantJpaRepository` (root cause obscured by wrapper exceptions).
 >
@@ -7,10 +8,39 @@
 
 ---
 
+## ✅ **FINAL RESOLUTION STATUS**
+
+**Date:** 2025-06-12  
+**Result:** **ALL TESTS PASSING** (24/24 tests, 0 failures, 100% success rate)
+
+### **Root Cause Analysis**
+
+The integration test failures had **two distinct phases**:
+
+1. **Phase 1**: Spring context loading failures (`NoSuchBeanDefinitionException`)
+2. **Phase 2**: Database configuration mismatches (`SQLGrammarException` - tables not found)
+
+### **Complete Solution Applied**
+
+| **Issue** | **Solution** | **Files Modified** |
+|-----------|-------------|-------------------|
+| Multiple `@SpringBootConfiguration` classes in same package | Moved `TestIamServiceApplication` to `com.axians.eaf.iam.test` package | `TestIamServiceApplication.kt` |
+| Component scan conflicts | Refined scanning to exclude main app: `scanBasePackages = ["...application", "...domain", "...infrastructure", "...web"]` | `TestIamServiceApplication.kt` |
+| Missing JPA configuration in tests | Added `@Import(JpaConfig::class)` to all integration tests | All test classes |
+| Database dialect mismatch | Changed from `H2Dialect` to `PostgreSQLDialect` in test properties | `application-test.properties` |
+
+### **Templates Created**
+
+- ✅ Integration test setup checklist for future EAF services
+- ✅ Standard test application configuration pattern  
+- ✅ Testcontainer configuration template
+
+---
+
 ## 1. Baseline Failure
 
-* **Symptom** – `@SpringBootTest` could not find `TenantJpaRepository`; context load aborted.
-* **Hypothesis** – `JpaConfig.kt` (declares `@EnableJpaRepositories` / `@EntityScan`) was not pulled into the test context.
+- **Symptom** – `@SpringBootTest` could not find `TenantJpaRepository`; context load aborted.
+- **Hypothesis** – `JpaConfig.kt` (declares `@EnableJpaRepositories` / `@EntityScan`) was not pulled into the test context.
 
 ---
 
@@ -66,10 +96,10 @@ _⬩ multiple iterations between 2 and 7 included small refinements (e.g. `@Dirt
 
 ## 5. Lessons Learned
 
-* Avoid relying on the production `@SpringBootApplication` class in integration tests when it deliberately disables key auto-configs.
-* `@ServiceConnection` greatly simplifies Test-container plumbing but **requires** auto-configuration.
-* For tricky context-load issues, start with the **smallest possible configuration** and incrementally add beans.
-* Enable `debug=true` in `application-test.properties` early; read the auto-configuration report.
+- Avoid relying on the production `@SpringBootApplication` class in integration tests when it deliberately disables key auto-configs.
+- `@ServiceConnection` greatly simplifies Test-container plumbing but **requires** auto-configuration.
+- For tricky context-load issues, start with the **smallest possible configuration** and incrementally add beans.
+- Enable `debug=true` in `application-test.properties` early; read the auto-configuration report.
 
 ---
 
