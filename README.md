@@ -2,6 +2,7 @@
 
 > **A modern microservices monorepo built with Nx, Kotlin, and React for enterprise applications**
 
+[![CI](https://github.com/Broccode/acci_eaf/actions/workflows/ci.yml/badge.svg)](https://github.com/axians/acci_eaf/actions/workflows/ci.yml)
 [![Nx](https://img.shields.io/badge/Nx-143055?style=for-the-badge&logo=nx&logoColor=white)](https://nx.dev/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)](https://kotlinlang.org/)
 [![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
@@ -31,7 +32,7 @@
 | ------------------ | ------- | ----------------------------- |
 | **Node.js**        | 18+     | Frontend tooling and Nx       |
 | **npm**            | 8+      | Package management            |
-| **Java**           | 17+     | Backend services              |
+| **Java (JDK)**     | 21+     | Backend services              |
 | **Docker**         | Latest  | Local development environment |
 | **Docker Compose** | Latest  | Service orchestration         |
 
@@ -189,6 +190,8 @@ The EAF follows a **modern microservices architecture** with these key principle
 - **Frontend Development**: Explore `ui-foundation-kit` Storybook for component library
 - **Event Sourcing**: Check `eaf-eventsourcing-sdk` for CQRS/ES examples
 - **Multi-Tenancy**: Review NATS configuration in `infra/docker-compose/`
+
+Looking for deeper guidance?  Visit the **Launchpad Developer Portal** (Docusaurus-powered) by running `nx serve docs` locally or browsing the hosted site (coming soon).  All dependency versions live in the [Version Matrix](docs/docusaurus-docs/versions.md) so everyone stays in sync.
 
 ---
 

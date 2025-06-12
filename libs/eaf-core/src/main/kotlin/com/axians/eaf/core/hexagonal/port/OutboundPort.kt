@@ -1,20 +1,10 @@
 package com.axians.eaf.core.hexagonal.port
 
 /**
- * Marker interface for outbound ports in Hexagonal Architecture.
+ * Marker interface for outbound ports in hexagonal architecture.
+ * Outbound ports define what the application needs from external systems.
  *
- * Outbound ports define the contract for external dependencies that the application
- * core needs to interact with (e.g., databases, message queues, external APIs).
- *
- * This is a marker interface - concrete port interfaces should extend this interface
- * and define their specific operations.
- *
- * Example:
- * ```kotlin
- * interface UserRepository : OutboundPort {
- *     fun save(user: User): User
- *     fun findById(id: UserId): User?
- * }
- * ```
+ * Implementations of this interface are provided by outbound adapters
+ * in the infrastructure layer.
  */
 interface OutboundPort

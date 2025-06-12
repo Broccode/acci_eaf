@@ -55,6 +55,27 @@ docker-compose -f infra/docker-compose/docker-compose.yml up -d
 nx run iam-service:bootRun
 ```
 
+## CI Badges & Example Commands
+
+Embed NX test/build status badges in your repo README:
+
+```markdown
+![CI](https://github.com/<org>/acci_eaf/actions/workflows/ci.yml/badge.svg)
+```
+
+Essential commands used by CI:
+
+```bash
+# Lint all affected projects
+nx affected -t lint
+
+# Build + test affected
+nx affected -t build,test
+
+# End-to-end documentation site check
+npm run build && npm run serve | cat # non-interactive in CI
+```
+
 ## Next Steps
 
 - [Explore Architectural Principles](/docs/architectural-principles)

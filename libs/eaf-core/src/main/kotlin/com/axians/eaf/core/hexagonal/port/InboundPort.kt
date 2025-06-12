@@ -1,21 +1,18 @@
 package com.axians.eaf.core.hexagonal.port
 
 /**
- * Marker interface for inbound ports in Hexagonal Architecture.
+ * Marker interface for inbound ports in hexagonal architecture.
+ * Inbound ports define what the application can do (use cases).
  *
- * Inbound ports define the API of the application core. They represent the operations
- * that can be performed by actors external to the application (e.g., web controllers,
- * message listeners, CLI commands).
- *
- * @param C The command/input type
- * @param R The result/output type
+ * @param C Command type
+ * @param R Result type
  */
 interface InboundPort<C, R> {
     /**
-     * Handles the incoming command and returns a result.
+     * Handle a command and return a result.
      *
-     * @param command The command to process
-     * @return The result of processing the command
+     * @param command The command to handle
+     * @return The result of handling the command
      */
     fun handle(command: C): R
 }

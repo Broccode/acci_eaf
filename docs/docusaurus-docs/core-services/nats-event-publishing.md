@@ -4,6 +4,16 @@ sidebar_position: 1
 
 # NATS JetStream Event Publishing
 
+## Dependency Coordinates
+
+```kotlin
+// build.gradle.kts (backend)
+implementation("io.nats:jnats:${'$'}{libs.versions.jnats.get()}")
+implementation("com.axians.eaf:eaf-eventing-sdk")
+```
+
+_For Maven copy, see Version Matrix page._
+
 The EAF NATS SDK provides a robust, tenant-aware `NatsEventPublisher` service to reliably publish
 domain events to NATS JetStream.
 

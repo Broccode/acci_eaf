@@ -1,5 +1,13 @@
 # EAF Event Sourcing SDK Guide
 
+## Dependency Coordinates
+
+```kotlin
+// build.gradle.kts
+implementation("com.axians.eaf:eaf-eventsourcing-sdk")
+implementation("com.axians.eaf:eaf-eventing-sdk") // for auto publishing
+```
+
 The EAF Event Sourcing SDK provides powerful abstractions for building event-sourced aggregates in
 Kotlin/Spring, seamlessly integrating with the EAF Event Store and Eventing Bus.
 

@@ -17,6 +17,14 @@ in the face of message redeliveries or system failures.
 - **Error Handling**: Robust error handling with automatic retries and dead-letter queue support
 - **Simple API**: Clean annotation-based API that integrates seamlessly with Spring Boot
 
+## Dependency Coordinates
+
+```kotlin
+// build.gradle.kts
+implementation("com.axians.eaf:eaf-eventing-sdk")
+implementation("org.springframework.boot:spring-boot-starter-data-jpa") // for read models
+```
+
 ## Quick Start
 
 ### 1. Add Dependencies

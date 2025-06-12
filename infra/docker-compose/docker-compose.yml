@@ -32,21 +32,27 @@ services:
     networks:
       - eaf-network
 
-  # Example PostgreSQL service (referenced in architecture for Event Store)
-  # Uncomment when needed for full EAF stack
-  # postgres:
-  #   image: postgres:15
-  #   container_name: eaf-postgres
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     POSTGRES_DB: eaf_eventstore
-  #     POSTGRES_USER: eaf_user
-  #     POSTGRES_PASSWORD: eaf_password
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - eaf-network
+  # PostgreSQL service for EAF Event Store and IAM data
+  postgres:
+    image: postgres:15
+    container_name: eaf-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: eaf_iam
+      POSTGRES_USER: eaf_user
+      POSTGRES_PASSWORD: eaf_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U eaf_user -d eaf_iam']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - eaf-network
 
 networks:
   eaf-network:
@@ -54,7 +60,7 @@ networks:
     name: eaf-network
 
 volumes:
-  # Uncomment when PostgreSQL is added
-  # postgres_data:
+  postgres_data:
+    driver: local
   nats_data:
     driver: local
