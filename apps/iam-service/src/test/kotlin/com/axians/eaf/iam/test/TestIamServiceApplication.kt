@@ -1,8 +1,6 @@
-package com.axians.eaf.iam
+package com.axians.eaf.iam.test
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.domain.EntityScan
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 /**
  * A dedicated Spring Boot application class for running integration tests.
@@ -12,8 +10,15 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
  * This allows Spring Boot's test-specific mechanisms, like `@ServiceConnection`, to
  * auto-configure a `DataSource` bean pointing to a Testcontainers instance, which is
  * essential for running JPA-based integration tests.
+ *
+ * Note: We rely on JpaConfig for repository scanning, so we don't duplicate @EnableJpaRepositories here.
  */
-@SpringBootApplication(scanBasePackages = ["com.axians.eaf.iam"])
-@EnableJpaRepositories(basePackages = ["com.axians.eaf.iam.infrastructure.adapter.outbound.persistence"])
-@EntityScan(basePackages = ["com.axians.eaf.iam.infrastructure.adapter.outbound.persistence.entity"])
+@SpringBootApplication(
+    scanBasePackages = [
+        "com.axians.eaf.iam.application",
+        "com.axians.eaf.iam.domain",
+        "com.axians.eaf.iam.infrastructure",
+        "com.axians.eaf.iam.web",
+    ],
+)
 class TestIamServiceApplication

@@ -1,13 +1,15 @@
 package com.axians.eaf.iam
 
-import org.junit.jupiter.api.Disabled
+import com.axians.eaf.iam.infrastructure.config.JpaConfig
+import com.axians.eaf.iam.test.TestIamServiceApplication
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(classes = [TestIamServiceApplication::class])
 @ActiveProfiles("test")
-@Disabled("Integration tests disabled - focus on unit tests first")
+@Import(JpaConfig::class)
 class IamServiceApplicationTest {
     @Test
     fun `context loads`() {

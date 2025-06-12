@@ -1,16 +1,16 @@
 package com.axians.eaf.iam.infrastructure.adapter.outbound.persistence
 
 import com.axians.eaf.iam.PostgresTestcontainerConfiguration
-import com.axians.eaf.iam.TestIamServiceApplication
 import com.axians.eaf.iam.domain.model.Tenant
 import com.axians.eaf.iam.domain.model.User
+import com.axians.eaf.iam.infrastructure.config.JpaConfig
+import com.axians.eaf.iam.test.TestIamServiceApplication
 import jakarta.persistence.EntityManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,8 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers
 @ActiveProfiles("test")
 @Transactional
-@Import(PostgresTestcontainerConfiguration::class)
-@Disabled("Temporarily disabled until testcontainer configuration is fixed")
+@Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 class TenantPersistenceAdapterTest {
     @Autowired
     private lateinit var tenantPersistenceAdapter: TenantPersistenceAdapter

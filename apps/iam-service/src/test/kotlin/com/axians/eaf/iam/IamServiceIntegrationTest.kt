@@ -2,9 +2,9 @@ package com.axians.eaf.iam
 
 import com.axians.eaf.iam.infrastructure.adapter.outbound.persistence.TenantJpaRepository
 import com.axians.eaf.iam.infrastructure.adapter.outbound.persistence.UserJpaRepository
+import com.axians.eaf.iam.infrastructure.config.JpaConfig
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,14 +14,13 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 
 @SpringBootTest(
-    classes = [TestIamServiceApplication::class],
+    classes = [com.axians.eaf.iam.test.TestIamServiceApplication::class],
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
 )
 @Testcontainers
 @ActiveProfiles("test")
 @Transactional
-@Import(PostgresTestcontainerConfiguration::class)
-@Disabled("Temporarily disabled until testcontainer configuration is fixed")
+@Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 class IamServiceIntegrationTest {
     @Autowired
     private lateinit var tenantJpaRepository: TenantJpaRepository
