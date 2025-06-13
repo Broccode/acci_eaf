@@ -1,3 +1,8 @@
+---
+sidebar_position: 7
+title: Idempotent Projectors
+---
+
 # Building Idempotent Projectors with EAF Eventing SDK
 
 ## Overview

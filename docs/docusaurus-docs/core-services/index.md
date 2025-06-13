@@ -27,6 +27,9 @@ The IAM Service handles authentication, authorization, and multi-tenancy:
 📖 **[Security Context Access Guide](./security-context-access.md)** - Learn how to access tenant,
 user, and permission context in your services
 
+📖 **[Context Propagation Guide](./context-propagation.md)** - Comprehensive guide for maintaining
+context across asynchronous operations, coroutines, and distributed messaging
+
 📖 **[EAF IAM Client SDK](./eaf-iam-client-sdk.md)** - Complete guide for integrating JWT
 authentication, RBAC, and multi-tenant context in your Spring Boot applications
 

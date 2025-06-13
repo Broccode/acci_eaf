@@ -1,3 +1,8 @@
+---
+sidebar_position: 4
+title: CQRS/Event Sourcing
+---
+
 # CQRS/Event Sourcing in ACCI EAF
 
 Command Query Responsibility Segregation (CQRS) and Event Sourcing (ES) are core architectural

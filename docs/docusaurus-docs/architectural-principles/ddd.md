@@ -1,3 +1,8 @@
+---
+sidebar_position: 7
+title: Domain-Driven Design
+---
+
 # Domain-Driven Design (DDD) in ACCI EAF
 
 Domain-Driven Design is a software development approach that emphasizes collaboration between

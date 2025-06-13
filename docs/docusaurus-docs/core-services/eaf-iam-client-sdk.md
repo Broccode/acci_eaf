@@ -1,3 +1,8 @@
+---
+sidebar_position: 6
+title: EAF IAM Client SDK
+---
+
 # EAF IAM Client SDK
 
 The EAF IAM Client SDK provides seamless integration with the ACCI EAF Identity and Access
@@ -296,7 +301,7 @@ If you're migrating from a custom authentication solution:
 
 - [Security Context Access Guide](./security-context-access.md)
 - [Spring Boot Integration Testing](./spring-boot-integration-testing.md)
-- [IAM Service API Reference](../api/iam-service.md)
+- IAM Service API Reference (Coming Soon)
 
 ## Support
 

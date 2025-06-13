@@ -1,3 +1,8 @@
+---
+sidebar_position: 6
+title: Test-Driven Development
+---
+
 # Test-Driven Development (TDD) in ACCI EAF
 
 Test-Driven Development is **mandatory** in ACCI EAF. It ensures high-quality, well-designed code

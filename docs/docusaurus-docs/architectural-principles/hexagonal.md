@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+title: Hexagonal Architecture
+---
+
 # Hexagonal Architecture in ACCI EAF
 
 Hexagonal Architecture (also known as Ports and Adapters) ensures that your application core remains

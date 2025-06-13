@@ -1,3 +1,8 @@
+---
+sidebar_position: 8
+title: Security Context Access
+---
+
 # Secure EAF Context Access for Services
 
 The ACCI EAF provides a comprehensive security context system that enables services to securely

@@ -15,15 +15,15 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://Broccode.github.io', // Replace with your GitHub username/org
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/acci_eaf/', // Replace with your actual repository name
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'axians', // Usually your GitHub org/user name.
-  projectName: 'acci-eaf', // Usually your repo name.
+  organizationName: 'Broccode', // Replace with your GitHub username/org
+  projectName: 'acci_eaf', // Replace with your actual repository name
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',

@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+title: Hexagonal Architecture Implementation Guide
+---
+
 # Hexagonal Architecture Implementation Guide
 
 The EAF provides comprehensive support for implementing Hexagonal Architecture (also known as Ports

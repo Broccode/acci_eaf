@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+title: EAF Event Sourcing SDK Guide
+---
+
 # EAF Event Sourcing SDK Guide
 
 ## Dependency Coordinates

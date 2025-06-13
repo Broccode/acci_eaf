@@ -33,9 +33,14 @@ const sidebars: SidebarsConfig = {
       label: 'Core Services',
       items: [
         'core-services/index',
+        'core-services/security-context-access',
+        'core-services/context-propagation',
+        'core-services/eaf-iam-client-sdk',
         'core-services/nats-event-publishing',
         'core-services/nats-event-consumption',
         'core-services/nats-integration-testing',
+        'core-services/spring-boot-integration-testing',
+        'core-services/idempotent-projectors',
       ],
     },
     {

@@ -1,3 +1,8 @@
+---
+sidebar_position: 5
+title: Spring Boot Integration Testing
+---
+
 # Spring Boot Integration Testing Setup
 
 This guide provides patterns and templates for setting up robust integration tests in EAF Spring
@@ -267,7 +272,7 @@ When integration tests fail:
 
 - [NATS Integration Testing](./nats-integration-testing.md) - For event-driven testing patterns
 - [Security Context Access](./security-context-access.md) - For authentication in tests
-- [Architecture Decision Records](../adr/) - For architectural context
+- Architecture Decision Records (Coming Soon) - For architectural context
 
 ## References
 
