@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+title: UI Foundation Kit
+---
+
 # UI Foundation Kit
 
 The ACCI EAF UI Foundation Kit provides a comprehensive collection of reusable React components,

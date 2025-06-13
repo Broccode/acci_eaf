@@ -15,18 +15,21 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://Broccode.github.io', // Replace with your GitHub username/org
+  url: 'https://broccode.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/acci_eaf/', // Replace with your actual repository name
+  baseUrl: '/acci_eaf/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'Broccode', // Replace with your GitHub username/org
-  projectName: 'acci_eaf', // Replace with your actual repository name
+  organizationName: 'broccode',
+  projectName: 'acci_eaf',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+
+  // Ensure trailing slashes are handled correctly
+  trailingSlash: false,
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -44,20 +47,12 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           // Point to the correct docs directory
           path: './docusaurus-docs',
+          // Set docs as the default route
+          routeBasePath: '/',
           // Remove the edit link for now
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Remove the edit link for now
-          // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        pages: false, // Disable pages plugin since we're using docs as root
+        blog: false, // Disable blog since docs is the root route
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -81,9 +76,8 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
-        { to: '/blog', label: 'Blog', position: 'left' },
         {
-          href: 'https://github.com/axians/acci-eaf',
+          href: 'https://github.com/broccode/acci_eaf',
           label: 'GitHub',
           position: 'right',
         },
@@ -97,11 +91,11 @@ const config: Config = {
           items: [
             {
               label: 'Getting Started',
-              to: '/docs/getting-started',
+              to: '/getting-started',
             },
             {
               label: 'Architecture',
-              to: '/docs/architectural-principles',
+              to: '/architectural-principles',
             },
           ],
         },
@@ -110,7 +104,7 @@ const config: Config = {
           items: [
             {
               label: 'Issues',
-              href: 'https://github.com/axians/acci-eaf/issues',
+              href: 'https://github.com/broccode/acci_eaf/issues',
             },
           ],
         },
@@ -118,12 +112,8 @@ const config: Config = {
           title: 'More',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
               label: 'GitHub',
-              href: 'https://github.com/axians/acci-eaf',
+              href: 'https://github.com/broccode/acci_eaf',
             },
           ],
         },

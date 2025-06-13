@@ -7,20 +7,20 @@ that ensure scalability, maintainability, and developer productivity.
 
 ACCI EAF mandates the use of four key architectural principles:
 
-### 🏗️ [Domain-Driven Design (DDD)](/docs/architectural-principles/ddd)
+### 🏗️ [Domain-Driven Design (DDD)](/architectural-principles/ddd)
 
 Model your business domain with precision using aggregates, entities, value objects, and domain
 events.
 
-### 🔷 [Hexagonal Architecture](/docs/architectural-principles/hexagonal)
+### 🔷 [Hexagonal Architecture](/architectural-principles/hexagonal)
 
 Isolate your application core from infrastructure concerns using ports and adapters.
 
-### ⚡ [CQRS/Event Sourcing](/docs/architectural-principles/cqrs-es)
+### ⚡ [CQRS/Event Sourcing](/architectural-principles/cqrs-es)
 
 Separate read and write models while using events as the source of truth.
 
-### 🧪 [Test-Driven Development (TDD)](/docs/architectural-principles/tdd)
+### 🧪 [Test-Driven Development (TDD)](/architectural-principles/tdd)
 
 Write tests first to ensure robust, well-designed code from the start.
 
@@ -36,10 +36,9 @@ These architectural patterns work together to create applications that are:
 
 ## Getting Started
 
-Begin with the [Domain-Driven Design guide](/docs/architectural-principles/ddd) to understand how to
+Begin with the [Domain-Driven Design guide](/architectural-principles/ddd) to understand how to
 model your business domain, then explore how
-[Hexagonal Architecture](/docs/architectural-principles/hexagonal) helps organize your code
-structure.
+[Hexagonal Architecture](/architectural-principles/hexagonal) helps organize your code structure.
 
 _This documentation provides guidance for implementing these principles within the ACCI EAF
 context._

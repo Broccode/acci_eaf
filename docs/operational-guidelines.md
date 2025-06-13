@@ -87,27 +87,39 @@ applications built on EAF. Linting and formatting tools will enforce many of the
 
 ### Dependency Management
 
-To ensure a stable, predictable, and maintainable build across the monorepo, all modules **must** adhere to the following dependency management guidelines. These rules prevent version conflicts, reduce maintenance overhead, and ensure consistency.
+To ensure a stable, predictable, and maintainable build across the monorepo, all modules **must**
+adhere to the following dependency management guidelines. These rules prevent version conflicts,
+reduce maintenance overhead, and ensure consistency.
 
 #### 1. Enforce Universal Centralized Dependency Management
 
-- **Guideline:** Every Gradle module, especially those in `libs/`, **must** use the centralized dependency versions declared in the root `build.gradle.kts`. This is non-negotiable.
+- **Guideline:** Every Gradle module, especially those in `libs/`, **must** use the centralized
+  dependency versions declared in the root `build.gradle.kts`. This is non-negotiable.
 - **Implementation:**
   - All Spring-related library modules must apply the `io.spring.dependency-management` plugin.
-  - All modules must import the Spring Boot BOM using `dependencyManagement { imports { mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES) } }`.
-  - **Never** specify a version for a Spring Boot or related dependency (e.g., Jackson, SLF4J) in a sub-module. Let the root BOM control everything.
-  - **Never** declare a separate `platform("org.springframework.boot:spring-boot-dependencies:...")` in a sub-module.
+  - All modules must import the Spring Boot BOM using
+    `dependencyManagement { imports { mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES) } }`.
+  - **Never** specify a version for a Spring Boot or related dependency (e.g., Jackson, SLF4J) in a
+    sub-module. Let the root BOM control everything.
+  - **Never** declare a separate `platform("org.springframework.boot:spring-boot-dependencies:...")`
+    in a sub-module.
 
 #### 2. Standardize Spring Boot Test Setups
 
-- **Guideline:** All modules containing Spring Boot integration tests (`@SpringBootTest`) must use a standardized set of test dependencies to ensure consistency and prevent classpath issues.
+- **Guideline:** All modules containing Spring Boot integration tests (`@SpringBootTest`) must use a
+  standardized set of test dependencies to ensure consistency and prevent classpath issues.
 - **Implementation:**
-  - Use `testImplementation("org.springframework.boot:spring-boot-starter-test")`. This single starter provides JUnit 5, Spring Test, AssertJ, MockK (via our explicit dependency), and the necessary logging infrastructure (Logback).
-  - For Testcontainers, use the specific artifact needed (e.g., `testImplementation("org.testcontainers:postgresql")`) alongside the JUnit 5 integration (`testImplementation("org.testcontainers:junit-jupiter")`).
+  - Use `testImplementation("org.springframework.boot:spring-boot-starter-test")`. This single
+    starter provides JUnit 5, Spring Test, AssertJ, MockK (via our explicit dependency), and the
+    necessary logging infrastructure (Logback).
+  - For Testcontainers, use the specific artifact needed (e.g.,
+    `testImplementation("org.testcontainers:postgresql")`) alongside the JUnit 5 integration
+    (`testImplementation("org.testcontainers:junit-jupiter")`).
 
 #### 3. Unify JUnit 5 Configuration
 
-- **Guideline:** To avoid JUnit platform conflicts, all modules will rely on the versions provided by the Spring Boot BOM.
+- **Guideline:** To avoid JUnit platform conflicts, all modules will rely on the versions provided
+  by the Spring Boot BOM.
 - **Implementation:**
   - Use `testImplementation("org.junit.jupiter:junit-jupiter")` (with no version).
   - Include `testRuntimeOnly("org.junit.platform:junit-platform-launcher")` (with no version).
@@ -116,7 +128,8 @@ To ensure a stable, predictable, and maintainable build across the monorepo, all
 
 Use appropriate Gradle configurations:
 
-- `developmentOnly` for tools that are only needed during development (e.g., `spring-boot-docker-compose`)
+- `developmentOnly` for tools that are only needed during development (e.g.,
+  `spring-boot-docker-compose`)
 - `testImplementation` for testing libraries
 - `implementation` for runtime dependencies
 
@@ -133,6 +146,80 @@ Use appropriate Gradle configurations:
 - **Coroutines:** Follow best practices for launching coroutines (e.g., within `CoroutineScope` tied
   to component lifecycle), error handling (e.g., `CoroutineExceptionHandler`), and context switching
   (`withContext`).
+
+### Context Propagation Patterns
+
+Context propagation is critical for maintaining security context, correlation IDs, and other
+essential information across asynchronous operations and distributed message processing.
+
+#### Mandatory Context Propagation Rules
+
+1. **Always Use Context Propagation in Async Code:**
+
+   ```kotlin
+   // ✅ Correct - Context is propagated
+   withEafContext {
+       launch {
+           // Security context and correlation ID available
+       }
+   }
+
+   // ❌ Wrong - Context is lost
+   launch {
+       // No security context or correlation ID
+   }
+   ```
+
+2. **Establish Correlation IDs at Service Boundaries:**
+
+   ```kotlin
+   @RestController
+   class MyController {
+       @PostMapping("/api/endpoint")
+       fun handleRequest() {
+           CorrelationIdManager.withNewCorrelationId {
+               // All subsequent operations share this correlation ID
+               myService.processRequest()
+           }
+       }
+   }
+   ```
+
+3. **Use Structured Logging with Context:**
+
+   ```kotlin
+   private val logger = LoggerFactory.getLogger(MyService::class.java)
+
+   fun processRequest() {
+       logger.info("Processing request") // Correlation ID automatically included
+   }
+   ```
+
+#### Standard NATS Headers for Context Propagation
+
+The following headers are automatically managed by the EAF Eventing SDK and must be used
+consistently:
+
+| Header               | Description                            | Example                                |
+| -------------------- | -------------------------------------- | -------------------------------------- |
+| `eaf.tenant.id`      | Current tenant identifier              | `tenant-123`                           |
+| `eaf.user.id`        | Current user identifier                | `user-456`                             |
+| `eaf.correlation.id` | Correlation ID for distributed tracing | `550e8400-e29b-41d4-a716-446655440000` |
+
+#### Context Propagation APIs
+
+- **CorrelationIdManager**: Thread-safe correlation ID management with SLF4J MDC integration
+- **EafContextElement**: Coroutine context element for propagating both security context and
+  correlation ID
+- **ContextAwareNatsEventPublisher**: Automatically enriches NATS messages with context headers
+- **ContextAwareMessageProcessor**: Automatically establishes context from NATS message headers
+
+#### Best Practices
+
+1. **Test Context Propagation**: Always verify that context propagates correctly in tests
+2. **Handle Partial Context**: Not all operations require full context - handle gracefully
+3. **Clean Up Context**: Use try-finally blocks or context managers to ensure cleanup
+4. **Avoid Context Leakage**: Never let context persist beyond its intended scope
 
 ### Overall Testing Strategy
 

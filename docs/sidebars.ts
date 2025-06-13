@@ -15,6 +15,7 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   // ACCI EAF Documentation Sidebar
   tutorialSidebar: [
+    'index',
     'intro',
     'getting-started',
     {

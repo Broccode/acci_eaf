@@ -1,3 +1,8 @@
+---
+sidebar_position: 2
+title: Getting Started
+---
+
 # Getting Started with ACCI EAF
 
 Welcome to the ACCI EAF Getting Started guide. This section will walk you through setting up your
@@ -78,9 +83,9 @@ npm run build && npm run serve | cat # non-interactive in CI
 
 ## Next Steps
 
-- [Explore Architectural Principles](/docs/architectural-principles)
-- [Learn about Core Services](/docs/core-services)
-- [Browse the UI Foundation Kit](/docs/ui-foundation-kit)
+- [Explore Architectural Principles](/architectural-principles)
+- [Learn about Core Services](/core-services)
+- [Browse the UI Foundation Kit](/ui-foundation-kit)
 
 _This is a placeholder document. Detailed setup instructions will be added as the EAF development
 progresses._
