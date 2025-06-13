@@ -1,5 +1,6 @@
 package com.axians.eaf.iam.integration
 
+import com.axians.eaf.iam.PostgresTestcontainerConfiguration
 import com.axians.eaf.iam.infrastructure.config.JpaConfig
 import com.axians.eaf.iam.test.TestIamServiceApplication
 import com.axians.eaf.iam.web.CreateUserRequest
@@ -36,7 +37,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @ActiveProfiles("test")
 @Transactional
 @AutoConfigureMockMvc
-@Import(UserManagementTestcontainerConfiguration::class, JpaConfig::class)
+@Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 class UserManagementIntegrationTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -50,7 +51,6 @@ class UserManagementIntegrationTest {
         // Given
         val request =
             CreateUserRequest(
-                tenantId = "test-tenant-123",
                 email = "newuser@example.com",
                 username = "newuser",
             )
@@ -58,7 +58,7 @@ class UserManagementIntegrationTest {
         // When & Then
         mockMvc
             .perform(
-                post("/api/v1/users")
+                post("/api/v1/tenants/test-tenant-123/users")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)),
@@ -76,14 +76,13 @@ class UserManagementIntegrationTest {
         // Given - First create a user
         val createRequest =
             CreateUserRequest(
-                tenantId = "test-tenant-456",
                 email = "listuser@example.com",
                 username = "listuser",
             )
 
         mockMvc
             .perform(
-                post("/api/v1/users")
+                post("/api/v1/tenants/test-tenant-456/users")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(createRequest)),
@@ -92,8 +91,7 @@ class UserManagementIntegrationTest {
         // When & Then - List users
         mockMvc
             .perform(
-                get("/api/v1/users")
-                    .param("tenantId", "test-tenant-456"),
+                get("/api/v1/tenants/test-tenant-456/users"),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.tenantId").value("test-tenant-456"))
             .andExpect(jsonPath("$.users").isArray)
@@ -110,7 +108,6 @@ class UserManagementIntegrationTest {
         // Given - First create a user
         val createRequest =
             CreateUserRequest(
-                tenantId = "test-tenant-789",
                 email = "statususer@example.com",
                 username = "statususer",
             )
@@ -118,7 +115,7 @@ class UserManagementIntegrationTest {
         val createResult =
             mockMvc
                 .perform(
-                    post("/api/v1/users")
+                    post("/api/v1/tenants/test-tenant-789/users")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)),
@@ -133,9 +130,8 @@ class UserManagementIntegrationTest {
 
         mockMvc
             .perform(
-                put("/api/v1/users/{userId}/status", userId)
+                put("/api/v1/tenants/test-tenant-789/users/{userId}/status", userId)
                     .with(csrf())
-                    .param("tenantId", "test-tenant-789")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(updateRequest)),
             ).andExpect(status().isOk)
@@ -153,14 +149,13 @@ class UserManagementIntegrationTest {
         // Given - First create a user
         val firstRequest =
             CreateUserRequest(
-                tenantId = "test-tenant-duplicate",
                 email = "duplicate@example.com",
                 username = "firstuser",
             )
 
         mockMvc
             .perform(
-                post("/api/v1/users")
+                post("/api/v1/tenants/test-tenant-duplicate/users")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(firstRequest)),
@@ -169,14 +164,13 @@ class UserManagementIntegrationTest {
         // When & Then - Try to create another user with same email
         val duplicateRequest =
             CreateUserRequest(
-                tenantId = "test-tenant-duplicate",
                 email = "duplicate@example.com",
                 username = "seconduser",
             )
 
         mockMvc
             .perform(
-                post("/api/v1/users")
+                post("/api/v1/tenants/test-tenant-duplicate/users")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(duplicateRequest)),
@@ -189,8 +183,7 @@ class UserManagementIntegrationTest {
         // When & Then
         mockMvc
             .perform(
-                get("/api/v1/users")
-                    .param("tenantId", "empty-tenant"),
+                get("/api/v1/tenants/empty-tenant/users"),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.tenantId").value("empty-tenant"))
             .andExpect(jsonPath("$.users").isArray)
@@ -206,9 +199,8 @@ class UserManagementIntegrationTest {
         // When & Then
         mockMvc
             .perform(
-                put("/api/v1/users/{userId}/status", "non-existent-user")
+                put("/api/v1/tenants/test-tenant/users/{userId}/status", "non-existent-user")
                     .with(csrf())
-                    .param("tenantId", "test-tenant")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(updateRequest)),
             ).andExpect(status().isBadRequest)
@@ -219,7 +211,6 @@ class UserManagementIntegrationTest {
         // Given
         val request =
             CreateUserRequest(
-                tenantId = "test-tenant",
                 email = "user@example.com",
                 username = "user",
             )
@@ -227,7 +218,7 @@ class UserManagementIntegrationTest {
         // When & Then
         mockMvc
             .perform(
-                post("/api/v1/users")
+                post("/api/v1/tenants/test-tenant/users")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)),
@@ -240,7 +231,6 @@ class UserManagementIntegrationTest {
         // Given
         val request =
             CreateUserRequest(
-                tenantId = "test-tenant",
                 email = "user@example.com",
                 username = "user",
             )
@@ -248,7 +238,7 @@ class UserManagementIntegrationTest {
         // When & Then
         mockMvc
             .perform(
-                post("/api/v1/users")
+                post("/api/v1/tenants/test-tenant/users")
                     .with(csrf())
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)),

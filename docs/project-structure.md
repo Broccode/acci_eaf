@@ -85,6 +85,7 @@ acci-eaf-monorepo/
 - **`infra/`**: Contains infrastructure definitions like Docker Compose files for local development
   and Ansible playbooks.
 - Root Gradle files (`build.gradle.kts`, `settings.gradle.kts`) manage the Gradle multi-project
-  build for all backend components.
+  build for all backend components. The root `build.gradle.kts` contains centralized dependency
+  version management for all modules.
 - Root Nx files (`nx.json`, `package.json`, `tsconfig.base.json`) manage the overall monorepo, JS/TS
   tooling, and Nx-specific configurations.

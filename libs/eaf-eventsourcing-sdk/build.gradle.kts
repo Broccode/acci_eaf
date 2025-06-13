@@ -1,14 +1,21 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
+    id("io.spring.dependency-management")
     `java-library`
 }
 
-dependencies {
-    // Spring Boot BOM - must be first
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.5"))
+dependencyManagement {
+    imports {
+        mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+    }
+}
 
-    // Spring Boot dependencies
+dependencies {
+    // EAF Core dependency
+    api(project(":libs:eaf-core"))
+
+    // Spring Boot dependencies (using centralized version management)
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-jdbc")
     implementation("org.springframework:spring-tx")
@@ -23,25 +30,23 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     // Flyway for database migrations
-    implementation("org.flywaydb:flyway-core:10.8.1")
-    implementation("org.flywaydb:flyway-database-postgresql:10.8.1")
+    implementation("org.flywaydb:flyway-core:${rootProject.extra["flywayVersion"]}")
+    implementation("org.flywaydb:flyway-database-postgresql:${rootProject.extra["flywayVersion"]}")
 
     // Kotlin coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.0")
-
-    // EAF Core dependency
-    api(project(":libs:eaf-core"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.extra["kotlinCoroutinesVersion"]}")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${rootProject.extra["kotlinCoroutinesVersion"]}")
 
     // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.testcontainers:postgresql:1.19.7")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.7")
-    testImplementation("io.mockk:mockk:1.13.12")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    testImplementation("org.testcontainers:postgresql:${rootProject.extra["testcontainersVersion"]}")
+    testImplementation("org.testcontainers:junit-jupiter:${rootProject.extra["testcontainersVersion"]}")
+    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("com.tngtech.archunit:archunit-junit5:${rootProject.extra["archunitVersion"]}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${rootProject.extra["kotlinCoroutinesVersion"]}")
 }
 
 tasks.withType<Test> {

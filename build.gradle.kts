@@ -2,11 +2,55 @@ plugins {
     kotlin("jvm") version "2.0.21" apply false
     kotlin("plugin.spring") version "2.0.21" apply false
     kotlin("plugin.jpa") version "2.0.21" apply false
-    id("org.springframework.boot") version "3.4.1" apply false
+    id("org.springframework.boot") version "3.5.0" apply false
     id("io.spring.dependency-management") version "1.1.6" apply false
     id("com.diffplug.spotless") version "7.0.0.BETA4" apply false
     id("dev.nx.gradle.project-graph") version "+"
 }
+
+// ============================================================================
+// CENTRALIZED DEPENDENCY VERSION MANAGEMENT
+// ============================================================================
+// All versions are centrally defined here and used across all modules
+// For updates, only change here - automatic propagation to all modules
+
+// Core Framework Versions
+val kotlinVersion = "2.0.21"
+val springBootVersion = "3.5.0"
+val springFrameworkVersion = "6.2.7"
+val springSecurityVersion = "6.2.1"
+val springDataVersion = "3.2.1"
+
+// Testing Framework Versions
+val junitVersion = "5.11.4"
+val junitPlatformVersion = "1.11.4"
+val mockkVersion = "1.13.12"
+val springMockkVersion = "4.0.2"
+val testcontainersVersion = "1.19.7"
+val archunitVersion = "1.3.0"
+val assertjVersion = "3.24.2"
+
+// Database & Persistence Versions
+val postgresqlVersion = "42.7.2"
+val flywayVersion = "10.8.1"
+val hikariVersion = "5.1.0"
+
+// Serialization & Communication Versions
+val jacksonVersion = "2.16.1"
+val natsVersion = "2.17.2"
+val nimbusJoseVersion = "9.37.3"
+
+// Utility & Logging Versions
+val slf4jVersion = "2.0.9"
+val kotlinCoroutinesVersion = "1.8.1"
+val jakartaServletVersion = "6.0.0"
+
+// Build & Code Quality Versions
+val spotlessVersion = "7.0.0.BETA4"
+val ktlintVersion = "1.3.1"
+
+// Additional Testing & Utility Versions
+val okhttpVersion = "4.12.0"
 
 allprojects {
     group = "com.axians.eaf"
@@ -15,6 +59,47 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
+    // ========================================================================
+    // MAKE DEPENDENCY VERSIONS AVAILABLE FOR ALL SUBPROJECTS
+    // ========================================================================
+    // Core Framework
+    extra["kotlinVersion"] = kotlinVersion
+    extra["springBootVersion"] = springBootVersion
+    extra["springFrameworkVersion"] = springFrameworkVersion
+    extra["springSecurityVersion"] = springSecurityVersion
+    extra["springDataVersion"] = springDataVersion
+
+    // Testing
+    extra["junitVersion"] = junitVersion
+    extra["junitPlatformVersion"] = junitPlatformVersion
+    extra["mockkVersion"] = mockkVersion
+    extra["springMockkVersion"] = springMockkVersion
+    extra["testcontainersVersion"] = testcontainersVersion
+    extra["archunitVersion"] = archunitVersion
+    extra["assertjVersion"] = assertjVersion
+
+    // Database & Persistence
+    extra["postgresqlVersion"] = postgresqlVersion
+    extra["flywayVersion"] = flywayVersion
+    extra["hikariVersion"] = hikariVersion
+
+    // Serialization & Communication
+    extra["jacksonVersion"] = jacksonVersion
+    extra["natsVersion"] = natsVersion
+    extra["nimbusJoseVersion"] = nimbusJoseVersion
+
+    // Utility & Logging
+    extra["slf4jVersion"] = slf4jVersion
+    extra["kotlinCoroutinesVersion"] = kotlinCoroutinesVersion
+    extra["jakartaServletVersion"] = jakartaServletVersion
+
+    // Build & Code Quality
+    extra["spotlessVersion"] = spotlessVersion
+    extra["ktlintVersion"] = ktlintVersion
+
+    // Additional Testing & Utility
+    extra["okhttpVersion"] = okhttpVersion
 }
 
 allprojects {
@@ -74,3 +159,9 @@ configure(subprojects.filter { it.path.startsWith(":apps:") }) {
 configure(subprojects.filter { it.path.startsWith(":libs:") }) {
     apply(plugin = "java-library")
 }
+
+// ============================================================================
+// DEPENDENCY VALIDATION
+// ============================================================================
+// Apply validation script to enforce centralized dependency management
+apply(from = "gradle/scripts/validate-dependencies.gradle.kts")

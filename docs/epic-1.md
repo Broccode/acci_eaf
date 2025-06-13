@@ -57,17 +57,15 @@
        for both Kotlin/Spring (JUnit 5, MockK) and the Vaadin/Hilla/React UI framework, complete
        with integrated testing libraries and illustrative example tests for a simple
        component/service, so that I can easily practice and strictly adhere to TDD.
-     - **Acceptance Criteria:**
-       1. An example Kotlin/Spring service within an EAF module includes a unit test (using JUnit 5
-          & MockK) written _before_ its minimal implementation, demonstrating the TDD
-          red-green-refactor cycle.
-       2. An example React component (within `ui-foundation-kit` or
-          `acci-eaf-control-plane/frontend`) includes a unit test (using Vitest/Jest + React Testing
-          Library) demonstrating TDD for a UI component.
-       3. All necessary testing libraries are correctly configured in `build.gradle.kts` files (for
-          backend) and relevant `package.json` files (for frontend).
-       4. The \"Launchpad\" Developer Portal includes a concise guide on the TDD workflow expected
-          for ACCI EAF development, referencing these examples.
+     - **Acceptance Criteria:** 1. An example Kotlin/Spring service within an EAF module includes a
+       unit test (using JUnit 5 & MockK) written _before_ its minimal implementation, demonstrating
+       the TDD red-green-refactor cycle. 2. An example React component (within `ui-foundation-kit`
+       or `acci-eaf-control-plane/frontend`) includes a unit test (using Vitest/Jest + React Testing
+       Library) demonstrating TDD for a UI component. 3. All necessary testing libraries are
+       correctly configured in `build.gradle.kts` files using centralized dependency version
+       management (for backend) and relevant `package.json` files (for frontend). 4. The
+       \"Launchpad\" Developer Portal includes a concise guide on the TDD workflow expected for ACCI
+       EAF development, referencing these examples.
   5. **Story 1.5 (was PRD Story 1.4): Developer Portal (\"The Launchpad\") Initial Setup**
      - As an EAF Contributor (Anita), I want the initial structure for the \"Launchpad\" Developer
        Portal (using Docusaurus) to be established, accessible via a local command, and integrated

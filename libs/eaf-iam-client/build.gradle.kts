@@ -26,7 +26,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-autoconfigure")
 
     // Servlet API
-    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    implementation("jakarta.servlet:jakarta.servlet-api:${rootProject.extra["jakartaServletVersion"]}")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -43,7 +43,7 @@ dependencies {
     implementation("io.projectreactor.netty:reactor-netty-http")
 
     // JWT processing
-    implementation("com.nimbusds:nimbus-jose-jwt:9.37.3")
+    implementation("com.nimbusds:nimbus-jose-jwt:${rootProject.extra["nimbusJoseVersion"]}")
 
     // Logging
     implementation("org.slf4j:slf4j-api")
@@ -54,12 +54,13 @@ dependencies {
     testImplementation("org.springframework:spring-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("org.assertj:assertj-core:3.24.2")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
+    testImplementation("org.assertj:assertj-core:${rootProject.extra["assertjVersion"]}")
+    testImplementation("com.squareup.okhttp3:mockwebserver:${rootProject.extra["okhttpVersion"]}")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.3")
-    testImplementation("org.testcontainers:testcontainers:1.19.3")
+    testImplementation("org.testcontainers:junit-jupiter:${rootProject.extra["testcontainersVersion"]}")
+    testImplementation("org.testcontainers:testcontainers:${rootProject.extra["testcontainersVersion"]}")
 }
 
 tasks.withType<Test> {

@@ -11,28 +11,25 @@
        configuration, and boilerplate for local NATS/PostgreSQL connection (via Docker Compose
        references), so I can bypass manual boilerplate and immediately start developing
        domain-specific logic according to EAF best practices.
-     - **Acceptance Criteria:**
-       1. CLI command `eaf generate service <service-name>` creates a new Gradle sub-project within
-          the `apps/` or `libs/` directory of the Nx monorepo, as specified by user or EAF
-          convention.
-       2. The generated service includes a `build.gradle.kts` with necessary Kotlin, Spring Boot
-          (version aligned with EAF), core EAF SDK dependencies (e.g., `eaf-core`,
-          `eaf-eventing-sdk`, `eaf-eventsourcing-sdk`), and testing dependencies (JUnit 5, MockK,
-          ArchUnit).
-       3. The generated directory structure includes `src/main/kotlin` and `src/test/kotlin` with
-          placeholders for `domain/model`, `domain/port`, `application/service`,
-          `application/port/in`, `application/port/out`, `infrastructure/adapter/in/web` (with a
-          sample Hilla endpoint or Spring Controller), `infrastructure/adapter/out/persistence`
-          (with a sample repository port implementation).
-       4. A basic TDD setup is present: `src/test/kotlin` directory with example unit tests for a
-          sample application service and an ArchUnit test class placeholder with example rules.
-       5. A main application class for Spring Boot (e.g., `@SpringBootApplication`) is generated.
-       6. Spotless configuration is included and applied in the `build.gradle.kts`.
-       7. Example `application.yml` or `.properties` files include placeholders and comments for
-          connecting to local NATS and PostgreSQL instances (referencing connection details for the
-          EAF standard Docker Compose setup).
-       8. The new module is correctly registered in the root `settings.gradle.kts` and its
-          `project.json` for Nx is generated with basic build/serve/test targets.
+     - **Acceptance Criteria:** 1. CLI command `eaf generate service <service-name>` creates a new
+       Gradle sub-project within the `apps/` or `libs/` directory of the Nx monorepo, as specified
+       by user or EAF convention. 2. The generated service includes a `build.gradle.kts` with
+       necessary Kotlin, Spring Boot dependencies using centralized dependency version management
+       (version aligned with EAF), core EAF SDK dependencies (e.g., `eaf-core`, `eaf-eventing-sdk`,
+       `eaf-eventsourcing-sdk`), and testing dependencies (JUnit 5, MockK, ArchUnit). 3. The
+       generated directory structure includes `src/main/kotlin` and `src/test/kotlin` with
+       placeholders for `domain/model`, `domain/port`, `application/service`, `application/port/in`,
+       `application/port/out`, `infrastructure/adapter/in/web` (with a sample Hilla endpoint or
+       Spring Controller), `infrastructure/adapter/out/persistence` (with a sample repository port
+       implementation). 4. A basic TDD setup is present: `src/test/kotlin` directory with example
+       unit tests for a sample application service and an ArchUnit test class placeholder with
+       example rules. 5. A main application class for Spring Boot (e.g., `@SpringBootApplication`)
+       is generated. 6. Spotless configuration is included and applied in the `build.gradle.kts`. 7.
+       Example `application.yml` or `.properties` files include placeholders and comments for
+       connecting to local NATS and PostgreSQL instances (referencing connection details for the EAF
+       standard Docker Compose setup). 8. The new module is correctly registered in the root
+       `settings.gradle.kts` and its `project.json` for Nx is generated with basic build/serve/test
+       targets.
   2. **Story 2.6.2: Generate Core CQRS/ES Components within a Service via CLI**
      - As a Backend Developer (Majlinda), I want to use the ACCI EAF CLI to generate boilerplate
        code for common CQRS/ES components (specifically Aggregates, Commands, Domain Events, and

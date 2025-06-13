@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /**
@@ -26,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController
  * Provides endpoints for creating, listing, and updating users within tenants.
  */
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/tenants/{tenantId}/users")
 class UserController(
     private val createUserUseCase: CreateUserUseCase,
     private val listUsersInTenantUseCase: ListUsersInTenantUseCase,
@@ -39,11 +38,12 @@ class UserController(
     @PostMapping
     @PreAuthorize("hasRole('ROLE_TENANT_ADMIN')")
     fun createUser(
+        @PathVariable tenantId: String,
         @Valid @RequestBody request: CreateUserRequest,
     ): ResponseEntity<CreateUserResponse> {
         val command =
             CreateUserCommand(
-                tenantId = request.tenantId,
+                tenantId = tenantId,
                 email = request.email,
                 username = request.username,
             )
@@ -67,7 +67,7 @@ class UserController(
     @GetMapping
     @PreAuthorize("hasRole('ROLE_TENANT_ADMIN')")
     fun listUsers(
-        @RequestParam tenantId: String,
+        @PathVariable tenantId: String,
     ): ResponseEntity<ListUsersResponse> {
         val query = ListUsersInTenantQuery(tenantId = tenantId)
         val result = listUsersInTenantUseCase.listUsers(query)
@@ -96,8 +96,8 @@ class UserController(
     @PutMapping("/{userId}/status")
     @PreAuthorize("hasRole('ROLE_TENANT_ADMIN')")
     fun updateUserStatus(
+        @PathVariable tenantId: String,
         @PathVariable userId: String,
-        @RequestParam tenantId: String,
         @Valid @RequestBody request: UpdateUserStatusRequest,
     ): ResponseEntity<UpdateUserStatusResponse> {
         val command =
@@ -124,8 +124,6 @@ class UserController(
 // Request/Response DTOs
 
 data class CreateUserRequest(
-    @field:NotBlank(message = "Tenant ID cannot be blank")
-    val tenantId: String,
     @field:Email(message = "Email must be valid")
     @field:NotBlank(message = "Email cannot be blank")
     val email: String,

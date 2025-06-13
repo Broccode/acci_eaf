@@ -463,7 +463,8 @@ conceptual and will be refined.
 
 These selections are based on the PRD's "Core Technical Decisions & Application Structure" and
 further refined for this architectural document. Versions should be pinned during initial project
-setup and managed via Gradle Version Catalogs and `package.json`.
+setup and managed via **centralized dependency version management** in the root `build.gradle.kts`
+and `package.json`. See `docs/troubleshooting/dependency-management-guidelines.md` for details.
 
 | Category                        | Technology                                                 | Version / Details                                 | Description / Purpose                                                 | Justification (Primary from PRD/Brief)                                       |
 | :------------------------------ | :--------------------------------------------------------- | :------------------------------------------------ | :-------------------------------------------------------------------- | :--------------------------------------------------------------------------- |
@@ -592,8 +593,11 @@ applications built on EAF. Linting and formatting tools will enforce many of the
   - KDoc for all public APIs (classes, methods, properties).
   - Explain _why_, not _what_, for complex logic. Avoid redundant comments.
   - Module-level READMEs for significant libraries or services.
-- **Dependency Management:** Use Gradle Version Catalogs (`libs.versions.toml`) for managing
-  dependency versions. Avoid hardcoding versions in `build.gradle.kts` files.
+- **Dependency Management:** Use **centralized dependency version management** in the root
+  `build.gradle.kts`. ALL dependency versions are defined centrally and accessed via
+  `${rootProject.extra["versionVariable"]}`. **NO** hardcoded versions or version catalogs
+  (`libs.versions.toml`) are permitted in module `build.gradle.kts` files. See
+  `docs/troubleshooting/dependency-management-guidelines.md` for complete guidelines.
 - **Error Handling:** Use exceptions for error states. Define and use specific EAF exceptions. Avoid
   swallowing exceptions or catching generic `Exception` without specific handling or re-throwing.
 - **Logging:** Use SLF4J for logging. Log meaningful messages with appropriate context (correlation

@@ -2,7 +2,8 @@
 
 These selections are based on the PRD's \"Core Technical Decisions & Application Structure\" and
 further refined for this architectural document. Versions should be pinned during initial project
-setup and managed via Gradle Version Catalogs and `package.json`.
+setup and managed via **centralized dependency version management** in the root `build.gradle.kts`
+and `package.json`. See `docs/troubleshooting/dependency-management-guidelines.md` for details.
 
 | Category                        | Technology                                                 | Version / Details                                 | Description / Purpose                                                 | Justification (Primary from PRD/Brief)                                       |
 | :------------------------------ | :--------------------------------------------------------- | :------------------------------------------------ | :-------------------------------------------------------------------- | :--------------------------------------------------------------------------- |

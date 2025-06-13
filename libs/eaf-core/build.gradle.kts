@@ -5,26 +5,26 @@ plugins {
 
 dependencies {
     // Core dependencies will be added as the module develops
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:${rootProject.extra["kotlinVersion"]}")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${rootProject.extra["kotlinVersion"]}")
 
     // Spring Security for context management
-    implementation("org.springframework.security:spring-security-core:6.2.1")
+    implementation("org.springframework.security:spring-security-core:${rootProject.extra["springSecurityVersion"]}")
 
     // Spring Context for configuration
-    implementation("org.springframework:spring-context:6.1.2")
-    implementation("org.springframework.boot:spring-boot-autoconfigure:3.2.1")
+    implementation("org.springframework:spring-context:${rootProject.extra["springFrameworkVersion"]}")
+    implementation("org.springframework.boot:spring-boot-autoconfigure:${rootProject.extra["springBootVersion"]}")
 
     // Coroutines for async context propagation
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.extra["kotlinCoroutinesVersion"]}")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-api:${rootProject.extra["slf4jVersion"]}")
 
     // Testing dependencies using version catalog
-    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
-    testImplementation("io.mockk:mockk:1.13.12")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
+    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
+    testImplementation("com.tngtech.archunit:archunit-junit5:${rootProject.extra["archunitVersion"]}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:${rootProject.extra["kotlinVersion"]}")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${rootProject.extra["kotlinCoroutinesVersion"]}")
 }

@@ -76,13 +76,6 @@ applications built on EAF. Linting and formatting tools will enforce many of the
   - KDoc for all public APIs (classes, methods, properties).
   - Explain _why_, not _what_, for complex logic. Avoid redundant comments.
   - Module-level READMEs for significant libraries or services.
-- **Dependency Management:** Use Gradle Version Catalogs (`libs.versions.toml`) for managing
-  dependency versions. Avoid hardcoding versions in `build.gradle.kts` files.
-- **Development Dependencies:** Use appropriate Gradle configurations:
-  - `developmentOnly` for tools that are only needed during development (e.g.,
-    `spring-boot-docker-compose`)
-  - `testImplementation` for testing libraries
-  - `implementation` for runtime dependencies
 - **Error Handling:** Use exceptions for error states. Define and use specific EAF exceptions. Avoid
   swallowing exceptions or catching generic `Exception` without specific handling or re-throwing.
 - **Logging:** Use SLF4J for logging. Log meaningful messages with appropriate context (correlation
@@ -91,6 +84,41 @@ applications built on EAF. Linting and formatting tools will enforce many of the
   - Prefer constructor injection for dependencies.
   - Use Spring Boot auto-configuration where possible.
   - Adhere to Spring best practices for defining beans, configurations, and profiles.
+
+### Dependency Management
+
+To ensure a stable, predictable, and maintainable build across the monorepo, all modules **must** adhere to the following dependency management guidelines. These rules prevent version conflicts, reduce maintenance overhead, and ensure consistency.
+
+#### 1. Enforce Universal Centralized Dependency Management
+
+- **Guideline:** Every Gradle module, especially those in `libs/`, **must** use the centralized dependency versions declared in the root `build.gradle.kts`. This is non-negotiable.
+- **Implementation:**
+  - All Spring-related library modules must apply the `io.spring.dependency-management` plugin.
+  - All modules must import the Spring Boot BOM using `dependencyManagement { imports { mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES) } }`.
+  - **Never** specify a version for a Spring Boot or related dependency (e.g., Jackson, SLF4J) in a sub-module. Let the root BOM control everything.
+  - **Never** declare a separate `platform("org.springframework.boot:spring-boot-dependencies:...")` in a sub-module.
+
+#### 2. Standardize Spring Boot Test Setups
+
+- **Guideline:** All modules containing Spring Boot integration tests (`@SpringBootTest`) must use a standardized set of test dependencies to ensure consistency and prevent classpath issues.
+- **Implementation:**
+  - Use `testImplementation("org.springframework.boot:spring-boot-starter-test")`. This single starter provides JUnit 5, Spring Test, AssertJ, MockK (via our explicit dependency), and the necessary logging infrastructure (Logback).
+  - For Testcontainers, use the specific artifact needed (e.g., `testImplementation("org.testcontainers:postgresql")`) alongside the JUnit 5 integration (`testImplementation("org.testcontainers:junit-jupiter")`).
+
+#### 3. Unify JUnit 5 Configuration
+
+- **Guideline:** To avoid JUnit platform conflicts, all modules will rely on the versions provided by the Spring Boot BOM.
+- **Implementation:**
+  - Use `testImplementation("org.junit.jupiter:junit-jupiter")` (with no version).
+  - Include `testRuntimeOnly("org.junit.platform:junit-platform-launcher")` (with no version).
+
+### Development Dependencies
+
+Use appropriate Gradle configurations:
+
+- `developmentOnly` for tools that are only needed during development (e.g., `spring-boot-docker-compose`)
+- `testImplementation` for testing libraries
+- `implementation` for runtime dependencies
 
 #### Detailed Kotlin Specifics
 

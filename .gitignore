@@ -491,6 +491,7 @@ HELP.md
 # Kotlin
 *.kt.js
 *.kt.js.map
+./.kotlin/
 
 # IntelliJ specific
 .idea/**/workspace.xml
