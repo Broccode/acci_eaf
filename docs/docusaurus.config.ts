@@ -77,6 +77,11 @@ const config: Config = {
           label: 'Documentation',
         },
         {
+          href: 'http://localhost:4400',
+          label: 'Component Library',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/broccode/acci_eaf',
           label: 'GitHub',
           position: 'right',

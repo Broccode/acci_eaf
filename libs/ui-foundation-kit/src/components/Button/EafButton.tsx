@@ -1,33 +1,50 @@
+import {
+  Button as VaadinButton,
+  type ButtonProps as VaadinButtonProps,
+} from '@vaadin/react-components/Button.js';
 import React from 'react';
 
-export interface EafButtonProps {
+export interface EafButtonProps extends Omit<VaadinButtonProps, 'theme'> {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'danger';
   size?: 'small' | 'medium' | 'large';
-  disabled?: boolean;
-  onClick?: () => void;
 }
 
 /**
- * EAF Button component - extends Vaadin Button with EAF theming
- * This is a placeholder implementation for the monorepo setup
+ * EAF Button component that wraps the Vaadin Button.
+ *
+ * It maps its `variant` and `size` props to Vaadin's theme attributes to provide a consistent API
+ * while leveraging Vaadin's component system.
+ *
+ * Styling with utility classes like Tailwind is challenging due to Vaadin's use of Shadow DOM.
+ * This approach is a compromise to adhere to the technical guidelines.
  */
 export const EafButton: React.FC<EafButtonProps> = ({
   children,
   variant = 'primary',
   size = 'medium',
-  disabled = false,
-  onClick,
+  ...props
 }) => {
-  // This is a basic placeholder implementation
-  // In the real implementation, this would use @vaadin/react-components
+  const themes: string[] = [];
+  if (variant === 'primary') {
+    // Vaadin's "primary" theme
+    themes.push('primary');
+  } else if (variant === 'danger') {
+    // Vaadin's "error" theme for a danger/destructive action
+    themes.push('error');
+  }
+  // The "secondary" variant will use the default Vaadin button appearance.
+
+  if (size === 'small') {
+    themes.push('small');
+  } else if (size === 'large') {
+    themes.push('large');
+  }
+  // The "medium" size is the default Vaadin button size.
+
   return (
-    <button
-      className={`eaf-button eaf-button--${variant} eaf-button--${size}`}
-      disabled={disabled}
-      onClick={onClick}
-    >
+    <VaadinButton theme={themes.join(' ')} {...props}>
       {children}
-    </button>
+    </VaadinButton>
   );
 };
