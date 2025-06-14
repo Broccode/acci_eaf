@@ -689,7 +689,7 @@ class $projectorName {
         }
     }
 
-    // TODO: Add more event handlers as needed
+        // TODO: Add more event handlers as needed
     // @NatsJetStreamListener("events.${serviceName.replace("-", ".")}.other_event")
     // fun handleOtherEvent(event: OtherEvent) { ... }
 }
@@ -699,6 +699,19 @@ class $projectorName {
  */
 private fun String.toSnakeCase(): String =
     this.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()
+
             """.trimIndent()
     }
+
+    // Frontend Templates - TODO: Implement these properly
+
+    fun generateFrontendView(viewName: String): String = "// TODO: Implement frontend view template for $viewName"
+
+    fun generateFrontendComponent(componentName: String): String =
+        "// TODO: Implement frontend component template for $componentName"
 }
+
+/**
+ * Extension function to convert PascalCase to snake_case
+ */
+private fun String.toSnakeCase(): String = this.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()

@@ -12,6 +12,8 @@ import picocli.CommandLine
         GenerateCommandCommand::class,
         GenerateEventCommand::class,
         GenerateProjectorCommand::class,
+        GenerateFrontendViewCommand::class,
+        GenerateFrontendComponentCommand::class,
     ],
 )
 class GenerateCommand : Runnable {
