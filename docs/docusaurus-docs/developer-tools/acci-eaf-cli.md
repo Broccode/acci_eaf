@@ -14,13 +14,13 @@ setup and EAF SDK integration.
 Generate a new service in the `apps` directory:
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate service user-management"
+nx run acci-eaf-cli:run -- --args="generate service user-management"
 ```
 
 Generate a service in the `libs` directory:
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate service shared-utils --path=libs"
+nx run acci-eaf-cli:run -- --args="generate service shared-utils --path=libs"
 ```
 
 ## Command Reference
@@ -28,23 +28,23 @@ Generate a service in the `libs` directory:
 ### Service Generation
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate service <service-name> [options]"
+nx run acci-eaf-cli:run -- --args="generate service <service-name> [options]"
 ```
 
 ### CQRS/ES Component Generation
 
 ```bash
 # Generate aggregate with creation command, event, and test
-./gradlew :tools:acci-eaf-cli:run --args="generate aggregate <AggregateName> --service=<service-name>"
+nx run acci-eaf-cli:run -- --args="generate aggregate <AggregateName> --service=<service-name>"
 
 # Add command to existing aggregate
-./gradlew :tools:acci-eaf-cli:run --args="generate command <CommandName> --aggregate=<AggregateName>"
+nx run acci-eaf-cli:run -- --args="generate command <CommandName> --aggregate=<AggregateName>"
 
 # Add event to existing aggregate
-./gradlew :tools:acci-eaf-cli:run --args="generate event <EventName> --aggregate=<AggregateName>"
+nx run acci-eaf-cli:run -- --args="generate event <EventName> --aggregate=<AggregateName>"
 
 # Generate projector for event handling
-./gradlew :tools:acci-eaf-cli:run --args="generate projector <ProjectorName> --service=<service-name> --event=<EventName>"
+nx run acci-eaf-cli:run -- --args="generate projector <ProjectorName> --service=<service-name> --event=<EventName>"
 ```
 
 ### Parameters
@@ -65,13 +65,13 @@ Generate a service in the `libs` directory:
 
 ```bash
 # Generate a user management service
-./gradlew :tools:acci-eaf-cli:run --args="generate service user-management"
+nx run acci-eaf-cli:run -- --args="generate service user-management"
 
 # Generate a shared library
-./gradlew :tools:acci-eaf-cli:run --args="generate service common-utils --path=libs"
+nx run acci-eaf-cli:run -- --args="generate service common-utils --path=libs"
 
 # Generate an analytics service
-./gradlew :tools:acci-eaf-cli:run --args="generate service analytics-engine"
+nx run acci-eaf-cli:run -- --args="generate service analytics-engine"
 ```
 
 ## Generated Structure
@@ -363,16 +363,16 @@ Error: Could not find settings.gradle.kts in project hierarchy
 
 ```bash
 # General help
-./gradlew :tools:acci-eaf-cli:run --args="--help"
+nx run acci-eaf-cli:run -- --args="--help"
 
 # Service generation help
-./gradlew :tools:acci-eaf-cli:run --args="generate service --help"
+nx run acci-eaf-cli:run -- --args="generate service --help"
 
 # CQRS/ES component generation help
-./gradlew :tools:acci-eaf-cli:run --args="generate aggregate --help"
-./gradlew :tools:acci-eaf-cli:run --args="generate command --help"
-./gradlew :tools:acci-eaf-cli:run --args="generate event --help"
-./gradlew :tools:acci-eaf-cli:run --args="generate projector --help"
+nx run acci-eaf-cli:run -- --args="generate aggregate --help"
+nx run acci-eaf-cli:run -- --args="generate command --help"
+nx run acci-eaf-cli:run -- --args="generate event --help"
+nx run acci-eaf-cli:run -- --args="generate projector --help"
 ```
 
 ---
@@ -387,7 +387,7 @@ services, following Domain-Driven Design principles and EAF SDK patterns.
 Create a new Domain Aggregate with creation command, event, and test files:
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate aggregate User --service=user-management"
+nx run acci-eaf-cli:run -- --args="generate aggregate User --service=user-management"
 ```
 
 **What it generates:**
@@ -400,7 +400,7 @@ Create a new Domain Aggregate with creation command, event, and test files:
 **Usage:**
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate aggregate <AggregateName> --service=<service-name>"
+nx run acci-eaf-cli:run -- --args="generate aggregate <AggregateName> --service=<service-name>"
 ```
 
 **Parameters:**
@@ -413,7 +413,7 @@ Create a new Domain Aggregate with creation command, event, and test files:
 Add a new command to an existing aggregate:
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate command UpdateUserProfile --aggregate=User"
+nx run acci-eaf-cli:run -- --args="generate command UpdateUserProfile --aggregate=User"
 ```
 
 **What it generates:**
@@ -424,7 +424,7 @@ Add a new command to an existing aggregate:
 **Usage:**
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate command <CommandName> --aggregate=<AggregateName>"
+nx run acci-eaf-cli:run -- --args="generate command <CommandName> --aggregate=<AggregateName>"
 ```
 
 **Parameters:**
@@ -437,7 +437,7 @@ Add a new command to an existing aggregate:
 Add a new domain event to an existing aggregate:
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate event UserProfileUpdated --aggregate=User"
+nx run acci-eaf-cli:run -- --args="generate event UserProfileUpdated --aggregate=User"
 ```
 
 **What it generates:**
@@ -448,7 +448,7 @@ Add a new domain event to an existing aggregate:
 **Usage:**
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate event <EventName> --aggregate=<AggregateName>"
+nx run acci-eaf-cli:run -- --args="generate event <EventName> --aggregate=<AggregateName>"
 ```
 
 **Parameters:**
@@ -461,7 +461,7 @@ Add a new domain event to an existing aggregate:
 Create a new projector to handle domain events:
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate projector UserProfileProjector --service=user-management --event=UserProfileUpdated"
+nx run acci-eaf-cli:run -- --args="generate projector UserProfileProjector --service=user-management --event=UserProfileUpdated"
 ```
 
 **What it generates:**
@@ -472,7 +472,7 @@ Create a new projector to handle domain events:
 **Usage:**
 
 ```bash
-./gradlew :tools:acci-eaf-cli:run --args="generate projector <ProjectorName> --service=<service-name> --event=<EventName>"
+nx run acci-eaf-cli:run -- --args="generate projector <ProjectorName> --service=<service-name> --event=<EventName>"
 ```
 
 **Parameters:**
@@ -485,16 +485,16 @@ Create a new projector to handle domain events:
 
 ```bash
 # Generate a complete Order aggregate
-./gradlew :tools:acci-eaf-cli:run --args="generate aggregate Order --service=order-management"
+nx run acci-eaf-cli:run -- --args="generate aggregate Order --service=order-management"
 
 # Add a new command to cancel orders
-./gradlew :tools:acci-eaf-cli:run --args="generate command CancelOrder --aggregate=Order"
+nx run acci-eaf-cli:run -- --args="generate command CancelOrder --aggregate=Order"
 
 # Add a corresponding event
-./gradlew :tools:acci-eaf-cli:run --args="generate event OrderCancelled --aggregate=Order"
+nx run acci-eaf-cli:run -- --args="generate event OrderCancelled --aggregate=Order"
 
 # Create a projector to handle order cancellation
-./gradlew :tools:acci-eaf-cli:run --args="generate projector OrderCancellationProjector --service=order-management --event=OrderCancelled"
+nx run acci-eaf-cli:run -- --args="generate projector OrderCancellationProjector --service=order-management --event=OrderCancelled"
 ```
 
 ### Generated Code Structure

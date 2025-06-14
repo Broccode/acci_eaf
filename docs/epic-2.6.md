@@ -3,6 +3,10 @@
 - **Goal:** Accelerate developer setup, promote consistency, and support mandated architectural
   patterns.
 - **User Stories:**
+
+  **Note:** All `eaf generate` commands are executed through the ACCI EAF CLI tool using Nx. For
+  example: `nx run acci-eaf-cli:run -- --args="generate service <service-name>"`.
+
   1. **Story 2.6.1: Generate Kotlin/Spring Backend Service via CLI**
      - As a Developer (Michael, Majlinda), I want to use the ACCI EAF CLI to quickly generate a new,
        fully structured Kotlin/Spring backend service module within the Nx monorepo, complete with a
