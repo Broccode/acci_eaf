@@ -52,6 +52,10 @@ val ktlintVersion = "1.3.1"
 // Additional Testing & Utility Versions
 val okhttpVersion = "4.12.0"
 
+// CLI Tool Versions
+val picocliVersion = "4.7.5"
+val commonsLangVersion = "3.12.0"
+
 allprojects {
     group = "com.axians.eaf"
     version = "0.1.0-SNAPSHOT"
@@ -100,6 +104,10 @@ allprojects {
 
     // Additional Testing & Utility
     extra["okhttpVersion"] = okhttpVersion
+
+    // CLI Tool Versions
+    extra["picocliVersion"] = picocliVersion
+    extra["commonsLangVersion"] = commonsLangVersion
 }
 
 allprojects {
@@ -111,7 +119,7 @@ subprojects {
     apply(plugin = "com.diffplug.spotless")
 
     afterEvaluate {
-        if (plugins.hasPlugin("java")) {
+        if (plugins.hasPlugin("java") && !project.path.startsWith(":tools:")) {
             configure<JavaPluginExtension> {
                 toolchain {
                     languageVersion.set(JavaLanguageVersion.of(21))
@@ -158,6 +166,10 @@ configure(subprojects.filter { it.path.startsWith(":apps:") }) {
 
 configure(subprojects.filter { it.path.startsWith(":libs:") }) {
     apply(plugin = "java-library")
+}
+
+configure(subprojects.filter { it.path.startsWith(":tools:") }) {
+    apply(plugin = "application")
 }
 
 // ============================================================================

@@ -23,4 +23,4 @@ include(":libs:eaf-eventsourcing-sdk")
 include(":libs:eaf-iam-client")
 
 // Include tools
-// include(":tools:acci-eaf-cli")  // Will be uncommented when ready
+include(":tools:acci-eaf-cli")

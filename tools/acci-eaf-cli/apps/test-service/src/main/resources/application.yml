@@ -1,0 +1,39 @@
+# Application configuration for test-service service
+spring:
+  application:
+    name: test-service
+
+# --- EAF Local Development Configuration ---
+# NATS Connection (values from EAF standard docker-compose)
+eaf:
+  eventing:
+    nats:
+      url: "nats://localhost:4222"
+      # tenant-credentials-path: ... (configure as needed)
+
+# PostgreSQL Connection (values from EAF standard docker-compose)
+# Uncomment and configure when implementing persistence
+# spring:
+#   datasource:
+#     url: jdbc:postgresql://localhost:5432/eaf_db
+#     username: postgres
+#     password: password
+#   jpa:
+#     hibernate:
+#       ddl-auto: validate
+#     show-sql: false
+#     properties:
+#       hibernate:
+#         dialect: org.hibernate.dialect.PostgreSQLDialect
+#         format_sql: true
+
+# Server configuration
+server:
+  port: 8080
+
+# Logging configuration
+logging:
+  level:
+    com.axians.eaf: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG

@@ -1,0 +1,32 @@
+{
+  "name": "acci-eaf-cli",
+  "projectType": "application",
+  "sourceRoot": "tools/acci-eaf-cli/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "build"
+      }
+    },
+    "test": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "test"
+      }
+    },
+    "run": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "run"
+      }
+    },
+    "clean": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "clean"
+      }
+    }
+  },
+  "tags": ["type:tool", "scope:cli", "platform:backend"]
+}

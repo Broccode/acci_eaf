@@ -48,6 +48,11 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Developer Tools',
+      items: ['developer-tools/index', 'developer-tools/acci-eaf-cli'],
+    },
+    {
+      type: 'category',
       label: 'UI Foundation Kit',
       items: ['ui-foundation-kit/index'],
     },

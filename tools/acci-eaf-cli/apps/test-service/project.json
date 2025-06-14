@@ -1,0 +1,32 @@
+{
+  "name": "test-service",
+  "projectType": "application",
+  "sourceRoot": "apps/test-service/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "build"
+      }
+    },
+    "test": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "test"
+      }
+    },
+    "run": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "bootRun"
+      }
+    },
+    "clean": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": "clean"
+      }
+    }
+  },
+  "tags": ["type:app", "scope:testservice", "platform:backend"]
+}
