@@ -16,7 +16,20 @@ const sidebars: SidebarsConfig = {
   // ACCI EAF Documentation Sidebar
   tutorialSidebar: [
     'index',
-    'getting-started',
+    {
+      type: 'category',
+      label: 'Getting Started',
+      items: [
+        'getting-started/index',
+        'getting-started/prerequisites',
+        'getting-started/local-setup',
+        'getting-started/first-service',
+        'getting-started/hello-world-example',
+        'getting-started/frontend-integration',
+        'getting-started/development-workflow',
+        'getting-started/troubleshooting',
+      ],
+    },
     {
       type: 'category',
       label: 'Architectural Principles',
