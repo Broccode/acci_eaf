@@ -311,4 +311,4 @@ For issues and questions:
 - Review the
   [integration tests](https://github.com/axians/acci-eaf/tree/main/libs/eaf-iam-client/src/test/kotlin)
   for examples
-- Consult the [EAF documentation](../intro.md) for broader context
+- Consult the [EAF documentation](../index.md) for broader context

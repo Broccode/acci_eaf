@@ -170,7 +170,16 @@ class TenantProjector(
 4. **Separate concerns**: Don't mix command and query logic
 5. **Monitor event streams**: Track processing lag and failures
 
+## 🔗 Related Documentation
+
+- [Event Sourcing SDK](../sdk-reference/eventsourcing-sdk/index.md) - Implementation details
+- [Eventing SDK](../sdk-reference/eventing-sdk/index.md) - Event publishing patterns
+- [Domain-Driven Design](./domain-driven-design.md) - Domain modeling
+- [Hexagonal Architecture](./hexagonal-architecture.md) - Clean architecture
+
 ## Learn More
 
-For hands-on guidance on implementing event-sourced aggregates with the EAF SDK, see the
-comprehensive [EAF Event Sourcing SDK Guide](./eaf-eventsourcing-sdk.md).
+- [Domain-Driven Design Guide](./ddd.md)
+- [CQRS/Event Sourcing Guide](./cqrs-es.md)
+- [EAF Event Sourcing SDK Guide](../sdk-reference/eventsourcing-sdk/index.md)
+- See the dedicated [Testing Strategy guide](./testing-strategy.md) for end-to-end test practices.

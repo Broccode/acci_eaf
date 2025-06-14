@@ -21,12 +21,32 @@ The EAF provides port interfaces and patterns to help you implement this archite
 
 ## Core Concepts
 
+### The Hexagon
+
+The hexagon represents your application core, containing:
+
+- **Domain Layer**: Entities, value objects, domain services
+- **Application Layer**: Use cases, application services, ports
+
 ### Ports
 
-Ports define the boundaries of your application core:
+Ports define interfaces for interacting with the external world:
 
 - **Inbound Ports**: Define what your application can do (use cases)
 - **Outbound Ports**: Define what your application needs from external systems
+
+```kotlin
+// Inbound Port (driven by external actors)
+interface CreateTenantUseCase {
+    fun execute(command: CreateTenantCommand): TenantCreatedEvent
+}
+
+// Outbound Port (drives external systems)
+interface TenantRepository {
+    fun save(tenant: Tenant)
+    fun findById(id: TenantId): Tenant?
+}
+```
 
 ### Adapters
 
@@ -36,6 +56,25 @@ Adapters implement the ports and handle the technical details:
   message listeners)
 - **Outbound Adapters**: Implement infrastructure concerns (e.g., database repositories, external
   API clients)
+
+```kotlin
+// Inbound Adapter (REST Controller)
+@RestController
+class TenantController(
+    private val createTenantUseCase: CreateTenantUseCase
+) {
+    @PostMapping("/tenants")
+    fun createTenant(@RequestBody request: CreateTenantRequest) {
+        // Adapter logic
+    }
+}
+
+// Outbound Adapter (Database Repository)
+@Repository
+class JpaTenantRepository : TenantRepository {
+    // Database interaction logic
+}
+```
 
 ## EAF Port Interfaces
 
@@ -60,28 +99,30 @@ interface OutboundPort
 This is a marker interface for outbound dependencies. Extend it to define your specific outbound
 contracts.
 
-## Directory Structure
+## EAF Project Structure
 
-When implementing hexagonal architecture in your EAF services, organize your code as follows:
+The ACCI EAF CLI generates services with this structure:
 
 ```
-src/main/kotlin/com/yourcompany/yourservice/
+src/main/kotlin/com/axians/eaf/service/
 ├── domain/
-│   ├── model/              # Domain entities and value objects
-│   └── port/
-│       └── out/            # Outbound port interfaces
+│   ├── model/           # Entities, Aggregates, Value Objects
+│   ├── event/           # Domain Events
+│   └── service/         # Domain Services
 ├── application/
 │   ├── port/
-│   │   └── in/             # Inbound port interfaces (use cases)
-│   └── service/            # Application services implementing use cases
+│   │   ├── in/          # Inbound Ports (Use Cases)
+│   │   └── out/         # Outbound Ports
+│   └── service/         # Application Services
 └── infrastructure/
-    └── adapter/
-        ├── in/
-        │   ├── web/        # REST controllers, Hilla endpoints
-        │   └── messaging/  # NATS event listeners
-        └── out/
-            ├── persistence/ # Database repositories
-            └── messaging/   # Event publishers, external API clients
+    ├── adapter/
+    │   ├── in/
+    │   │   ├── web/     # REST Controllers, Hilla Endpoints
+    │   │   └── messaging/ # Event Handlers
+    │   └── out/
+    │       ├── persistence/ # Repositories
+    │       └── messaging/   # Event Publishers
+    └── config/          # Spring Configuration
 ```
 
 ## Step-by-Step Implementation
@@ -407,6 +448,26 @@ class ApplicationConfig {
 }
 ```
 
+## Benefits in ACCI EAF
+
+### Testability
+
+- Domain logic can be tested without infrastructure
+- Adapters can be tested independently
+- Easy to mock external dependencies
+
+### Technology Independence
+
+- Switch from JPA to JDBC without affecting domain
+- Change from REST to GraphQL without domain changes
+- Migrate from PostgreSQL to another database
+
+### EAF SDK Integration
+
+- Use EAF Event Store SDK in persistence adapters
+- Integrate EAF Eventing SDK in messaging adapters
+- Apply EAF IAM SDK in security adapters
+
 ## Testing
 
 ### Unit Testing Application Services
@@ -465,17 +526,20 @@ class UserRepositoryIntegrationTest {
 
 ## Best Practices
 
-1. **Keep Domain Pure**: Domain entities should not depend on infrastructure frameworks
-2. **Use Dependency Injection**: Inject ports into application services via constructor
-3. **Validate at Boundaries**: Validate inputs in adapters and application services
-4. **Handle Errors Gracefully**: Use proper exception handling and error responses
-5. **Test Each Layer**: Unit test application services, integration test adapters
-6. **Follow Naming Conventions**: Use clear, descriptive names for ports and adapters
-7. **Maintain Tenant Isolation**: Always include tenant context in operations
+1. **Keep the domain pure**: No framework dependencies in domain layer
+2. **Dependency direction**: Always point inward toward the domain
+3. **Interface segregation**: Create focused, single-purpose ports
+4. **Adapter responsibility**: Handle serialization, validation, error translation
+5. **Use Dependency Injection**: Inject ports into application services via constructor
+6. **Validate at Boundaries**: Validate inputs in adapters and application services
+7. **Handle Errors Gracefully**: Use proper exception handling and error responses
+8. **Test Each Layer**: Unit test application services, integration test adapters
+9. **Follow Naming Conventions**: Use clear, descriptive names for ports and adapters
+10. **Maintain Tenant Isolation**: Always include tenant context in operations
 
 ## Learn More
 
 - [Domain-Driven Design Guide](./ddd.md)
 - [CQRS/Event Sourcing Guide](./cqrs-es.md)
-- [EAF Event Sourcing SDK Guide](./eaf-eventsourcing-sdk.md)
+- [EAF Event Sourcing SDK Guide](../sdk-reference/eventsourcing-sdk/index.md)
 - See the dedicated [Testing Strategy guide](./testing-strategy.md) for end-to-end test practices.
