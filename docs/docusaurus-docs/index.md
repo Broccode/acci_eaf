@@ -28,11 +28,13 @@ accelerates the development of high-quality, multi-tenant software products.
 
 ### 🚀 [Getting Started](/getting-started)
 
-Set up your development environment and build your first EAF application
+New to EAF? This is the place to start. Learn how to set up your local environment and build your
+first service.
 
-### 🏗️ [Architectural Principles](/architectural-principles)
+### 🏗️ [Architectural Principles](/architecture)
 
-Learn about DDD, Hexagonal Architecture, CQRS/ES, and TDD in the EAF context
+Understand the core concepts behind EAF, including Domain-Driven Design, Hexagonal Architecture, and
+CQRS.
 
 ### ⚙️ [Core Services](/core-services)
 

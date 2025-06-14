@@ -38,5 +38,5 @@ The CLI is built into the monorepo and can be executed using Gradle:
 ### Next Steps
 
 - [Learn how to generate services](/developer-tools/acci-eaf-cli) with the CLI
-- Explore the [architectural principles](/architectural-principles) behind generated code
-- Review [testing strategies](/architectural-principles/testing-strategy) for generated services
+- Explore the [architectural principles](/architecture) behind generated code
+- Review [testing strategies](/architecture/testing-strategy) for generated services

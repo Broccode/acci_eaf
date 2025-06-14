@@ -539,7 +539,8 @@ class UserRepositoryIntegrationTest {
 
 ## Learn More
 
-- [Domain-Driven Design Guide](./ddd.md)
-- [CQRS/Event Sourcing Guide](./cqrs-es.md)
-- [EAF Event Sourcing SDK Guide](../sdk-reference/eventsourcing-sdk/index.md)
-- See the dedicated [Testing Strategy guide](./testing-strategy.md) for end-to-end test practices.
+- [Domain-Driven Design (DDD)](./domain-driven-design)
+- [CQRS/Event Sourcing (CQRS/ES)](./cqrs-event-sourcing)
+- [Test-Driven Development (TDD)](./test-driven-development)
+- [EAF Event Sourcing SDK Guide](../sdk-reference/eventsourcing-sdk)
+- See the dedicated [Testing Strategy guide](./testing-strategy) for end-to-end test practices.

@@ -572,9 +572,9 @@ All generated components use proper EAF SDK annotations:
 5. **Add comprehensive tests** - Test your aggregates, commands, and events
 6. **Configure event routing** - Set up proper NATS subjects and event routing
 
-For more guidance, see:
+### See Also
 
-- [Hexagonal Architecture Guide](/architectural-principles/hexagonal-architecture-guide)
-- [Testing Strategy](/architectural-principles/testing-strategy)
-- [TDD Principles](/architectural-principles/tdd)
-- [CQRS/ES Architecture](/architectural-principles/cqrs-es)
+- [Hexagonal Architecture Guide](/architecture/hexagonal-architecture-guide)
+- [Testing Strategy](/architecture/testing-strategy)
+- [TDD Principles](/architecture/test-driven-development)
+- [CQRS/ES Architecture](/architecture/cqrs-event-sourcing)

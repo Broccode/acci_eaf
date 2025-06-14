@@ -95,7 +95,7 @@ const config: Config = {
             },
             {
               label: 'Architecture',
-              to: '/architectural-principles',
+              to: '/architecture',
             },
           ],
         },
