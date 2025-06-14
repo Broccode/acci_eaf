@@ -88,8 +88,15 @@ dependencies {
     fun generateApplication(
         packageName: String,
         className: String,
-    ): String =
-        """
+    ): String {
+        val applicationClassName =
+            if (className.endsWith("Service")) {
+                "${className}Application"
+            } else {
+                "${className}ServiceApplication"
+            }
+
+        return """
 package $packageName
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -99,12 +106,13 @@ import org.springframework.context.annotation.ComponentScan
 
 @SpringBootApplication(exclude = [DataSourceAutoConfiguration::class])
 @ComponentScan(basePackages = ["$packageName"])
-class ${className}ServiceApplication
+class $applicationClassName
 
 fun main(args: Array<String>) {
-    runApplication<${className}ServiceApplication>(*args)
+    runApplication<$applicationClassName>(*args)
 }
-        """.trimIndent()
+            """.trimIndent()
+    }
 
     fun generateSampleController(
         packageName: String,
@@ -392,4 +400,305 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
         """.trimIndent()
+
+    // CQRS/ES Templates
+
+    fun generateCreateCommand(
+        packageName: String,
+        aggregateName: String,
+    ): String =
+        """
+package $packageName.domain.command
+
+import java.util.UUID
+
+/**
+ * Command to create a new $aggregateName.
+ * This command contains all the necessary information to create the aggregate.
+ */
+data class Create${aggregateName}Command(
+    val id: String = UUID.randomUUID().toString(),
+    val name: String,
+    val description: String? = null,
+)
+        """.trimIndent()
+
+    fun generateCreatedEvent(
+        packageName: String,
+        aggregateName: String,
+    ): String =
+        """
+package $packageName.domain.event
+
+import java.time.Instant
+
+/**
+ * Event indicating that a $aggregateName has been created.
+ * This event is published when a new $aggregateName aggregate is successfully created.
+ */
+data class ${aggregateName}CreatedEvent(
+    val id: String,
+    val name: String,
+    val description: String? = null,
+    val createdAt: Instant = Instant.now(),
+)
+        """.trimIndent()
+
+    fun generateAggregateRoot(
+        packageName: String,
+        aggregateName: String,
+    ): String =
+        """
+package $packageName.domain.model
+
+import $packageName.domain.command.Create${aggregateName}Command
+import $packageName.domain.event.${aggregateName}CreatedEvent
+import com.axians.eaf.eventsourcing.AbstractAggregateRoot
+import com.axians.eaf.eventsourcing.EafAggregate
+import com.axians.eaf.eventsourcing.EafCommandHandler
+import com.axians.eaf.eventsourcing.EafEventSourcingHandler
+import org.axonframework.modelling.command.AggregateIdentifier
+import java.time.Instant
+
+/**
+ * $aggregateName aggregate root.
+ * This class represents the $aggregateName bounded context aggregate.
+ */
+@EafAggregate
+class $aggregateName : AbstractAggregateRoot<$aggregateName>() {
+
+    @AggregateIdentifier
+    lateinit var id: String
+        private set
+
+    lateinit var name: String
+        private set
+
+    var description: String? = null
+        private set
+
+    lateinit var createdAt: Instant
+        private set
+
+    var updatedAt: Instant = Instant.now()
+        private set
+
+    // Required by framework
+    constructor()
+
+    /**
+     * Constructor command handler for creating a new $aggregateName.
+     * This handles the Create${aggregateName}Command and applies the ${aggregateName}CreatedEvent.
+     */
+    @EafCommandHandler
+    constructor(command: Create${aggregateName}Command) {
+        applyEvent(
+            ${aggregateName}CreatedEvent(
+                id = command.id,
+                name = command.name,
+                description = command.description,
+            ),
+        )
+    }
+
+    /**
+     * Event sourcing handler for ${aggregateName}CreatedEvent.
+     * This method applies the state changes when the aggregate is created.
+     */
+    @EafEventSourcingHandler
+    fun on(event: ${aggregateName}CreatedEvent) {
+        this.id = event.id
+        this.name = event.name
+        this.description = event.description
+        this.createdAt = event.createdAt
+        this.updatedAt = event.createdAt
+    }
+
+    // TODO: Add additional command handlers and event sourcing handlers as needed
+    // Example:
+    // @EafCommandHandler
+    // fun handle(command: Update${aggregateName}Command) {
+    //     // Validate business rules
+    //     applyEvent(${aggregateName}UpdatedEvent(...))
+    // }
+    //
+    // @EafEventSourcingHandler
+    // fun on(event: ${aggregateName}UpdatedEvent) {
+    //     // Apply state changes
+    // }
+}
+        """.trimIndent()
+
+    fun generateAggregateTest(
+        packageName: String,
+        aggregateName: String,
+    ): String =
+        """
+package $packageName.domain.model
+
+import $packageName.domain.command.Create${aggregateName}Command
+import $packageName.domain.event.${aggregateName}CreatedEvent
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+/**
+ * Test class for $aggregateName aggregate.
+ * This follows TDD principles - write tests first, then implement functionality.
+ */
+class ${aggregateName}Test {
+
+    @Test
+    fun `should create $aggregateName when valid command is given`() {
+        // Given
+        val command = Create${aggregateName}Command(
+            id = "test-id",
+            name = "Test $aggregateName",
+            description = "Test Description",
+        )
+
+        // When
+        val aggregate = $aggregateName(command)
+
+        // Then
+        assertThat(aggregate.id).isEqualTo("test-id")
+        assertThat(aggregate.name).isEqualTo("Test $aggregateName")
+        assertThat(aggregate.description).isEqualTo("Test Description")
+        assertThat(aggregate.createdAt).isNotNull()
+        assertThat(aggregate.updatedAt).isNotNull()
+    }
+
+    @Test
+    fun `should apply ${aggregateName}CreatedEvent correctly`() {
+        // Given
+        val aggregate = $aggregateName()
+        val event = ${aggregateName}CreatedEvent(
+            id = "test-id",
+            name = "Test $aggregateName",
+            description = "Test Description",
+        )
+
+        // When
+        aggregate.on(event)
+
+        // Then
+        assertThat(aggregate.id).isEqualTo("test-id")
+        assertThat(aggregate.name).isEqualTo("Test $aggregateName")
+        assertThat(aggregate.description).isEqualTo("Test Description")
+        assertThat(aggregate.createdAt).isEqualTo(event.createdAt)
+        assertThat(aggregate.updatedAt).isEqualTo(event.createdAt)
+    }
+
+    // TODO: Add more tests as you implement additional functionality
+    // Examples:
+    // - Test business rule validation in command handlers
+    // - Test error cases (invalid commands)
+    // - Test state transitions with multiple events
+    // - Test invariants and aggregate consistency
+}
+        """.trimIndent()
+
+    fun generateCommand(
+        packageName: String,
+        commandName: String,
+        aggregateName: String,
+    ): String =
+        """
+package $packageName.domain.command
+
+/**
+ * Command: $commandName
+ * TODO: Add the necessary fields for this command
+ */
+data class $commandName(
+    val aggregateId: String,
+    // TODO: Add command-specific fields here
+    // Example:
+    // val newName: String,
+    // val updatedDescription: String?,
+)
+        """.trimIndent()
+
+    fun generateEvent(
+        packageName: String,
+        eventName: String,
+        aggregateName: String,
+    ): String =
+        """
+package $packageName.domain.event
+
+import java.time.Instant
+
+/**
+ * Event: $eventName
+ * TODO: Add the necessary fields for this event
+ */
+data class $eventName(
+    val aggregateId: String,
+    val occurredAt: Instant = Instant.now(),
+    // TODO: Add event-specific fields here
+    // Example:
+    // val previousName: String,
+    // val newName: String,
+    // val updatedDescription: String?,
+)
+        """.trimIndent()
+
+    fun generateProjector(
+        packageName: String,
+        projectorName: String,
+        eventName: String,
+        serviceName: String,
+    ): String {
+        val eventNameSnakeCase = eventName.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()
+        return """
+package $packageName.infrastructure.adapter.input.messaging
+
+import com.axians.eaf.eventing.NatsJetStreamListener
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
+
+/**
+ * $projectorName - Handles $eventName events to update read models or projections.
+ * This projector listens to NATS JetStream events and processes them accordingly.
+ */
+@Component
+class $projectorName {
+
+    private val logger = LoggerFactory.getLogger($projectorName::class.java)
+
+    /**
+     * Handles $eventName events.
+     * TODO: Implement the actual projection logic
+     */
+    @NatsJetStreamListener("events.${serviceName.replace("-", ".")}.$eventNameSnakeCase")
+    fun handle(event: $eventName) {
+        logger.info("Processing $eventName for aggregate: {}", event.aggregateId)
+
+        try {
+            // TODO: Implement projection logic here
+            // Examples:
+            // - Update read model in database
+            // - Send notification
+            // - Update search index
+            // - Generate reports
+
+            logger.debug("Successfully processed $eventName for aggregate: {}", event.aggregateId)
+        } catch (e: Exception) {
+            logger.error("Failed to process $eventName for aggregate: {}", event.aggregateId, e)
+            throw e // Re-throw to trigger NATS retry mechanism
+        }
+    }
+
+    // TODO: Add more event handlers as needed
+    // @NatsJetStreamListener("events.${serviceName.replace("-", ".")}.other_event")
+    // fun handleOtherEvent(event: OtherEvent) { ... }
+}
+
+/**
+ * Extension function to convert PascalCase to snake_case
+ */
+private fun String.toSnakeCase(): String =
+    this.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()
+            """.trimIndent()
+    }
 }

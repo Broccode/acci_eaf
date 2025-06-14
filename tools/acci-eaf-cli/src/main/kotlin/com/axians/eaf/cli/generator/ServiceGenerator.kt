@@ -99,7 +99,13 @@ class ServiceGenerator(
 
         // Generate main application class
         val applicationContent = templateEngine.generateApplication(packageName, className)
-        File(serviceDir, "src/main/kotlin/$packagePath/${className}ServiceApplication.kt").writeText(applicationContent)
+        val applicationClassName =
+            if (className.endsWith("Service")) {
+                "${className}Application"
+            } else {
+                "${className}ServiceApplication"
+            }
+        File(serviceDir, "src/main/kotlin/$packagePath/$applicationClassName.kt").writeText(applicationContent)
 
         // Generate sample controller
         val controllerContent = templateEngine.generateSampleController(packageName, className)
