@@ -16,7 +16,6 @@ const sidebars: SidebarsConfig = {
   // ACCI EAF Documentation Sidebar
   tutorialSidebar: [
     'index',
-    'intro',
     'getting-started',
     {
       type: 'category',
@@ -25,8 +24,11 @@ const sidebars: SidebarsConfig = {
         'architectural-principles/index',
         'architectural-principles/ddd',
         'architectural-principles/hexagonal',
+        'architectural-principles/hexagonal-architecture-guide',
         'architectural-principles/cqrs-es',
+        'architectural-principles/eaf-eventsourcing-sdk',
         'architectural-principles/tdd',
+        'architectural-principles/testing-strategy',
       ],
     },
     {
@@ -48,27 +50,6 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'UI Foundation Kit',
       items: ['ui-foundation-kit/index'],
-    },
-    {
-      type: 'category',
-      label: 'Tutorial Examples',
-      items: [
-        'tutorial-basics/running-nats',
-        'tutorial-basics/create-a-document',
-        'tutorial-basics/create-a-page',
-        'tutorial-basics/create-a-blog-post',
-        'tutorial-basics/markdown-features',
-        'tutorial-basics/deploy-your-site',
-        'tutorial-basics/congratulations',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Advanced Guides',
-      items: [
-        'tutorial-extras/manage-docs-versions',
-        'tutorial-extras/translate-your-site',
-      ],
     },
   ],
 };
