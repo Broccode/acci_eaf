@@ -577,4 +577,4 @@ For more guidance, see:
 - [Hexagonal Architecture Guide](/architectural-principles/hexagonal-architecture-guide)
 - [Testing Strategy](/architectural-principles/testing-strategy)
 - [TDD Principles](/architectural-principles/tdd)
-- [CQRS/ES Architecture](/architectural-principles/cqrs-es-architecture)
+- [CQRS/ES Architecture](/architectural-principles/cqrs-es)
