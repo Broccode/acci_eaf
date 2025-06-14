@@ -37,10 +37,98 @@ class SecurityContextElement(
 }
 
 /**
+ * A coroutine context element that propagates correlation IDs.
+ * This ensures that correlation IDs are available in child coroutines for distributed tracing.
+ */
+class CorrelationIdElement(
+    private val correlationId: String? = CorrelationIdManager.getCurrentCorrelationIdOrNull(),
+) : ThreadContextElement<String?> {
+    companion object Key : CoroutineContext.Key<CorrelationIdElement>
+
+    override val key: CoroutineContext.Key<CorrelationIdElement> = Key
+
+    override fun updateThreadContext(context: CoroutineContext): String? {
+        val previousCorrelationId = CorrelationIdManager.getCurrentCorrelationIdOrNull()
+        if (correlationId != null) {
+            CorrelationIdManager.setCorrelationId(correlationId)
+        }
+        return previousCorrelationId
+    }
+
+    override fun restoreThreadContext(
+        context: CoroutineContext,
+        oldState: String?,
+    ) {
+        if (oldState != null) {
+            CorrelationIdManager.setCorrelationId(oldState)
+        } else {
+            CorrelationIdManager.clearCorrelationId()
+        }
+    }
+}
+
+/**
+ * A combined coroutine context element that propagates both security context and correlation ID.
+ * This is the recommended way to propagate EAF context in coroutines.
+ */
+class EafContextElement(
+    private val securityContext: SecurityContext = SecurityContextHolder.getContext(),
+    private val correlationId: String = CorrelationIdManager.getCurrentCorrelationId(),
+) : ThreadContextElement<EafContextElement.State?> {
+    data class State(
+        val securityContext: SecurityContext?,
+        val correlationId: String?,
+    )
+
+    companion object Key : CoroutineContext.Key<EafContextElement>
+
+    override val key: CoroutineContext.Key<EafContextElement> = Key
+
+    override fun updateThreadContext(context: CoroutineContext): State? {
+        val previousSecurityContext = SecurityContextHolder.getContext()
+        val previousCorrelationId = CorrelationIdManager.getCurrentCorrelationIdOrNull()
+
+        SecurityContextHolder.setContext(securityContext)
+        if (correlationId != null) {
+            CorrelationIdManager.setCorrelationId(correlationId)
+        }
+
+        return State(previousSecurityContext, previousCorrelationId)
+    }
+
+    override fun restoreThreadContext(
+        context: CoroutineContext,
+        oldState: State?,
+    ) {
+        if (oldState?.securityContext != null) {
+            SecurityContextHolder.setContext(oldState.securityContext)
+        } else {
+            SecurityContextHolder.clearContext()
+        }
+
+        if (oldState?.correlationId != null) {
+            CorrelationIdManager.setCorrelationId(oldState.correlationId)
+        } else {
+            CorrelationIdManager.clearCorrelationId()
+        }
+    }
+}
+
+/**
  * Extension function to get the current security context element from the coroutine context.
  */
 fun CoroutineContext.securityContext(): SecurityContextElement =
     this[SecurityContextElement] ?: SecurityContextElement()
+
+/**
+ * Extension function to get the current correlation ID element from the coroutine context.
+ */
+fun CoroutineContext.correlationIdContext(): CorrelationIdElement = this[CorrelationIdElement] ?: CorrelationIdElement()
+
+/**
+ * Extension function to get the current EAF context element from the coroutine context.
+ */
+fun CoroutineContext.eafContext(): EafContextElement = this[EafContextElement] ?: EafContextElement()
 
 /**
  * Creates a new SecurityContextElement with the current Spring Security context.
@@ -49,21 +137,32 @@ fun CoroutineContext.securityContext(): SecurityContextElement =
 fun currentSecurityContextElement(): SecurityContextElement = SecurityContextElement(SecurityContextHolder.getContext())
 
 /**
- * Executes the given block with the current security context propagated to the coroutine.
- * This is a convenience function that automatically includes the security context.
+ * Creates a new EafContextElement with the current security context and correlation ID.
+ * This is the recommended way to propagate EAF context to coroutines.
+ */
+fun currentEafContextElement(): EafContextElement =
+    EafContextElement(
+        SecurityContextHolder.getContext(),
+        CorrelationIdManager.getCurrentCorrelationId(),
+    )
+
+/**
+ * Executes the given block with the current EAF context (security context + correlation ID) propagated to the coroutine.
+ * This is a convenience function that automatically includes both security context and correlation ID.
  *
  * Example usage:
  * ```kotlin
  * withEafContext {
- *     // Security context is automatically available here
+ *     // Security context and correlation ID are automatically available here
  *     val tenantId = eafSecurityContextHolder.getTenantId()
+ *     val correlationId = CorrelationIdManager.getCurrentCorrelationId()
  *     // ... async operations
  * }
  * ```
  */
 suspend fun <T> withEafContext(block: suspend () -> T): T {
-    val securityElement = currentSecurityContextElement()
-    return withContext(coroutineContext + securityElement) {
+    val eafElement = currentEafContextElement()
+    return withContext(coroutineContext + eafElement) {
         block()
     }
 }
@@ -74,8 +173,9 @@ suspend fun <T> withEafContext(block: suspend () -> T): T {
  * Example usage:
  * ```kotlin
  * withEafContext(Dispatchers.IO) {
- *     // Security context + IO dispatcher
+ *     // Security context + correlation ID + IO dispatcher
  *     val tenantId = eafSecurityContextHolder.getTenantId()
+ *     val correlationId = CorrelationIdManager.getCurrentCorrelationId()
  *     // ... IO operations
  * }
  * ```
@@ -84,8 +184,8 @@ suspend fun <T> withEafContext(
     context: CoroutineContext,
     block: suspend () -> T,
 ): T {
-    val securityElement = currentSecurityContextElement()
-    return withContext(coroutineContext + context + securityElement) {
+    val eafElement = currentEafContextElement()
+    return withContext(coroutineContext + context + eafElement) {
         block()
     }
 }
@@ -101,3 +201,15 @@ suspend fun <T> withEafContext(
  * ```
  */
 fun CoroutineContext.withSecurityContext(): CoroutineContext = this + currentSecurityContextElement()
+
+/**
+ * Extension function to easily add EAF context (security + correlation ID) to any CoroutineContext.
+ *
+ * Example usage:
+ * ```kotlin
+ * launch(Dispatchers.IO + eafContext()) {
+ *     // Security context and correlation ID are propagated
+ * }
+ * ```
+ */
+fun CoroutineContext.withEafContext(): CoroutineContext = this + currentEafContextElement()

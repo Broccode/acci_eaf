@@ -1,5 +1,6 @@
 package com.axians.eaf.iam.web
 
+import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateTenantCommand
 import com.axians.eaf.iam.application.port.inbound.CreateTenantResult
 import com.axians.eaf.iam.application.port.inbound.CreateTenantUseCase
@@ -13,12 +14,18 @@ import org.springframework.http.HttpStatus
 
 class TenantControllerTest {
     private lateinit var createTenantUseCase: CreateTenantUseCase
+    private lateinit var securityContextHolder: EafSecurityContextHolder
     private lateinit var tenantController: TenantController
 
     @BeforeEach
     fun setUp() {
         createTenantUseCase = mockk()
-        tenantController = TenantController(createTenantUseCase)
+        securityContextHolder = mockk()
+        tenantController = TenantController(createTenantUseCase, securityContextHolder)
+
+        // Setup default security context for SUPERADMIN role
+        every { securityContextHolder.hasRole("SUPERADMIN") } returns true
+        every { securityContextHolder.isAuthenticated() } returns true
     }
 
     @Test

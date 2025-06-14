@@ -150,40 +150,35 @@ Use appropriate Gradle configurations:
 ### Context Propagation Patterns
 
 Context propagation is critical for maintaining security context, correlation IDs, and other
-essential information across asynchronous operations and distributed message processing.
+essential information across asynchronous operations and distributed message processing. Due to the
+nature of Kotlin Coroutines, which can "hop" between threads, standard `ThreadLocal` variables are
+unreliable for this task.
+
+The EAF provides a robust, coroutine-aware solution using the `ThreadContextElement` pattern. This
+is the **only** officially supported way to ensure context is propagated correctly.
 
 #### Mandatory Context Propagation Rules
 
-1. **Always Use Context Propagation in Async Code:**
+1. **Always Wrap Coroutine Launches with a Context Element:** Any new coroutine that needs access to
+   the EAF context **must** be wrapped. The `withEafContext { ... }` helper is the simplest way to
+   do this.
 
    ```kotlin
-   // ✅ Correct - Context is propagated
+   // ✅ Correct - Context is propagated via ThreadContextElement
    withEafContext {
        launch {
-           // Security context and correlation ID available
+           // Security context and correlation ID available here
        }
    }
 
-   // ❌ Wrong - Context is lost
+   // ❌ Wrong - Context will be lost as soon as the coroutine switches threads
    launch {
-       // No security context or correlation ID
+       // No security context or correlation ID here
    }
    ```
 
-2. **Establish Correlation IDs at Service Boundaries:**
-
-   ```kotlin
-   @RestController
-   class MyController {
-       @PostMapping("/api/endpoint")
-       fun handleRequest() {
-           CorrelationIdManager.withNewCorrelationId {
-               // All subsequent operations share this correlation ID
-               myService.processRequest()
-           }
-       }
-   }
-   ```
+2. **Establish Correlation IDs at Service Boundaries:** Inbound adapters (e.g., REST controllers,
+   NATS consumers) are responsible for creating the initial correlation ID.
 
 3. **Use Structured Logging with Context:**
 
@@ -224,6 +219,54 @@ consistently:
 ### Overall Testing Strategy
 
 Testing is a cornerstone of ACCI EAF, with TDD being mandatory.
+
+This project follows the principles of the **Testing Pyramid**, which emphasizes a healthy balance
+of different test types to optimize for speed, stability, and confidence.
+
+```mermaid
+graph TD
+    subgraph "Testing Pyramid"
+        direction TB
+        E2E["End-to-End (E2E) Tests"]
+        Service["Service & Integration Tests"]
+        Component["Component Tests"]
+        Unit["Unit Tests"]
+    end
+
+    style E2E fill:#d32f2f,stroke:#c62828,color:#fff
+    style Service fill:#f57f17,stroke:#ef6c00,color:#fff
+    style Component fill:#fbc02d,stroke:#f9a825,color:#333
+    style Unit fill:#388e3c,stroke:#2e7d32,color:#fff
+
+    E2E -->|Few, Slow, High-Fidelity| Service
+    Service -->|More, Slower| Component
+    Component -->|Many, Fast| Unit
+    Unit -->|Foundation, Fastest| Z(Code)
+
+    style Z fill:#fff,stroke:#fff
+```
+
+- **Unit Tests (Foundation):** The largest group of tests. They are fast, isolated, and verify
+  individual classes or functions. **MockK** is the primary tool here.
+- **Component & Service Integration Tests (Middle):** These tests verify the interaction between
+  several components or an entire service layer. They may use a mix of real objects and mocks.
+  **MockK** is used to isolate external dependencies like databases or message brokers. The
+  refactored NATS test is a perfect example of this layer.
+- **End-to-End (E2E) Tests (Peak):** The smallest group of tests. They are slower but provide the
+  highest confidence by testing a complete user flow through the system. **Testcontainers** is the
+  ideal tool for this layer, spinning up real dependencies like PostgreSQL and NATS.
+
+#### When to Use MockK vs. Testcontainers
+
+| Test Objective                                          | Recommended Tool   | Scope              | Speed        | Fidelity          |
+| ------------------------------------------------------- | ------------------ | ------------------ | ------------ | ----------------- |
+| **Verify Business Logic** (e.g., in a Domain Service)   | **MockK**          | Unit/Component     | Milliseconds | Low (Mocked)      |
+| **Verify Component Interaction/Contract**               | **MockK / Pact**   | Component/Service  | Milliseconds | Medium (Contract) |
+| **Verify System with a Real Infrastructure Dependency** | **Testcontainers** | Service/System     | Seconds      | High (Real)       |
+| **Verify Full User/API Flow Across Services**           | **Testcontainers** | System/Application | Minutes      | Very High (Full)  |
+
+By adhering to this strategy, we optimize our test suite for a balance of speed, stability, and
+confidence, using the right tool for the right job.
 
 ### Test-Driven Development (TDD) Workflow
 

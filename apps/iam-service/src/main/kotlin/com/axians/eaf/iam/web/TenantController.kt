@@ -1,5 +1,6 @@
 package com.axians.eaf.iam.web
 
+import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateTenantCommand
 import com.axians.eaf.iam.application.port.inbound.CreateTenantUseCase
 import jakarta.validation.Valid
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api/v1/tenants")
 class TenantController(
     private val createTenantUseCase: CreateTenantUseCase,
+    private val securityContextHolder: EafSecurityContextHolder,
 ) {
     @PostMapping
     @PreAuthorize("hasRole('ROLE_SUPERADMIN')")

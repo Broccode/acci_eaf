@@ -1,5 +1,7 @@
 package com.axians.eaf.iam.infrastructure.config
 
+import com.axians.eaf.core.security.DefaultEafSecurityContextHolder
+import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -31,6 +33,9 @@ import org.springframework.security.web.access.AccessDeniedHandler
 class SecurityConfig {
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+
+    @Bean
+    fun eafSecurityContextHolder(): EafSecurityContextHolder = DefaultEafSecurityContextHolder()
 
     @Bean
     fun userDetailsService(passwordEncoder: PasswordEncoder): UserDetailsService {

@@ -1,5 +1,6 @@
 package com.axians.eaf.iam.web
 
+import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateUserCommand
 import com.axians.eaf.iam.application.port.inbound.CreateUserUseCase
 import com.axians.eaf.iam.application.port.inbound.ListUsersInTenantQuery
@@ -30,7 +31,22 @@ class UserController(
     private val createUserUseCase: CreateUserUseCase,
     private val listUsersInTenantUseCase: ListUsersInTenantUseCase,
     private val updateUserStatusUseCase: UpdateUserStatusUseCase,
+    private val securityContextHolder: EafSecurityContextHolder,
 ) {
+    /**
+     * Validates that the authenticated user can access the specified tenant.
+     * @param tenantId the tenant ID from the path parameter
+     * @throws IllegalArgumentException if the user cannot access the tenant
+     */
+    private fun validateTenantAccess(tenantId: String) {
+        val authenticatedTenantId = securityContextHolder.getTenantId()
+        if (authenticatedTenantId != tenantId) {
+            throw IllegalArgumentException(
+                "Access denied: User from tenant '$authenticatedTenantId' cannot access tenant '$tenantId'",
+            )
+        }
+    }
+
     /**
      * Create a new user within a tenant.
      * Only TENANT_ADMIN users can create new users.
@@ -41,6 +57,8 @@ class UserController(
         @PathVariable tenantId: String,
         @Valid @RequestBody request: CreateUserRequest,
     ): ResponseEntity<CreateUserResponse> {
+        validateTenantAccess(tenantId)
+
         val command =
             CreateUserCommand(
                 tenantId = tenantId,
@@ -69,6 +87,8 @@ class UserController(
     fun listUsers(
         @PathVariable tenantId: String,
     ): ResponseEntity<ListUsersResponse> {
+        validateTenantAccess(tenantId)
+
         val query = ListUsersInTenantQuery(tenantId = tenantId)
         val result = listUsersInTenantUseCase.listUsers(query)
 
@@ -100,6 +120,8 @@ class UserController(
         @PathVariable userId: String,
         @Valid @RequestBody request: UpdateUserStatusRequest,
     ): ResponseEntity<UpdateUserStatusResponse> {
+        validateTenantAccess(tenantId)
+
         val command =
             UpdateUserStatusCommand(
                 tenantId = tenantId,

@@ -1,5 +1,6 @@
 package com.axians.eaf.iam.web
 
+import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateUserCommand
 import com.axians.eaf.iam.application.port.inbound.CreateUserResult
 import com.axians.eaf.iam.application.port.inbound.CreateUserUseCase
@@ -15,17 +16,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.UUID
@@ -45,11 +46,21 @@ class UserControllerTest {
     @MockkBean
     private lateinit var updateUserStatusUseCase: UpdateUserStatusUseCase
 
+    @MockkBean
+    private lateinit var securityContextHolder: EafSecurityContextHolder
+
     @Autowired
     private lateinit var objectMapper: ObjectMapper
 
+    @BeforeEach
+    fun setUp() {
+        // Setup default security context for TENANT_ADMIN role
+        every { securityContextHolder.getTenantId() } returns "tenant-123"
+        every { securityContextHolder.hasRole("TENANT_ADMIN") } returns true
+        every { securityContextHolder.isAuthenticated() } returns true
+    }
+
     @Test
-    @WithMockUser(authorities = ["ROLE_TENANT_ADMIN"])
     fun `should create user successfully when valid request provided`() {
         // Given
         val request =
@@ -78,6 +89,7 @@ class UserControllerTest {
         mockMvc
             .perform(
                 post("/api/v1/tenants/tenant-123/users")
+                    .with(user("testuser").roles("TENANT_ADMIN"))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)),
             ).andExpect(status().isCreated)
@@ -91,7 +103,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = ["ROLE_TENANT_ADMIN"])
     fun `should list users for tenant successfully`() {
         // Given
         val query = ListUsersInTenantQuery(tenantId = "tenant-123")
@@ -109,8 +120,10 @@ class UserControllerTest {
 
         // When & Then
         mockMvc
-            .perform(get("/api/v1/tenants/tenant-123/users"))
-            .andExpect(status().isOk)
+            .perform(
+                get("/api/v1/tenants/tenant-123/users")
+                    .with(user("testuser").roles("TENANT_ADMIN")),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.tenantId").value("tenant-123"))
             .andExpect(jsonPath("$.users").isArray)
             .andExpect(jsonPath("$.users[0].userId").value("user-456"))
@@ -123,7 +136,6 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = ["ROLE_TENANT_ADMIN"])
     fun `should update user status successfully when valid request provided`() {
         // Given
         val command =
@@ -148,6 +160,7 @@ class UserControllerTest {
         mockMvc
             .perform(
                 put("/api/v1/tenants/tenant-123/users/user-456/status")
+                    .with(user("testuser").roles("TENANT_ADMIN"))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(mapOf("newStatus" to "INACTIVE"))),
             ).andExpect(status().isOk)
@@ -162,11 +175,28 @@ class UserControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = ["ROLE_TENANT_USER"])
     fun `should return forbidden when user has insufficient privileges`() {
+        // Given - User without TENANT_ADMIN role
+        every { securityContextHolder.hasRole("TENANT_ADMIN") } returns false
+
         // When & Then
         mockMvc
-            .perform(get("/api/v1/tenants/tenant-123/users"))
-            .andExpect(status().isForbidden)
+            .perform(
+                get("/api/v1/tenants/tenant-123/users")
+                    .with(user("testuser").roles("USER")),
+            ).andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `should reject access to different tenant`() {
+        // Given - User authenticated for different tenant
+        every { securityContextHolder.getTenantId() } returns "user-tenant"
+
+        // When & Then
+        mockMvc
+            .perform(
+                get("/api/v1/tenants/different-tenant/users")
+                    .with(user("testuser").roles("TENANT_ADMIN")),
+            ).andExpect(status().isBadRequest)
     }
 }

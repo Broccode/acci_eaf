@@ -1,5 +1,6 @@
 package com.axians.eaf.eventing
 
+import com.axians.eaf.core.security.CorrelationIdManager
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import io.nats.client.api.PublishAck
 import org.slf4j.LoggerFactory
@@ -93,20 +94,11 @@ class ContextAwareNatsEventPublisher(
             enrichedMetadata[USER_ID_HEADER] = userId
         }
 
-        // Add correlation ID for tracing (could be enhanced with actual correlation ID from request)
+        // Add correlation ID for tracing
         if (!enrichedMetadata.containsKey(CORRELATION_ID_HEADER)) {
-            enrichedMetadata[CORRELATION_ID_HEADER] = generateCorrelationId()
+            enrichedMetadata[CORRELATION_ID_HEADER] = CorrelationIdManager.getCurrentCorrelationId()
         }
 
         return enrichedMetadata
     }
-
-    /**
-     * Generates a simple correlation ID. In a real implementation, this might
-     * extract an existing correlation ID from the request context.
-     */
-    private fun generateCorrelationId(): String =
-        java.util.UUID
-            .randomUUID()
-            .toString()
 }

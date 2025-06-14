@@ -1,5 +1,6 @@
 package com.axians.eaf.eventing.consumer
 
+import com.axians.eaf.core.security.CorrelationIdManager
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.core.security.HasTenantId
 import com.axians.eaf.core.security.HasUserId
@@ -51,13 +52,20 @@ class ContextAwareMessageProcessor {
             )
         }
 
+        // Establish correlation ID if available
+        eafContext.correlationId?.let { correlationId ->
+            CorrelationIdManager.setCorrelationId(correlationId)
+            logger.debug("Established correlation ID for message processing: {}", correlationId)
+        }
+
         try {
-            // Process the message with security context established
+            // Process the message with security context and correlation ID established
             processor()
         } finally {
-            // Always clear security context after processing
+            // Always clear security context and correlation ID after processing
             SecurityContextHolder.clearContext()
-            logger.debug("Cleared security context after message processing")
+            CorrelationIdManager.clearCorrelationId()
+            logger.debug("Cleared security context and correlation ID after message processing")
         }
     }
 
