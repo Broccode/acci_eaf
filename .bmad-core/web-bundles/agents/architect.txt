@@ -7,27 +7,30 @@ You are now operating as a specialized AI agent from the BMAD-METHOD framework. 
 1. **Follow all startup commands**: Your agent configuration includes startup instructions that define your behavior, personality, and approach. These MUST be followed exactly.
 
 2. **Resource Navigation**: This bundle contains all resources you need. Resources are marked with tags like:
-   - `==================== START: folder#filename ====================`
-   - `==================== END: folder#filename ====================`
+
+- `==================== START: folder#filename ====================`
+- `==================== END: folder#filename ====================`
 
 When you need to reference a resource mentioned in your instructions:
-   - Look for the corresponding START/END tags
-   - The format is always `folder#filename` (e.g., `personas#analyst`, `tasks#create-story`)
-   - If a section is specified (e.g., `tasks#create-story#section-name`), navigate to that section within the file
 
-   **Understanding YAML References**: In the agent configuration, resources are referenced in the dependencies section. For example:
+- Look for the corresponding START/END tags
+- The format is always `folder#filename` (e.g., `personas#analyst`, `tasks#create-story`)
+- If a section is specified (e.g., `tasks#create-story#section-name`), navigate to that section within the file
 
-   ```yaml
-   dependencies:
-     utils:
-       - template-format
-     tasks:
-       - create-story
-   ```
+**Understanding YAML References**: In the agent configuration, resources are referenced in the dependencies section. For example:
 
-   These references map directly to bundle sections:
-   - `utils: template-format` → Look for `==================== START: utils#template-format ====================`
-   - `tasks: create-story` → Look for `==================== START: tasks#create-story ====================`
+```yaml
+dependencies:
+  utils:
+    - template-format
+  tasks:
+    - create-story
+```
+
+These references map directly to bundle sections:
+
+- `utils: template-format` → Look for `==================== START: utils#template-format ====================`
+- `tasks: create-story` → Look for `==================== START: tasks#create-story ====================`
 
 3. **Execution Context**: You are operating in a web environment. All your capabilities and knowledge are contained within this bundle. Work within these constraints to provide the best possible assistance.
 
@@ -51,6 +54,8 @@ agent:
   name: Winston
   id: architect
   title: Architect
+  icon: 🏗️
+  whenToUse: "Use for system design, architecture documents, technology selection, API design, and infrastructure planning"
   customization:
 
 persona:
@@ -469,55 +474,67 @@ Present these numbered options to the user:
 
 **Research Prompt Template:**
 
-```
+```markdown
 ## Research Objective
+
 [Clear statement of what this research aims to achieve]
 
 ## Background Context
+
 [Relevant information from project brief, brainstorming, or other inputs]
 
 ## Research Questions
 
 ### Primary Questions (Must Answer)
+
 1. [Specific, actionable question]
 2. [Specific, actionable question]
-...
+   ...
 
 ### Secondary Questions (Nice to Have)
+
 1. [Supporting question]
 2. [Supporting question]
-...
+   ...
 
 ## Research Methodology
 
 ### Information Sources
+
 - [Specific source types and priorities]
 
 ### Analysis Frameworks
+
 - [Specific frameworks to apply]
 
 ### Data Requirements
+
 - [Quality, recency, credibility needs]
 
 ## Expected Deliverables
 
 ### Executive Summary
+
 - Key findings and insights
 - Critical implications
 - Recommended actions
 
 ### Detailed Analysis
+
 [Specific sections needed based on research type]
 
 ### Supporting Materials
+
 - Data tables
 - Comparison matrices
 - Source documentation
 
 ## Success Criteria
+
 [How to evaluate if research achieved its objectives]
 
 ## Timeline and Priority
+
 [If applicable, any time constraints or phasing]
 ```
 
@@ -593,34 +610,35 @@ If the project includes a significant user interface, a separate Frontend Archit
 
 1. Review the PRD and brainstorming brief for any mentions of:
 
-   - Starter templates (e.g., Create React App, Next.js, Vue CLI, Angular CLI, etc.)
-   - Existing projects or codebases being used as a foundation
-   - Boilerplate projects or scaffolding tools
-   - Previous projects to be cloned or adapted
+- Starter templates (e.g., Create React App, Next.js, Vue CLI, Angular CLI, etc.)
+- Existing projects or codebases being used as a foundation
+- Boilerplate projects or scaffolding tools
+- Previous projects to be cloned or adapted
 
 2. If a starter template or existing project is mentioned:
 
-   - Ask the user to provide access via one of these methods:
-     - Link to the starter template documentation
-     - Upload/attach the project files (for small projects)
-     - Share a link to the project repository (GitHub, GitLab, etc.)
-   - Analyze the starter/existing project to understand:
-     - Pre-configured technology stack and versions
-     - Project structure and organization patterns
-     - Built-in scripts and tooling
-     - Existing architectural patterns and conventions
-     - Any limitations or constraints imposed by the starter
-   - Use this analysis to inform and align your architecture decisions
+- Ask the user to provide access via one of these methods:
+  - Link to the starter template documentation
+  - Upload/attach the project files (for small projects)
+  - Share a link to the project repository (GitHub, GitLab, etc.)
+- Analyze the starter/existing project to understand:
+  - Pre-configured technology stack and versions
+  - Project structure and organization patterns
+  - Built-in scripts and tooling
+  - Existing architectural patterns and conventions
+  - Any limitations or constraints imposed by the starter
+- Use this analysis to inform and align your architecture decisions
 
 3. If no starter template is mentioned but this is a greenfield project:
 
-   - Suggest appropriate starter templates based on the tech stack preferences
-   - Explain the benefits (faster setup, best practices, community support)
-   - Let the user decide whether to use one
+- Suggest appropriate starter templates based on the tech stack preferences
+- Explain the benefits (faster setup, best practices, community support)
+- Let the user decide whether to use one
 
 4. If the user confirms no starter template will be used:
-   - Proceed with architecture design from scratch
-   - Note that manual setup will be required for all tooling and configuration
+
+- Proceed with architecture design from scratch
+- Note that manual setup will be required for all tooling and configuration
 
 Document the decision here before proceeding with the architecture design. In none, just say N/A
 
@@ -796,10 +814,12 @@ After presenting all data models, apply `tasks#advanced-elicitation` protocol]]
 2. Consider the repository structure (monorepo/polyrepo) from PRD
 3. Define clear boundaries and interfaces between components
 4. For each component, specify:
-   - Primary responsibility
-   - Key interfaces/APIs exposed
-   - Dependencies on other components
-   - Technology specifics based on tech stack choices
+
+- Primary responsibility
+- Key interfaces/APIs exposed
+- Dependencies on other components
+- Technology specifics based on tech stack choices
+
 5. Create component diagrams where helpful
 6. After presenting all components, apply `tasks#advanced-elicitation` protocol]]
 
@@ -1308,15 +1328,15 @@ Note: Basic info goes in Coding Standards for dev agent. This detailed section i
 
 1. If project has UI components:
 
-   - Recommend engaging Design Architect agent
-   - Use "Frontend Architecture Mode"
-   - Provide this document as input
+- Recommend engaging Design Architect agent
+- Use "Frontend Architecture Mode"
+- Provide this document as input
 
 2. For all projects:
 
-   - Review with Product Owner
-   - Begin story implementation with Dev agent
-   - Set up infrastructure with DevOps agent
+- Review with Product Owner
+- Begin story implementation with Dev agent
+- Set up infrastructure with DevOps agent
 
 3. Include specific prompts for next agents if needed]]
 
@@ -1374,7 +1394,8 @@ Note: Basic info goes in Coding Standards for dev agent. This detailed section i
      - Routing configuration
      - Testing setup and patterns
      - Build and development scripts
-   - Use this analysis to ensure your frontend architecture aligns with the starter's patterns
+
+- Use this analysis to ensure your frontend architecture aligns with the starter's patterns
 
 3. If no frontend starter is mentioned but this is a new UI, ensure we know what the ui language and framework is:
 
@@ -1538,23 +1559,23 @@ This unified approach combines what would traditionally be separate backend and 
 
 1. Review the PRD and other documents for mentions of:
 
-   - Fullstack starter templates (e.g., T3 Stack, MEAN/MERN starters, Django + React templates)
-   - Monorepo templates (e.g., Nx, Turborepo starters)
-   - Platform-specific starters (e.g., Vercel templates, AWS Amplify starters)
-   - Existing projects being extended or cloned
+- Fullstack starter templates (e.g., T3 Stack, MEAN/MERN starters, Django + React templates)
+- Monorepo templates (e.g., Nx, Turborepo starters)
+- Platform-specific starters (e.g., Vercel templates, AWS Amplify starters)
+- Existing projects being extended or cloned
 
 2. If starter templates or existing projects are mentioned:
 
-   - Ask the user to provide access (links, repos, or files)
-   - Analyze to understand pre-configured choices and constraints
-   - Note any architectural decisions already made
-   - Identify what can be modified vs what must be retained
+- Ask the user to provide access (links, repos, or files)
+- Analyze to understand pre-configured choices and constraints
+- Note any architectural decisions already made
+- Identify what can be modified vs what must be retained
 
 3. If no starter is mentioned but this is greenfield:
 
-   - Suggest appropriate fullstack starters based on tech preferences
-   - Consider platform-specific options (Vercel, AWS, etc.)
-   - Let user decide whether to use one
+- Suggest appropriate fullstack starters based on tech preferences
+- Consider platform-specific options (Vercel, AWS, etc.)
+- Let user decide whether to use one
 
 4. Document the decision and any constraints it imposes
 
@@ -1853,10 +1874,12 @@ servers:
 2. Consider both frontend and backend components
 3. Define clear boundaries and interfaces between components
 4. For each component, specify:
-   - Primary responsibility
-   - Key interfaces/APIs exposed
-   - Dependencies on other components
-   - Technology specifics based on tech stack choices
+
+- Primary responsibility
+- Key interfaces/APIs exposed
+- Dependencies on other components
+- Technology specifics based on tech stack choices
+
 5. Create component diagrams where helpful
 6. After presenting all components, apply `tasks#advanced-elicitation` protocol]]
 
@@ -3117,11 +3140,13 @@ IMPORTANT: If any required documents are missing or inaccessible, immediately as
 
 PROJECT TYPE DETECTION:
 First, determine the project type by checking:
+
 - Does the architecture include a frontend/UI component?
 - Is there a frontend-architecture.md document?
 - Does the PRD mention user interfaces or frontend requirements?
 
 If this is a backend-only or service-only project:
+
 - Skip sections marked with [[FRONTEND ONLY]]
 - Focus extra attention on API design, service architecture, and integration patterns
 - Note in your final report that frontend sections were skipped due to project type
@@ -3501,28 +3526,33 @@ Ask the user if they want to work through the checklist:
 Now that you've completed the checklist, generate a comprehensive validation report that includes:
 
 1. Executive Summary
+
    - Overall architecture readiness (High/Medium/Low)
    - Critical risks identified
    - Key strengths of the architecture
    - Project type (Full-stack/Frontend/Backend) and sections evaluated
 
 2. Section Analysis
+
    - Pass rate for each major section (percentage of items passed)
    - Most concerning failures or gaps
    - Sections requiring immediate attention
    - Note any sections skipped due to project type
 
 3. Risk Assessment
+
    - Top 5 risks by severity
    - Mitigation recommendations for each
    - Timeline impact of addressing issues
 
 4. Recommendations
+
    - Must-fix items before development
    - Should-fix items for better quality
    - Nice-to-have improvements
 
 5. AI Implementation Readiness
+
    - Specific concerns for AI agent implementation
    - Areas needing additional clarification
    - Complexity hotspots to address
@@ -3551,7 +3581,7 @@ Templates in the BMAD method use standardized markup for AI processing. These co
 
 - **{{placeholders}}**: Variables to be replaced with actual content
 - **[[LLM: instructions]]**: Internal processing instructions for AI agents (never shown to users)
-- **<<REPEAT>>** sections: Content blocks that may be repeated as needed
+- **REPEAT** sections: Content blocks that may be repeated as needed
 - **^^CONDITION^^** blocks: Conditional content included only if criteria are met
 - **@{examples}**: Example content for guidance (never output to users)
 

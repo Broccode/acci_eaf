@@ -9,6 +9,7 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 [[LLM: Begin by understanding the brainstorming context and goals. Ask clarifying questions if needed to determine the best approach.]]
 
 1. **Establish Context**
+
    - Understand the problem space or opportunity area
    - Identify any constraints or parameters
    - Determine session goals (divergent exploration vs. focused ideation)
@@ -25,6 +26,7 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 1. **"What If" Scenarios**
    [[LLM: Generate provocative what-if questions that challenge assumptions and expand thinking beyond current limitations.]]
+
    - What if we had unlimited resources?
    - What if this problem didn't exist?
    - What if we approached this from a child's perspective?
@@ -32,6 +34,7 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 2. **Analogical Thinking**
    [[LLM: Help user draw parallels between their challenge and other domains, industries, or natural systems.]]
+
    - "How might this work like [X] but for [Y]?"
    - Nature-inspired solutions (biomimicry)
    - Cross-industry pattern matching
@@ -39,6 +42,7 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 3. **Reversal/Inversion**
    [[LLM: Flip the problem or approach it from the opposite angle to reveal new insights.]]
+
    - What if we did the exact opposite?
    - How could we make this problem worse? (then reverse)
    - Start from the end goal and work backward
@@ -55,6 +59,7 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 1. **SCAMPER Method**
    [[LLM: Guide through each SCAMPER prompt systematically.]]
+
    - **S** = Substitute: What can be substituted?
    - **C** = Combine: What can be combined or integrated?
    - **A** = Adapt: What can be adapted from elsewhere?
@@ -65,6 +70,7 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 2. **Six Thinking Hats**
    [[LLM: Cycle through different thinking modes, spending focused time in each.]]
+
    - White Hat: Facts and information
    - Red Hat: Emotions and intuition
    - Black Hat: Caution and critical thinking
@@ -91,6 +97,7 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 1. **"Yes, And..." Building**
    [[LLM: Accept every idea and build upon it without judgment. Encourage wild ideas and defer criticism.]]
+
    - Accept the premise of each idea
    - Add to it with "Yes, and..."
    - Build chains of connected ideas
@@ -98,40 +105,43 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 2. **Brainwriting/Round Robin**
    [[LLM: Simulate multiple perspectives by generating ideas from different viewpoints.]]
+
    - Generate ideas from stakeholder perspectives
    - Build on previous ideas in rounds
    - Combine unrelated ideas
    - Cross-pollinate concepts
 
 3. **Random Stimulation**
-    [[LLM: Use random words, images, or concepts as creative triggers.]]
-    - Random word association
-    - Picture/metaphor inspiration
-    - Forced connections between unrelated items
-    - Constraint-based creativity
+   [[LLM: Use random words, images, or concepts as creative triggers.]]
+   - Random word association
+   - Picture/metaphor inspiration
+   - Forced connections between unrelated items
+   - Constraint-based creativity
 
 #### Deep Exploration Techniques
 
 1. **Five Whys**
-    [[LLM: Dig deeper into root causes and underlying motivations.]]
-    - Why does this problem exist? → Answer → Why? (repeat 5 times)
-    - Uncover hidden assumptions
-    - Find root causes, not symptoms
-    - Identify intervention points
+   [[LLM: Dig deeper into root causes and underlying motivations.]]
+
+   - Why does this problem exist? → Answer → Why? (repeat 5 times)
+   - Uncover hidden assumptions
+   - Find root causes, not symptoms
+   - Identify intervention points
 
 2. **Morphological Analysis**
-    [[LLM: Break down into parameters and systematically explore combinations.]]
-    - List key parameters/dimensions
-    - Identify possible values for each
-    - Create combination matrix
-    - Explore unusual combinations
+   [[LLM: Break down into parameters and systematically explore combinations.]]
+
+   - List key parameters/dimensions
+   - Identify possible values for each
+   - Create combination matrix
+   - Explore unusual combinations
 
 3. **Provocation Technique (PO)**
-    [[LLM: Make deliberately provocative statements to jar thinking.]]
-    - PO: Cars have square wheels
-    - PO: Customers pay us to take products
-    - PO: The problem solves itself
-    - Extract useful ideas from provocations
+   [[LLM: Make deliberately provocative statements to jar thinking.]]
+   - PO: Cars have square wheels
+   - PO: Customers pay us to take products
+   - PO: The problem solves itself
+   - Extract useful ideas from provocations
 
 ### 3. Technique Selection Guide
 
@@ -172,16 +182,19 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 [[LLM: Guide the brainstorming session with appropriate pacing and technique transitions.]]
 
 1. **Warm-up Phase** (5-10 min)
+
    - Start with accessible techniques
    - Build creative confidence
    - Establish "no judgment" atmosphere
 
 2. **Divergent Phase** (20-30 min)
+
    - Use expansion techniques
    - Generate quantity over quality
    - Encourage wild ideas
 
 3. **Convergent Phase** (15-20 min)
+
    - Group and categorize ideas
    - Identify patterns and themes
    - Select promising directions

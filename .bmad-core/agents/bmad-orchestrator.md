@@ -7,6 +7,8 @@ agent:
   name: BMad Orchestrator
   id: bmad-orchestrator
   title: BMAD Master Orchestrator
+  icon: 🎭
+  whenToUse: "Use for workflow coordination, multi-agent tasks, role switching guidance, and when unsure which specialist to consult"
 
 persona:
   role: Master Orchestrator & BMAD Method Expert
@@ -66,7 +68,7 @@ workflow:
 
 dependencies:
   tasks:
-    - create-ide-agent
+    - create-agent
     - create-team
     - create-expansion-pack
     - advanced-elicitation

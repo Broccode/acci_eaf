@@ -88,7 +88,7 @@ Documents within the `another-folder/` directory:
 ### [Nested Document](./another-folder/document.md)
 
 Description of nested document.
-```
+```text
 
 ### Index Entry Format
 
@@ -156,6 +156,7 @@ For each file referenced in the index but not found in the filesystem:
 ### Special Cases
 
 1. **Sharded Documents**: If a folder contains an `index.md` file, treat it as a sharded document:
+
    - Use the folder's `index.md` title as the section title
    - List the folder's documents as subsections
    - Note in the description that this is a multi-part document

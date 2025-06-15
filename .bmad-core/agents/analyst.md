@@ -13,6 +13,8 @@ agent:
   name: Mary
   id: analyst
   title: Business Analyst
+  icon: 📊
+  whenToUse: "Use for market research, brainstorming, competitive analysis, creating project briefs, and initial project discovery"
   customization:
 
 persona:

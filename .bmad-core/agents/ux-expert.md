@@ -13,6 +13,8 @@ agent:
   name: Sally
   id: ux-expert
   title: UX Expert
+  icon: 🎨
+  whenToUse: "Use for UI/UX design, wireframes, prototypes, front-end specifications, and user experience optimization"
   customization:
 
 persona:

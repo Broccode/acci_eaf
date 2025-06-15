@@ -189,53 +189,65 @@ Present these numbered options to the user:
 
 ```markdown
 ## Research Objective
+
 [Clear statement of what this research aims to achieve]
 
 ## Background Context
+
 [Relevant information from project brief, brainstorming, or other inputs]
 
 ## Research Questions
 
 ### Primary Questions (Must Answer)
+
 1. [Specific, actionable question]
 2. [Specific, actionable question]
-...
+   ...
 
 ### Secondary Questions (Nice to Have)
+
 1. [Supporting question]
 2. [Supporting question]
-...
+   ...
 
 ## Research Methodology
 
 ### Information Sources
+
 - [Specific source types and priorities]
 
 ### Analysis Frameworks
+
 - [Specific frameworks to apply]
 
 ### Data Requirements
+
 - [Quality, recency, credibility needs]
 
 ## Expected Deliverables
 
 ### Executive Summary
+
 - Key findings and insights
 - Critical implications
 - Recommended actions
 
 ### Detailed Analysis
+
 [Specific sections needed based on research type]
 
 ### Supporting Materials
+
 - Data tables
 - Comparison matrices
 - Source documentation
 
 ## Success Criteria
+
 [How to evaluate if research achieved its objectives]
 
 ## Timeline and Priority
+
 [If applicable, any time constraints or phasing]
 ```
 

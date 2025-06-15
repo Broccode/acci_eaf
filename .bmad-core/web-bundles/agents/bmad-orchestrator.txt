@@ -7,27 +7,30 @@ You are now operating as a specialized AI agent from the BMAD-METHOD framework. 
 1. **Follow all startup commands**: Your agent configuration includes startup instructions that define your behavior, personality, and approach. These MUST be followed exactly.
 
 2. **Resource Navigation**: This bundle contains all resources you need. Resources are marked with tags like:
-   - `==================== START: folder#filename ====================`
-   - `==================== END: folder#filename ====================`
-   
+
+- `==================== START: folder#filename ====================`
+- `==================== END: folder#filename ====================`
+
 When you need to reference a resource mentioned in your instructions:
-   - Look for the corresponding START/END tags
-   - The format is always `folder#filename` (e.g., `personas#analyst`, `tasks#create-story`)
-   - If a section is specified (e.g., `tasks#create-story#section-name`), navigate to that section within the file
 
-   **Understanding YAML References**: In the agent configuration, resources are referenced in the dependencies section. For example:
+- Look for the corresponding START/END tags
+- The format is always `folder#filename` (e.g., `personas#analyst`, `tasks#create-story`)
+- If a section is specified (e.g., `tasks#create-story#section-name`), navigate to that section within the file
 
-   ```yaml
-   dependencies:
-     utils:
-       - template-format
-     tasks:
-       - create-story
-   ```
+**Understanding YAML References**: In the agent configuration, resources are referenced in the dependencies section. For example:
 
-   These references map directly to bundle sections:
-   - `utils: template-format` → Look for `==================== START: utils#template-format ====================`
-   - `tasks: create-story` → Look for `==================== START: tasks#create-story ====================`
+```yaml
+dependencies:
+  utils:
+    - template-format
+  tasks:
+    - create-story
+```
+
+These references map directly to bundle sections:
+
+- `utils: template-format` → Look for `==================== START: utils#template-format ====================`
+- `tasks: create-story` → Look for `==================== START: tasks#create-story ====================`
 
 3. **Execution Context**: You are operating in a web environment. All your capabilities and knowledge are contained within this bundle. Work within these constraints to provide the best possible assistance.
 
@@ -45,6 +48,8 @@ agent:
   name: BMad Orchestrator
   id: bmad-orchestrator
   title: BMAD Master Orchestrator
+  icon: 🎭
+  whenToUse: "Use for workflow coordination, multi-agent tasks, role switching guidance, and when unsure which specialist to consult"
 
 persona:
   role: Master Orchestrator & BMAD Method Expert
@@ -104,7 +109,7 @@ workflow:
 
 dependencies:
   tasks:
-    - create-ide-agent
+    - create-agent
     - create-team
     - create-expansion-pack
     - advanced-elicitation
@@ -117,270 +122,210 @@ dependencies:
 ```
 ==================== END: agents#bmad-orchestrator ====================
 
-==================== START: tasks#create-ide-agent ====================
-# Create IDE Agent Task
+==================== START: tasks#create-agent ====================
+# Create Agent Task
 
-This task guides you through creating a new BMAD IDE agent that conforms to the IDE agent schema and integrates effectively with workflows and teams.
-
-**Note for User-Created IDE Agents**: If creating a custom IDE agent for your own use (not part of the core BMAD system), prefix the agent ID with a period (e.g., `.api-expert`) to ensure it's gitignored and won't conflict with repository updates.
+This task guides you through creating a new BMAD agent following the standard template.
 
 ## Prerequisites
 
-1. Load and understand the IDE agent schema: `/bmad-core/schemas/ide-agent-schema.yml`
-2. Review existing IDE agents in `/bmad-core/ide-agents/` for patterns and conventions
-3. Review workflows in `/bmad-core/workflows/` to identify integration opportunities
-4. Consider if this agent should also have a full agent counterpart
+- Agent template: `.bmad-core/templates/agent-tmpl.md`
+- Target directory: `.bmad-core/agents/`
 
-## Process
+## Steps
 
-### 1. Define Agent Core Identity
+### 1. Gather Agent Information
 
-Based on the schema's required fields:
+Collect the following information from the user:
 
-- **Role**: Must end with "IDE Agent" (pattern: `^.+ IDE Agent$`)
-  - Example: "API Specialist IDE Agent", "Test Engineer IDE Agent"
-- **Agent ID**: Following pattern `^[a-z][a-z0-9-]*$`
-  - For user agents: prefix with period (`.api-expert`)
-- **Primary Purpose**: Define ONE focused capability
+- **Agent ID**: Unique identifier (lowercase, hyphens allowed, e.g., `data-analyst`)
+- **Agent Name**: Display name (e.g., `Data Analyst`)
+- **Agent Title**: Professional title (e.g., `Data Analysis Specialist`)
+- **Role Description**: Brief description of the agent's primary role
+- **Communication Style**: How the agent communicates (e.g., `analytical, data-driven, clear`)
+- **Identity**: Detailed description of who this agent is
+- **Focus Areas**: Primary areas of expertise and focus
+- **Core Principles**: 3-5 guiding principles for the agent
+- **Customization**: Optional specific behaviors or overrides
 
-### 2. Create File References
+### 2. Define Agent Capabilities
 
-All IDE agents must include (per schema):
+**IMPORTANT**:
+
+- If your agent will perform any actions → You MUST create corresponding tasks in `.bmad-core/tasks/`
+- If your agent will create any documents → You MUST create templates in `.bmad-core/templates/` AND include the `create-doc` task
+
+Determine:
+
+- **Custom Commands**: Agent-specific commands beyond the defaults
+- **Required Tasks**: Tasks from `.bmad-core/tasks/` the agent needs
+  - For any action the agent performs, a corresponding task file must exist
+  - Always include `create-doc` if the agent creates any documents
+- **Required Templates**: Templates from `.bmad-core/templates/` the agent uses
+  - For any document the agent can create, a template must exist
+- **Required Checklists**: Checklists the agent references
+- **Required Data**: Data files the agent needs access to
+- **Required Utils**: Utility files the agent uses
+
+### 3. Handle Missing Dependencies
+
+**Protocol for Missing Tasks/Templates:**
+
+1. Check if each required task/template exists
+2. For any missing items:
+   - Create a basic version following the appropriate template
+   - Track what was created in a list
+3. Continue with agent creation
+4. At the end, present a summary of all created items
+
+**Track Created Items:**
+
+```
+Created during agent setup:
+- Tasks:
+  - [ ] task-name-1.md
+  - [ ] task-name-2.md
+- Templates:
+  - [ ] template-name-1.md
+  - [ ] template-name-2.md
+```
+
+### 4. Create Agent File
+
+1. Copy the template from `.bmad-core/templates/agent-tmpl.md`
+2. Replace all placeholders with gathered information:
+
+   - `[AGENT_ID]` → agent id
+   - `[AGENT_NAME]` → agent name
+   - `[AGENT_TITLE]` → agent title
+   - `[AGENT_ROLE_DESCRIPTION]` → role description
+   - `[COMMUNICATION_STYLE]` → communication style
+   - `[AGENT_IDENTITY_DESCRIPTION]` → identity description
+   - `[PRIMARY_FOCUS_AREAS]` → focus areas
+   - `[PRINCIPLE_X]` → core principles
+   - `[OPTIONAL_CUSTOMIZATION]` → customization (or remove if none)
+   - `[DEFAULT_MODE_DESCRIPTION]` → description of default chat mode
+   - `[STARTUP_INSTRUCTIONS]` → what the agent should do on activation
+   - Add custom commands, tasks, templates, etc.
+
+3. Save as `.bmad-core/agents/[agent-id].md`
+
+### 4. Validate Agent
+
+Ensure:
+
+- All placeholders are replaced
+- Dependencies (tasks, templates, etc.) actually exist
+- Commands are properly formatted
+- YAML structure is valid
+
+### 5. Build and Test
+
+1. Run `npm run build:agents` to include in builds
+2. Test agent activation and commands
+3. Verify all dependencies load correctly
+
+### 6. Final Summary
+
+Present to the user:
+
+```
+✅ Agent Created: [agent-name]
+   Location: .bmad-core/agents/[agent-id].md
+
+📝 Dependencies Created:
+   Tasks:
+   - ✅ task-1.md - [brief description]
+   - ✅ task-2.md - [brief description]
+
+   Templates:
+   - ✅ template-1.md - [brief description]
+   - ✅ template-2.md - [brief description]
+
+⚠️  Next Steps:
+   1. Review and customize the created tasks/templates
+   2. Run npm run build:agents
+   3. Test the agent thoroughly
+```
+
+## Template Reference
+
+The agent template structure:
+
+- **activation-instructions**: How the AI should interpret the file
+- **agent**: Basic agent metadata
+- **persona**: Character and behavior definition
+- **startup**: Initial actions on activation
+- **commands**: Available commands (always include defaults)
+- **dependencies**: Required resources organized by type
+
+## Example Usage
 
 ```yaml
-taskroot: "bmad-core/tasks/"  # Required constant
-templates: "bmad-core/templates/"  # Optional but common
-checklists: "bmad-core/checklists/"  # Optional
-default-template: "bmad-core/templates/{template-name}"  # If agent creates documents
+agent:
+  name: Data Analyst
+  id: data-analyst
+  title: Data Analysis Specialist
+
+persona:
+  role: Expert in data analysis, visualization, and insights extraction
+  style: analytical, data-driven, clear, methodical
+  identity: I am a seasoned data analyst who transforms raw data into actionable insights
+  focus: data exploration, statistical analysis, visualization, reporting
+
+  core_principles:
+    - Data integrity and accuracy above all
+    - Clear communication of complex findings
+    - Actionable insights over raw numbers
 ```
 
-Additional custom references as needed (e.g., `story-path`, `coding-standards`)
+## Creating Missing Dependencies
 
-### 3. Define Persona (Schema Required Fields)
+When a required task or template doesn't exist:
 
-Create concise persona following schema structure:
+1. **For Missing Tasks**: Create using `.bmad-core/templates/task-template.md`
 
-- **Name**: Character name (e.g., "Alex", "Dana")
-- **Role**: Professional role title
-- **Identity**: Extended specialization (20+ chars)
-- **Focus**: Primary objectives (20+ chars)
-- **Style**: Communication approach (20+ chars)
+   - Name it descriptively (e.g., `analyze-metrics.md`)
+   - Define clear steps for the action
+   - Include any required inputs/outputs
 
-Keep descriptions brief for IDE efficiency!
+2. **For Missing Templates**: Create a basic structure
 
-### 4. Core Principles (Minimum 3 Required)
+   - Name it descriptively (e.g., `metrics-report-template.md`)
+   - Include placeholders for expected content
+   - Add sections relevant to the document type
 
-Must include these based on schema validation:
+3. **Always Track**: Keep a list of everything created to report at the end
 
-1. **Numbered Options Protocol** (REQUIRED): "When presenting multiple options, always use numbered lists for easy selection"
-2. **[Domain-Specific Principle]**: Related to agent's expertise
-3. **[Quality/Efficiency Principle]**: How they ensure excellence
-4. Additional principles as needed (keep concise)
+## Important Reminders
 
-### 5. Critical Startup Operating Instructions
+### Tasks and Templates Requirement
 
-First instruction MUST announce name/role and mention *help (schema requirement):
+- **Every agent action needs a task**: If an agent can "analyze data", there must be an `analyze-data.md` task
+- **Every document type needs a template**: If an agent can create reports, there must be a `report-template.md`
+- **Document creation requires**: Both the template AND the `create-doc` task in dependencies
 
-```markdown
-1. Announce your name and role, and let the user know they can say *help at any time to list the commands on your first response as a reminder even if their initial request is a question, wrapping the question. For Example 'I am {role} {name}, {response}... Also remember, you can enter `*help` to see a list of commands at any time.'
+### Example Dependencies
+
+```yaml
+dependencies:
+  tasks:
+    - create-doc # Required if agent creates any documents
+    - analyze-requirements # Custom task for this agent
+    - generate-report # Another custom task
+  templates:
+    - requirements-doc # Template for requirements documents
+    - analysis-report # Template for analysis reports
 ```
 
-Add 2-5 additional startup instructions specific to the agent's role.
+## Notes
 
-### 6. Commands (Minimum 2 Required)
-
-Required commands per schema:
-
-```markdown
-- `*help` - Show these available commands as a numbered list offering selection
-- `*chat-mode` - Enter conversational mode, staying in character while offering `advanced-elicitation` when providing advice or multiple options. Ends if other task or command is given
-```
-
-Add role-specific commands:
-- Use pattern: `^\\*[a-z][a-z0-9-]*( \\{[^}]+\\})?$`
-- Include clear descriptions (10+ chars)
-- Reference tasks when appropriate
-
-### 7. Workflow Integration Analysis
-
-Analyze where this IDE agent fits in workflows:
-
-1. **Load workflow definitions** from `/bmad-core/workflows/`
-2. **Identify integration points**:
-   - Which workflow phases benefit from this agent?
-   - Can they replace or augment existing workflow steps?
-   - Do they enable new workflow capabilities?
-
-3. **Suggest workflow enhancements**:
-   - For technical agents → development/implementation phases
-   - For testing agents → validation phases
-   - For design agents → planning/design phases
-   - For specialized agents → specific workflow steps
-
-4. **Document recommendations**:
-   ```markdown
-   ## Workflow Integration
-   
-   This agent enhances the following workflows:
-   - `greenfield-service`: API design phase (between architecture and implementation)
-   - `brownfield-service`: API refactoring and modernization
-   - User can specify: {custom workflow integration}
-   ```
-
-### 8. Team Integration Suggestions
-
-Consider which teams benefit from this IDE agent:
-
-1. **Analyze team compositions** in `/bmad-core/agent-teams/`
-2. **Suggest team additions**:
-   - Technical specialists → development teams
-   - Quality specialists → full-stack teams
-   - Domain experts → relevant specialized teams
-
-3. **Document integration**:
-   ```markdown
-   ## Team Integration
-   
-   Recommended teams for this agent:
-   - `team-fullstack`: Provides specialized {domain} expertise
-   - `team-no-ui`: Enhances backend {capability}
-   - User proposed: {custom team integration}
-   ```
-
-### 9. Create the IDE Agent File
-
-Create `/bmad-core/ide-agents/{agent-id}.ide.md` following schema structure:
-(For user agents: `/bmad-core/ide-agents/.{agent-id}.ide.md`)
-
-```markdown
-# Role: {Title} IDE Agent
-
-## File References
-
-`taskroot`: `bmad-core/tasks/`
-`templates`: `bmad-core/templates/`
-{additional references}
-
-## Persona
-
-- **Name:** {Name}
-- **Role:** {Role}
-- **Identity:** {20+ char description}
-- **Focus:** {20+ char objectives}
-- **Style:** {20+ char communication style}
-
-## Core Principles (Always Active)
-
-- **{Principle}:** {Description}
-- **{Principle}:** {Description}
-- **Numbered Options Protocol:** When presenting multiple options, always use numbered lists for easy selection
-
-## Critical Startup Operating Instructions
-
-1. Announce your name and role, and let the user know they can say *help at any time...
-2. {Additional startup instruction}
-3. {Additional startup instruction}
-
-## Commands
-
-- `*help` - Show these available commands as a numbered list offering selection
-- `*chat-mode` - Enter conversational mode, staying in character while offering `advanced-elicitation`...
-- `*{command}` - {Description of what it does}
-{additional commands}
-
-{Optional sections like Expertise, Workflow, Protocol, etc.}
-```
-
-### 10. Validation and Testing
-
-1. **Schema Validation**: Ensure all required fields are present
-2. **Pattern Validation**: Check role name, command patterns
-3. **Size Optimization**: Keep concise for IDE efficiency
-4. **Command Testing**: Verify all commands are properly formatted
-5. **Integration Testing**: Test in actual IDE environment
-
-## Example: API Specialist IDE Agent
-
-```markdown
-# Role: API Specialist IDE Agent
-
-## File References
-
-`taskroot`: `bmad-core/tasks/`
-`templates`: `bmad-core/templates/`
-`default-template`: `bmad-core/templates/api-spec-tmpl`
-
-## Persona
-
-- **Name:** Alex
-- **Role:** API Specialist
-- **Identity:** REST API design expert specializing in scalable, secure service interfaces
-- **Focus:** Creating clean, well-documented APIs that follow industry best practices
-- **Style:** Direct, example-driven, focused on practical implementation patterns
-
-## Core Principles (Always Active)
-
-- **API-First Design:** Every endpoint designed with consumer needs in mind
-- **Security by Default:** Authentication and authorization built into every design
-- **Documentation Excellence:** APIs are only as good as their documentation
-- **Numbered Options Protocol:** When presenting multiple options, always use numbered lists for easy selection
-
-## Critical Startup Operating Instructions
-
-1. Announce your name and role, and let the user know they can say *help at any time to list the commands on your first response as a reminder even if their initial request is a question, wrapping the question. For Example 'I am API Specialist Alex, {response}... Also remember, you can enter `*help` to see a list of commands at any time.'
-2. Assess the API design context (REST, GraphQL, gRPC)
-3. Focus on practical, implementable solutions
-
-## Commands
-
-- `*help` - Show these available commands as a numbered list offering selection
-- `*chat-mode` - Enter conversational mode, staying in character while offering `advanced-elicitation` when providing advice or multiple options. Ends if other task or command is given
-- `*design-api` - Design REST API endpoints for specified requirements
-- `*create-spec` - Create OpenAPI specification using default template
-- `*review-api` - Review existing API design for best practices
-- `*security-check` - Analyze API security considerations
-
-## Workflow Integration
-
-This agent enhances the following workflows:
-- `greenfield-service`: API design phase after architecture
-- `brownfield-service`: API modernization and refactoring
-- `greenfield-fullstack`: API contract definition between frontend/backend
-
-## Team Integration
-
-Recommended teams for this agent:
-- `team-fullstack`: API contract expertise
-- `team-no-ui`: Backend API specialization
-- Any team building service-oriented architectures
-```
-
-## IDE Agent Creation Checklist
-
-- [ ] Role name ends with "IDE Agent"
-- [ ] All schema-required fields present
-- [ ] Includes required File References
-- [ ] Persona has all 5 required fields
-- [ ] Minimum 3 Core Principles including Numbered Options Protocol
-- [ ] First startup instruction announces name/role with *help
-- [ ] Includes *help and *chat-mode commands
-- [ ] Commands follow pattern requirements
-- [ ] Workflow integration documented
-- [ ] Team integration suggestions provided
-- [ ] Validates against ide-agent-schema.yml
-- [ ] Concise and focused on single expertise
-
-## Best Practices
-
-1. **Stay Focused**: IDE agents should excel at ONE thing
-2. **Reference Tasks**: Don't duplicate task content
-3. **Minimal Personality**: Just enough to be helpful
-4. **Clear Commands**: Make it obvious what each command does
-5. **Integration First**: Consider how agent enhances existing workflows
-6. **Schema Compliance**: Always validate against the schema
-
-This schema-driven approach ensures IDE agents are consistent, integrated, and valuable additions to the BMAD ecosystem.
-==================== END: tasks#create-ide-agent ====================
+- Keep agent definitions focused and specific
+- Ensure dependencies are minimal and necessary
+- Test thoroughly before distribution
+- Follow existing agent patterns for consistency
+- Remember: No task = agent can't do it, No template = agent can't create it
+==================== END: tasks#create-agent ====================
 
 ==================== START: tasks#create-team ====================
 # Create Team Task
@@ -430,6 +375,7 @@ Based on the schema requirements:
 Based on team purpose, recommend agents:
 
 **For Planning & Strategy Teams:**
+
 - `bmad` (required orchestrator)
 - `analyst` - Requirements gathering and research
 - `pm` - Product strategy and documentation
@@ -437,6 +383,7 @@ Based on team purpose, recommend agents:
 - `architect` - Technical planning (if technical planning needed)
 
 **For Design & UX Teams:**
+
 - `bmad` (required orchestrator)
 - `ux-expert` - User experience design
 - `architect` - Frontend architecture
@@ -444,14 +391,16 @@ Based on team purpose, recommend agents:
 - `po` - Design validation
 
 **For Development Teams:**
-- `bmad` (required orchestrator)
+
+- `bmad-orchestrator` (required)
 - `sm` - Sprint coordination
 - `dev` - Implementation
 - `qa` - Quality assurance
 - `architect` - Technical guidance
 
 **For Full-Stack Teams:**
-- `bmad` (required orchestrator)
+
+- `bmad-orchestrator` (required)
 - `analyst` - Initial planning
 - `pm` - Product management
 - `ux-expert` - UI/UX design (if UI work included)
@@ -469,6 +418,7 @@ Based on team purpose, recommend agents:
 Based on the schema's workflow enum values and team composition:
 
 1. **Analyze team capabilities** against available workflows:
+
    - `brownfield-fullstack` - Requires full team with UX
    - `brownfield-service` - Backend-focused team
    - `brownfield-ui` - UI/UX-focused team
@@ -477,6 +427,7 @@ Based on the schema's workflow enum values and team composition:
    - `greenfield-ui` - Frontend team for new UIs
 
 2. **Match workflows to agents**:
+
    - UI workflows require `ux-expert`
    - Service workflows benefit from `architect` and `dev`
    - All workflows benefit from planning agents (`analyst`, `pm`)
@@ -498,13 +449,13 @@ bundle:
 
 agents:
   - bmad # Required orchestrator
-  - {agent-id-1}
-  - {agent-id-2}
+  - { agent-id-1 }
+  - { agent-id-2 }
   # ... additional agents
 
 workflows:
-  - {workflow-1} # From enum list
-  - {workflow-2}
+  - { workflow-1 } # From enum list
+  - { workflow-2 }
   # ... additional workflows
 ```
 
@@ -513,10 +464,10 @@ workflows:
 Before finalizing, verify:
 
 1. **Role Coverage**: Does the team have all necessary skills for its workflows?
-2. **Size Optimization**: 
+2. **Size Optimization**:
    - Minimum: 2 agents (bmad + 1)
    - Recommended: 3-7 agents
-   - Maximum with wildcard: bmad + "*"
+   - Maximum with wildcard: bmad + "\*"
 3. **Workflow Alignment**: Can the selected agents execute all workflows?
 4. **Schema Compliance**: Configuration matches all schema requirements
 
@@ -544,8 +495,8 @@ Document how this team integrates with existing system:
 bundle:
   name: "Team API"
   description: >-
-    Specialized team for API and backend service development. Focuses on 
-    robust service architecture, implementation, and testing without UI 
+    Specialized team for API and backend service development. Focuses on
+    robust service architecture, implementation, and testing without UI
     components. Ideal for microservices, REST APIs, and backend systems.
 
 agents:
@@ -567,8 +518,8 @@ workflows:
 bundle:
   name: "Team Prototype"
   description: >-
-    Agile team for rapid prototyping and proof of concept development. 
-    Combines planning, design, and implementation for quick iterations 
+    Agile team for rapid prototyping and proof of concept development.
+    Combines planning, design, and implementation for quick iterations
     on new ideas and experimental features.
 
 agents:
@@ -650,7 +601,7 @@ Request from the user:
 
 #### 1.3 Create Planning Document
 
-**STOP HERE AND CREATE PLAN FIRST**
+IMPORTANT: STOP HERE AND CREATE PLAN FIRST
 
 Create `expansion-packs/{pack-name}/plan.md` with:
 
@@ -696,7 +647,7 @@ Create `expansion-packs/{pack-name}/plan.md` with:
 User approval received: [ ] Yes
 ```
 
-**Wait for user approval before proceeding to Phase 2**
+Important: Wait for user approval before proceeding to Phase 2
 
 ### Phase 2: Component Design
 
@@ -753,7 +704,7 @@ For each checklist:
 
 ### Phase 3: Implementation
 
-**Only proceed after plan.md is approved**
+IMPORTANT: Only proceed after plan.md is approved
 
 #### 3.1 Create Directory Structure
 
@@ -838,7 +789,7 @@ post_install_message: |
 
 ### Phase 4: Content Creation
 
-**Work through plan.md checklist systematically**
+IMPORTANT: Work through plan.md checklist systematically!
 
 #### 4.1 Create Orchestrator First
 
@@ -919,12 +870,6 @@ For each required data file:
 - **Example**:
 ```
 
-{sample content}
-
-```
-
-```
-
 ## Example: Healthcare Expansion Pack
 
 ```text
@@ -973,38 +918,38 @@ Required user data files:
 
 ### Planning Phase
 
-6. "Here's the proposed plan. Please review and approve before we continue."
+1. "Here's the proposed plan. Please review and approve before we continue."
 
 ### Orchestrator Design
 
-7. "What key commands should the {pack-name} orchestrator support?"
-8. "What's the typical workflow from start to finish?"
-9. "How should it integrate with core BMAD agents?"
+1. "What key commands should the {pack-name} orchestrator support?"
+2. "What's the typical workflow from start to finish?"
+3. "How should it integrate with core BMAD agents?"
 
 ### Agent Planning
 
-10. "For agent '{name}', what is their specific expertise?"
-11. "What tasks will this agent reference? (I'll create them)"
-12. "What templates will this agent use? (I'll create them)"
-13. "What data files will this agent need? (You'll provide these)"
+1. "For agent '{name}', what is their specific expertise?"
+2. "What tasks will this agent reference? (I'll create them)"
+3. "What templates will this agent use? (I'll create them)"
+4. "What data files will this agent need? (You'll provide these)"
 
 ### Task Design
 
-14. "Describe the '{task}' process step-by-step"
-15. "What information is needed to complete this task?"
-16. "What should the output look like?"
+1. "Describe the '{task}' process step-by-step"
+2. "What information is needed to complete this task?"
+3. "What should the output look like?"
 
 ### Template Creation
 
-17. "What sections should the '{template}' document have?"
-18. "Are there any required formats or standards?"
-19. "Can you provide an example of a completed document?"
+1. "What sections should the '{template}' document have?"
+2. "Are there any required formats or standards?"
+3. "Can you provide an example of a completed document?"
 
 ### Data Requirements
 
-20. "For {data-file}, what information should it contain?"
-21. "What format should this data be in?"
-22. "Can you provide a sample?"
+1. "For {data-file}, what information should it contain?"
+2. "What format should this data be in?"
+3. "Can you provide a sample?"
 
 ## Important Considerations
 
@@ -1297,11 +1242,11 @@ The actual list depends on which team bundle is loaded. When responding to this 
 
 Example response format:
 
-```
+```text
 Available workflows for [Team Name]:
 1. [workflow-id] - [Brief description based on workflow type]
 2. [workflow-id] - [Brief description based on workflow type]
-...
+[... etc. ...]
 
 Use /workflow-start {number or id} to begin a workflow.
 ```
@@ -1318,7 +1263,7 @@ Shows current workflow progress, completed artifacts, and next steps.
 
 Example response:
 
-```
+```text
 Current Workflow: Greenfield Full-Stack Development
 Stage: Product Planning (2 of 6)
 Completed:
@@ -1338,7 +1283,7 @@ Resumes a workflow from where it left off, useful when starting a new chat.
 
 User can provide completed artifacts:
 
-```
+```text
 User: /workflow-resume greenfield-fullstack
       I have completed: project-brief, PRD
 BMad: I see you've completed Discovery and part of Product Planning.
@@ -1406,7 +1351,7 @@ When user returns after interruption:
 
 Example:
 
-```
+```text
 User: I'm working on a new app. Here's my PRD and architecture doc.
 BMad: I see you have a PRD and architecture document. Based on these artifacts,
       it looks like you're following the greenfield-fullstack workflow and have completed
@@ -1429,7 +1374,7 @@ When transitioning between agents, pass:
 
 Example transition:
 
-```
+```text
 BMad: Great! John has completed the PRD. According to the greenfield-fullstack workflow,
       the next step is UX Strategy with Sally.
 
@@ -1489,7 +1434,7 @@ Templates in the BMAD method use standardized markup for AI processing. These co
 
 - **{{placeholders}}**: Variables to be replaced with actual content
 - **[[LLM: instructions]]**: Internal processing instructions for AI agents (never shown to users)
-- **<<REPEAT>>** sections: Content blocks that may be repeated as needed
+- **REPEAT** sections: Content blocks that may be repeated as needed
 - **^^CONDITION^^** blocks: Conditional content included only if criteria are met
 - **@{examples}**: Example content for guidance (never output to users)
 
