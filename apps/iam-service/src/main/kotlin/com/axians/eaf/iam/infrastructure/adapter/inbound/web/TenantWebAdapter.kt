@@ -1,4 +1,4 @@
-package com.axians.eaf.iam.web
+package com.axians.eaf.iam.infrastructure.adapter.inbound.web
 
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateTenantCommand
@@ -14,9 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+/**
+ * Web adapter for tenant management operations.
+ * Provides REST endpoints for creating and managing tenants.
+ * This is an inbound adapter that translates HTTP requests to use case calls.
+ */
 @RestController
 @RequestMapping("/api/v1/tenants")
-class TenantController(
+class TenantWebAdapter(
     private val createTenantUseCase: CreateTenantUseCase,
     private val securityContextHolder: EafSecurityContextHolder,
 ) {

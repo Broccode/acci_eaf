@@ -9,7 +9,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.boot.ApplicationArguments
 
-class DataInitializerRunnerTest {
+class DataInitializerAdapterTest {
     private val systemInitializationService = mockk<SystemInitializationService>()
     private val applicationArguments = mockk<ApplicationArguments>()
 
@@ -17,14 +17,14 @@ class DataInitializerRunnerTest {
     fun `should call initialization service when enabled`() {
         // Given
         val properties = SystemInitializationProperties(initializeDefaultTenant = true)
-        val runner = DataInitializerRunner(systemInitializationService, properties)
+        val adapter = DataInitializerAdapter(systemInitializationService, properties)
 
         every {
             systemInitializationService.initializeDefaultTenantIfRequired()
         } returns InitializationResult(wasInitialized = true, message = "TestTenant")
 
         // When
-        runner.run(applicationArguments)
+        adapter.run(applicationArguments)
 
         // Then
         verify { systemInitializationService.initializeDefaultTenantIfRequired() }
@@ -34,10 +34,10 @@ class DataInitializerRunnerTest {
     fun `should not call initialization service when disabled`() {
         // Given
         val properties = SystemInitializationProperties(initializeDefaultTenant = false)
-        val runner = DataInitializerRunner(systemInitializationService, properties)
+        val adapter = DataInitializerAdapter(systemInitializationService, properties)
 
         // When
-        runner.run(applicationArguments)
+        adapter.run(applicationArguments)
 
         // Then
         verify(exactly = 0) { systemInitializationService.initializeDefaultTenantIfRequired() }
@@ -47,14 +47,14 @@ class DataInitializerRunnerTest {
     fun `should handle initialization service exceptions gracefully`() {
         // Given
         val properties = SystemInitializationProperties(initializeDefaultTenant = true)
-        val runner = DataInitializerRunner(systemInitializationService, properties)
+        val adapter = DataInitializerAdapter(systemInitializationService, properties)
 
         every {
             systemInitializationService.initializeDefaultTenantIfRequired()
         } throws RuntimeException("Database connection failed")
 
         // When & Then - should not throw exception
-        runner.run(applicationArguments)
+        adapter.run(applicationArguments)
 
         verify { systemInitializationService.initializeDefaultTenantIfRequired() }
     }

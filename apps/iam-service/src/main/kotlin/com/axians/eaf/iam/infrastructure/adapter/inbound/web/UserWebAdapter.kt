@@ -1,4 +1,4 @@
-package com.axians.eaf.iam.web
+package com.axians.eaf.iam.infrastructure.adapter.inbound.web
 
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateUserCommand
@@ -22,12 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * REST Controller for user management operations.
- * Provides endpoints for creating, listing, and updating users within tenants.
+ * Web adapter for user management operations.
+ * Provides REST endpoints for creating, listing, and updating users within tenants.
+ * This is an inbound adapter that translates HTTP requests to use case calls.
  */
 @RestController
 @RequestMapping("/api/v1/tenants/{tenantId}/users")
-class UserController(
+class UserWebAdapter(
     private val createUserUseCase: CreateUserUseCase,
     private val listUsersInTenantUseCase: ListUsersInTenantUseCase,
     private val updateUserStatusUseCase: UpdateUserStatusUseCase,

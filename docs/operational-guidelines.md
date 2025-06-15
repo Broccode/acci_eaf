@@ -66,6 +66,280 @@ applications built on EAF. Linting and formatting tools will enforce many of the
 - **Unit Test File Organization:** Co-located with source files or in a parallel structure within
   `src/test/kotlin` (e.g., `MyService.kt` in `main` has `MyServiceTest.kt` in `test` in the same
   package). Test file names end with `Test`.
+
+#### Core Kotlin Principles
+
+- **Readability First:** Code should be optimized for reading, not just writing. The easier code is
+  to understand, the easier it is to maintain and extend. Consider that code is read 10x more often
+  than it's written.
+- **Safety by Design:** Leverage Kotlin's safety features extensively:
+  - Prefer immutable data structures (`val`, immutable collections, data classes with `val`
+    properties)
+  - Use Kotlin's null safety rigorously - avoid platform types and minimize `!!` operator use
+  - Validate parameters explicitly using `require()` and state with `check()`
+
+#### Variable Declarations & Immutability
+
+- **Always prefer `val` over `var`** unless mutation is absolutely necessary
+- **Use immutable collections** instead of mutable ones:
+
+  ```kotlin
+  // ✅ Preferred
+  val users: List<User> = listOf(user1, user2)
+
+  // ❌ Avoid unless mutation is required
+  val users: MutableList<User> = mutableListOf(user1, user2)
+  ```
+
+- **Declare variables as `lateinit`** only when necessary, and prefer lambda initialization:
+
+  ```kotlin
+  // ✅ Preferred when possible
+  val result = when (type) {
+      Type.A -> processA()
+      Type.B -> processB()
+  }
+
+  // ✅ Acceptable when lambda approach isn't feasible
+  lateinit var result: ProcessResult
+  ```
+
+#### Safe Variable Handling
+
+- **Always use non-nullable types** when possible
+- **Use safe calls and elvis operator** with nullable variables:
+
+  ```kotlin
+  // ✅ Safe call and elvis operator
+  val length = nullableString?.length ?: 0
+
+  // ❌ Force unwrapping - avoid unless you're absolutely certain
+  val length = nullableString!!.length
+  ```
+
+- **Explicit parameter validation:**
+
+  ```kotlin
+  fun createUser(email: String, tenantId: String) {
+      require(email.isNotBlank()) { "Email cannot be blank" }
+      require(tenantId.isNotBlank()) { "Tenant ID cannot be blank" }
+      // ... implementation
+  }
+  ```
+
+#### Control Flow & When Expressions
+
+- **Prefer `when` over multiple `if` statements** for better readability:
+
+  ```kotlin
+  // ✅ Preferred for multiple conditions
+  val message = when (user.status) {
+      UserStatus.ACTIVE -> "User is active"
+      UserStatus.INACTIVE -> "User is inactive"
+      UserStatus.SUSPENDED -> "User is suspended"
+  }
+
+  // ✅ Also good for boolean conditions when it improves readability
+  val canAccess = when {
+      user.isAdmin() -> true
+      user.hasPermission(resource) -> true
+      resource.isPublic() -> true
+      else -> false
+  }
+  ```
+
+#### Classes & Data Structures
+
+- **Prefer primary constructors** with default arguments over secondary constructors:
+
+  ```kotlin
+  // ✅ Preferred
+  data class User(
+      val id: String,
+      val email: String,
+      val status: UserStatus = UserStatus.ACTIVE,
+      val roles: List<Role> = emptyList(),
+  )
+  ```
+
+- **Use named arguments** when not passing all parameters:
+
+  ```kotlin
+  // ✅ Clear and explicit
+  val user = User(
+      id = "user-123",
+      email = "user@example.com",
+      status = UserStatus.INACTIVE,
+  )
+  ```
+
+- **Multiple related classes in one file** when they're tightly coupled:
+
+  ```kotlin
+  // ✅ Acceptable for related domain objects
+  data class CreateUserCommand(val email: String, val tenantId: String)
+  data class UserCreatedEvent(val userId: String, val email: String, val tenantId: String)
+  sealed class UserValidationError {
+      object InvalidEmail : UserValidationError()
+      object DuplicateEmail : UserValidationError()
+  }
+  ```
+
+#### Collections & Functional Programming
+
+- **Use sequences for multi-step collection operations** with non-trivial datasets:
+
+  ```kotlin
+  // ✅ For multiple operations on larger collections
+  val activeUserEmails = users.asSequence()
+      .filter { it.status == UserStatus.ACTIVE }
+      .map { it.email }
+      .filter { it.endsWith("@company.com") }
+      .toList()
+
+  // ✅ Simple operations can use direct collection functions
+  val userCount = users.count { it.status == UserStatus.ACTIVE }
+  ```
+
+- **Avoid nested lambdas** and prefer clear parameter names over `it`:
+
+  ```kotlin
+  // ✅ Clear parameter names
+  val usersByTenant = users.groupBy { user -> user.tenantId }
+      .mapValues { (tenantId, tenantUsers) ->
+          tenantUsers.sortedBy { user -> user.email }
+      }
+
+  // ❌ Hard to read with nested 'it'
+  val usersByTenant = users.groupBy { it.tenantId }
+      .mapValues { it.value.sortedBy { it.email } }
+  ```
+
+#### Return Values & Error Handling
+
+- **Avoid returning null** from public functions - prefer exceptions or sealed classes:
+
+  ```kotlin
+  // ✅ Preferred - throw exception for error cases
+  fun getUserById(id: String): User {
+      return userRepository.findById(id)
+          ?: throw UserNotFoundException("User not found: $id")
+  }
+
+  // ✅ Alternative - sealed class for result types
+  sealed class UserResult {
+      data class Success(val user: User) : UserResult()
+      data class NotFound(val id: String) : UserResult()
+      data class Error(val message: String) : UserResult()
+  }
+  ```
+
+- **Return immutable collections** from public functions:
+
+  ```kotlin
+  // ✅ Protect internal state
+  fun getActiveUsers(): List<User> = activeUsers.toList()
+
+  // ❌ Exposes mutable internal state
+  fun getActiveUsers(): MutableList<User> = activeUsers
+  ```
+
+- **Use `Pair` and `Triple` sparingly** - prefer data classes for public APIs:
+
+  ```kotlin
+  // ✅ For internal/private functions
+  private fun parseNameParts(fullName: String): Pair<String, String> =
+      fullName.split(" ").let { it[0] to it.getOrElse(1) { "" } }
+
+  // ✅ For public APIs - explicit and self-documenting
+  data class UserStatistics(val totalUsers: Int, val activeUsers: Int, val inactiveUsers: Int)
+  fun getUserStatistics(): UserStatistics = // ...
+  ```
+
+#### Extension Functions & Scope Functions
+
+- **Use extension functions judiciously** for domain-specific utilities:
+
+  ```kotlin
+  // ✅ Good use - domain-specific utility
+  fun String.isValidEmail(): Boolean =
+      this.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))
+
+  // ✅ Good use - null-safe operations
+  fun String?.isNotNullOrBlank(): Boolean = !this.isNullOrBlank()
+  ```
+
+- **Choose appropriate scope functions** based on context:
+
+  ```kotlin
+  // ✅ Use 'apply' for object configuration
+  val user = User().apply {
+      id = generateId()
+      email = request.email
+      status = UserStatus.ACTIVE
+  }
+
+  // ✅ Use 'let' for null checks and transformations
+  val result = nullableUser?.let { user ->
+      processUser(user)
+      user.id
+  }
+
+  // ✅ Use 'run' for grouped operations
+  val isValid = run {
+      val emailValid = email.isValidEmail()
+      val tenantExists = tenantRepository.exists(tenantId)
+      emailValid && tenantExists
+  }
+  ```
+
+#### String Handling
+
+- **Use string templates** instead of concatenation:
+
+  ```kotlin
+  // ✅ Preferred
+  val message = "User ${user.email} in tenant ${user.tenantId} was created"
+
+  // ❌ Avoid
+  val message = "User " + user.email + " in tenant " + user.tenantId + " was created"
+  ```
+
+- **Use triple-quoted strings** for multi-line text and SQL:
+
+  ```kotlin
+  val sql = """
+      SELECT u.id, u.email, u.tenant_id
+      FROM users u
+      WHERE u.status = 'ACTIVE'
+      AND u.tenant_id = ?
+  """.trimIndent()
+  ```
+
+#### Resource Management
+
+- **Use `use` function** for closeable resources:
+
+  ```kotlin
+  // ✅ Automatic resource cleanup
+  file.inputStream().use { stream ->
+      // process stream
+      stream.readBytes()
+  }
+  ```
+
+#### Java Interoperability
+
+- **Assume Java method returns are nullable** unless explicitly annotated:
+
+  ```kotlin
+  // ✅ Explicit nullable type for Java interop
+  val javaResult: String? = javaLibrary.someMethod()
+  javaResult?.let { result ->
+      processResult(result)
+  }
+  ```
+
 - **Asynchronous Operations (Kotlin):** Primarily use Kotlin Coroutines for asynchronous
   programming. Adhere to structured concurrency principles. Avoid blocking threads unnecessarily.
 - **Type Safety & Nullability (Kotlin):** Leverage Kotlin's null safety. Avoid platform types where
@@ -133,19 +407,64 @@ Use appropriate Gradle configurations:
 - `testImplementation` for testing libraries
 - `implementation` for runtime dependencies
 
-#### Detailed Kotlin Specifics
+#### EAF-Specific Kotlin Patterns
 
-- **Functional Constructs:** Utilize Kotlin's functional programming features (lambdas, higher-order
-  functions, collection operations like `map`, `filter`, `fold`) where they enhance readability and
-  conciseness without sacrificing clarity.
-- **Data Classes:** Use extensively for DTOs, Events, Commands, and simple Value Objects.
-- **Sealed Classes/Interfaces:** Use for representing restricted hierarchies (e.g., different types
-  of Commands for an Aggregate, or states in a state machine).
-- **Extension Functions:** Use judiciously to enhance existing classes with utility functions,
-  keeping them well-scoped and discoverable.
-- **Coroutines:** Follow best practices for launching coroutines (e.g., within `CoroutineScope` tied
-  to component lifecycle), error handling (e.g., `CoroutineExceptionHandler`), and context switching
-  (`withContext`).
+- **Domain Modeling with Data Classes:** Use extensively for DTOs, Events, Commands, and Value
+  Objects:
+
+  ```kotlin
+  // ✅ Event example with validation
+  data class UserCreatedEvent(
+      val userId: String,
+      val tenantId: String,
+      val email: String,
+      val timestamp: Instant = Instant.now(),
+  ) {
+      init {
+          require(userId.isNotBlank()) { "User ID cannot be blank" }
+          require(tenantId.isNotBlank()) { "Tenant ID cannot be blank" }
+          require(email.isValidEmail()) { "Invalid email format" }
+      }
+  }
+  ```
+
+- **Sealed Classes for Domain States:** Use for representing restricted hierarchies in DDD contexts:
+
+  ```kotlin
+  // ✅ Command result modeling
+  sealed class UserCreationResult {
+      data class Success(val userId: String) : UserCreationResult()
+      data class EmailAlreadyExists(val email: String) : UserCreationResult()
+      data class InvalidTenant(val tenantId: String) : UserCreationResult()
+      data class ValidationError(val errors: List<String>) : UserCreationResult()
+  }
+  ```
+
+- **Coroutines Best Practices:** Follow structured concurrency for EAF operations:
+
+  ```kotlin
+  // ✅ Proper coroutine scope management
+  class UserService(
+      private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  ) {
+      suspend fun processUsersBatch(users: List<User>) =
+          withEafContext {
+              users.map { user ->
+                  async { processUser(user) }
+              }.awaitAll()
+          }
+  }
+  ```
+
+- **Context Propagation Patterns:** Always use EAF context helpers for distributed operations:
+
+  ```kotlin
+  // ✅ Proper context propagation
+  suspend fun publishUserEvent(event: UserEvent) =
+      withEafContext {
+          eventPublisher.publish(event) // Context automatically propagated
+      }
+  ```
 
 ### Context Propagation Patterns
 

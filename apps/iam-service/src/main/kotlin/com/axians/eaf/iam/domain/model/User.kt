@@ -19,7 +19,17 @@ data class User(
     val updatedAt: Instant = Instant.now(),
     val lastLogin: Instant? = null,
 ) {
+    init {
+        require(userId.isNotBlank()) { "User ID cannot be blank" }
+        require(tenantId.isNotBlank()) { "Tenant ID cannot be blank" }
+        require(email.isNotBlank()) { "Email cannot be blank" }
+        require(isValidEmail(email)) { "Email must be valid" }
+        username?.let { require(it.isNotBlank()) { "Username cannot be blank when provided" } }
+    }
+
     companion object {
+        private fun isValidEmail(email: String): Boolean = email.contains("@") && email.length <= 320
+
         /**
          * Factory method to create an initial Tenant Administrator.
          */
@@ -79,8 +89,6 @@ data class User(
                 status = UserStatus.PENDING_ACTIVATION,
             )
         }
-
-        private fun isValidEmail(email: String): Boolean = email.contains("@") && email.length <= 320
     }
 
     /**
@@ -113,11 +121,15 @@ data class User(
     /**
      * Domain method to set the password hash.
      */
-    fun setPasswordHash(passwordHash: String): User =
-        copy(
+    fun setPasswordHash(passwordHash: String): User {
+        require(passwordHash.isNotBlank()) { "Password hash cannot be blank" }
+        require(passwordHash.length >= 60) { "Password hash appears to be invalid (too short)" }
+
+        return copy(
             passwordHash = passwordHash,
             updatedAt = Instant.now(),
         )
+    }
 
     /**
      * Domain method to record successful login.

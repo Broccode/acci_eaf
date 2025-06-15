@@ -2,10 +2,10 @@ package com.axians.eaf.iam.integration
 
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.PostgresTestcontainerConfiguration
+import com.axians.eaf.iam.infrastructure.adapter.inbound.web.CreateUserRequest
+import com.axians.eaf.iam.infrastructure.adapter.inbound.web.UpdateUserStatusRequest
 import com.axians.eaf.iam.infrastructure.config.JpaConfig
 import com.axians.eaf.iam.test.TestIamServiceApplication
-import com.axians.eaf.iam.web.CreateUserRequest
-import com.axians.eaf.iam.web.UpdateUserStatusRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every

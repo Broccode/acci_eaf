@@ -73,12 +73,10 @@ class NatsJetStreamListenerProcessor(
     ): ListenerDefinition {
         // Determine subject
         val subject =
-            if (annotation.subject.isNotBlank()) {
-                annotation.subject
-            } else if (annotation.value.isNotBlank()) {
-                annotation.value
-            } else {
-                throw IllegalArgumentException("Subject must be specified in @NatsJetStreamListener")
+            when {
+                annotation.subject.isNotBlank() -> annotation.subject
+                annotation.value.isNotBlank() -> annotation.value
+                else -> throw IllegalArgumentException("Subject must be specified in @NatsJetStreamListener")
             }
 
         // Determine durable name

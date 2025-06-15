@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component
 
 /**
  * Application runner that triggers system initialization on startup.
- * This runner is responsible for creating default tenant and superadmin user
+ * This adapter is responsible for creating default tenant and superadmin user
  * when the system is configured for single-tenant deployment.
  */
 @Component
-class DataInitializerRunner(
+class DataInitializerAdapter(
     private val systemInitializationService: SystemInitializationService,
     private val properties: SystemInitializationProperties,
 ) : ApplicationRunner {
-    private val logger = LoggerFactory.getLogger(DataInitializerRunner::class.java)
+    private val logger = LoggerFactory.getLogger(DataInitializerAdapter::class.java)
 
     override fun run(args: ApplicationArguments?) {
         if (!properties.initializeDefaultTenant) {

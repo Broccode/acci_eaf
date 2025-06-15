@@ -1,4 +1,4 @@
-package com.axians.eaf.iam.web
+package com.axians.eaf.iam.infrastructure.adapter.inbound.web
 
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateUserCommand
@@ -33,7 +33,7 @@ import java.util.UUID
 
 @SpringBootTest(classes = [TestIamServiceApplication::class])
 @AutoConfigureMockMvc
-class UserControllerTest {
+class UserWebAdapterTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 

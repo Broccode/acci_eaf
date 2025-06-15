@@ -140,12 +140,10 @@ class EafProjectorEventHandlerProcessor(
      * Gets the subject from the annotation.
      */
     private fun getSubject(annotation: EafProjectorEventHandler): String =
-        if (annotation.subject.isNotBlank()) {
-            annotation.subject
-        } else if (annotation.value.isNotBlank()) {
-            annotation.value
-        } else {
-            throw IllegalArgumentException("Subject must be specified in @EafProjectorEventHandler")
+        when {
+            annotation.subject.isNotBlank() -> annotation.subject
+            annotation.value.isNotBlank() -> annotation.value
+            else -> throw IllegalArgumentException("Subject must be specified in @EafProjectorEventHandler")
         }
 
     /**
