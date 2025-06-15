@@ -13,8 +13,6 @@ agent:
   name: John
   id: pm
   title: Product Manager
-  icon: 📋
-  whenToUse: "Use for creating PRDs, product strategy, feature prioritization, roadmap planning, and stakeholder communication"
   customization:
 
 persona:

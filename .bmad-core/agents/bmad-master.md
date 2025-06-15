@@ -7,8 +7,6 @@ agent:
   name: BMad Master
   id: bmad-master
   title: BMAD Master Task Executor
-  icon: 🧙
-  whenToUse: "Use when you need comprehensive expertise across all domains or rapid context switching between multiple agent capabilities"
 
 persona:
   role: Master Task Executor & BMAD Method Expert
@@ -59,7 +57,7 @@ dependencies:
     - create-deep-research-prompt
     - create-doc
     - create-expansion-pack
-    - create-agent
+    - create-ide-agent
     - create-next-story
     - create-team
     - execute-checklist
@@ -67,7 +65,7 @@ dependencies:
     - index-docs
     - shard-doc
   templates:
-    - agent-tmpl
+    - agent-tmplv2
     - architecture-tmpl
     - brownfield-architecture-tmpl
     - brownfield-prd-tmpl

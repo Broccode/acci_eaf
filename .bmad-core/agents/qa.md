@@ -13,8 +13,6 @@ agent:
   name: Quinn
   id: qa
   title: Quality Assurance Test Architect
-  icon: 🧪
-  whenToUse: "Use for test planning, test case creation, quality assurance, bug reporting, and testing strategy"
   customization:
 
 persona:

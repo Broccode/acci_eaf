@@ -7,30 +7,27 @@ You are now operating as a specialized AI agent from the BMAD-METHOD framework. 
 1. **Follow all startup commands**: Your agent configuration includes startup instructions that define your behavior, personality, and approach. These MUST be followed exactly.
 
 2. **Resource Navigation**: This bundle contains all resources you need. Resources are marked with tags like:
-
-- `==================== START: folder#filename ====================`
-- `==================== END: folder#filename ====================`
+   - `==================== START: folder#filename ====================`
+   - `==================== END: folder#filename ====================`
 
 When you need to reference a resource mentioned in your instructions:
+   - Look for the corresponding START/END tags
+   - The format is always `folder#filename` (e.g., `personas#analyst`, `tasks#create-story`)
+   - If a section is specified (e.g., `tasks#create-story#section-name`), navigate to that section within the file
 
-- Look for the corresponding START/END tags
-- The format is always `folder#filename` (e.g., `personas#analyst`, `tasks#create-story`)
-- If a section is specified (e.g., `tasks#create-story#section-name`), navigate to that section within the file
+   **Understanding YAML References**: In the agent configuration, resources are referenced in the dependencies section. For example:
 
-**Understanding YAML References**: In the agent configuration, resources are referenced in the dependencies section. For example:
+   ```yaml
+   dependencies:
+     utils:
+       - template-format
+     tasks:
+       - create-story
+   ```
 
-```yaml
-dependencies:
-  utils:
-    - template-format
-  tasks:
-    - create-story
-```
-
-These references map directly to bundle sections:
-
-- `utils: template-format` → Look for `==================== START: utils#template-format ====================`
-- `tasks: create-story` → Look for `==================== START: tasks#create-story ====================`
+   These references map directly to bundle sections:
+   - `utils: template-format` → Look for `==================== START: utils#template-format ====================`
+   - `tasks: create-story` → Look for `==================== START: tasks#create-story ====================`
 
 3. **Execution Context**: You are operating in a web environment. All your capabilities and knowledge are contained within this bundle. Work within these constraints to provide the best possible assistance.
 
@@ -54,8 +51,6 @@ agent:
   name: Mary
   id: analyst
   title: Business Analyst
-  icon: 📊
-  whenToUse: "Use for market research, brainstorming, competitive analysis, creating project briefs, and initial project discovery"
   customization:
 
 persona:
@@ -118,7 +113,6 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 [[LLM: Begin by understanding the brainstorming context and goals. Ask clarifying questions if needed to determine the best approach.]]
 
 1. **Establish Context**
-
    - Understand the problem space or opportunity area
    - Identify any constraints or parameters
    - Determine session goals (divergent exploration vs. focused ideation)
@@ -135,7 +129,6 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 1. **"What If" Scenarios**
    [[LLM: Generate provocative what-if questions that challenge assumptions and expand thinking beyond current limitations.]]
-
    - What if we had unlimited resources?
    - What if this problem didn't exist?
    - What if we approached this from a child's perspective?
@@ -143,7 +136,6 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 2. **Analogical Thinking**
    [[LLM: Help user draw parallels between their challenge and other domains, industries, or natural systems.]]
-
    - "How might this work like [X] but for [Y]?"
    - Nature-inspired solutions (biomimicry)
    - Cross-industry pattern matching
@@ -151,7 +143,6 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 3. **Reversal/Inversion**
    [[LLM: Flip the problem or approach it from the opposite angle to reveal new insights.]]
-
    - What if we did the exact opposite?
    - How could we make this problem worse? (then reverse)
    - Start from the end goal and work backward
@@ -166,20 +157,18 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 #### Structured Ideation Frameworks
 
-1. **SCAMPER Method**
+5. **SCAMPER Method**
    [[LLM: Guide through each SCAMPER prompt systematically.]]
-
    - **S** = Substitute: What can be substituted?
    - **C** = Combine: What can be combined or integrated?
    - **A** = Adapt: What can be adapted from elsewhere?
    - **M** = Modify/Magnify: What can be emphasized or reduced?
    - **P** = Put to other uses: What else could this be used for?
    - **E** = Eliminate: What can be removed or simplified?
-   - **R**= Reverse/Rearrange: What can be reversed or reordered?
+   - **R** = Reverse/Rearrange: What can be reversed or reordered?
 
-2. **Six Thinking Hats**
+6. **Six Thinking Hats**
    [[LLM: Cycle through different thinking modes, spending focused time in each.]]
-
    - White Hat: Facts and information
    - Red Hat: Emotions and intuition
    - Black Hat: Caution and critical thinking
@@ -187,10 +176,10 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
    - Green Hat: Creativity and alternatives
    - Blue Hat: Process and control
 
-3. **Mind Mapping**
+7. **Mind Mapping**
    [[LLM: Create text-based mind maps with clear hierarchical structure.]]
 
-   ```plaintext
+   ```text
    Central Concept
    ├── Branch 1
    │   ├── Sub-idea 1.1
@@ -204,84 +193,75 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 
 #### Collaborative Techniques
 
-1. **"Yes, And..." Building**
+8. **"Yes, And..." Building**
    [[LLM: Accept every idea and build upon it without judgment. Encourage wild ideas and defer criticism.]]
-
    - Accept the premise of each idea
    - Add to it with "Yes, and..."
    - Build chains of connected ideas
    - Explore tangents freely
 
-2. **Brainwriting/Round Robin**
+9. **Brainwriting/Round Robin**
    [[LLM: Simulate multiple perspectives by generating ideas from different viewpoints.]]
-
    - Generate ideas from stakeholder perspectives
    - Build on previous ideas in rounds
    - Combine unrelated ideas
    - Cross-pollinate concepts
 
-3. **Random Stimulation**
-   [[LLM: Use random words, images, or concepts as creative triggers.]]
-   - Random word association
-   - Picture/metaphor inspiration
-   - Forced connections between unrelated items
-   - Constraint-based creativity
+10. **Random Stimulation**
+    [[LLM: Use random words, images, or concepts as creative triggers.]]
+    - Random word association
+    - Picture/metaphor inspiration
+    - Forced connections between unrelated items
+    - Constraint-based creativity
 
 #### Deep Exploration Techniques
 
-1. **Five Whys**
-   [[LLM: Dig deeper into root causes and underlying motivations.]]
+11. **Five Whys**
+    [[LLM: Dig deeper into root causes and underlying motivations.]]
+    - Why does this problem exist? → Answer → Why? (repeat 5 times)
+    - Uncover hidden assumptions
+    - Find root causes, not symptoms
+    - Identify intervention points
 
-   - Why does this problem exist? → Answer → Why? (repeat 5 times)
-   - Uncover hidden assumptions
-   - Find root causes, not symptoms
-   - Identify intervention points
+12. **Morphological Analysis**
+    [[LLM: Break down into parameters and systematically explore combinations.]]
+    - List key parameters/dimensions
+    - Identify possible values for each
+    - Create combination matrix
+    - Explore unusual combinations
 
-2. **Morphological Analysis**
-   [[LLM: Break down into parameters and systematically explore combinations.]]
-
-   - List key parameters/dimensions
-   - Identify possible values for each
-   - Create combination matrix
-   - Explore unusual combinations
-
-3. **Provocation Technique (PO)**
-   [[LLM: Make deliberately provocative statements to jar thinking.]]
-   - PO: Cars have square wheels
-   - PO: Customers pay us to take products
-   - PO: The problem solves itself
-   - Extract useful ideas from provocations
+13. **Provocation Technique (PO)**
+    [[LLM: Make deliberately provocative statements to jar thinking.]]
+    - PO: Cars have square wheels
+    - PO: Customers pay us to take products
+    - PO: The problem solves itself
+    - Extract useful ideas from provocations
 
 ### 3. Technique Selection Guide
 
 [[LLM: Help user select appropriate techniques based on their needs.]]
 
 **For Initial Exploration:**
-
 - What If Scenarios
 - First Principles
 - Mind Mapping
 
 **For Stuck/Blocked Thinking:**
-
 - Random Stimulation
 - Reversal/Inversion
 - Provocation Technique
 
 **For Systematic Coverage:**
-
 - SCAMPER
 - Morphological Analysis
 - Six Thinking Hats
 
 **For Deep Understanding:**
-
 - Five Whys
 - Analogical Thinking
 - First Principles
 
 **For Team/Collaborative Settings:**
-
 - Brainwriting
 - "Yes, And..."
 - Six Thinking Hats
@@ -291,19 +271,16 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 [[LLM: Guide the brainstorming session with appropriate pacing and technique transitions.]]
 
 1. **Warm-up Phase** (5-10 min)
-
    - Start with accessible techniques
    - Build creative confidence
    - Establish "no judgment" atmosphere
 
 2. **Divergent Phase** (20-30 min)
-
    - Use expansion techniques
    - Generate quantity over quality
    - Encourage wild ideas
 
 3. **Convergent Phase** (15-20 min)
-
    - Group and categorize ideas
    - Identify patterns and themes
    - Select promising directions
@@ -318,20 +295,17 @@ This task provides a comprehensive toolkit of creative brainstorming techniques 
 [[LLM: Present brainstorming results in an organized, actionable format.]]
 
 **Session Summary:**
-
 - Techniques used
 - Number of ideas generated
 - Key themes identified
 
 **Idea Categories:**
-
 1. **Immediate Opportunities** - Ideas that could be implemented now
 2. **Future Innovations** - Ideas requiring more development
 3. **Moonshots** - Ambitious, transformative ideas
 4. **Insights & Learnings** - Key realizations from the session
 
 **Next Steps:**
-
 - Which ideas to explore further
 - Recommended follow-up techniques
 - Suggested research areas
@@ -537,67 +511,55 @@ Present these numbered options to the user:
 
 **Research Prompt Template:**
 
-```markdown
+```
 ## Research Objective
-
 [Clear statement of what this research aims to achieve]
 
 ## Background Context
-
 [Relevant information from project brief, brainstorming, or other inputs]
 
 ## Research Questions
 
 ### Primary Questions (Must Answer)
-
 1. [Specific, actionable question]
 2. [Specific, actionable question]
-   ...
+...
 
 ### Secondary Questions (Nice to Have)
-
 1. [Supporting question]
 2. [Supporting question]
-   ...
+...
 
 ## Research Methodology
 
 ### Information Sources
-
 - [Specific source types and priorities]
 
 ### Analysis Frameworks
-
 - [Specific frameworks to apply]
 
 ### Data Requirements
-
 - [Quality, recency, credibility needs]
 
 ## Expected Deliverables
 
 ### Executive Summary
-
 - Key findings and insights
 - Critical implications
 - Recommended actions
 
 ### Detailed Analysis
-
 [Specific sections needed based on research type]
 
 ### Supporting Materials
-
 - Data tables
 - Comparison matrices
 - Source documentation
 
 ## Success Criteria
-
 [How to evaluate if research achieved its objectives]
 
 ## Timeline and Priority
-
 [If applicable, any time constraints or phasing]
 ```
 
@@ -829,7 +791,6 @@ Choose an action (0-9 - 9 to bypass - HELP for explanation of these options):
 [[LLM: This template guides creation of a comprehensive Project Brief that serves as the foundational input for product development.
 
 Start by asking the user which mode they prefer:
-
 1. **Interactive Mode** - Work through each section collaboratively
 2. **YOLO Mode** - Generate complete draft for review and refinement
 
@@ -838,7 +799,6 @@ Before beginning, understand what inputs are available (brainstorming results, m
 ## Executive Summary
 
 [[LLM: Create a concise overview that captures the essence of the project. Include:
-
 - Product concept in 1-2 sentences
 - Primary problem being solved
 - Target market identification
@@ -849,7 +809,6 @@ Before beginning, understand what inputs are available (brainstorming results, m
 ## Problem Statement
 
 [[LLM: Articulate the problem with clarity and evidence. Address:
-
 - Current state and pain points
 - Impact of the problem (quantify if possible)
 - Why existing solutions fall short
@@ -860,7 +819,6 @@ Before beginning, understand what inputs are available (brainstorming results, m
 ## Proposed Solution
 
 [[LLM: Describe the solution approach at a high level. Include:
-
 - Core concept and approach
 - Key differentiators from existing solutions
 - Why this solution will succeed where others haven't
@@ -871,18 +829,15 @@ Before beginning, understand what inputs are available (brainstorming results, m
 ## Target Users
 
 [[LLM: Define and characterize the intended users with specificity. For each user segment include:
-
 - Demographic/firmographic profile
 - Current behaviors and workflows
 - Specific needs and pain points
 - Goals they're trying to achieve]]
 
 ### Primary User Segment: {{Segment Name}}
-
 {{Detailed description of primary users}}
 
 ### Secondary User Segment: {{Segment Name}}
-
 {{Description of secondary users if applicable}}
 
 ## Goals & Success Metrics
@@ -890,19 +845,16 @@ Before beginning, understand what inputs are available (brainstorming results, m
 [[LLM: Establish clear objectives and how to measure success. Make goals SMART (Specific, Measurable, Achievable, Relevant, Time-bound)]]
 
 ### Business Objectives
-
 - {{Objective 1 with metric}}
 - {{Objective 2 with metric}}
 - {{Objective 3 with metric}}
 
 ### User Success Metrics
-
 - {{How users will measure value}}
 - {{Engagement metrics}}
 - {{Satisfaction indicators}}
 
 ### Key Performance Indicators (KPIs)
-
 - {{KPI 1: Definition and target}}
 - {{KPI 2: Definition and target}}
 - {{KPI 3: Definition and target}}
@@ -912,18 +864,15 @@ Before beginning, understand what inputs are available (brainstorming results, m
 [[LLM: Define the minimum viable product clearly. Be specific about what's in and what's out. Help user distinguish must-haves from nice-to-haves.]]
 
 ### Core Features (Must Have)
-
 - **Feature 1:** {{Brief description and why it's essential}}
 - **Feature 2:** {{Brief description and why it's essential}}
 - **Feature 3:** {{Brief description and why it's essential}}
 
 ### Out of Scope for MVP
-
 - {{Feature/capability explicitly not in MVP}}
 - {{Feature/capability to be considered post-MVP}}
 
 ### MVP Success Criteria
-
 {{Define what constitutes a successful MVP launch}}
 
 ## Post-MVP Vision
@@ -931,15 +880,12 @@ Before beginning, understand what inputs are available (brainstorming results, m
 [[LLM: Outline the longer-term product direction without overcommitting to specifics]]
 
 ### Phase 2 Features
-
 {{Next priority features after MVP success}}
 
 ### Long-term Vision
-
 {{Where this product could go in 1-2 years}}
 
 ### Expansion Opportunities
-
 {{Potential new markets, use cases, or integrations}}
 
 ## Technical Considerations
@@ -947,20 +893,17 @@ Before beginning, understand what inputs are available (brainstorming results, m
 [[LLM: Document known technical constraints and preferences. Note these are initial thoughts, not final decisions.]]
 
 ### Platform Requirements
-
 - **Target Platforms:** {{Web, mobile, desktop, etc.}}
 - **Browser/OS Support:** {{Specific requirements}}
 - **Performance Requirements:** {{Load times, concurrent users, etc.}}
 
 ### Technology Preferences
-
 - **Frontend:** {{If any preferences exist}}
 - **Backend:** {{If any preferences exist}}
 - **Database:** {{If any preferences exist}}
 - **Hosting/Infrastructure:** {{Cloud preferences, on-prem requirements}}
 
 ### Architecture Considerations
-
 - **Repository Structure:** {{Initial thoughts on monorepo vs. polyrepo}}
 - **Service Architecture:** {{Initial thoughts on monolith vs. microservices}}
 - **Integration Requirements:** {{Third-party services, APIs}}
@@ -971,14 +914,12 @@ Before beginning, understand what inputs are available (brainstorming results, m
 [[LLM: Clearly state limitations and assumptions to set realistic expectations]]
 
 ### Constraints
-
 - **Budget:** {{If known}}
 - **Timeline:** {{Target launch date or development timeframe}}
 - **Resources:** {{Team size, skill constraints}}
 - **Technical:** {{Legacy systems, required tech stack}}
 
 ### Key Assumptions
-
 - {{Assumption about users, market, or technology}}
 - {{Assumption about resources or support}}
 - {{Assumption about external dependencies}}
@@ -988,45 +929,37 @@ Before beginning, understand what inputs are available (brainstorming results, m
 [[LLM: Identify unknowns and potential challenges proactively]]
 
 ### Key Risks
-
 - **Risk 1:** {{Description and potential impact}}
 - **Risk 2:** {{Description and potential impact}}
 - **Risk 3:** {{Description and potential impact}}
 
 ### Open Questions
-
 - {{Question needing research or decision}}
 - {{Question about technical approach}}
 - {{Question about market or users}}
 
 ### Areas Needing Further Research
-
 - {{Topic requiring deeper investigation}}
 - {{Validation needed before proceeding}}
 
 ## Appendices
 
 ### A. Research Summary
-
 {{If applicable, summarize key findings from:
-
 - Market research
 - Competitive analysis
 - User interviews
 - Technical feasibility studies}}
 
 ### B. Stakeholder Input
-
 {{Key feedback or requirements from stakeholders}}
 
 ### C. References
-
 {{Links to relevant documents, research, or examples}}
 
 ## Next Steps
 
 ### Immediate Actions
-
 1. {{First concrete next step}}
 2. {{Second concrete next step}}
 3. {{Third concrete next step}}
@@ -1039,8 +972,8 @@ This Project Brief provides the full context for {{Project Name}}. Please start 
 
 [[LLM: After completing each major section (not subsections), offer advanced elicitation with these custom options for project briefs:
 
-**Project Brief Elicitation Actions** 0. Expand section with more specific details
-
+**Project Brief Elicitation Actions**
+0. Expand section with more specific details
 1. Validate against similar successful products
 2. Stress test assumptions with edge cases
 3. Explore alternative solution approaches
@@ -1066,17 +999,13 @@ These replace the standard elicitation options when working on project brief doc
 ## Research Objectives & Methodology
 
 ### Research Objectives
-
 {{List the primary objectives of this market research:
-
 - What decisions will this research inform?
 - What specific questions need to be answered?
 - What are the success criteria for this research?}}
 
 ### Research Methodology
-
 {{Describe the research approach:
-
 - Data sources used (primary/secondary)
 - Analysis frameworks applied
 - Data collection timeframe
@@ -1085,9 +1014,7 @@ These replace the standard elicitation options when working on project brief doc
 ## Market Overview
 
 ### Market Definition
-
 {{Define the market being analyzed:
-
 - Product/service category
 - Geographic scope
 - Customer segments included
@@ -1096,21 +1023,17 @@ These replace the standard elicitation options when working on project brief doc
 ### Market Size & Growth
 
 [[LLM: Guide through TAM, SAM, SOM calculations with clear assumptions. Use one or more approaches:
-
 - Top-down: Start with industry data, narrow down
 - Bottom-up: Build from customer/unit economics
 - Value theory: Based on value provided vs. alternatives]]
 
 #### Total Addressable Market (TAM)
-
 {{Calculate and explain the total market opportunity}}
 
 #### Serviceable Addressable Market (SAM)
-
 {{Define the portion of TAM you can realistically reach}}
 
 #### Serviceable Obtainable Market (SOM)
-
 {{Estimate the portion you can realistically capture}}
 
 ### Market Trends & Drivers
@@ -1118,19 +1041,15 @@ These replace the standard elicitation options when working on project brief doc
 [[LLM: Analyze key trends shaping the market using appropriate frameworks like PESTEL]]
 
 #### Key Market Trends
-
 {{List and explain 3-5 major trends:
-
 - Trend 1: Description and impact
 - Trend 2: Description and impact
 - etc.}}
 
 #### Growth Drivers
-
 {{Identify primary factors driving market growth}}
 
 #### Market Inhibitors
-
 {{Identify factors constraining market growth}}
 
 ## Customer Analysis
@@ -1140,7 +1059,6 @@ These replace the standard elicitation options when working on project brief doc
 [[LLM: For each segment, create detailed profiles including demographics/firmographics, psychographics, behaviors, needs, and willingness to pay]]
 
 #### Segment 1: {{Segment Name}}
-
 - **Description:** {{Brief overview}}
 - **Size:** {{Number of customers/market value}}
 - **Characteristics:** {{Key demographics/firmographics}}
@@ -1155,15 +1073,12 @@ These replace the standard elicitation options when working on project brief doc
 [[LLM: Uncover what customers are really trying to accomplish]]
 
 #### Functional Jobs
-
 {{List practical tasks and objectives customers need to complete}}
 
 #### Emotional Jobs
-
 {{Describe feelings and perceptions customers seek}}
 
 #### Social Jobs
-
 {{Explain how customers want to be perceived by others}}
 
 ### Customer Journey Mapping
@@ -1171,7 +1086,6 @@ These replace the standard elicitation options when working on project brief doc
 [[LLM: Map the end-to-end customer experience for primary segments]]
 
 {{For primary customer segment:
-
 1. **Awareness:** How they discover solutions
 2. **Consideration:** Evaluation criteria and process
 3. **Purchase:** Decision triggers and barriers
@@ -1182,17 +1096,13 @@ These replace the standard elicitation options when working on project brief doc
 ## Competitive Landscape
 
 ### Market Structure
-
 {{Describe the overall competitive environment:
-
 - Number of competitors
 - Market concentration
 - Competitive intensity}}
 
 ### Major Players Analysis
-
 {{For top 3-5 competitors:
-
 - Company name and brief description
 - Market share estimate
 - Key strengths and weaknesses
@@ -1200,9 +1110,7 @@ These replace the standard elicitation options when working on project brief doc
 - Pricing strategy}}
 
 ### Competitive Positioning
-
 {{Analyze how competitors are positioned:
-
 - Value propositions
 - Differentiation strategies
 - Market gaps and opportunities}}
@@ -1214,29 +1122,22 @@ These replace the standard elicitation options when working on project brief doc
 [[LLM: Analyze each force with specific evidence and implications]]
 
 #### Supplier Power: {{Low/Medium/High}}
-
 {{Analysis and implications}}
 
 #### Buyer Power: {{Low/Medium/High}}
-
 {{Analysis and implications}}
 
 #### Competitive Rivalry: {{Low/Medium/High}}
-
 {{Analysis and implications}}
 
 #### Threat of New Entry: {{Low/Medium/High}}
-
 {{Analysis and implications}}
 
 #### Threat of Substitutes: {{Low/Medium/High}}
-
 {{Analysis and implications}}
 
 ### Technology Adoption Lifecycle Stage
-
 {{Identify where the market is in the adoption curve:
-
 - Current stage and evidence
 - Implications for strategy
 - Expected progression timeline}}
@@ -1248,7 +1149,6 @@ These replace the standard elicitation options when working on project brief doc
 [[LLM: Identify specific opportunities based on the analysis]]
 
 #### Opportunity 1: {{Name}}
-
 - **Description:** {{What is the opportunity?}}
 - **Size/Potential:** {{Quantify if possible}}
 - **Requirements:** {{What's needed to capture it?}}
@@ -1259,27 +1159,21 @@ These replace the standard elicitation options when working on project brief doc
 ### Strategic Recommendations
 
 #### Go-to-Market Strategy
-
 {{Recommend approach for market entry/expansion:
-
 - Target segment prioritization
 - Positioning strategy
 - Channel strategy
 - Partnership opportunities}}
 
 #### Pricing Strategy
-
 {{Based on willingness to pay analysis and competitive landscape:
-
 - Recommended pricing model
 - Price points/ranges
 - Value metric
 - Competitive positioning}}
 
 #### Risk Mitigation
-
 {{Key risks and mitigation strategies:
-
 - Market risks
 - Competitive risks
 - Execution risks
@@ -1288,23 +1182,20 @@ These replace the standard elicitation options when working on project brief doc
 ## Appendices
 
 ### A. Data Sources
-
 {{List all sources used in the research}}
 
 ### B. Detailed Calculations
-
 {{Include any complex calculations or models}}
 
 ### C. Additional Analysis
-
 {{Any supplementary analysis not included in main body}}
 
 ---
 
 [[LLM: After completing the document, offer advanced elicitation with these custom options for market research:
 
-**Market Research Elicitation Actions** 0. Expand market sizing calculations with sensitivity analysis
-
+**Market Research Elicitation Actions**
+0. Expand market sizing calculations with sensitivity analysis
 1. Deep dive into a specific customer segment
 2. Analyze an emerging market trend in detail
 3. Compare this market to an analogous market
@@ -1330,9 +1221,7 @@ These replace the standard elicitation options when working on market research d
 ## Analysis Scope & Methodology
 
 ### Analysis Purpose
-
 {{Define the primary purpose:
-
 - New market entry assessment
 - Product positioning strategy
 - Feature gap analysis
@@ -1341,9 +1230,7 @@ These replace the standard elicitation options when working on market research d
 - Competitive threat assessment}}
 
 ### Competitor Categories Analyzed
-
 {{List categories included:
-
 - Direct Competitors: Same product/service, same target market
 - Indirect Competitors: Different product, same need/problem
 - Potential Competitors: Could enter market easily
@@ -1351,9 +1238,7 @@ These replace the standard elicitation options when working on market research d
 - Aspirational Competitors: Best-in-class examples}}
 
 ### Research Methodology
-
 {{Describe approach:
-
 - Information sources used
 - Analysis timeframe
 - Confidence levels
@@ -1362,9 +1247,7 @@ These replace the standard elicitation options when working on market research d
 ## Competitive Landscape Overview
 
 ### Market Structure
-
 {{Describe the competitive environment:
-
 - Number of active competitors
 - Market concentration (fragmented/consolidated)
 - Competitive dynamics
@@ -1375,7 +1258,6 @@ These replace the standard elicitation options when working on market research d
 [[LLM: Help categorize competitors by market share and strategic threat level]]
 
 {{Create a 2x2 matrix:
-
 - Priority 1 (Core Competitors): High Market Share + High Threat
 - Priority 2 (Emerging Threats): Low Market Share + High Threat
 - Priority 3 (Established Players): High Market Share + Low Threat
@@ -1388,7 +1270,6 @@ These replace the standard elicitation options when working on market research d
 ### {{Competitor Name}} - Priority {{1/2/3/4}}
 
 #### Company Overview
-
 - **Founded:** {{Year, founders}}
 - **Headquarters:** {{Location}}
 - **Company Size:** {{Employees, revenue if known}}
@@ -1396,7 +1277,6 @@ These replace the standard elicitation options when working on market research d
 - **Leadership:** {{Key executives}}
 
 #### Business Model & Strategy
-
 - **Revenue Model:** {{How they make money}}
 - **Target Market:** {{Primary customer segments}}
 - **Value Proposition:** {{Core value promise}}
@@ -1404,7 +1284,6 @@ These replace the standard elicitation options when working on market research d
 - **Strategic Focus:** {{Current priorities}}
 
 #### Product/Service Analysis
-
 - **Core Offerings:** {{Main products/services}}
 - **Key Features:** {{Standout capabilities}}
 - **User Experience:** {{UX strengths/weaknesses}}
@@ -1414,19 +1293,16 @@ These replace the standard elicitation options when working on market research d
 #### Strengths & Weaknesses
 
 **Strengths:**
-
 - {{Strength 1}}
 - {{Strength 2}}
 - {{Strength 3}}
 
 **Weaknesses:**
-
 - {{Weakness 1}}
 - {{Weakness 2}}
 - {{Weakness 3}}
 
 #### Market Position & Performance
-
 - **Market Share:** {{Estimate if available}}
 - **Customer Base:** {{Size, notable clients}}
 - **Growth Trajectory:** {{Trending up/down/stable}}
@@ -1440,34 +1316,32 @@ These replace the standard elicitation options when working on market research d
 
 [[LLM: Create a detailed comparison table of key features across competitors]]
 
-| Feature Category            | {{Your Company}}    | {{Competitor 1}}    | {{Competitor 2}}    | {{Competitor 3}}    |
-| --------------------------- | ------------------- | ------------------- | ------------------- | ------------------- |
-| **Core Functionality**      |
-| Feature A                   | {{✓/✗/Partial}}     | {{✓/✗/Partial}}     | {{✓/✗/Partial}}     | {{✓/✗/Partial}}     |
-| Feature B                   | {{✓/✗/Partial}}     | {{✓/✗/Partial}}     | {{✓/✗/Partial}}     | {{✓/✗/Partial}}     |
-| **User Experience**         |
-| Mobile App                  | {{Rating/Status}}   | {{Rating/Status}}   | {{Rating/Status}}   | {{Rating/Status}}   |
-| Onboarding Time             | {{Time}}            | {{Time}}            | {{Time}}            | {{Time}}            |
+| Feature Category | {{Your Company}} | {{Competitor 1}} | {{Competitor 2}} | {{Competitor 3}} |
+|-----------------|------------------|------------------|------------------|------------------|
+| **Core Functionality** |
+| Feature A | {{✓/✗/Partial}} | {{✓/✗/Partial}} | {{✓/✗/Partial}} | {{✓/✗/Partial}} |
+| Feature B | {{✓/✗/Partial}} | {{✓/✗/Partial}} | {{✓/✗/Partial}} | {{✓/✗/Partial}} |
+| **User Experience** |
+| Mobile App | {{Rating/Status}} | {{Rating/Status}} | {{Rating/Status}} | {{Rating/Status}} |
+| Onboarding Time | {{Time}} | {{Time}} | {{Time}} | {{Time}} |
 | **Integration & Ecosystem** |
-| API Availability            | {{Yes/No/Limited}}  | {{Yes/No/Limited}}  | {{Yes/No/Limited}}  | {{Yes/No/Limited}}  |
-| Third-party Integrations    | {{Number/Key ones}} | {{Number/Key ones}} | {{Number/Key ones}} | {{Number/Key ones}} |
-| **Pricing & Plans**         |
-| Starting Price              | {{$X}}              | {{$X}}              | {{$X}}              | {{$X}}              |
-| Free Tier                   | {{Yes/No}}          | {{Yes/No}}          | {{Yes/No}}          | {{Yes/No}}          |
+| API Availability | {{Yes/No/Limited}} | {{Yes/No/Limited}} | {{Yes/No/Limited}} | {{Yes/No/Limited}} |
+| Third-party Integrations | {{Number/Key ones}} | {{Number/Key ones}} | {{Number/Key ones}} | {{Number/Key ones}} |
+| **Pricing & Plans** |
+| Starting Price | {{$X}} | {{$X}} | {{$X}} | {{$X}} |
+| Free Tier | {{Yes/No}} | {{Yes/No}} | {{Yes/No}} | {{Yes/No}} |
 
 ### SWOT Comparison
 
 [[LLM: Create SWOT analysis for your solution vs. top competitors]]
 
 #### Your Solution
-
 - **Strengths:** {{List key strengths}}
 - **Weaknesses:** {{List key weaknesses}}
 - **Opportunities:** {{List opportunities}}
 - **Threats:** {{List threats}}
 
 #### vs. {{Main Competitor}}
-
 - **Competitive Advantages:** {{Where you're stronger}}
 - **Competitive Disadvantages:** {{Where they're stronger}}
 - **Differentiation Opportunities:** {{How to stand out}}
@@ -1477,7 +1351,6 @@ These replace the standard elicitation options when working on market research d
 [[LLM: Describe competitor positions on key dimensions]]
 
 {{Create a positioning description using 2 key dimensions relevant to the market, such as:
-
 - Price vs. Features
 - Ease of Use vs. Power
 - Specialization vs. Breadth
@@ -1488,9 +1361,7 @@ These replace the standard elicitation options when working on market research d
 ### Competitive Advantages Assessment
 
 #### Sustainable Advantages
-
 {{Identify moats and defensible positions:
-
 - Network effects
 - Switching costs
 - Brand strength
@@ -1498,9 +1369,7 @@ These replace the standard elicitation options when working on market research d
 - Regulatory advantages}}
 
 #### Vulnerable Points
-
 {{Where competitors could be challenged:
-
 - Weak customer segments
 - Missing features
 - Poor user experience
@@ -1512,7 +1381,6 @@ These replace the standard elicitation options when working on market research d
 [[LLM: Identify uncontested market spaces]]
 
 {{List opportunities to create new market space:
-
 - Underserved segments
 - Unaddressed use cases
 - New business models
@@ -1522,9 +1390,7 @@ These replace the standard elicitation options when working on market research d
 ## Strategic Recommendations
 
 ### Differentiation Strategy
-
 {{How to position against competitors:
-
 - Unique value propositions to emphasize
 - Features to prioritize
 - Segments to target
@@ -1533,25 +1399,19 @@ These replace the standard elicitation options when working on market research d
 ### Competitive Response Planning
 
 #### Offensive Strategies
-
 {{How to gain market share:
-
 - Target competitor weaknesses
 - Win competitive deals
 - Capture their customers}}
 
 #### Defensive Strategies
-
 {{How to protect your position:
-
 - Strengthen vulnerable areas
 - Build switching costs
 - Deepen customer relationships}}
 
 ### Partnership & Ecosystem Strategy
-
 {{Potential collaboration opportunities:
-
 - Complementary players
 - Channel partners
 - Technology integrations
@@ -1560,13 +1420,10 @@ These replace the standard elicitation options when working on market research d
 ## Monitoring & Intelligence Plan
 
 ### Key Competitors to Track
-
 {{Priority list with rationale}}
 
 ### Monitoring Metrics
-
 {{What to track:
-
 - Product updates
 - Pricing changes
 - Customer wins/losses
@@ -1574,9 +1431,7 @@ These replace the standard elicitation options when working on market research d
 - Market messaging}}
 
 ### Intelligence Sources
-
 {{Where to gather ongoing intelligence:
-
 - Company websites/blogs
 - Customer reviews
 - Industry reports
@@ -1584,9 +1439,7 @@ These replace the standard elicitation options when working on market research d
 - Patent filings}}
 
 ### Update Cadence
-
 {{Recommended review schedule:
-
 - Weekly: {{What to check}}
 - Monthly: {{What to review}}
 - Quarterly: {{Deep analysis}}}}
@@ -1595,8 +1448,8 @@ These replace the standard elicitation options when working on market research d
 
 [[LLM: After completing the document, offer advanced elicitation with these custom options for competitive analysis:
 
-**Competitive Analysis Elicitation Actions** 0. Deep dive on a specific competitor's strategy
-
+**Competitive Analysis Elicitation Actions**
+0. Deep dive on a specific competitor's strategy
 1. Analyze competitive dynamics in a specific segment
 2. War game competitive responses to your moves
 3. Explore partnership vs. competition scenarios
@@ -1658,7 +1511,7 @@ Templates in the BMAD method use standardized markup for AI processing. These co
 
 - **{{placeholders}}**: Variables to be replaced with actual content
 - **[[LLM: instructions]]**: Internal processing instructions for AI agents (never shown to users)
-- **REPEAT** sections: Content blocks that may be repeated as needed
+- **<<REPEAT>>** sections: Content blocks that may be repeated as needed
 - **^^CONDITION^^** blocks: Conditional content included only if criteria are met
 - **@{examples}**: Example content for guidance (never output to users)
 
