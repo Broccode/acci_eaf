@@ -67,7 +67,7 @@ const config: Config = {
       title: 'ACCI EAF Launchpad',
       logo: {
         alt: 'ACCI EAF Logo',
-        src: 'img/logo.svg',
+        src: 'img/capybara_coder_logo.png',
       },
       items: [
         {
