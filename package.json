@@ -18,6 +18,8 @@
     "format:ci": "npm run format:check:all",
     "format:local": "./scripts/format-local.sh",
     "format:fix": "./scripts/format-fix.sh",
+    "ci:debug": "./scripts/ci-debug.sh",
+    "ci:local": "npm run ci:debug",
     "precommit": "npm run format:check:all && npm run lint",
     "prepare": "husky"
   },

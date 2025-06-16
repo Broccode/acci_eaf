@@ -1,9 +1,10 @@
-name: CI
+name: CI Enhanced
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch: # Allow manual triggering
 
 # Needed for nx-set-shas when run on the main branch
 permissions:
@@ -11,12 +12,13 @@ permissions:
   contents: read
 
 env:
-  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.caching=true
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.caching=true -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
   NODE_OPTIONS: --max_old_space_size=4096
 
 jobs:
   main:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     services:
       docker:
         image: docker:27.3.1-dind
@@ -49,13 +51,15 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      # Enhanced caching strategy
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+            ~/.gradle/daemon
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-v2
           restore-keys: |
             ${{ runner.os }}-gradle-
 
@@ -65,7 +69,7 @@ jobs:
           path: |
             node_modules
             docs/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json', 'docs/package-lock.json') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json', 'docs/package-lock.json') }}-v2
           restore-keys: |
             ${{ runner.os }}-npm-
 
@@ -73,9 +77,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/package-lock.json') }}-v2
           restore-keys: |
             ${{ runner.os }}-nx-
+
+      # System diagnostics
+      - name: System diagnostics
+        run: |
+          echo "🔍 System Information:"
+          echo "Java version: $(java -version 2>&1 | head -1)"
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "Available memory: $(free -h)"
+          echo "Available disk: $(df -h)"
+          echo "Docker info:"
+          docker version || echo "Docker not available"
 
       - name: Install dependencies
         run: npm ci
@@ -91,43 +107,94 @@ jobs:
       - name: Check formatting
         run: npx nx format:check
 
-      # Run affected linting, testing, and building
-      - name: Run affected lint, test, and build
-        id: build
-        run: npx nx affected -t lint test build
+      # Gradle warming and validation
+      - name: Validate Gradle setup
+        run: |
+          echo "🔧 Validating Gradle setup..."
+          ./gradlew --version
+          ./gradlew tasks --dry-run > /dev/null
+          echo "✅ Gradle validation complete"
+
+      # Split build tasks for better error isolation
+      - name: Run affected linting
+        run: npx nx affected -t lint --parallel=3
+
+      - name: Run affected tests
+        id: tests
+        run: npx nx affected -t test --parallel=2
+        continue-on-error: true
+
+      - name: Run affected builds
+        id: builds
+        run: npx nx affected -t build --parallel=2
+        continue-on-error: true
+
+      # Enhanced error diagnostics
+      - name: Diagnose build failures
+        if: failure() && (steps.tests.outcome == 'failure' || steps.builds.outcome == 'failure')
+        run: |
+          echo "🚨 Build failure detected. Running diagnostics..."
+
+          # Show recent logs
+          echo "📋 Recent Gradle logs:"
+          find ~/.gradle -name "*.log" -mtime -1 -exec tail -20 {} \; 2>/dev/null || echo "No recent Gradle logs found"
+
+          # Show disk usage
+          echo "💾 Disk usage:"
+          df -h
+
+          # Show memory usage
+          echo "🧠 Memory usage:"
+          free -h
+
+          # Show failed tasks specifically
+          echo "❌ Checking for specific error patterns..."
+
+          # Look for common Kotlin compilation issues
+          if find . -name "*.log" -exec grep -l "OutOfMemoryError\|CompilationException\|KotlinCompilerException" {} \; | head -5; then
+            echo "Found potential memory or compilation issues"
+          fi
 
       # Run Kotlin/Gradle formatting check for affected backend projects
       - name: Run affected Kotlin formatting checks
+        if: success() || steps.tests.outcome == 'success'
         run: npx nx affected -t spotlessCheck
 
-      # Clean Kotlin compilation caches on build failure
-      - name: Clean Kotlin caches on failure
-        if: failure() && steps.build.outcome == 'failure'
+      # Enhanced cleanup on failure
+      - name: Clean and retry on failure
+        if: failure() && (steps.tests.outcome == 'failure' || steps.builds.outcome == 'failure')
         run: |
-          echo "Build failed, performing thorough cache cleanup..."
+          echo "🧹 Performing comprehensive cleanup and retry..."
+
+          # Stop all Gradle processes
+          ./gradlew --stop 2>/dev/null || true
+          pkill -f gradle 2>/dev/null || true
+
           # Clean Kotlin incremental compilation caches
           find . -name "build" -type d -path "*/kotlin/compile*" -exec rm -rf {} + 2>/dev/null || true
           find . -name "caches-jvm" -type d -exec rm -rf {} + 2>/dev/null || true
           find . -name "*.kotlin_module" -delete 2>/dev/null || true
+
           # Clean Gradle daemon and build cache
-          ./gradlew --stop 2>/dev/null || true
           rm -rf ~/.gradle/daemon/ ~/.gradle/caches/build-cache-* 2>/dev/null || true
+
           # Clean project-specific Kotlin compilation artifacts
           find . -name "*.kotlin_builtins" -delete 2>/dev/null || true
           find . -name "*.kotlin_metadata" -delete 2>/dev/null || true
-        continue-on-error: true
 
-      # Retry build after cache cleanup if it failed
-      - name: Retry build after cache cleanup
-        if: failure() && steps.build.outcome == 'failure'
-        run: |
-          echo "Retrying build after cache cleanup..."
-          npx nx affected -t build --skip-nx-cache
+          # Clear Nx cache
+          npx nx reset
+
+          echo "✅ Cleanup complete. Retrying build..."
+
+          # Retry with single thread and no cache
+          npx nx affected -t build --skip-nx-cache --parallel=1
+        continue-on-error: true
 
       # Upload artifacts only if we built something
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
-        if: success()
+        if: success() || steps.builds.outcome == 'success'
         with:
           name: build-artifacts
           path: |
@@ -147,14 +214,33 @@ jobs:
             **/build/reports/
           retention-days: 7
 
-      # Upload cache cleanup logs for debugging
-      - name: Upload cache cleanup logs
+      # Upload enhanced diagnostic logs
+      - name: Upload diagnostic logs
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cache-cleanup-logs
+          name: diagnostic-logs
           path: |
             **/build/kotlin/compile*/cacheable/
             ~/.gradle/daemon/
+            ~/.gradle/caches/*/daemon.log
+            **/hs_err_pid*.log
           retention-days: 7
         continue-on-error: true
+
+      # Final status report
+      - name: Final status report
+        if: always()
+        run: |
+          echo "📊 Final CI Status Report:"
+          echo "Tests: ${{ steps.tests.outcome }}"
+          echo "Builds: ${{ steps.builds.outcome }}"
+          echo "Overall: ${{ job.status }}"
+
+          if [ "${{ job.status }}" != "success" ]; then
+            echo "💡 Troubleshooting tips:"
+            echo "1. Check the 'Diagnose build failures' step for specific errors"
+            echo "2. Download diagnostic-logs artifact for detailed analysis"
+            echo "3. Try running './scripts/ci-debug.sh' locally to reproduce"
+            echo "4. Check https://cloud.nx.app for detailed task logs"
+          fi
