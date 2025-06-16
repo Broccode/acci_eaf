@@ -191,7 +191,9 @@ The EAF follows a **modern microservices architecture** with these key principle
 - **Event Sourcing**: Check `eaf-eventsourcing-sdk` for CQRS/ES examples
 - **Multi-Tenancy**: Review NATS configuration in `infra/docker-compose/`
 
-Looking for deeper guidance?  Visit the **Launchpad Developer Portal** (Docusaurus-powered) by running `nx serve docs` locally or browsing the hosted site (coming soon).  All dependency versions live in the [Version Matrix](docs/docusaurus-docs/versions.md) so everyone stays in sync.
+Looking for deeper guidance? Visit the **Launchpad Developer Portal** (Docusaurus-powered) by
+running `nx serve docs` locally or browsing the hosted site (coming soon). All dependency versions
+live in the [Version Matrix](docs/docusaurus-docs/versions.md) so everyone stays in sync.
 
 ---
 

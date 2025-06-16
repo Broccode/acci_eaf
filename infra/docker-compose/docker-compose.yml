@@ -37,7 +37,7 @@ services:
     image: postgres:15
     container_name: eaf-postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: eaf_iam
       POSTGRES_USER: eaf_user

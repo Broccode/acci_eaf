@@ -14,19 +14,20 @@
 
 - [x] **Root Build Configuration**: Centralized version definitions in `build.gradle.kts`
 - [x] **Documentation**: Comprehensive guidelines in `dependency-management-guidelines.md`
-- [x] **Validation Script**: Automated compliance checking in `gradle/scripts/validate-dependencies.gradle.kts`
+- [x] **Validation Script**: Automated compliance checking in
+      `gradle/scripts/validate-dependencies.gradle.kts`
 - [x] **Migration Script**: Automated migration tool in `gradle/scripts/migrate-dependencies.sh`
 - [x] **Enforcement**: Validation integrated into build process
 
 ### 🔄 Module Migration Status
 
-| Module | Status | Violations Before | Violations After | Notes |
-|--------|--------|------------------|------------------|-------|
-| `apps/iam-service` | ✅ **COMPLETED** | 14 | 0 | Fully migrated |
-| `libs/eaf-core` | ✅ **COMPLETED** | 8 | 0 | Fully migrated |
-| `libs/eaf-eventing-sdk` | ✅ **COMPLETED** | 21 | 0 | Manual migration from version catalog |
-| `libs/eaf-eventsourcing-sdk` | ✅ **COMPLETED** | 8 | 0 | Fully migrated |
-| `libs/eaf-iam-client` | ✅ **COMPLETED** | 6 | 0 | Fully migrated |
+| Module                       | Status           | Violations Before | Violations After | Notes                                 |
+| ---------------------------- | ---------------- | ----------------- | ---------------- | ------------------------------------- |
+| `apps/iam-service`           | ✅ **COMPLETED** | 14                | 0                | Fully migrated                        |
+| `libs/eaf-core`              | ✅ **COMPLETED** | 8                 | 0                | Fully migrated                        |
+| `libs/eaf-eventing-sdk`      | ✅ **COMPLETED** | 21                | 0                | Manual migration from version catalog |
+| `libs/eaf-eventsourcing-sdk` | ✅ **COMPLETED** | 8                 | 0                | Fully migrated                        |
+| `libs/eaf-iam-client`        | ✅ **COMPLETED** | 6                 | 0                | Fully migrated                        |
 
 **Total Violations**: 57 → 0 (100% reduction) ✅
 
@@ -57,7 +58,7 @@
 // ❌ Before
 implementation("org.springframework.boot:spring-boot-starter:3.5.0")
 
-// ✅ After  
+// ✅ After
 implementation("org.springframework.boot:spring-boot-starter:${rootProject.extra["springBootVersion"]}")
 ```
 
@@ -68,7 +69,7 @@ implementation("org.springframework.boot:spring-boot-starter:${rootProject.extra
 ### ✅ Phase 1: Library Migrations (COMPLETED)
 
 1. **libs/eaf-core**: ✅ Migrated successfully
-2. **libs/eaf-eventsourcing-sdk**: ✅ Migrated successfully  
+2. **libs/eaf-eventsourcing-sdk**: ✅ Migrated successfully
 3. **libs/eaf-iam-client**: ✅ Migrated successfully
 
 ### ✅ Phase 2: Version Catalog Module (COMPLETED)

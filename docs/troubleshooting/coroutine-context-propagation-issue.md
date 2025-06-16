@@ -2,7 +2,8 @@
 
 > **STATUS: ✅ Resolved** (2025-06-14)
 >
-> **Subject:** `libs/eaf-core` & `libs/eaf-eventing-sdk` – Integration tests for context propagation were failing intermittently, especially when run in parallel (`nx run-many`).
+> **Subject:** `libs/eaf-core` & `libs/eaf-eventing-sdk` – Integration tests for context propagation
+> were failing intermittently, especially when run in parallel (`nx run-many`).
 >
 > **Symptoms:**
 >
@@ -17,15 +18,23 @@
 
 The issues stemmed from three core problems:
 
-1. **`ThreadLocal` vs. Coroutine Dispatchers:** Standard `ThreadLocal` variables do not propagate across the different threads used by coroutine dispatchers.
-2. **Test Environment Flakiness:** Parallel test execution (`nx run-many`) caused state leakage between tests, primarily via the static `SecurityContextHolder`.
-3. **Complex Test Setup:** The NATS integration test relied on a real `Testcontainers` instance, introducing network flakiness and complex asynchronous interactions that made debugging difficult.
+1. **`ThreadLocal` vs. Coroutine Dispatchers:** Standard `ThreadLocal` variables do not propagate
+   across the different threads used by coroutine dispatchers.
+2. **Test Environment Flakiness:** Parallel test execution (`nx run-many`) caused state leakage
+   between tests, primarily via the static `SecurityContextHolder`.
+3. **Complex Test Setup:** The NATS integration test relied on a real `Testcontainers` instance,
+   introducing network flakiness and complex asynchronous interactions that made debugging
+   difficult.
 
 **Solutions Applied:**
 
-1. **`InheritableThreadLocal`:** Switched `CorrelationIdManager` to use `InheritableThreadLocal` to ensure child threads (like those in `CompletableFuture`) inherit the correlation ID.
-2. **Explicit Coroutine Dispatchers:** Switched the concurrent test's `runBlocking` to use `Dispatchers.Default` to prevent deadlocks.
-3. **Mock-Based NATS Test:** Completely refactored the NATS integration test to use **MockK**, removing the `Testcontainers` dependency. This isolated the test to only verify the context-enrichment logic, making it fast, stable, and reliable.
+1. **`InheritableThreadLocal`:** Switched `CorrelationIdManager` to use `InheritableThreadLocal` to
+   ensure child threads (like those in `CompletableFuture`) inherit the correlation ID.
+2. **Explicit Coroutine Dispatchers:** Switched the concurrent test's `runBlocking` to use
+   `Dispatchers.Default` to prevent deadlocks.
+3. **Mock-Based NATS Test:** Completely refactored the NATS integration test to use **MockK**,
+   removing the `Testcontainers` dependency. This isolated the test to only verify the
+   context-enrichment logic, making it fast, stable, and reliable.
 
 ---
 
@@ -73,7 +82,8 @@ object CorrelationIdManager {
 
 ### 2.3. Solution Part 2: `ThreadContextElement` for Coroutines
 
-The `EafContextElement` is the official mechanism for propagating context between coroutine dispatches. It captures the state when the coroutine is created and restores it on each resumption.
+The `EafContextElement` is the official mechanism for propagating context between coroutine
+dispatches. It captures the state when the coroutine is created and restores it on each resumption.
 
 ```kotlin
 // libs/eaf-core/src/main/kotlin/com/axians/eaf/core/security/EafCoroutineContext.kt
@@ -175,9 +185,14 @@ class ContextPropagationIntegrationTest {
 
 ## 3. Final Conclusion
 
-* **Code Correctness:** The context propagation implementation in `eaf-core` and `eaf-eventing-sdk` is correct and robust.
-* **Test Strategy:** For complex, asynchronous, network-dependent components, mocking the transport layer (`NATS`, `Kafka`, etc.) in unit/integration tests is superior to relying on `Testcontainers`. `Testcontainers` should be reserved for true end-to-end (E2E) test suites that run in a more controlled environment.
-* **CI Environment:** The `nx run-many` failures highlight a need for better test isolation in the CI environment, which should be addressed as a separate technical debt story.
+- **Code Correctness:** The context propagation implementation in `eaf-core` and `eaf-eventing-sdk`
+  is correct and robust.
+- **Test Strategy:** For complex, asynchronous, network-dependent components, mocking the transport
+  layer (`NATS`, `Kafka`, etc.) in unit/integration tests is superior to relying on
+  `Testcontainers`. `Testcontainers` should be reserved for true end-to-end (E2E) test suites that
+  run in a more controlled environment.
+- **CI Environment:** The `nx run-many` failures highlight a need for better test isolation in the
+  CI environment, which should be addressed as a separate technical debt story.
 
 ---
 
@@ -187,4 +202,4 @@ the patterns for context propagation and testing strategy outlined in that docum
 
 ---
 
-*Document owner: Developer Agent*
+_Document owner: Developer Agent_

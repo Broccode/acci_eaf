@@ -2,7 +2,8 @@
 
 ## Overview
 
-This project uses MockK as the primary mocking framework for Kotlin-based testing. MockK provides better Kotlin integration, coroutine support, and more idiomatic syntax compared to Mockito.
+This project uses MockK as the primary mocking framework for Kotlin-based testing. MockK provides
+better Kotlin integration, coroutine support, and more idiomatic syntax compared to Mockito.
 
 ## Core Patterns
 
@@ -82,10 +83,10 @@ class UserServiceIntegrationTest {
 
     @MockkBean
     lateinit var userRepository: UserRepository
-    
+
     @SpykBean
     lateinit var emailService: EmailService
-    
+
     @Autowired
     lateinit var userService: UserService
 }
@@ -111,9 +112,9 @@ class TestConfig {
 fun testStaticMethod() {
     mockkStatic(SecurityContextHolder::class)
     every { SecurityContextHolder.getContext() } returns mockSecurityContext
-    
+
     // Test code here
-    
+
     unmockkStatic(SecurityContextHolder::class)
 }
 ```
@@ -125,9 +126,9 @@ fun testStaticMethod() {
 fun testSingleton() {
     mockkObject(MySingleton)
     every { MySingleton.doSomething() } returns "mocked"
-    
+
     // Test code here
-    
+
     unmockkObject(MySingleton)
 }
 ```
@@ -147,11 +148,11 @@ every { anyConstructed<User>().getName() } returns "Mock User"
 @Test
 fun testCoroutines() = runTest {
     val mockRepo = mockk<UserRepository>()
-    
+
     coEvery { mockRepo.findByIdAsync(any()) } returns user
-    
+
     val result = userService.getUserAsync(1L)
-    
+
     coVerify { mockRepo.findByIdAsync(1L) }
     assertEquals(user, result)
 }
@@ -201,15 +202,15 @@ verifySequence {
 
 ### Common Conversions
 
-| Mockito | MockK |
-|---------|-------|
-| `@Mock` | `mockk<Type>()` |
-| `@MockBean` | `@MockkBean` |
-| `@SpyBean` | `@SpykBean` |
+| Mockito                                 | MockK                                   |
+| --------------------------------------- | --------------------------------------- |
+| `@Mock`                                 | `mockk<Type>()`                         |
+| `@MockBean`                             | `@MockkBean`                            |
+| `@SpyBean`                              | `@SpykBean`                             |
 | `when(mock.method()).thenReturn(value)` | `every { mock.method() } returns value` |
-| `verify(mock).method()` | `verify { mock.method() }` |
-| `verify(mock, times(2)).method()` | `verify(exactly = 2) { mock.method() }` |
-| `ArgumentCaptor` | `slot<Type>()` or `match { }` |
+| `verify(mock).method()`                 | `verify { mock.method() }`              |
+| `verify(mock, times(2)).method()`       | `verify(exactly = 2) { mock.method() }` |
+| `ArgumentCaptor`                        | `slot<Type>()` or `match { }`           |
 
 ## Testing Guidelines
 
@@ -221,10 +222,10 @@ fun `should create user when valid data provided`() {
     // Given
     val userData = CreateUserRequest("test@example.com", "Test User")
     every { userRepository.save(any()) } returns savedUser
-    
+
     // When
     val result = userService.createUser(userData)
-    
+
     // Then
     verify { userRepository.save(match { it.email == "test@example.com" }) }
     assertEquals(savedUser.id, result.id)
