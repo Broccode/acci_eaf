@@ -55,7 +55,7 @@ class TenantWebAdapterTest {
         mockMvc
             .perform(
                 post("/api/v1/tenants")
-                    .with(user("superadmin").roles("SUPER_ADMIN"))
+                    .with(user("superadmin").roles("SUPERADMIN"))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)),
             ).andExpect(status().isCreated)
@@ -79,7 +79,7 @@ class TenantWebAdapterTest {
         mockMvc
             .perform(
                 post("/api/v1/tenants")
-                    .with(user("testuser").roles("USER")) // Not a SUPER_ADMIN
+                    .with(user("testuser").roles("USER")) // Not a SUPERADMIN
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)),
             ).andExpect(status().isForbidden)
@@ -98,7 +98,7 @@ class TenantWebAdapterTest {
         mockMvc
             .perform(
                 post("/api/v1/tenants")
-                    .with(user("superadmin").roles("SUPER_ADMIN"))
+                    .with(user("superadmin").roles("SUPERADMIN"))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)),
             ).andExpect(status().isBadRequest)
