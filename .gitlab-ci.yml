@@ -121,17 +121,17 @@ main:
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
     - echo "🔍 Running affected commands from $NX_BASE to $NX_HEAD"
     # Run formatting check
-    - echo "📝 Step 1: Format check..."
+    - 'echo "📝 Step 1: Format check..."'
     - npx nx format:check --base=$NX_BASE --head=$NX_HEAD
     # Split tasks for better error isolation
-    - echo "🔧 Step 2: Affected linting..."
+    - 'echo "🔧 Step 2: Affected linting..."'
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint --parallel=3
-    - echo "🧪 Step 3: Affected tests..."
+    - 'echo "🧪 Step 3: Affected tests..."'
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t test --parallel=2
-    - echo "🏗️  Step 4: Affected builds..."
+    - 'echo "🏗️  Step 4: Affected builds..."'
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t build --parallel=2
     # Run Kotlin/Gradle formatting check
-    - echo "🎨 Step 5: Kotlin formatting check..."
+    - 'echo "🎨 Step 5: Kotlin formatting check..."'
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t spotlessCheck
   after_script:
     - |
