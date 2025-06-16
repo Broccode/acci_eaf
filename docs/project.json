@@ -85,14 +85,14 @@
     "format": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prettier --write 'src/**/*.{ts,tsx,js,jsx,css,md}' 'docusaurus-docs/**/*.{md,mdx}' 'blog/**/*.{md,mdx}' '*.{ts,js,json,md}'",
+        "command": "prettier --write 'src/**/*.{ts,tsx,js,jsx,css,md}' 'docusaurus-docs/**/*.{md,mdx}' '*.{ts,js,json,md}'",
         "cwd": "docs"
       }
     },
     "format:check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prettier --check 'src/**/*.{ts,tsx,js,jsx,css,md}' 'docusaurus-docs/**/*.{md,mdx}' 'blog/**/*.{md,mdx}' '*.{ts,js,json,md}'",
+        "command": "prettier --check 'src/**/*.{ts,tsx,js,jsx,css,md}' 'docusaurus-docs/**/*.{md,mdx}' '*.{ts,js,json,md}'",
         "cwd": "docs"
       }
     }
