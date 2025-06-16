@@ -20,6 +20,10 @@
     "format:fix": "./scripts/format-fix.sh",
     "ci:debug": "./scripts/ci-debug.sh",
     "ci:local": "npm run ci:debug",
+    "gitlab:debug": "./scripts/gitlab-ci-debug.sh",
+    "gitlab:local": "npm run gitlab:debug",
+    "ci:summary": "./scripts/ci-summary.sh",
+    "help": "npm run ci:summary",
     "precommit": "npm run format:check:all && npm run lint",
     "prepare": "husky"
   },
