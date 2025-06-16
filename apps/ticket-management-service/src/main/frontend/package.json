@@ -1,0 +1,26 @@
+{
+  "name": "ticket-management-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@vaadin/react-components": "24.5.4",
+    "@vaadin/hilla-react-auth": "2.5.8",
+    "@vaadin/hilla-frontend": "2.5.8",
+    "@acci-eaf/ui-foundation-kit": "*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.8.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "typescript": "^5.0.0",
+    "vite": "^4.3.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}

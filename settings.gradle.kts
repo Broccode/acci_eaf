@@ -15,6 +15,7 @@ dependencyResolutionManagement {
 
 // Include backend applications
 include(":apps:iam-service")
+include(":apps:ticket-management-service")
 
 // Include backend libraries
 include(":libs:eaf-core")

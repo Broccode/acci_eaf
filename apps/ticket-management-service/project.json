@@ -1,0 +1,30 @@
+{
+  "name": "ticket-management-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/ticket-management-service/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/gradle:build",
+      "outputs": ["{workspaceRoot}/build/libs"],
+      "options": {}
+    },
+    "test": {
+      "executor": "@nx/gradle:test",
+      "outputs": ["{workspaceRoot}/build/test-results"],
+      "options": {}
+    },
+    "lint": {
+      "executor": "@nx/gradle:lint",
+      "outputs": ["{workspaceRoot}/build/reports"],
+      "options": {}
+    },
+    "serve": {
+      "executor": "@nx/gradle:run",
+      "options": {
+        "args": ["bootRun"]
+      }
+    }
+  },
+  "tags": ["type:app", "scope:ticket-management"]
+}

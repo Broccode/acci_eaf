@@ -45,6 +45,10 @@ val slf4jVersion = "2.0.9"
 val kotlinCoroutinesVersion = "1.8.1"
 val jakartaServletVersion = "6.0.0"
 
+// Frontend Versions
+val hillaVersion = "2.5.8"
+val vaadinVersion = "24.5.4"
+
 // Build & Code Quality Versions
 val spotlessVersion = "7.0.0.BETA4"
 val ktlintVersion = "1.3.1"
@@ -97,6 +101,10 @@ allprojects {
     extra["slf4jVersion"] = slf4jVersion
     extra["kotlinCoroutinesVersion"] = kotlinCoroutinesVersion
     extra["jakartaServletVersion"] = jakartaServletVersion
+
+    // Frontend
+    extra["hillaVersion"] = hillaVersion
+    extra["vaadinVersion"] = vaadinVersion
 
     // Build & Code Quality
     extra["spotlessVersion"] = spotlessVersion

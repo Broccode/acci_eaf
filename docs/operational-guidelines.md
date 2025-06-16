@@ -16,6 +16,7 @@
     services must include a unique Correlation ID (e.g., propagated via HTTP headers or NATS message
     headers) for distributed tracing.
 - **Specific Handling Patterns:**
+
   - **External API Calls (e.g., to `corenode` or federated IdPs):** Implement resilient client
     patterns:
     - Timeouts (connect and read).
@@ -26,6 +27,23 @@
   - **Internal Errors / Business Logic Exceptions:** Custom exceptions will be caught by global
     exception handlers in API layers (e.g., Spring `@ControllerAdvice`) and translated into standard
     API error responses. Sensitive details will not be exposed to clients.
+  - **Kotlin DTO Constructor Validation:** When using constructor validation with `require()` calls
+    in Kotlin DTOs, these throw `IllegalArgumentException` which gets wrapped in
+    `HttpMessageNotReadableException` during JSON deserialization. Handle this separately from field
+    validation:
+
+    ```kotlin
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadableException(
+        ex: HttpMessageNotReadableException,
+    ): ResponseEntity<ErrorResponse> {
+        // Extract the root cause message if it's validation from our DTOs
+        val message = ex.cause?.message ?: ex.message ?: "Invalid request format"
+        val errorResponse = ErrorResponse(message = message, code = "INVALID_REQUEST")
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+    }
+    ```
+
   - **NATS/JetStream Interactions (Event Publishing/Consumption):**
     - Publishing: At-least-once delivery with `PublishAck` handling. Retries for failed publishes.
       Consider Transactional Outbox for critical events if simple retries are insufficient.
@@ -358,6 +376,14 @@ applications built on EAF. Linting and formatting tools will enforce many of the
   - Prefer constructor injection for dependencies.
   - Use Spring Boot auto-configuration where possible.
   - Adhere to Spring best practices for defining beans, configurations, and profiles.
+  - **EAF SDK Integration:** All EAF SDKs integrate seamlessly with Spring Boot:
+    - **Event Sourcing SDK:** Use `AggregateRepository<T, ID>` with tenant-aware
+      `load(tenantId, aggregateId)` and `save(tenantId, aggregate)` methods
+    - **Eventing SDK:** Use `NatsEventPublisher` for event publishing with automatic context
+      propagation
+    - **IAM Client SDK:** Integrates with Spring Security for method-level authorization using
+      `@PreAuthorize`
+    - **Core SDK:** Provides utilities and base classes that work with Spring's dependency injection
 
 ### Dependency Management
 
@@ -638,6 +664,47 @@ class ServiceTest {
         assertEquals(expected, result)
     }
 }
+```
+
+**Spring Security + Kotlin Coroutines Testing:**
+
+When testing `suspend` functions in Spring controllers with security, use the async dispatch
+pattern:
+
+```kotlin
+@WebMvcTest(MyController::class)
+@TestPropertySource(properties = ["eaf.iam.security.enabled=false"])
+class MyControllerTest {
+    @Test
+    @WithMockUser(roles = ["USER"])
+    fun `should handle async controller methods correctly`() = runTest {
+        // For suspend functions that return successful responses
+        mockMvc.perform(post("/api/endpoint").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+            .andExpect(request().asyncStarted())
+            .andDo { result ->
+                mockMvc.perform(asyncDispatch(result))
+                    .andExpect(status().isCreated)
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.field").value("expectedValue"))
+            }
+
+        // For validation errors (these are NOT async - they fail before reaching the controller)
+        mockMvc.perform(post("/api/endpoint").contentType(MediaType.APPLICATION_JSON).content(invalidRequestBody))
+            .andExpect(status().isBadRequest) // No async handling needed for validation errors
+    }
+}
+```
+
+**MockK Best Practices for EAF:**
+
+```kotlin
+// ✅ Preferred - Use type-specific any() calls
+coEvery { service.processRequest(any<CreateRequestType>()) } returns response
+coVerify { service.processRequest(any<CreateRequestType>()) }
+
+// ❌ Avoid - Direct import of io.mockk.any causes compilation issues
+import io.mockk.any // Don't do this
+coEvery { service.processRequest(any()) } returns response // Type inference issues
 ```
 
 **Running Backend Tests:**
