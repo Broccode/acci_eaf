@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'ACCI EAF Launchpad',
   tagline: 'Enterprise Application Framework Developer Portal',
-  favicon: 'img/favicon.ico',
+  favicon: 'favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -38,6 +38,43 @@ const config: Config = {
     defaultLocale: 'en',
     locales: ['en'],
   },
+
+  // Add comprehensive favicon and icon support
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/acci_eaf/favicon-32x32.png',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/acci_eaf/favicon-16x16.png',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'apple-touch-icon',
+        sizes: '180x180',
+        href: '/acci_eaf/apple-touch-icon.png',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'manifest',
+        href: '/acci_eaf/site.webmanifest',
+      },
+    },
+  ],
 
   presets: [
     [
