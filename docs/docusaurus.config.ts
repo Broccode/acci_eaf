@@ -1,6 +1,6 @@
-import { themes as prismThemes } from 'prism-react-renderer';
-import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import type { Config } from '@docusaurus/types';
+import { themes as prismThemes } from 'prism-react-renderer';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -100,6 +100,18 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
+    // Algolia DocSearch configuration
+    algolia: {
+      // The application ID provided by Algolia
+      appId: 'YOUR_APP_ID',
+      // Public API key: it is safe to commit it
+      apiKey: 'YOUR_SEARCH_API_KEY',
+      indexName: 'YOUR_INDEX_NAME',
+      // Optional: see official Docusaurus doc
+      contextualSearch: true,
+      // Optional: path for search page that enabled by default (`false` to disable it)
+      searchPagePath: 'search',
+    },
     navbar: {
       title: 'ACCI EAF Launchpad',
       logo: {
@@ -117,6 +129,11 @@ const config: Config = {
           href: 'http://localhost:4400',
           label: 'Component Library',
           position: 'left',
+        },
+        {
+          href: 'https://github.com/broccode/acci_eaf/issues/new/choose',
+          label: 'Feedback',
+          position: 'right',
         },
         {
           href: 'https://github.com/broccode/acci_eaf',
