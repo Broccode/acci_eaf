@@ -24,7 +24,7 @@ necessary tools installed.
 
 ## ☕ Java Development Kit (JDK)
 
-ACCI EAF requires **JDK 17 or higher** for Kotlin/Spring development.
+ACCI EAF requires **JDK 21 or higher** for Kotlin/Spring development.
 
 ### Installation Options
 
@@ -35,9 +35,9 @@ ACCI EAF requires **JDK 17 or higher** for Kotlin/Spring development.
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-# Install latest JDK 17
-sdk install java 17.0.9-tem
-sdk use java 17.0.9-tem
+# Install latest JDK 21
+sdk install java 21.0.7-tem
+sdk use java 21.0.7-tem
 
 # Verify installation
 java -version
@@ -46,7 +46,7 @@ java -version
 #### Option 2: Direct Download
 
 - **Oracle JDK**: [Download from Oracle](https://www.oracle.com/java/technologies/downloads/)
-- **OpenJDK**: [Download from OpenJDK](https://jdk.java.net/17/)
+- **OpenJDK**: [Download from OpenJDK](https://jdk.java.net/21/)
 - **Eclipse Temurin**: [Download from Adoptium](https://adoptium.net/)
 
 ### Verification
@@ -54,7 +54,7 @@ java -version
 ```bash
 # Check Java version
 java -version
-# Should show: openjdk version "17.0.x" or similar
+# Should show: openjdk version "21.0.x" or similar
 
 # Check JAVA_HOME
 echo $JAVA_HOME
