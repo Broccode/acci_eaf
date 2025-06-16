@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+. ".husky/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+echo ""
+
+# Run comprehensive formatting check (same as CI)
+echo "📝 Checking formatting (nx + prettier)..."
+npm run format:check:all
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Formatting issues found!"
+  echo "💡 Run 'npm run format:all' to fix formatting issues"
+  echo ""
+  exit 1
+fi
+
+# Run lint-staged for staged files
+echo ""
+echo "🧹 Running lint-staged..."
+npx lint-staged
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Linting/formatting failed on staged files!"
+  echo ""
+  exit 1
+fi
+
+echo ""
+echo "✅ All pre-commit checks passed!"
+echo ""
