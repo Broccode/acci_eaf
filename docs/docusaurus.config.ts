@@ -103,10 +103,10 @@ const config: Config = {
     // Algolia DocSearch configuration
     algolia: {
       // The application ID provided by Algolia
-      appId: 'YOUR_APP_ID',
+      appId: 'WT0YSJA5QI',
       // Public API key: it is safe to commit it
-      apiKey: 'YOUR_SEARCH_API_KEY',
-      indexName: 'YOUR_INDEX_NAME',
+      apiKey: '05057a8748165108488781cee8db7325',
+      indexName: 'broccodeio',
       // Optional: see official Docusaurus doc
       contextualSearch: true,
       // Optional: path for search page that enabled by default (`false` to disable it)
