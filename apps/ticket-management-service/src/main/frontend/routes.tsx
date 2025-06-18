@@ -1,15 +1,25 @@
-import React from 'react';
+import ProtectedRoute from 'Frontend/components/ProtectedRoute';
+import CreateTicketView from 'Frontend/views/CreateTicketView';
+import DashboardView from 'Frontend/views/DashboardView';
+import LoginView from 'Frontend/views/LoginView';
+import MainLayout from 'Frontend/views/MainLayout';
+import TicketDetailView from 'Frontend/views/TicketDetailView';
+import TicketListView from 'Frontend/views/TicketListView';
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
-import CreateTicketView from './views/CreateTicketView.js';
-import DashboardView from './views/DashboardView.js';
-import MainLayout from './views/MainLayout.js';
-import TicketDetailView from './views/TicketDetailView.js';
-import TicketListView from './views/TicketListView.js';
 
+// Define routes for the React application
 export const routes: RouteObject[] = [
   {
+    path: '/login',
+    element: <LoginView />,
+  },
+  {
     path: '/',
-    element: <MainLayout />,
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <DashboardView /> },
       { path: 'tickets', element: <TicketListView /> },
@@ -19,4 +29,6 @@ export const routes: RouteObject[] = [
   },
 ];
 
-export const router = createBrowserRouter(routes);
+export const router = createBrowserRouter(routes, {
+  basename: new URL(document.baseURI).pathname,
+});

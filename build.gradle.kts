@@ -47,7 +47,7 @@ val jakartaServletVersion = "6.0.0"
 
 // Frontend Versions
 val hillaVersion = "2.5.8"
-val vaadinVersion = "24.5.4"
+val vaadinVersion = "24.4.12"
 
 // Build & Code Quality Versions
 val spotlessVersion = "7.0.0.BETA4"

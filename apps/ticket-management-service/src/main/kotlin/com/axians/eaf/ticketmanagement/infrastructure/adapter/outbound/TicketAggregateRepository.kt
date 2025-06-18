@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.springframework.stereotype.Repository
 import java.util.UUID
 
 /**
@@ -22,7 +21,6 @@ import java.util.UUID
  * implementations for event serialization/deserialization and aggregate creation
  * specific to the Ticket domain.
  */
-@Repository
 class TicketAggregateRepository(
     eventStoreRepository: EventStoreRepository,
     objectMapper: ObjectMapper,

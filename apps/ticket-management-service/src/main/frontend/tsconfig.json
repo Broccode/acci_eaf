@@ -15,10 +15,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "Frontend/*": ["./src/*"],
-      "@/*": ["./src/*"]
+      "Frontend/*": ["./*"]
     }
   },
-  "include": ["src", "views", "components", "generated"],
+  "include": [".", "views", "components", "generated"],
   "exclude": ["node_modules"]
 }

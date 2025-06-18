@@ -42,7 +42,36 @@
           relevant ArchUnit tests.
        7. If a UI is part of the pilot, it is built using components from the `ui-foundation-kit`
           and Vaadin/Hilla/React.
-  3. **Story 2.8.3: Deploy and Test Pilot Service/Module in a Test Environment**
+  3. **Story 2.8.3: Implement Production-Grade Security for Pilot Service UI**
+     - As the Pilot Development Team, I want to implement a production-grade, stateful login flow
+       for the `ticket-management-service` UI, following the official Vaadin/Hilla security guide,
+       so that the UI is properly secured using EAF and industry best practices, and we validate
+       this security pattern for future Hilla-based applications.
+     - **Acceptance Criteria:**
+       1. **Spring Security Configuration:** A Spring Security configuration (`SecurityConfig.kt`)
+          is implemented in the `ticket-management-service` using `VaadinWebSecurity` to secure all
+          Hilla endpoints and UI views by default.
+       2. **Public Access Configuration:** The login view (`/login`) and any other necessary public
+          resources are explicitly configured to be accessible by unauthenticated users.
+       3. **User Information Endpoint:** A `@BrowserCallable` Hilla service (`UserInfoService.kt`)
+          is created. It is secured and, for an authenticated user, returns essential, non-sensitive
+          user details (e.g., username, roles) by leveraging the `eaf-iam-client` SDK.
+       4. **Frontend Auth Hook:** A `useAuth.ts` hook is created on the frontend, which consumes the
+          `UserInfoService` to manage the application's authentication state (user object, logged-in
+          status).
+       5. **Login View:** A `LoginView.tsx` is implemented that uses Spring Security's standard
+          form-based login (`/login` POST action). It correctly handles login success (redirect to a
+          protected view) and failure (displaying an error message).
+       6. **Logout Functionality:** A "Sign out" button is available in the main layout for
+          authenticated users, which correctly invalidates the session via a call to Spring
+          Security's logout endpoint.
+       7. **Protected Routes:** All application views, except for the login view, are protected.
+          Unauthenticated users attempting to access them are automatically redirected to the
+          `/login` view.
+       8. **Role-Based UI Elements:** The main layout dynamically renders navigation links or UI
+          elements based on the authenticated user's roles (e.g., an "Admin" link is only visible to
+          users with an admin role).
+  4. **Story 2.8.4: Deploy and Test Pilot Service/Module in a Test Environment**
      - As the Pilot Development Team, I want to deploy the pilot service/module to a representative
        test environment (e.g., using the EAF-provided Docker Compose setup for local/dev or a
        similar \"less cloud-native\" pattern on a shared VM) and perform basic functional and
@@ -58,7 +87,7 @@
           data) are validated.
        4. Logs from the pilot service and relevant EAF services are accessible and show correct
           operation.
-  4. **Story 2.8.4: Collect and Analyze Feedback from Pilot Team**
+  5. **Story 2.8.5: Collect and Analyze Feedback from Pilot Team**
      - As the ACCI EAF Core Team (John, Fred, Jane, Sarah), I want to systematically collect
        detailed feedback from the pilot development team regarding their experience using the EAF
        MVP\'s services, SDKs, CLI, documentation (\"Launchpad\"), and overall development process

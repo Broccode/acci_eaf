@@ -32,10 +32,11 @@ export default function TicketDetailView() {
     }
   }, [id]);
 
-  const loadTicket = async () => {
+  const loadTicket = async (ticketId: string) => {
     try {
       // TODO: Load ticket from Hilla endpoint
       // For now, using placeholder data
+      console.log('Loading ticket:', ticketId);
       setTicket(null);
     } catch (error) {
       console.error('Error loading ticket:', error);

@@ -25,6 +25,21 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+# Vaadin Configuration
+vaadin:
+  productionMode: false
+  frontend:
+    hotdeploy: true
+  pnpm:
+    enable: false
+  # Disable Flow features since we're using Hilla only
+  servlet:
+    disable-automatic-servlet-registration: true
+  react:
+    enable: true
+  flow:
+    enable: false
+
 # EAF Configuration
 eaf:
   eventing:
@@ -41,6 +56,22 @@ eaf:
     service-url: http://localhost:8081
     client-id: ticket-management-service
     validate-tokens: true
+
+app:
+  security:
+    auth:
+      # IMPORTANT: The JWT secret for stateless authentication.
+      # This value SHOULD NOT be committed to version control.
+      # For local development, create a file:
+      # apps/ticket-management-service/config/local/application.yml
+      # And add the following content, after generating a secret with 'openssl rand -base64 32':
+      #
+      # app:
+      #   security:
+      #     auth:
+      #       secret: 'YOUR_GENERATED_SECRET_HERE'
+      #
+      secret: ''
 
 # Logging
 logging:

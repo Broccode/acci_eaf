@@ -5,26 +5,33 @@
   "sourceRoot": "apps/ticket-management-service/src",
   "targets": {
     "build": {
-      "executor": "@nx/gradle:build",
+      "executor": "@nx/gradle:gradle",
       "outputs": ["{workspaceRoot}/build/libs"],
-      "options": {}
+      "options": {
+        "taskName": "build"
+      }
     },
     "test": {
-      "executor": "@nx/gradle:test",
+      "executor": "@nx/gradle:gradle",
       "outputs": ["{workspaceRoot}/build/test-results"],
-      "options": {}
+      "options": {
+        "taskName": "test"
+      }
     },
     "lint": {
-      "executor": "@nx/gradle:lint",
+      "executor": "@nx/gradle:gradle",
       "outputs": ["{workspaceRoot}/build/reports"],
-      "options": {}
+      "options": {
+        "taskName": "spotlessCheck"
+      }
     },
     "serve": {
-      "executor": "@nx/gradle:run",
+      "executor": "@nx/gradle:gradle",
       "options": {
-        "args": ["bootRun"]
+        "taskName": "bootRun"
       }
     }
   },
+  "implicitDependencies": [],
   "tags": ["type:app", "scope:ticket-management"]
 }

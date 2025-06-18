@@ -4,12 +4,15 @@ plugins {
     kotlin("plugin.jpa")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
+    id("com.vaadin") version "24.4.12"
 }
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
+    implementation("org.springframework.security:spring-security-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -17,9 +20,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-    // Vaadin dependencies
+    // Vaadin/Hilla dependencies for frontend
     implementation("com.vaadin:vaadin-spring-boot-starter:${rootProject.extra["vaadinVersion"]}")
-    implementation("com.vaadin:vaadin-dev-server:${rootProject.extra["vaadinVersion"]}")
 
     // EAF SDK dependencies - all required for the pilot
     implementation(project(":libs:eaf-core"))
@@ -36,8 +38,6 @@ dependencies {
 
     runtimeOnly("org.postgresql:postgresql")
 
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
     testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
@@ -53,4 +53,8 @@ dependencies {
 
     // ArchUnit for architectural testing
     testImplementation("com.tngtech.archunit:archunit-junit5:${rootProject.extra["archunitVersion"]}")
+}
+
+tasks.named("spotlessKotlin") {
+    dependsOn("vaadinPrepareFrontend")
 }
