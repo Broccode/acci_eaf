@@ -37,3 +37,6 @@ docs/.docusaurus/
 # Stories that shouldn't be formatted
 # (these are managed by the agent)
 stories/
+
+/.nx/cache
+/.nx/workspace-data

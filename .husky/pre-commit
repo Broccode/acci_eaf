@@ -1,6 +1,3 @@
-#!/usr/bin/env sh
-. ".husky/_/husky.sh"
-
 echo "🔍 Running pre-commit checks..."
 echo ""
 

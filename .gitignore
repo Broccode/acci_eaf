@@ -42,7 +42,18 @@ storybook-static/
 # SWC
 .swc/
 
+# Vaadin/Hilla Generated Files
+**/src/main/frontend/generated/
+**/frontend/generated/
+vite.generated.ts
+webpack.generated.js
+types.d.ts
+**/node_modules/
+**/target/frontend/
+**/build/frontend/
 
+# Project-specific ignores
+**/config/local/
 
 # Created by https://www.gitignore.io/api/osx,java,linux,kotlin,windows,eclipse,java-web,intellij+all,visualstudiocode,gradle,maven
 # Edit at https://www.gitignore.io/?templates=osx,java,linux,kotlin,windows,eclipse,java-web,intellij+all,visualstudiocode,gradle,maven
@@ -674,3 +685,5 @@ Thumbs.db
 # bmad-agent specific
 .ai/
 **/TODO-revert.md
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

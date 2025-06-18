@@ -28,5 +28,6 @@
       }
     }
   },
+  "implicitDependencies": [],
   "tags": ["type:app", "scope:iam", "platform:backend"]
 }
