@@ -32,7 +32,7 @@ axon-spring-boot-starter = { module = "org.axonframework:axon-spring-boot-starte
 axon-test = { module = "org.axonframework:axon-test", version.ref = "axon" }
 
 # Database
-postgresql = "org.postgresql:postgresql:42.7.1"
+postgresql = "org.postgresql:postgresql:42.7.2"
 
 # NATS
 nats-client = { module = "io.nats:jnats", version.ref = "nats" }
