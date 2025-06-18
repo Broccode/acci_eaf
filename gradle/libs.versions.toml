@@ -18,7 +18,7 @@ spring-dependency-management = "1.1.7"
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.10.1" }
-kotlin-coroutines-reactor = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3"
+kotlin-coroutines-reactor = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2"
 
 # Spring Boot
 spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter", version.ref = "spring-boot" }
