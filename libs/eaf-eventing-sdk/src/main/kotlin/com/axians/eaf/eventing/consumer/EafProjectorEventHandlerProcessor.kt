@@ -205,7 +205,7 @@ data class ProjectorDefinition(
  * This service can be used by manually created NATS listeners for each projector.
  */
 @Component
-class IdempotentProjectorService(
+open class IdempotentProjectorService(
     private val objectMapper: ObjectMapper,
     private val processedEventRepository: ProcessedEventRepository,
 ) {

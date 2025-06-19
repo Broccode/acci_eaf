@@ -4,6 +4,9 @@ build/
 .nx/
 node_modules/
 
+# Backup directories
+.bmad-v3-backup/
+
 # Generated files
 *.generated.*
 generated/

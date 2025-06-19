@@ -1,6 +1,8 @@
 package com.axians.eaf.eventing.config
 
+import com.axians.eaf.eventing.consumer.IdempotentProjectorService
 import com.axians.eaf.eventing.consumer.NatsJetStreamListenerProcessor
+import com.axians.eaf.eventing.consumer.ProjectorRegistry
 import io.nats.client.Connection
 import io.nats.client.JetStream
 import io.nats.client.Nats
@@ -22,7 +24,7 @@ import java.time.Duration
  */
 @Configuration
 @EnableConfigurationProperties(NatsEventingProperties::class)
-class NatsEventingConfiguration {
+open class NatsEventingConfiguration {
     private val logger = LoggerFactory.getLogger(NatsEventingConfiguration::class.java)
 
     /**
@@ -33,7 +35,7 @@ class NatsEventingConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun natsConnection(properties: NatsEventingProperties): Connection {
+    open fun natsConnection(properties: NatsEventingProperties): Connection {
         logger.info("Configuring NATS connection with servers: {}", properties.servers)
 
         val options =
@@ -65,7 +67,7 @@ class NatsEventingConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun jetStream(connection: Connection): JetStream =
+    open fun jetStream(connection: Connection): JetStream =
         try {
             val jetStream = connection.jetStream()
             logger.info("JetStream context created successfully")
@@ -76,18 +78,190 @@ class NatsEventingConfiguration {
         }
 
     /**
-     * Starts NATS JetStream listeners when the application is ready.
+     * Starts NATS JetStream listeners and projectors when the application is ready.
      */
     @EventListener(ApplicationReadyEvent::class)
-    fun startNatsListeners(
-        properties: NatsEventingProperties,
-        listenerProcessor: NatsJetStreamListenerProcessor,
-    ) {
+    open fun startNatsListeners(event: ApplicationReadyEvent) {
+        val applicationContext = event.applicationContext
+        val properties = applicationContext.getBean(NatsEventingProperties::class.java)
+        
         if (properties.consumer.autoStartup) {
             logger.info("Starting NATS JetStream listeners...")
-            listenerProcessor.startListeners()
+            
+            // Try to start regular NATS listeners if processor exists
+            try {
+                val listenerProcessor = applicationContext.getBean(NatsJetStreamListenerProcessor::class.java)
+                listenerProcessor.startListeners()
+                logger.info("NATS JetStream listeners started successfully")
+            } catch (e: Exception) {
+                logger.info("No NatsJetStreamListenerProcessor found, skipping regular listeners")
+            }
+
+            logger.info("Starting EAF projector-based consumers...")
+            try {
+                val jetStream = applicationContext.getBean(JetStream::class.java)
+                val projectorService = applicationContext.getBean(IdempotentProjectorService::class.java)
+                startProjectorConsumers(jetStream, projectorService, properties)
+                logger.info("EAF projector-based consumers started successfully")
+            } catch (e: Exception) {
+                logger.info("No IdempotentProjectorService found, skipping projector consumers")
+            }
         } else {
-            logger.info("Auto-startup disabled for NATS JetStream listeners")
+            logger.info("Auto-startup disabled for NATS JetStream listeners and projectors")
+        }
+    }
+
+    /**
+     * Starts NATS consumers for all registered EAF projectors.
+     */
+    private fun startProjectorConsumers(
+        jetStream: JetStream,
+        projectorService: IdempotentProjectorService,
+        properties: NatsEventingProperties,
+    ) {
+        val projectors = ProjectorRegistry.getAllProjectors()
+        if (projectors.isEmpty()) {
+            logger.info("No EAF projectors found to start")
+            return
+        }
+
+        logger.info("Starting {} EAF projector consumers", projectors.size)
+
+        projectors.forEach { projector ->
+            try {
+                startProjectorConsumer(jetStream, projectorService, projector, properties)
+                logger.info(
+                    "Started consumer for projector '{}' on subject '{}'",
+                    projector.projectorName,
+                    projector.subject,
+                )
+            } catch (e: Exception) {
+                logger.error(
+                    "Failed to start consumer for projector '{}' on subject '{}': {}",
+                    projector.projectorName,
+                    projector.subject,
+                    e.message,
+                    e,
+                )
+                throw IllegalStateException("Failed to start projector consumer", e)
+            }
+        }
+    }
+
+    /**
+     * Starts a NATS consumer for a single projector.
+     */
+    private fun startProjectorConsumer(
+        jetStream: JetStream,
+        projectorService: IdempotentProjectorService,
+        projector: com.axians.eaf.eventing.consumer.ProjectorDefinition,
+        properties: NatsEventingProperties,
+    ) {
+        val tenantAwareSubject = buildTenantAwareSubject(projector.subject, properties)
+
+        val subscribeOptions =
+            io.nats.client.PushSubscribeOptions
+                .builder()
+                .durable(projector.durableName)
+                .build()
+
+        // Start consuming messages using JetStream subscribe
+        val subscription = jetStream.subscribe(tenantAwareSubject, subscribeOptions)
+
+        // Start message processing in a separate thread
+        Thread {
+            try {
+                while (!Thread.currentThread().isInterrupted) {
+                    val message = subscription.nextMessage(java.time.Duration.ofSeconds(1))
+                    if (message != null) {
+                        processProjectorMessage(message, projector, projectorService)
+                    }
+                }
+            } catch (e: InterruptedException) {
+                logger.info("Consumer thread interrupted for projector '{}'", projector.projectorName)
+            } catch (e: Exception) {
+                logger.error("Error in consumer thread for projector '{}': {}", projector.projectorName, e.message, e)
+            }
+        }.apply {
+            name = "projector-${projector.projectorName}"
+            isDaemon = true
+            start()
+        }
+
+        logger.debug(
+            "Subscription created for projector '{}' with subject '{}'",
+            projector.projectorName,
+            tenantAwareSubject,
+        )
+    }
+
+    /**
+     * Processes a single message for a projector.
+     */
+    private fun processProjectorMessage(
+        message: io.nats.client.Message,
+        projector: com.axians.eaf.eventing.consumer.ProjectorDefinition,
+        projectorService: IdempotentProjectorService,
+    ) {
+        // Extract tenant ID from the message subject (first part before the first dot)
+        val tenantId = extractTenantIdFromSubject(message.subject)
+        val messageContext =
+            com.axians.eaf.eventing.consumer
+                .DefaultMessageContext(message, tenantId)
+
+        try {
+            // Deserialize the event envelope
+            val eventData = String(message.data)
+            val objectMapper =
+                com.fasterxml.jackson.databind.ObjectMapper().apply {
+                    registerModule(
+                        com.fasterxml.jackson.module.kotlin.KotlinModule
+                            .Builder()
+                            .build(),
+                    )
+                    registerModule(
+                        com.fasterxml.jackson.datatype.jsr310
+                            .JavaTimeModule(),
+                    )
+                }
+
+            // Parse the event envelope
+            val eventEnvelope = objectMapper.readValue(eventData, com.axians.eaf.eventing.EventEnvelope::class.java)
+
+            // Deserialize the actual event from the payload
+            val event = objectMapper.convertValue(eventEnvelope.payload, projector.eventType)
+
+            // Process with idempotency
+            kotlinx.coroutines.runBlocking {
+                projectorService.processEvent(projector.projectorName, event, messageContext)
+            }
+        } catch (e: Exception) {
+            logger.error("Error processing message for projector '{}': {}", projector.projectorName, e.message, e)
+            message.nak()
+        }
+    }
+
+    /**
+     * Extracts the tenant ID from a NATS subject.
+     * Assumes subjects follow the pattern: tenantId.rest.of.subject
+     */
+    private fun extractTenantIdFromSubject(subject: String): String {
+        val parts = subject.split(".")
+        return if (parts.isNotEmpty()) parts[0] else "unknown"
+    }
+
+    /**
+     * Builds a tenant-aware subject string.
+     */
+    private fun buildTenantAwareSubject(
+        subject: String,
+        properties: NatsEventingProperties,
+    ): String {
+        val tenantPrefix = properties.defaultTenantId
+        return if (subject.startsWith(tenantPrefix)) {
+            subject
+        } else {
+            "$tenantPrefix.$subject"
         }
     }
 }

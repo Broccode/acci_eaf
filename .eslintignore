@@ -7,6 +7,9 @@ node_modules/
 .docusaurus/
 **/.docusaurus/
 
+# Backup directories
+.bmad-v3-backup/
+
 # Generated files
 *.generated.*
 generated/

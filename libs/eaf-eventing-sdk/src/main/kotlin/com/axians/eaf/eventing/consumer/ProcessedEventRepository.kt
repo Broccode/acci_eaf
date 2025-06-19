@@ -48,7 +48,7 @@ interface ProcessedEventRepository {
  * with strict tenant isolation.
  */
 @Repository
-class JdbcProcessedEventRepository(
+open class JdbcProcessedEventRepository(
     private val jdbcTemplate: NamedParameterJdbcTemplate,
 ) : ProcessedEventRepository {
     companion object {

@@ -44,9 +44,19 @@ vaadin:
 eaf:
   eventing:
     nats:
-      url: nats://localhost:4222
-      connection-timeout: 5s
-      max-reconnects: 10
+      servers:
+        - 'nats://localhost:4222'
+      default-tenant-id: 'default-tenant'
+      connection-name: 'ticket-management-service'
+      max-reconnects: -1
+      reconnect-wait-ms: 2000
+      connection-timeout-ms: 5000
+      ping-interval-ms: 120000
+      consumer:
+        auto-startup: true
+        default-ack-wait: 30000
+        default-max-deliver: 3
+        default-max-ack-pending: 1000
 
   event-store:
     tenant-isolation: true
