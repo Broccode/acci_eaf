@@ -1,6 +1,6 @@
 [versions]
 # From root build.gradle.kts
-kotlin = "2.0.21"
+kotlin = "2.1.21"
 springBoot = "3.3.1"
 junit = "5.11.4"
 junitPlatform = "1.11.4"
