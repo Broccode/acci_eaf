@@ -84,10 +84,10 @@ open class NatsEventingConfiguration {
     open fun startNatsListeners(event: ApplicationReadyEvent) {
         val applicationContext = event.applicationContext
         val properties = applicationContext.getBean(NatsEventingProperties::class.java)
-        
+
         if (properties.consumer.autoStartup) {
             logger.info("Starting NATS JetStream listeners...")
-            
+
             // Try to start regular NATS listeners if processor exists
             try {
                 val listenerProcessor = applicationContext.getBean(NatsJetStreamListenerProcessor::class.java)
