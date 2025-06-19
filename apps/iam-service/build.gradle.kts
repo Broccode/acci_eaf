@@ -20,6 +20,10 @@ dependencies {
     // EAF Core dependency
     implementation(project(":libs:eaf-core"))
 
+    // Jackson Kotlin module for JSON serialization
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
+
     runtimeOnly(libs.postgresql)
 
     developmentOnly(libs.spring.boot.docker.compose)

@@ -20,10 +20,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.nats.client.Connection
 import io.nats.client.Nats
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import java.util.UUID
@@ -38,6 +40,8 @@ import com.axians.eaf.ticketmanagement.domain.port.outbound.EventPublisher as Ti
 @Configuration
 @EnableMethodSecurity(prePostEnabled = true)
 @EnableConfigurationProperties
+@EnableJpaRepositories(basePackages = ["com.axians.eaf.ticketmanagement.infrastructure.adapter.outbound"])
+@EntityScan(basePackages = ["com.axians.eaf.ticketmanagement.infrastructure.adapter.outbound.entity"])
 class TicketManagementConfiguration {
     /**
      * Configures the ObjectMapper with Kotlin and JSR310 support.

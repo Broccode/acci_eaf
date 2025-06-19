@@ -42,7 +42,10 @@
         "{workspaceRoot}/jest.preset.js",
         "{projectRoot}/vitest.config.[jt]s"
       ],
-      "cache": true
+      "cache": true,
+      "options": {
+        "timeout": 600000
+      }
     },
     "lint": {
       "inputs": [

@@ -2,6 +2,7 @@ package com.axians.eaf.ticketmanagement.infrastructure.config
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -20,6 +21,7 @@ import javax.crypto.spec.SecretKeySpec
  */
 @EnableWebSecurity
 @Configuration
+@ConditionalOnProperty(name = ["vaadin.enabled"], havingValue = "true", matchIfMissing = true)
 class SecurityConfig : VaadinWebSecurity() {
     @Value("\${app.security.auth.secret:}")
     private lateinit var authSecret: String

@@ -17,10 +17,18 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
 
-@SpringBootTest(classes = [TestTicketManagementApplication::class])
+@SpringBootTest(
+    classes = [TestTicketManagementApplication::class],
+    properties = [
+        "spring.autoconfigure.exclude=com.vaadin.flow.spring.SpringBootAutoConfiguration,com.vaadin.flow.spring.SpringSecurityAutoConfiguration",
+    ],
+)
 @Testcontainers
 @ActiveProfiles("test")
-@Import(TicketManagementTestcontainerConfiguration::class)
+@Import(
+    TicketManagementTestcontainerConfiguration::class,
+    com.axians.eaf.ticketmanagement.infrastructure.security.SecurityUtils::class,
+)
 class StatelessSecurityIntegrationTest {
     @MockkBean
     private lateinit var userDetailsService: UserDetailsService
@@ -46,7 +54,7 @@ class StatelessSecurityIntegrationTest {
         assertThat(userInfo).isNotNull
         assertThat(userInfo.username).isEqualTo(username)
         assertThat(userInfo.name).isEqualTo(username)
-        assertThat(userInfo.isAnonymous).isFalse
+        assertThat(userInfo.anonymous).isFalse()
         assertThat(userInfo.roles).contains("ROLE_USER")
     }
 
@@ -57,7 +65,7 @@ class StatelessSecurityIntegrationTest {
 
         // Assert
         assertThat(userInfo).isNotNull
-        assertThat(userInfo.isAnonymous).isTrue
+        assertThat(userInfo.anonymous).isTrue()
         assertThat(userInfo.username).isNull()
         assertThat(userInfo.name).isNull()
         assertThat(userInfo.roles).isEmpty()
