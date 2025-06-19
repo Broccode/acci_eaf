@@ -1,0 +1,38 @@
+# EAF IAM Service Configuration
+
+# Database Configuration
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eaf_iam
+    username: eaf_user
+    password: eaf_password
+    driver-class-name: org.postgresql.Driver
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  # Flyway Configuration
+  flyway:
+    enabled: false
+
+  # Spring Boot Docker Compose Integration
+  # Point to the shared docker-compose file in the infra directory
+  docker:
+    compose:
+      file: ../../infra/docker-compose/docker-compose.yml
+
+# System Initialization Configuration
+# Enable automatic creation of default tenant and superadmin user on startup
+eaf:
+  system:
+    initialize-default-tenant: true
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.axians.eaf: DEBUG
