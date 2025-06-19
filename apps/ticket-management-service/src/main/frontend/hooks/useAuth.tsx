@@ -48,7 +48,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Fetch user info when the provider mounts.
     // This determines if a user is already logged in.
     UserInfoService.getUserInfo().then(userInfo => {
-      setUser(userInfo);
+      setUser(userInfo ?? null);
       setLoading(false);
     });
   }, []);
