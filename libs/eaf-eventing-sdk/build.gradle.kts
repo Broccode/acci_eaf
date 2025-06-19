@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm")
-    id("io.spring.dependency-management")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.spring.dependency.management)
     `java-library`
 }
 
@@ -15,47 +15,47 @@ dependencies {
     implementation(project(":libs:eaf-core"))
 
     // Spring Security for context management
-    implementation("org.springframework.security:spring-security-core")
-    implementation("org.springframework:spring-context")
-    implementation("org.springframework.boot:spring-boot-autoconfigure")
+    implementation(libs.spring.security.core)
+    implementation(libs.spring.context)
+    implementation(libs.spring.boot.autoconfigure)
 
     // Core dependencies
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${rootProject.extra["kotlinCoroutinesVersion"]}")
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.coroutines.core)
 
     // Spring Boot dependencies
-    implementation("org.springframework.boot:spring-boot-starter")
+    implementation(libs.spring.boot.starter)
 
     // NATS client
-    implementation("io.nats:jnats:${rootProject.extra["natsVersion"]}")
+    implementation(libs.nats.client)
 
     // JSON processing
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
 
     // Database access for processed events tracking
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.postgresql:postgresql")
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.postgresql)
 
     // Logging
-    implementation("org.slf4j:slf4j-api")
+    implementation(libs.slf4j.api)
 
     // Testing dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:junit-jupiter:${rootProject.extra["testcontainersVersion"]}")
-    testImplementation("org.testcontainers:testcontainers:${rootProject.extra["testcontainersVersion"]}")
-    testImplementation("org.testcontainers:postgresql:${rootProject.extra["testcontainersVersion"]}")
-    testImplementation("com.tngtech.archunit:archunit-junit5:${rootProject.extra["archunitVersion"]}")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${rootProject.extra["kotlinCoroutinesVersion"]}")
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.mockk)
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.core)
+    testImplementation(libs.testcontainers.postgresql)
+    testImplementation(libs.archunit.junit5)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit5)
+    testImplementation(libs.kotlin.coroutines.test)
 
     // For integration tests with actual JDBC
-    testImplementation("org.springframework:spring-jdbc")
-    testImplementation("org.springframework.boot:spring-boot-starter-jdbc")
-    testImplementation("com.zaxxer:HikariCP")
+    testImplementation(libs.spring.jdbc)
+    testImplementation(libs.spring.boot.starter.jdbc)
+    testImplementation(libs.hikariCP)
 }

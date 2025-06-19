@@ -5,19 +5,19 @@ application {
 }
 
 dependencies {
-    implementation("info.picocli:picocli:${rootProject.extra["picocliVersion"]}")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${rootProject.extra["jacksonVersion"]}")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${rootProject.extra["jacksonVersion"]}")
+    implementation(libs.picocli)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.dataformat.yaml)
 
     // For file operations and utilities
-    implementation("org.apache.commons:commons-lang3:${rootProject.extra["commonsLangVersion"]}")
+    implementation(libs.commons.lang3)
 
-    testImplementation("org.junit.jupiter:junit-jupiter:${rootProject.extra["junitVersion"]}")
-    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
-    testImplementation("org.assertj:assertj-core:${rootProject.extra["assertjVersion"]}")
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockk)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.withType<Jar> {

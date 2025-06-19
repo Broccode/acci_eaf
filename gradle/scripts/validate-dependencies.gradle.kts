@@ -1,13 +1,13 @@
 /**
  * Dependency Version Validation Script
  *
- * This script validates that all modules follow the centralized dependency management pattern.
- * It checks for hardcoded versions and ensures compliance with project standards.
+ * This script validates that all modules use the Gradle Version Catalog (`libs.versions.toml`).
+ * It checks for legacy dependency declarations and ensures compliance with modern standards.
  */
 
 tasks.register("validateDependencies") {
     group = "verification"
-    description = "Validates that all modules use centralized dependency versions"
+    description = "Validates that all modules use the Gradle Version Catalog"
 
     doLast {
         val violations = mutableListOf<String>()
@@ -27,23 +27,20 @@ tasks.register("validateDependencies") {
             val relativePath = rootDir.toPath().relativize(buildFile.toPath()).toString()
             val content = buildFile.readText()
 
-            // Check for hardcoded versions in dependencies
+            // Check for hardcoded versions in dependencies (e.g., "group:artifact:1.0.0")
             val hardcodedVersionPattern = Regex(
                 """(implementation|testImplementation|api|compileOnly|runtimeOnly)\s*\(\s*["'][^"']+:[^"']+:[\d.]+[^"']*["']\s*\)"""
             )
-
-            val matches = hardcodedVersionPattern.findAll(content)
-            matches.forEach { match ->
+            hardcodedVersionPattern.findAll(content).forEach { match ->
                 val lineNumber = content.substring(0, match.range.first).count { it == '\n' } + 1
-                violations.add("$relativePath:$lineNumber - Hardcoded version found: ${match.value}")
+                violations.add("$relativePath:$lineNumber - Found hardcoded dependency version. Please use the version catalog (libs.versions.toml). Offending line: ${match.value}")
             }
 
-            // Check for version catalog usage without centralized management
-            val versionCatalogPattern = Regex("""libs\.[a-zA-Z0-9.]+""")
-            val catalogMatches = versionCatalogPattern.findAll(content)
-            catalogMatches.forEach { match ->
+            // Check for legacy rootProject.extra properties
+            val extraPropertyPattern = Regex("""rootProject\.extra\["([^"]+)"]""")
+            extraPropertyPattern.findAll(content).forEach { match ->
                 val lineNumber = content.substring(0, match.range.first).count { it == '\n' } + 1
-                violations.add("$relativePath:$lineNumber - Version catalog usage found (should use centralized versions): ${match.value}")
+                violations.add("$relativePath:$lineNumber - Found legacy 'rootProject.extra' property. Please use the version catalog (libs.versions.toml). Offending line: ${match.value}")
             }
         }
 
@@ -53,22 +50,23 @@ tasks.register("validateDependencies") {
                 """
                 |❌ DEPENDENCY VALIDATION FAILED!
                 |
-                |Found ${violations.size} violation(s):
+                |Found ${violations.size} violation(s). All modules must use the Gradle Version Catalog (libs.versions.toml).
                 |
                 |$violationReport
                 |
                 |📋 Required Actions:
-                |1. Replace hardcoded versions with centralized versions from root build.gradle.kts
-                |2. Use pattern: implementation("group:artifact:${'$'}{rootProject.extra["versionVariable"]}")
-                |3. See docs/troubleshooting/dependency-management-guidelines.md for details
+                |1. Remove all hardcoded dependency versions.
+                |2. Remove all references to `rootProject.extra[...]`.
+                |3. Define all dependencies in `gradle/libs.versions.toml` and reference them via the `libs` object.
                 |
                 |💡 Example Fix:
                 |   ❌ implementation("io.mockk:mockk:1.13.12")
-                |   ✅ implementation("io.mockk:mockk:${'$'}{rootProject.extra["mockkVersion"]}")
+                |   ❌ implementation("io.mockk:mockk:${'$'}{rootProject.extra["mockkVersion"]}")
+                |   ✅ implementation(libs.mockk)
                 """.trimMargin()
             )
         } else {
-            println("✅ All modules comply with centralized dependency management!")
+            println("✅ All modules comply with the Gradle Version Catalog!")
         }
     }
 }

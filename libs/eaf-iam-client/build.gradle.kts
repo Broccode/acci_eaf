@@ -1,8 +1,7 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.spring")
-    id("org.springframework.boot") apply false
-    id("io.spring.dependency-management")
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 dependencyManagement {
@@ -16,51 +15,51 @@ dependencies {
     implementation(project(":libs:eaf-core"))
 
     // Spring Framework
-    implementation("org.springframework:spring-web")
-    implementation("org.springframework:spring-webmvc")
-    implementation("org.springframework:spring-context")
-    implementation("org.springframework.security:spring-security-web")
-    implementation("org.springframework.security:spring-security-config")
-    implementation("org.springframework.security:spring-security-core")
-    implementation("org.springframework.boot:spring-boot")
-    implementation("org.springframework.boot:spring-boot-autoconfigure")
+    implementation(libs.spring.web)
+    implementation(libs.spring.webmvc)
+    implementation(libs.spring.context)
+    implementation(libs.spring.security.web)
+    implementation(libs.spring.security.config)
+    implementation(libs.spring.security.core)
+    implementation(libs.spring.boot)
+    implementation(libs.spring.boot.autoconfigure)
 
     // Servlet API
-    implementation("jakarta.servlet:jakarta.servlet-api:${rootProject.extra["jakartaServletVersion"]}")
+    implementation(libs.jakarta.servlet.api)
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.coroutines.core)
+    implementation(libs.kotlin.coroutines.reactor)
 
     // JSON processing
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
 
     // HTTP Client for IAM introspection
-    implementation("org.springframework:spring-webflux")
-    implementation("io.projectreactor.netty:reactor-netty-http")
+    implementation(libs.spring.webflux)
+    implementation(libs.reactor.netty.http)
 
     // JWT processing
-    implementation("com.nimbusds:nimbus-jose-jwt:${rootProject.extra["nimbusJoseVersion"]}")
+    implementation(libs.nimbus.jose.jwt)
 
     // Logging
-    implementation("org.slf4j:slf4j-api")
+    implementation(libs.slf4j.api)
 
     // Test dependencies
-    testImplementation("org.springframework.boot:spring-boot-test")
-    testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
-    testImplementation("org.springframework:spring-test")
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("io.mockk:mockk:${rootProject.extra["mockkVersion"]}")
-    testImplementation("org.assertj:assertj-core:${rootProject.extra["assertjVersion"]}")
-    testImplementation("com.squareup.okhttp3:mockwebserver:${rootProject.extra["okhttpVersion"]}")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-    testImplementation("org.testcontainers:junit-jupiter:${rootProject.extra["testcontainersVersion"]}")
-    testImplementation("org.testcontainers:testcontainers:${rootProject.extra["testcontainersVersion"]}")
+    testImplementation(libs.spring.boot.test)
+    testImplementation(libs.spring.boot.test.autoconfigure)
+    testImplementation(libs.spring.test)
+    testImplementation(libs.spring.security.test)
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.mockk)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.core)
 }
 
 tasks.withType<Test> {
