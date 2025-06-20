@@ -31,6 +31,10 @@ class TicketSummaryProjector(
 ) {
     private val logger = LoggerFactory.getLogger(TicketSummaryProjector::class.java)
 
+    init {
+        logger.info("TicketSummaryProjector initialized - ready to process events!")
+    }
+
     /**
      * Handles TicketCreatedEvent to create initial ticket summary.
      *
@@ -38,7 +42,7 @@ class TicketSummaryProjector(
      * It extracts all relevant information from the event and stores it in the read model.
      */
     @EafProjectorEventHandler(
-        projectorName = "ticket-summary-projector",
+        projectorName = "ticket-created-projector",
         subject = "events.ticket.created",
     )
     fun handleTicketCreatedEvent(
@@ -96,7 +100,7 @@ class TicketSummaryProjector(
      * when a ticket is assigned to a user.
      */
     @EafProjectorEventHandler(
-        projectorName = "ticket-summary-projector",
+        projectorName = "ticket-assigned-projector",
         subject = "events.ticket.assigned",
     )
     fun handleTicketAssignedEvent(
@@ -149,7 +153,7 @@ class TicketSummaryProjector(
      * when a ticket is closed with a resolution.
      */
     @EafProjectorEventHandler(
-        projectorName = "ticket-summary-projector",
+        projectorName = "ticket-closed-projector",
         subject = "events.ticket.closed",
     )
     fun handleTicketClosedEvent(

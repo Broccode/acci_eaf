@@ -1,23 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import client from 'Frontend/generated/connect-client.default';
+import { useEffect, useState } from 'react';
 
 interface TicketSummary {
-  id: string;
+  ticketId: string;
   title: string;
   status: string;
   priority: string;
   assigneeId?: string;
   createdAt: string;
+  description: string;
 }
 
 export default function TicketListView() {
   const [tickets, setTickets] = useState<TicketSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    // TODO: Load tickets from Hilla endpoint
-    // For now, using placeholder data
-    setTickets([]);
-    setLoading(false);
+    const loadTickets = async () => {
+      try {
+        setLoading(true);
+        setError('');
+
+        // Call the TicketEndpoint to load tickets
+        const ticketList = await client.call(
+          'TicketEndpoint',
+          'listTickets',
+          {}
+        );
+        console.log('Loaded tickets:', ticketList);
+
+        // Transform the response to match our interface
+        const transformedTickets = (ticketList || []).map((ticket: any) => ({
+          ticketId: ticket.ticketId,
+          title: ticket.title,
+          status: ticket.status,
+          priority: ticket.priority,
+          assigneeId: ticket.assigneeId,
+          createdAt: ticket.createdAt || new Date().toISOString(),
+          description: ticket.description,
+        }));
+
+        setTickets(transformedTickets);
+      } catch (err) {
+        console.error('Error loading tickets:', err);
+        setError('Failed to load tickets. Please try again.');
+        setTickets([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTickets();
   }, []);
 
   const getStatusColor = (status: string) => {
@@ -64,6 +98,12 @@ export default function TicketListView() {
         </a>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
       {tickets.length === 0 ? (
         <div className="bg-gray-50 p-8 rounded-lg text-center">
           <p className="text-gray-600 text-lg">No tickets found</p>
@@ -98,7 +138,7 @@ export default function TicketListView() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {tickets.map(ticket => (
-                <tr key={ticket.id} className="hover:bg-gray-50">
+                <tr key={ticket.ticketId} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {ticket.title}
@@ -126,7 +166,7 @@ export default function TicketListView() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <a
-                      href={`/tickets/${ticket.id}`}
+                      href={`/tickets/${ticket.ticketId}`}
                       className="text-blue-600 hover:text-blue-900"
                     >
                       View

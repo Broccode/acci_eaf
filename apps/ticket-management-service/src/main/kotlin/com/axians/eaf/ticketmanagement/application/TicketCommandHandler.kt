@@ -12,6 +12,7 @@ import com.axians.eaf.ticketmanagement.domain.event.TicketAssignedEvent
 import com.axians.eaf.ticketmanagement.domain.event.TicketClosedEvent
 import com.axians.eaf.ticketmanagement.domain.event.TicketCreatedEvent
 import com.axians.eaf.ticketmanagement.domain.port.outbound.EventPublisher
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -26,6 +27,8 @@ class TicketCommandHandler(
     private val aggregateRepository: AggregateRepository<Ticket, UUID>,
     private val eventPublisher: EventPublisher,
 ) {
+    private val logger = LoggerFactory.getLogger(TicketCommandHandler::class.java)
+
     // For simplicity in the pilot, we'll use a default tenant context
     // In a real application, this would come from the security context
     private val defaultTenantId = "default-tenant"
@@ -34,6 +37,7 @@ class TicketCommandHandler(
      * Handles the creation of a new ticket.
      */
     suspend fun handle(command: CreateTicketCommand): CreateTicketResponse {
+        logger.info("Handling CreateTicketCommand for ticket: {}", command.ticketId)
         // Create new ticket aggregate
         val ticket = aggregateRepository.createNew(command.ticketId)
 

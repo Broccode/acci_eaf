@@ -1,3 +1,5 @@
+@file:Suppress("INLINE_FROM_HIGHER_PLATFORM")
+
 package com.axians.eaf.ticketmanagement
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -20,6 +22,8 @@ import org.springframework.boot.runApplication
         "com.axians.eaf.ticketmanagement.domain",
         "com.axians.eaf.ticketmanagement.infrastructure",
         "com.axians.eaf.ticketmanagement.web",
+        // EAF SDK eventing components
+        "com.axians.eaf.eventing.consumer",
     ],
 )
 class TicketManagementServiceApplication

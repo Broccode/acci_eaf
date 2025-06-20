@@ -101,10 +101,11 @@ open class NatsEventingConfiguration {
             try {
                 val jetStream = applicationContext.getBean(JetStream::class.java)
                 val projectorService = applicationContext.getBean(IdempotentProjectorService::class.java)
+                logger.debug("Found JetStream and IdempotentProjectorService beans")
                 startProjectorConsumers(jetStream, projectorService, properties)
                 logger.info("EAF projector-based consumers started successfully")
             } catch (e: Exception) {
-                logger.info("No IdempotentProjectorService found, skipping projector consumers")
+                logger.warn("Failed to start projector consumers: {}", e.message, e)
             }
         } else {
             logger.info("Auto-startup disabled for NATS JetStream listeners and projectors")
@@ -120,8 +121,12 @@ open class NatsEventingConfiguration {
         properties: NatsEventingProperties,
     ) {
         val projectors = ProjectorRegistry.getAllProjectors()
+        logger.info("ProjectorRegistry contains {} projectors", projectors.size)
         if (projectors.isEmpty()) {
-            logger.info("No EAF projectors found to start")
+            logger.warn("No EAF projectors found to start - ProjectorRegistry is empty!")
+            logger.debug(
+                "This usually means EafProjectorEventHandlerProcessor hasn't discovered any @EafProjectorEventHandler methods",
+            )
             return
         }
 

@@ -25,7 +25,7 @@ import java.util.UUID
 @Service
 class TicketApplicationService(
     private val commandHandler: TicketCommandHandler,
-    private val queryHandler: TicketQueryHandler,
+    private val queryHandler: TicketReadModelQueryHandler,
 ) {
     /**
      * Creates a new ticket.

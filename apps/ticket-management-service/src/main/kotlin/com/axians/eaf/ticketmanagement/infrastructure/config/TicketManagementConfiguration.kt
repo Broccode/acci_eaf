@@ -3,7 +3,6 @@ package com.axians.eaf.ticketmanagement.infrastructure.config
 import com.axians.eaf.eventing.DefaultNatsEventPublisher
 import com.axians.eaf.eventing.NatsEventPublisher
 import com.axians.eaf.eventing.config.NatsEventingProperties
-import com.axians.eaf.eventing.consumer.EafProjectorEventHandlerProcessor
 import com.axians.eaf.eventing.consumer.IdempotentProjectorService
 import com.axians.eaf.eventing.consumer.JdbcProcessedEventRepository
 import com.axians.eaf.eventing.consumer.ProcessedEventRepository
@@ -105,14 +104,13 @@ class TicketManagementConfiguration {
     /**
      * Creates the TicketApplicationService bean.
      *
-     * Note: For this pilot, we're using the original event-sourcing based query handler.
-     * In production, you would likely switch to the read model-based query handler
-     * for better performance.
+     * Note: For this pilot, we're using the read model-based query handler
+     * for better performance and proper ticket listing functionality.
      */
     @Bean
     fun ticketApplicationService(
         commandHandler: TicketCommandHandler,
-        queryHandler: TicketQueryHandler,
+        queryHandler: TicketReadModelQueryHandler,
     ): TicketApplicationService = TicketApplicationService(commandHandler, queryHandler)
 
     /**
@@ -142,21 +140,12 @@ class TicketManagementConfiguration {
 
     /**
      * Creates the IdempotentProjectorService for event processing.
+     * This ensures the bean is available for the NatsEventingConfiguration.
      */
     @Bean
     @ConditionalOnMissingBean
     fun idempotentProjectorService(
-        objectMapper: ObjectMapper,
         processedEventRepository: ProcessedEventRepository,
-    ): IdempotentProjectorService = IdempotentProjectorService(objectMapper, processedEventRepository)
-
-    /**
-     * Creates the EafProjectorEventHandlerProcessor for discovering projector methods.
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    fun eafProjectorEventHandlerProcessor(
         objectMapper: ObjectMapper,
-        processedEventRepository: ProcessedEventRepository,
-    ): EafProjectorEventHandlerProcessor = EafProjectorEventHandlerProcessor(objectMapper, processedEventRepository)
+    ): IdempotentProjectorService = IdempotentProjectorService(processedEventRepository, objectMapper)
 }

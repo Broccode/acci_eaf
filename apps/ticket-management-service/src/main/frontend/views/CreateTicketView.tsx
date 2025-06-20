@@ -1,3 +1,5 @@
+import { TicketEndpoint } from 'Frontend/generated/endpoints';
+import { useAuth } from 'Frontend/hooks/useAuth';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +11,7 @@ interface CreateTicketForm {
 
 export default function CreateTicketView() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [form, setForm] = useState<CreateTicketForm>({
     title: '',
     description: '',
@@ -38,14 +41,43 @@ export default function CreateTicketView() {
     }
 
     try {
-      // TODO: Submit to Hilla endpoint
-      console.log('Creating ticket:', form);
+      // Call the TicketEndpoint to create the ticket using the connect client directly
+      console.log('Creating ticket with user:', user);
+      console.log('Form data:', form);
 
-      // For now, just navigate back to tickets list
+      const requestData = {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        priority: form.priority,
+        assigneeId: undefined,
+      };
+
+      console.log('Sending request:', requestData);
+
+      const result = await TicketEndpoint.createTicket(requestData);
+
+      console.log('Ticket created successfully:', result);
+
+      // Navigate back to tickets list on success
       navigate('/tickets');
     } catch (error) {
       console.error('Error creating ticket:', error);
-      setErrors({ general: 'Failed to create ticket. Please try again.' });
+
+      // More specific error handling
+      let errorMessage = 'Failed to create ticket. Please try again.';
+      if (error && typeof error === 'object') {
+        if ('message' in error) {
+          errorMessage = `Error: ${error.message}`;
+        } else if ('status' in error) {
+          if (error.status === 401 || error.status === 403) {
+            errorMessage = 'Authentication failed. Please login and try again.';
+          } else {
+            errorMessage = `Server error (${error.status}). Please try again.`;
+          }
+        }
+      }
+
+      setErrors({ general: errorMessage });
     } finally {
       setLoading(false);
     }

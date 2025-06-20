@@ -1,3 +1,4 @@
+import client from 'Frontend/generated/connect-client.default';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -34,12 +35,33 @@ export default function TicketDetailView() {
 
   const loadTicket = async (ticketId: string) => {
     try {
-      // TODO: Load ticket from Hilla endpoint
-      // For now, using placeholder data
       console.log('Loading ticket:', ticketId);
-      setTicket(null);
+
+      // Call the TicketEndpoint to load the specific ticket
+      const ticketData = await client.call('TicketEndpoint', 'getTicketById', {
+        ticketId: ticketId,
+      });
+
+      console.log('Loaded ticket data:', ticketData);
+
+      // Transform the response to match our interface
+      if (ticketData) {
+        setTicket({
+          id: ticketData.ticketId,
+          title: ticketData.title,
+          description: ticketData.description,
+          status: ticketData.status,
+          priority: ticketData.priority.toString(),
+          assigneeId: ticketData.assigneeId,
+          createdAt: ticketData.createdAt || new Date().toISOString(),
+          closedAt: ticketData.closedAt || undefined,
+        });
+      } else {
+        setTicket(null);
+      }
     } catch (error) {
       console.error('Error loading ticket:', error);
+      setTicket(null);
     } finally {
       setLoading(false);
     }
@@ -50,8 +72,13 @@ export default function TicketDetailView() {
     if (!ticket || !assignForm.assigneeId.trim()) return;
 
     try {
-      // TODO: Assign ticket via Hilla endpoint
       console.log('Assigning ticket:', ticket.id, 'to:', assignForm.assigneeId);
+
+      // Call the TicketEndpoint to assign the ticket
+      await client.call('TicketEndpoint', 'assignTicket', {
+        ticketId: ticket.id,
+        assigneeId: assignForm.assigneeId,
+      });
 
       // Update local state
       setTicket(prev =>
@@ -69,8 +96,13 @@ export default function TicketDetailView() {
     if (!ticket) return;
 
     try {
-      // TODO: Close ticket via Hilla endpoint
       console.log('Closing ticket:', ticket.id);
+
+      // Call the TicketEndpoint to close the ticket
+      await client.call('TicketEndpoint', 'closeTicket', {
+        ticketId: ticket.id,
+        resolution: 'Resolved by user',
+      });
 
       // Update local state
       setTicket(prev =>
