@@ -27,7 +27,7 @@ import java.util.UUID
 
 class TicketApplicationServiceTest {
     private lateinit var commandHandler: TicketCommandHandler
-    private lateinit var queryHandler: TicketQueryHandler
+    private lateinit var queryHandler: TicketReadModelQueryHandler
     private lateinit var applicationService: TicketApplicationService
 
     @BeforeEach

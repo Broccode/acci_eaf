@@ -39,7 +39,7 @@ class NatsEventPublisherAdapterTest {
 
             coEvery {
                 natsEventPublisher.publish(
-                    subject = "ticket-events",
+                    subject = "events.ticket.created",
                     tenantId = tenantId,
                     event = event,
                 )
@@ -51,7 +51,7 @@ class NatsEventPublisherAdapterTest {
             // Assert
             coVerify {
                 natsEventPublisher.publish(
-                    subject = "ticket-events",
+                    subject = "events.ticket.created",
                     tenantId = tenantId,
                     event = event,
                 )

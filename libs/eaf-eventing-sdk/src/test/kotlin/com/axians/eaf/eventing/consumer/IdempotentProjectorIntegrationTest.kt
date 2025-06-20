@@ -65,8 +65,8 @@ class IdempotentProjectorIntegrationTest {
             }
 
         processedEventRepository = JdbcProcessedEventRepository(jdbcTemplate)
-        idempotentProjectorService = IdempotentProjectorService(objectMapper, processedEventRepository)
-        processor = EafProjectorEventHandlerProcessor(objectMapper, processedEventRepository)
+        idempotentProjectorService = IdempotentProjectorService(processedEventRepository, objectMapper)
+        processor = EafProjectorEventHandlerProcessor()
 
         // Clear the projector registry
         ProjectorRegistry.clear()
