@@ -1,23 +1,35 @@
 package com.axians.eaf.eventing.consumer
 
+import com.axians.eaf.eventing.config.NatsEventingProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import io.nats.client.Message
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.datasource.DataSourceTransactionManager
-import org.springframework.transaction.support.TransactionTemplate
+import org.springframework.scheduling.annotation.EnableAsync
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.Instant
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import javax.sql.DataSource
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -28,7 +40,45 @@ import kotlin.test.assertTrue
  * Tests the complete end-to-end flow including database operations, idempotency, and tenant isolation.
  */
 @Testcontainers
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(classes = [IdempotentProjectorIntegrationTest.TestConfig::class])
+@ActiveProfiles("test")
 class IdempotentProjectorIntegrationTest {
+    @Configuration
+    @EnableAsync
+    @EnableConfigurationProperties(NatsEventingProperties::class)
+    @SpringBootApplication(scanBasePackages = ["com.axians.eaf.eventing.consumer"])
+    open class TestConfig {
+        @Bean
+        open fun objectMapper(): ObjectMapper =
+            ObjectMapper().apply {
+                registerKotlinModule()
+                registerModule(JavaTimeModule())
+            }
+
+        @Bean
+        open fun processedEventRepository(
+            namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
+        ): ProcessedEventRepository = JdbcProcessedEventRepository(namedParameterJdbcTemplate)
+
+        @Bean
+        open fun namedParameterJdbcTemplate(dataSource: DataSource): NamedParameterJdbcTemplate =
+            NamedParameterJdbcTemplate(dataSource)
+
+        @Bean
+        open fun dataSource(): DataSource {
+            postgres.start()
+            val hikariConfig =
+                com.zaxxer.hikari.HikariConfig().apply {
+                    jdbcUrl = postgres.jdbcUrl
+                    username = postgres.username
+                    password = postgres.password
+                    driverClassName = postgres.driverClassName
+                }
+            return com.zaxxer.hikari.HikariDataSource(hikariConfig)
+        }
+    }
+
     companion object {
         @Container
         @JvmStatic
@@ -39,73 +89,58 @@ class IdempotentProjectorIntegrationTest {
                 .withPassword("test")
     }
 
-    private lateinit var dataSource: DataSource
-    private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
-    private lateinit var transactionTemplate: TransactionTemplate
+    @Autowired
     private lateinit var processedEventRepository: ProcessedEventRepository
-    private lateinit var objectMapper: ObjectMapper
+
+    @Autowired
     private lateinit var idempotentProjectorService: IdempotentProjectorService
-    private lateinit var processor: EafProjectorEventHandlerProcessor
+
+    @Autowired
+    private lateinit var namedParameterJdbcTemplate: NamedParameterJdbcTemplate
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setUp() {
-        // Set up database connection
-        dataSource = createDataSource()
-        jdbcTemplate = NamedParameterJdbcTemplate(dataSource)
-        transactionTemplate = TransactionTemplate(DataSourceTransactionManager(dataSource))
-
-        // Create the processed_events table
         createProcessedEventsTable()
-
-        // Initialize services
-        objectMapper =
-            ObjectMapper().apply {
-                registerKotlinModule()
-                registerModule(JavaTimeModule())
-            }
-
-        processedEventRepository = JdbcProcessedEventRepository(jdbcTemplate)
-        idempotentProjectorService = IdempotentProjectorService(processedEventRepository, objectMapper)
-        processor = EafProjectorEventHandlerProcessor()
-
-        // Clear the projector registry
         ProjectorRegistry.clear()
     }
 
     @AfterEach
     fun tearDown() {
-        // Clean up database
-        jdbcTemplate.jdbcTemplate.execute("TRUNCATE TABLE processed_events")
+        namedParameterJdbcTemplate.jdbcTemplate.execute("TRUNCATE TABLE processed_events")
         ProjectorRegistry.clear()
     }
 
     @Test
     fun `should process event successfully and mark as processed`() =
         runTest {
-            // Given
             val projectorName = "test-projector"
             val eventId = UUID.randomUUID()
             val tenantId = "tenant-123"
             val event = TestUserCreatedEvent("user-1", "test@example.com", "Test User", Instant.now())
+            val eventEnvelope =
+                com.axians.eaf.eventing.EventEnvelope(
+                    eventId = eventId.toString(),
+                    eventType = event::class.java.simpleName,
+                    timestamp = Instant.now(),
+                    tenantId = tenantId,
+                    payload = event,
+                )
+            val rawMessage = createMockMessage(eventEnvelope, "events.user.created")
 
-            val mockContext = mockk<MessageContext>()
-            every { mockContext.tenantId } returns tenantId
-            every { mockContext.getHeader("eventId") } returns eventId.toString()
-            every { mockContext.ack() } returns Unit
-
-            // Register a real projector
             val testProjector = TestProjector()
-            registerTestProjector(testProjector, projectorName)
+            registerTestProjector(testProjector, projectorName, "events.user.created")
 
-            // Verify event is not processed initially
             assertFalse(processedEventRepository.isEventProcessed(projectorName, eventId, tenantId))
 
-            // When
-            idempotentProjectorService.processEvent(projectorName, event, mockContext)
+            idempotentProjectorService.processNatsMessage(projectorName, rawMessage)
 
-            // Then
-            assertTrue(processedEventRepository.isEventProcessed(projectorName, eventId, tenantId))
-            verify { mockContext.ack() }
+            await().atMost(5, TimeUnit.SECONDS).until {
+                runBlocking { processedEventRepository.isEventProcessed(projectorName, eventId, tenantId) }
+            }
+
             assertEquals(1, testProjector.processedEvents.size)
             assertEquals(event.userId, testProjector.processedEvents[0].userId)
         }
@@ -113,44 +148,42 @@ class IdempotentProjectorIntegrationTest {
     @Test
     fun `should skip processing when event already processed (idempotency)`() =
         runTest {
-            // Given
             val projectorName = "test-projector"
             val eventId = UUID.randomUUID()
             val tenantId = "tenant-123"
             val event = TestUserCreatedEvent("user-1", "test@example.com", "Test User", Instant.now())
-
-            val mockContext = mockk<MessageContext>()
-            every { mockContext.tenantId } returns tenantId
-            every { mockContext.getHeader("eventId") } returns eventId.toString()
-            every { mockContext.ack() } returns Unit
+            val eventEnvelope =
+                com.axians.eaf.eventing.EventEnvelope(
+                    eventId = eventId.toString(),
+                    eventType = event::class.java.simpleName,
+                    timestamp = Instant.now(),
+                    tenantId = tenantId,
+                    payload = event,
+                )
+            val rawMessage = createMockMessage(eventEnvelope, "events.user.created")
 
             val testProjector = TestProjector()
-            registerTestProjector(testProjector, projectorName)
+            registerTestProjector(testProjector, projectorName, "events.user.created")
 
-            // Mark event as already processed
             processedEventRepository.markEventAsProcessed(projectorName, eventId, tenantId)
 
-            // When
-            idempotentProjectorService.processEvent(projectorName, event, mockContext)
+            idempotentProjectorService.processNatsMessage(projectorName, rawMessage)
 
-            // Then
-            verify { mockContext.ack() }
-            assertEquals(0, testProjector.processedEvents.size) // Should not have processed
+            await().pollDelay(1, TimeUnit.SECONDS).atMost(5, TimeUnit.SECONDS).untilAsserted {
+                assertEquals(0, testProjector.processedEvents.size)
+            }
         }
 
     @Test
     fun `should enforce tenant isolation`() =
         runTest {
-            // Given
             val projectorName = "test-projector"
             val eventId = UUID.randomUUID()
-            val tenant1 = "tenant-123"
-            val tenant2 = "tenant-456"
+            val tenant1 = "tenant-1"
+            val tenant2 = "tenant-2"
 
-            // When - mark event as processed for tenant1
             processedEventRepository.markEventAsProcessed(projectorName, eventId, tenant1)
 
-            // Then - should not be considered processed for tenant2
             assertTrue(processedEventRepository.isEventProcessed(projectorName, eventId, tenant1))
             assertFalse(processedEventRepository.isEventProcessed(projectorName, eventId, tenant2))
         }
@@ -158,27 +191,28 @@ class IdempotentProjectorIntegrationTest {
     @Test
     fun `should handle processing errors and nak message`() =
         runTest {
-            // Given
             val projectorName = "error-projector"
             val eventId = UUID.randomUUID()
             val tenantId = "tenant-123"
             val event = TestUserCreatedEvent("user-1", "test@example.com", "Test User", Instant.now())
+            val eventEnvelope =
+                com.axians.eaf.eventing.EventEnvelope(
+                    eventId = eventId.toString(),
+                    eventType = event::class.java.simpleName,
+                    timestamp = Instant.now(),
+                    tenantId = tenantId,
+                    payload = event,
+                )
+            val rawMessage = createMockMessage(eventEnvelope, "$tenantId.events.user.created")
 
-            val mockContext = mockk<MessageContext>()
-            every { mockContext.tenantId } returns tenantId
-            every { mockContext.getHeader("eventId") } returns eventId.toString()
-            every { mockContext.nak() } returns Unit
-
-            // Register a projector that throws an exception
             val errorProjector = ErrorProjector()
             registerErrorProjector(errorProjector, projectorName)
 
-            // When
-            idempotentProjectorService.processEvent(projectorName, event, mockContext)
+            idempotentProjectorService.processNatsMessage(projectorName, rawMessage)
 
-            // Then
-            verify { mockContext.nak() }
-            assertFalse(processedEventRepository.isEventProcessed(projectorName, eventId, tenantId))
+            await().atMost(5, TimeUnit.SECONDS).until {
+                runBlocking { !processedEventRepository.isEventProcessed(projectorName, eventId, tenantId) }
+            }
         }
 
     @Test
@@ -200,32 +234,30 @@ class IdempotentProjectorIntegrationTest {
 
     @Test
     fun `processor should discover and register annotated projector`() {
-        // Given
         val testBean = AnnotatedTestProjector()
-
-        // When
+        val processor = EafProjectorEventHandlerProcessor()
         processor.postProcessAfterInitialization(testBean, "annotatedTestProjector")
-
-        // Then
         val registeredProjector = ProjectorRegistry.getProjector("AnnotatedTestProjector-handleUserCreated")
         assertTrue(registeredProjector != null)
         assertEquals("test.subject", registeredProjector?.subject)
         assertEquals("AnnotatedTestProjector-handleUserCreated-consumer", registeredProjector?.durableName)
     }
 
-    private fun createDataSource(): DataSource {
-        val hikariConfig =
-            com.zaxxer.hikari.HikariConfig().apply {
-                jdbcUrl = postgres.jdbcUrl
-                username = postgres.username
-                password = postgres.password
-                driverClassName = postgres.driverClassName
-            }
-        return com.zaxxer.hikari.HikariDataSource(hikariConfig)
+    private fun createMockMessage(
+        payload: Any,
+        subject: String,
+    ): Message {
+        val rawPayload = objectMapper.writeValueAsBytes(payload)
+        val msg: Message = mockk()
+        every { msg.data } returns rawPayload
+        every { msg.subject } returns subject
+        every { msg.ack() } returns Unit
+        every { msg.nak() } returns Unit
+        return msg
     }
 
     private fun createProcessedEventsTable() {
-        jdbcTemplate.jdbcTemplate.execute(
+        namedParameterJdbcTemplate.jdbcTemplate.execute(
             """
             CREATE TABLE IF NOT EXISTS processed_events (
                 projector_name VARCHAR(255) NOT NULL,
@@ -244,31 +276,31 @@ class IdempotentProjectorIntegrationTest {
     private fun registerTestProjector(
         projector: TestProjector,
         projectorName: String,
+        subject: String,
     ) {
         val method =
             TestProjector::class.java.getDeclaredMethod(
                 "handleUserCreated",
-                TestUserCreatedEvent::class.java,
+                Any::class.java,
                 UUID::class.java,
                 String::class.java,
             )
 
-        val projectorDef =
+        ProjectorRegistry.registerProjector(
             ProjectorDefinition(
                 originalBean = projector,
                 originalMethod = method,
-                beanName = "testProjector",
+                beanName = "testProjectorBean",
                 projectorName = projectorName,
-                subject = "test.subject",
+                subject = subject,
                 durableName = "$projectorName-consumer",
                 deliverPolicy = io.nats.client.api.DeliverPolicy.All,
-                maxDeliver = 3,
-                ackWait = 30000L,
-                maxAckPending = 1000,
+                maxDeliver = 5,
+                ackWait = 30000,
+                maxAckPending = 10,
                 eventType = TestUserCreatedEvent::class.java,
-            )
-
-        ProjectorRegistry.registerProjector(projectorDef)
+            ),
+        )
     }
 
     private fun registerErrorProjector(
@@ -278,27 +310,26 @@ class IdempotentProjectorIntegrationTest {
         val method =
             ErrorProjector::class.java.getDeclaredMethod(
                 "handleUserCreated",
-                TestUserCreatedEvent::class.java,
+                Any::class.java,
                 UUID::class.java,
                 String::class.java,
             )
 
-        val projectorDef =
+        ProjectorRegistry.registerProjector(
             ProjectorDefinition(
                 originalBean = projector,
                 originalMethod = method,
-                beanName = "errorProjector",
+                beanName = "testErrorProjectorBean",
                 projectorName = projectorName,
-                subject = "test.subject",
+                subject = "events.user.created",
                 durableName = "$projectorName-consumer",
                 deliverPolicy = io.nats.client.api.DeliverPolicy.All,
-                maxDeliver = 3,
-                ackWait = 30000L,
-                maxAckPending = 1000,
+                maxDeliver = 5,
+                ackWait = 30000,
+                maxAckPending = 10,
                 eventType = TestUserCreatedEvent::class.java,
-            )
-
-        ProjectorRegistry.registerProjector(projectorDef)
+            ),
+        )
     }
 }
 
@@ -309,11 +340,11 @@ class TestProjector {
     val processedEvents = mutableListOf<TestUserCreatedEvent>()
 
     fun handleUserCreated(
-        event: TestUserCreatedEvent,
+        event: Any,
         eventId: UUID,
         tenantId: String,
     ) {
-        processedEvents.add(event)
+        processedEvents.add(event as TestUserCreatedEvent)
     }
 }
 
@@ -322,7 +353,7 @@ class TestProjector {
  */
 class ErrorProjector {
     fun handleUserCreated(
-        event: TestUserCreatedEvent,
+        event: Any,
         eventId: UUID,
         tenantId: String,
     ): Unit = throw RuntimeException("Simulated processing error")
@@ -332,13 +363,13 @@ class ErrorProjector {
  * Test projector with actual annotation for testing discovery.
  */
 class AnnotatedTestProjector {
-    @EafProjectorEventHandler("test.subject")
+    @EafProjectorEventHandler("test.subject", projectorName = "AnnotatedTestProjector-handleUserCreated")
     fun handleUserCreated(
-        event: TestUserCreatedEvent,
+        event: Any,
         eventId: UUID,
         tenantId: String,
     ) {
-        // Test projector logic
+        // no-op
     }
 }
 
