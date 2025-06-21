@@ -29,6 +29,10 @@ Application Framework (EAF).
   setup and content for the developer portal
 - [Epic 2.8: Enablement of a Pilot Service/Module](./prd/epic-2.8.md) - Details the plan for
   validating the EAF MVP with a pilot service
+- [Epic 2.9: Control Plane API Foundation & Production Readiness](./prd/epic-2.9.md) - Establishes
+  production-ready Control Plane backend with comprehensive IAM integration and Hilla endpoints
+- [Epic 2.10: Control Plane UI Implementation & User Experience](./prd/epic-2.10.md) - Delivers
+  modern Control Plane UI using Hilla/React with type-safe backend integration
 
 ## III. System Architecture
 
@@ -137,6 +141,10 @@ Application Framework (EAF).
 - [Story 2.8.1: Pilot Service Architecture](./stories/2.8.1.story.md)
 - [Story 2.8.2: Ticket Management Service Implementation](./stories/2.8.2.story.md)
 - [Story 2.8.3: Stateless Security & Frontend Integration](./stories/2.8.3.story.md)
+
+### Epic 2.9: Control Plane API Foundation Stories
+
+- [Story 2.9.1: Control Plane Backend Service Foundation](./stories/2.9.1.story.md)
 
 ### Epic 3: Advanced Features
 
