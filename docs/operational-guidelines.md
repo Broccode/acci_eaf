@@ -358,6 +358,29 @@ applications built on EAF. Linting and formatting tools will enforce many of the
   }
   ```
 
+#### Import Guidelines
+
+- **Never use wildcard imports** - always import specific classes, functions, and constants:
+
+  ```kotlin
+  // ✅ Preferred - specific imports
+  import com.axians.eaf.domain.model.User
+  import com.axians.eaf.domain.model.UserStatus
+  import jakarta.validation.constraints.Email
+  import jakarta.validation.constraints.NotBlank
+
+  // ❌ Prohibited - wildcard imports
+  import com.axians.eaf.domain.model.*
+  import jakarta.validation.constraints.*
+  ```
+
+- **Organize imports** in the following order (automatically handled by IDE and Spotless):
+
+  1. Standard library imports
+  2. Third-party library imports
+  3. EAF framework imports
+  4. Application-specific imports
+
 - **Asynchronous Operations (Kotlin):** Primarily use Kotlin Coroutines for asynchronous
   programming. Adhere to structured concurrency principles. Avoid blocking threads unnecessarily.
 - **Type Safety & Nullability (Kotlin):** Leverage Kotlin's null safety. Avoid platform types where

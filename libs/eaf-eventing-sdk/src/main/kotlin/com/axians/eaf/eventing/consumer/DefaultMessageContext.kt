@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Default implementation of MessageContext that wraps a NATS message.
  *
- * This implementation provides access to message metadata and acknowledgment
- * controls while tracking acknowledgment state to prevent double-acknowledgment.
+ * This implementation provides access to message metadata and acknowledgment controls while
+ * tracking acknowledgment state to prevent double-acknowledgment.
  */
 class DefaultMessageContext(
     override val message: Message,
@@ -25,11 +25,12 @@ class DefaultMessageContext(
     override fun getHeaders(): Map<String, String> {
         val headers = message.headers ?: return emptyMap()
 
+        @Suppress("UNCHECKED_CAST")
         return headers
             .entrySet()
-            .associate { entry ->
-                entry.key to entry.value.firstOrNull()
-            }.filterValues { it != null } as Map<String, String>
+            .associate { entry -> entry.key to entry.value.firstOrNull() }
+            .filterValues { it != null } as
+            Map<String, String>
     }
 
     override fun ack() {
@@ -72,7 +73,11 @@ class DefaultMessageContext(
 
         try {
             message.nakWithDelay(delay)
-            logger.debug("Negatively acknowledged message with delay {}: {}", delay, message.subject)
+            logger.debug(
+                "Negatively acknowledged message with delay {}: {}",
+                delay,
+                message.subject,
+            )
         } catch (e: Exception) {
             acknowledged.set(false) // Reset on failure
             logger.error(

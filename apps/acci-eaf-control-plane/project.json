@@ -1,0 +1,38 @@
+{
+  "name": "acci-eaf-control-plane",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/acci-eaf-control-plane/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/acci-eaf-control-plane/build/libs"],
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:build"
+      }
+    },
+    "serve": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:bootRun"
+      }
+    },
+    "test": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": [
+        "{workspaceRoot}/apps/acci-eaf-control-plane/build/test-results"
+      ],
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:test"
+      }
+    },
+    "lint": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/acci-eaf-control-plane/build/reports"],
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:spotlessCheck"
+      }
+    }
+  },
+  "tags": ["type:app", "scope:control-plane"]
+}

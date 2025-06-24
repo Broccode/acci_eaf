@@ -1,0 +1,185 @@
+spring:
+  application:
+    name: acci-eaf-control-plane
+  profiles:
+    active: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/eaf_control_plane
+    username: ${DB_USERNAME:eaf_user}
+    password: ${DB_PASSWORD:eaf_password}
+    hikari:
+      # Connection pool settings
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 30000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+# EAF Service Integrations
+eaf:
+  iam:
+    service-url: ${EAF_IAM_SERVICE_URL:http://localhost:8081}
+    connection-timeout: PT5S
+    read-timeout: PT10S
+    health-check-interval: PT30S
+  eventing:
+    nats:
+      url: ${NATS_URL:nats://localhost:4222}
+      connection-timeout: PT5S
+      max-reconnects: 5
+      health-check-interval: PT30S
+  control-plane:
+    features:
+      tenant-creation: true
+      user-management: true
+      license-overview: true
+    security:
+      session-timeout: PT30M
+      max-login-attempts: 5
+      require-ssl: false
+      content-security-policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+
+# Comprehensive Monitoring & Observability
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers
+      base-path: /actuator
+      cors:
+        allowed-origins: '*'
+        allowed-methods: GET,POST
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      show-components: always
+      group:
+        liveness:
+          include: livenessState,ping
+        readiness:
+          include: readinessState,db,diskSpace,ping
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+    loggers:
+      enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+    diskspace:
+      enabled: true
+      threshold: 100MB
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active}
+    export:
+      prometheus:
+        enabled: true
+        descriptions: true
+        step: PT1M
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        resilience4j.circuitbreaker.calls: true
+      percentiles:
+        http.server.requests: 0.5,0.9,0.95,0.99
+      sla:
+        http.server.requests: 100ms,200ms,500ms,1s,2s
+  tracing:
+    sampling:
+      probability: 1.0
+  observations:
+    key-values:
+      application: ${spring.application.name}
+
+# Structured Logging Configuration
+logging:
+  level:
+    com.axians.eaf: INFO
+    com.axians.eaf.controlplane: INFO
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.springframework.boot.actuator: INFO
+    io.micrometer: INFO
+    resilience4j: INFO
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %X{correlationId:-} %X{tenantId:-} %X{userId:-} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %X{correlationId:-} %X{tenantId:-} %X{userId:-} - %msg%n'
+  file:
+    name: logs/control-plane.log
+    max-size: 100MB
+    max-history: 30
+    total-size-cap: 1GB
+
+# Vaadin Configuration
+vaadin:
+  productionMode: false
+  servlet:
+    # Configure for monitoring
+    session-timeout: ${eaf.control-plane.security.session-timeout}
+
+# Resilience4j Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      eafIam:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: PT30S
+        permitted-number-of-calls-in-half-open-state: 3
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: PT2S
+      eafNats:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: PT30S
+        permitted-number-of-calls-in-half-open-state: 3
+  retry:
+    instances:
+      eafIam:
+        max-attempts: 3
+        wait-duration: PT0.5S
+        exponential-backoff-multiplier: 2
+      eafNats:
+        max-attempts: 3
+        wait-duration: PT0.5S
+        exponential-backoff-multiplier: 2
+  timelimiter:
+    instances:
+      eafIam:
+        timeout-duration: PT10S
+      eafNats:
+        timeout-duration: PT10S
+
+# Security Monitoring
+security:
+  monitoring:
+    enabled: true
+    log-authentication-failures: true
+    log-authorization-failures: true
+    max-login-attempts-per-ip: 10
+    max-login-attempts-time-window: PT15M

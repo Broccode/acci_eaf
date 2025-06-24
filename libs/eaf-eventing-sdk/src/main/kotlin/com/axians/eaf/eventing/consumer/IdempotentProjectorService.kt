@@ -1,10 +1,13 @@
 package com.axians.eaf.eventing.consumer
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 /**
  * Service that provides idempotent projector functionality. This service can be used by manually
@@ -26,8 +29,17 @@ open class IdempotentProjectorService(
      * @param projectorName The name of the projector handling the event.
      * @param rawMessage The raw NATS message to be processed.
      */
-    @Async
-    open suspend fun processNatsMessage(
+    open fun processNatsMessage(
+        projectorName: String,
+        rawMessage: io.nats.client.Message,
+    ) {
+        // Launch coroutine for async processing
+        CoroutineScope(Dispatchers.IO).launch {
+            processNatsMessageInternal(projectorName, rawMessage)
+        }
+    }
+
+    private suspend fun processNatsMessageInternal(
         projectorName: String,
         rawMessage: io.nats.client.Message,
     ) {
@@ -37,55 +49,42 @@ open class IdempotentProjectorService(
                     "Projector with name $projectorName not found",
                 )
 
-        val tenantId = extractTenantIdFromSubject(rawMessage.subject)
+        val tenantId = extractTenantIdFromSubject(rawMessage.subject, projectorDef.subject)
         val context = DefaultMessageContext(rawMessage, tenantId)
 
-        try {
-            val eventEnvelope =
-                objectMapper.readValue(
-                    rawMessage.data,
-                    com.axians.eaf.eventing.EventEnvelope::class.java,
-                )
-            val event = objectMapper.convertValue(eventEnvelope.payload, projectorDef.eventType)
-
-            processEvent(projectorName, event, eventEnvelope, context)
-        } catch (e: Exception) {
-            logger.error(
-                "Error deserializing or processing message for projector '{}': {}",
-                projectorName,
-                e.message,
-                e,
-            )
-            context.nak()
-        }
+        processEvent(projectorName, tenantId, rawMessage.data, context)
     }
 
     /**
-     * Processes a deserialized event within a transaction, ensuring idempotency. This method is
-     * protected and designed to be called internally or by subclasses.
+     * Processes an event ensuring idempotency guarantees.
      *
-     * @param projectorName The name of the projector.
-     * @param event The deserialized event object.
-     * @param context The message context.
+     * @param projectorName The name of the projector handling the event.
+     * @param tenantId The tenant ID from the message subject
+     * @param data The raw message data
+     * @param context The message context for acknowledgment.
      */
     @Transactional
-    protected open suspend fun processEvent(
+    suspend fun processEvent(
         projectorName: String,
-        event: Any,
-        eventEnvelope: com.axians.eaf.eventing.EventEnvelope,
+        tenantId: String,
+        data: ByteArray,
         context: MessageContext,
     ) {
-        val eventId = java.util.UUID.fromString(eventEnvelope.eventId)
-        val tenantId = context.tenantId
-
-        logger.debug(
-            "Processing event {} for projector {} in tenant {}",
-            eventId,
-            projectorName,
-            tenantId,
-        )
-
         try {
+            val eventEnvelope =
+                objectMapper.readValue(
+                    data,
+                    com.axians.eaf.eventing.EventEnvelope::class.java,
+                )
+
+            val event =
+                objectMapper.convertValue(
+                    eventEnvelope.payload,
+                    ProjectorRegistry.getProjector(projectorName)?.eventType
+                        ?: Any::class.java,
+                )
+            val eventId = UUID.fromString(eventEnvelope.eventId)
+
             if (processedEventRepository.isEventProcessed(projectorName, eventId, tenantId)) {
                 logger.debug(
                     "Event {} already processed for projector {}, skipping",
@@ -105,6 +104,7 @@ open class IdempotentProjectorService(
             val bean = projectorDef.originalBean
             val method = projectorDef.originalMethod
 
+            // Invoke the projector method
             method.invoke(bean, event, eventId, tenantId)
 
             processedEventRepository.markEventAsProcessed(projectorName, eventId, tenantId)
@@ -116,18 +116,23 @@ open class IdempotentProjectorService(
             context.ack()
         } catch (e: Exception) {
             logger.error(
-                "Exception during projector invocation for projector '{}': {}",
+                "Error processing event for projector '{}': {}",
                 projectorName,
                 e.message,
                 e,
             )
             context.nak()
-            // Re-throw to ensure the transaction is rolled back
-            throw e
         }
     }
 
-    private fun extractTenantIdFromSubject(subject: String): String =
-        subject.split(".").firstOrNull()
-            ?: throw IllegalArgumentException("Cannot extract tenantId from subject: $subject")
+    private fun extractTenantIdFromSubject(
+        subject: String,
+        projectorSubject: String,
+    ): String {
+        val tenantId = subject.split(".").firstOrNull()
+        if (tenantId == null) {
+            throw IllegalArgumentException("Cannot extract tenantId from subject: $subject")
+        }
+        return tenantId
+    }
 }

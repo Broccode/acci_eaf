@@ -1,0 +1,2 @@
+-- This is the initial schema setup.
+-- Tables will be added here as domain models are defined.

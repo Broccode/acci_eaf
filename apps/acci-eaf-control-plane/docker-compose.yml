@@ -1,0 +1,219 @@
+version: '3.8'
+
+# Local Development Docker Compose for Control Plane Service
+# Includes all required EAF services and dependencies
+
+services:
+  # ==============================================================================
+  # Database Services
+  # ==============================================================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: eaf-control-plane-postgres
+    environment:
+      POSTGRES_DB: eaf_control_plane
+      POSTGRES_USER: eaf_user
+      POSTGRES_PASSWORD: eaf_password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U eaf_user -d eaf_control_plane']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - eaf-network
+
+  # ==============================================================================
+  # Message Broker
+  # ==============================================================================
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: eaf-control-plane-nats
+    command:
+      - '--jetstream'
+      - '--store_dir=/data'
+      - '--max_memory=512MB'
+      - '--max_file_store=1GB'
+    ports:
+      - '4222:4222'
+      - '8222:8222' # HTTP monitoring
+    volumes:
+      - nats_data:/data
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--quiet',
+          '--tries=1',
+          '--spider',
+          'http://localhost:8222/healthz',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - eaf-network
+
+  # ==============================================================================
+  # Monitoring & Observability
+  # ==============================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: eaf-control-plane-prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - eaf-network
+    depends_on:
+      - control-plane
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: eaf-control-plane-grafana
+    ports:
+      - '3000:3000'
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - eaf-network
+    depends_on:
+      - prometheus
+
+  # ==============================================================================
+  # EAF Services (Mock/Local)
+  # ==============================================================================
+
+  iam-service:
+    image: eaf/iam-service:latest
+    container_name: eaf-iam-service
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      DB_HOST: postgres
+      DB_USERNAME: eaf_user
+      DB_PASSWORD: eaf_password
+      NATS_URL: nats://nats:4222
+    ports:
+      - '8081:8080'
+    networks:
+      - eaf-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/actuator/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ==============================================================================
+  # Control Plane Service
+  # ==============================================================================
+
+  control-plane:
+    build:
+      context: ../../
+      dockerfile: apps/acci-eaf-control-plane/Dockerfile
+      target: development
+    container_name: eaf-control-plane
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      DB_HOST: postgres
+      DB_USERNAME: eaf_user
+      DB_PASSWORD: eaf_password
+      EAF_IAM_SERVICE_URL: http://iam-service:8080
+      NATS_URL: nats://nats:4222
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
+    ports:
+      - '8080:8080'
+      - '5005:5005' # Debug port
+    volumes:
+      - ./logs:/app/logs
+      - ./config/local:/app/config:ro
+    networks:
+      - eaf-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      iam-service:
+        condition: service_healthy
+    healthcheck:
+      test:
+        ['CMD', 'curl', '-f', 'http://localhost:8080/actuator/health/liveness']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+# ==============================================================================
+# Networks
+# ==============================================================================
+
+networks:
+  eaf-network:
+    driver: bridge
+
+# ==============================================================================
+# Volumes
+# ==============================================================================
+
+volumes:
+  postgres_data:
+    driver: local
+  nats_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+# ==============================================================================
+# Usage Examples:
+# ==============================================================================
+# Start all services:
+# docker-compose up -d
+#
+# Start only dependencies (for local development):
+# docker-compose up -d postgres nats iam-service
+#
+# View logs:
+# docker-compose logs -f control-plane
+#
+# Scale services:
+# docker-compose up -d --scale control-plane=2
+#
+# Stop all services:
+# docker-compose down
+#
+# Stop and remove volumes:
+# docker-compose down -v
+# ==============================================================================

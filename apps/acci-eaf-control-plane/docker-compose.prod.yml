@@ -1,0 +1,365 @@
+version: '3.8'
+
+# Production Docker Compose for Control Plane Service
+# Optimized for security, performance, and production deployment
+
+services:
+  # ==============================================================================
+  # Database (Production)
+  # ==============================================================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: eaf-control-plane-postgres-prod
+    environment:
+      POSTGRES_DB: ${DB_NAME:-eaf_control_plane}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --locale=C'
+    ports:
+      - '127.0.0.1:5432:5432' # Bind to localhost only
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./backups:/backups:ro
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=4MB
+      -c min_wal_size=2GB
+      -c max_wal_size=4GB
+      -c log_statement=all
+      -c log_duration=on
+      -c log_lock_waits=on
+      -c log_checkpoints=on
+      -c log_connections=on
+      -c log_disconnections=on
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${DB_USERNAME} -d ${DB_NAME:-eaf_control_plane}',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - eaf-prod-network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # ==============================================================================
+  # Message Broker (Production)
+  # ==============================================================================
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: eaf-control-plane-nats-prod
+    command:
+      - '--jetstream'
+      - '--store_dir=/data'
+      - '--max_memory=1GB'
+      - '--max_file_store=10GB'
+      - '--max_payload=8MB'
+      - '--max_pending=256MB'
+      - '--max_subscriptions=10000'
+      - '--write_deadline=2s'
+    ports:
+      - '127.0.0.1:4222:4222' # Client connections
+      - '127.0.0.1:8222:8222' # HTTP monitoring
+    volumes:
+      - nats_prod_data:/data
+      - ./config/nats/nats-server.conf:/etc/nats/nats-server.conf:ro
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--quiet',
+          '--tries=1',
+          '--spider',
+          'http://localhost:8222/healthz',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - eaf-prod-network
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # ==============================================================================
+  # Control Plane Service (Production)
+  # ==============================================================================
+
+  control-plane:
+    build:
+      context: ../../
+      dockerfile: apps/acci-eaf-control-plane/Dockerfile
+      target: production
+    image: eaf/control-plane:${VERSION:-latest}
+    container_name: eaf-control-plane-prod
+    environment:
+      # Spring Configuration
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8080
+
+      # Database Configuration
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-eaf_control_plane}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      # EAF Integration
+      EAF_IAM_SERVICE_URL: ${EAF_IAM_SERVICE_URL}
+      NATS_URL: nats://nats:4222
+
+      # Security Configuration
+      SECURITY_REQUIRE_SSL: true
+      SECURITY_CONTENT_SECURITY_POLICY: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+
+      # JVM Configuration
+      JAVA_OPTS: >-
+        -server
+        -Xms1g
+        -Xmx2g
+        -XX:+UseG1GC
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+UseStringDeduplication
+        -XX:+PrintGCDetails
+        -XX:+PrintGCTimeStamps
+        -Xloggc:/app/logs/gc.log
+        -XX:+UseGCLogFileRotation
+        -XX:NumberOfGCLogFiles=5
+        -XX:GCLogFileSize=10M
+        -Djava.security.egd=file:/dev/./urandom
+
+      # Monitoring Configuration
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
+      MANAGEMENT_ENDPOINTS_WEB_BASE_PATH: /actuator
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: when-authorized
+
+      # Logging Configuration
+      LOGGING_LEVEL_COM_AXIANS_EAF: INFO
+      LOGGING_LEVEL_SPRINGFRAMEWORK_SECURITY: WARN
+      LOGGING_PATTERN_CONSOLE: '%d{yyyy-MM-dd HH:mm:ss} - %X{correlationId} - %5p [%t] %c{1}: %m%n'
+
+    ports:
+      - '8080:8080'
+
+    volumes:
+      - ./logs:/app/logs
+      - ./config/prod:/app/config:ro
+      - /etc/ssl/certs:/etc/ssl/certs:ro # SSL certificates
+
+    networks:
+      - eaf-prod-network
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        ['CMD', 'curl', '-f', 'http://localhost:8080/actuator/health/liveness']
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 120s
+
+    restart: unless-stopped
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+
+    # Read-only root filesystem
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+      - /app/tmp:noexec,nosuid,size=100m
+
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '50m'
+        max-file: '5'
+
+  # ==============================================================================
+  # Reverse Proxy / Load Balancer (Production)
+  # ==============================================================================
+
+  nginx:
+    image: nginx:1.24-alpine
+    container_name: eaf-control-plane-nginx-prod
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - eaf-prod-network
+    depends_on:
+      - control-plane
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  # ==============================================================================
+  # Monitoring (Production)
+  # ==============================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: eaf-control-plane-prometheus-prod
+    ports:
+      - '127.0.0.1:9090:9090'
+    volumes:
+      - ./monitoring/prometheus-prod.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/rules:/etc/prometheus/rules:ro
+      - prometheus_prod_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      - eaf-prod-network
+    depends_on:
+      - control-plane
+    restart: unless-stopped
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: eaf-control-plane-alertmanager-prod
+    ports:
+      - '127.0.0.1:9093:9093'
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_prod_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    networks:
+      - eaf-prod-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+# ==============================================================================
+# Networks (Production)
+# ==============================================================================
+
+networks:
+  eaf-prod-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ==============================================================================
+# Volumes (Production)
+# ==============================================================================
+
+volumes:
+  postgres_prod_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/eaf/data/postgres
+  nats_prod_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/eaf/data/nats
+  prometheus_prod_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/eaf/data/prometheus
+  alertmanager_prod_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/eaf/data/alertmanager
+# ==============================================================================
+# Production Deployment Commands:
+# ==============================================================================
+# 1. Set environment variables:
+#    export DB_USERNAME=secure_user
+#    export DB_PASSWORD=secure_password
+#    export EAF_IAM_SERVICE_URL=https://iam.prod.eaf.com
+#    export VERSION=1.0.0
+#
+# 2. Deploy:
+#    docker-compose -f docker-compose.prod.yml up -d
+#
+# 3. Check health:
+#    docker-compose -f docker-compose.prod.yml ps
+#    curl -f http://localhost/actuator/health
+#
+# 4. View logs:
+#    docker-compose -f docker-compose.prod.yml logs -f control-plane
+#
+# 5. Scale (if needed):
+#    docker-compose -f docker-compose.prod.yml up -d --scale control-plane=3
+#
+# 6. Backup database:
+#    docker-compose -f docker-compose.prod.yml exec postgres pg_dump -U $DB_USERNAME $DB_NAME > backup.sql
+# ==============================================================================

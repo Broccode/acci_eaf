@@ -51,6 +51,7 @@ types.d.ts
 **/node_modules/
 **/target/frontend/
 **/build/frontend/
+**/src/main/bundles/
 
 # Project-specific ignores
 **/config/local/
