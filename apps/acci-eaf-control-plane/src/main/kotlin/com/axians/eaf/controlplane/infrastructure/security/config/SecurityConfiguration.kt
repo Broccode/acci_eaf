@@ -19,7 +19,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @Configuration
 @EnableAspectJAutoProxy
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
-class SecurityConfiguration {
+class EafSecurityConfiguration {
     /**
      * Creates an EafSecurityContextHolder bean if none exists. This provides a fallback
      * implementation for testing and development.
@@ -31,8 +31,7 @@ class SecurityConfiguration {
             .DefaultEafSecurityContextHolder()
 
     /** Security properties for configuring various security features. */
-    @Bean
-    fun securityProperties(): SecurityProperties = SecurityProperties()
+    @Bean fun securityProperties(): SecurityProperties = SecurityProperties()
 }
 
 /** Configuration properties for security features. */
