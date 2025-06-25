@@ -17,26 +17,25 @@ import com.axians.eaf.controlplane.domain.service.DeleteRoleResult
 import com.axians.eaf.controlplane.domain.service.RolePermissionResult
 import com.axians.eaf.controlplane.domain.service.RoleService
 import com.axians.eaf.controlplane.domain.service.UpdateRoleResult
+import com.axians.eaf.core.annotations.HillaWorkaround
 import com.vaadin.flow.server.auth.AnonymousAllowed
+import com.vaadin.hilla.Endpoint
 import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 
-// @Endpoint
-// @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
-
+@Endpoint
+@RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
+@HillaWorkaround(
+        description =
+                "Endpoint was preemptively disabled due to Hilla issue #3443, but analysis shows no DTOs were affected. Re-enabling and marking for audit."
+)
 /**
  * Hilla endpoint for role management operations. Provides type-safe access to role lifecycle and
  * permission management.
- *
- * FIXME: Temporarily disabled due to KotlinNullabilityPlugin crash in Vaadin 24.8.0 See:
- * https://github.com/vaadin/hilla/issues/3443 Remove comment from @Endpoint when Vaadin/Hilla ships
- * the fix.
  */
-@Service
 @Validated
 class RoleManagementEndpoint(
         private val roleService: RoleService,
