@@ -5,6 +5,7 @@ import com.axians.eaf.controlplane.application.dto.tenant.CreateTenantRequest
 import com.axians.eaf.controlplane.application.dto.tenant.CreateTenantResponse
 import com.axians.eaf.controlplane.application.dto.tenant.PagedResponse
 import com.axians.eaf.controlplane.application.dto.tenant.TenantDetailsResponse
+import com.axians.eaf.controlplane.application.dto.tenant.TenantDto
 import com.axians.eaf.controlplane.application.dto.tenant.TenantFilter
 import com.axians.eaf.controlplane.application.dto.tenant.TenantSummary
 import com.axians.eaf.controlplane.application.dto.tenant.UpdateTenantRequest
@@ -83,12 +84,15 @@ class TenantManagementEndpoint(
 
         return runBlocking {
             try {
-                val result = tenantService.getTenantDetails(tenantId)
-
-                when (result) {
+                when (val result = tenantService.getTenantDetails(tenantId)) {
                     is TenantDetailsResult.Success -> {
                         logger.debug("Tenant details retrieved: {}", tenantId)
-                        result.details
+                        TenantDetailsResponse(
+                            tenant = TenantDto.fromDomain(result.details.tenant),
+                            userCount = result.details.userCount,
+                            activeUsers = result.details.activeUsers,
+                            lastActivity = result.details.lastActivity,
+                        )
                     }
                     is TenantDetailsResult.NotFound -> {
                         logger.warn("Tenant not found: {}", tenantId)
@@ -122,7 +126,7 @@ class TenantManagementEndpoint(
                 when (result) {
                     is UpdateTenantResult.Success -> {
                         logger.info("Tenant updated successfully: {}", tenantId)
-                        // Return detailed response by calling getTenant
+                        // After updating, fetch the full details to return a consistent response
                         getTenant(tenantId)
                     }
                     is UpdateTenantResult.NotFound -> {

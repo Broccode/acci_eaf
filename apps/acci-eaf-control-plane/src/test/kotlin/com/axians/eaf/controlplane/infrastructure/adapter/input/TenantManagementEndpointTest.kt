@@ -2,15 +2,16 @@ package com.axians.eaf.controlplane.infrastructure.adapter.input
 
 import com.axians.eaf.controlplane.application.dto.tenant.CreateTenantRequest
 import com.axians.eaf.controlplane.application.dto.tenant.PagedResponse
-import com.axians.eaf.controlplane.application.dto.tenant.TenantDetailsResponse
-import com.axians.eaf.controlplane.application.dto.tenant.TenantDto
 import com.axians.eaf.controlplane.application.dto.tenant.TenantFilter
 import com.axians.eaf.controlplane.application.dto.tenant.TenantSettingsDto
 import com.axians.eaf.controlplane.application.dto.tenant.TenantSummary
 import com.axians.eaf.controlplane.application.dto.tenant.UpdateTenantRequest
+import com.axians.eaf.controlplane.domain.model.tenant.Tenant
+import com.axians.eaf.controlplane.domain.model.tenant.TenantId
 import com.axians.eaf.controlplane.domain.model.tenant.TenantStatus
 import com.axians.eaf.controlplane.domain.service.ArchiveTenantResult
 import com.axians.eaf.controlplane.domain.service.CreateTenantResult
+import com.axians.eaf.controlplane.domain.service.TenantDetails
 import com.axians.eaf.controlplane.domain.service.TenantDetailsResult
 import com.axians.eaf.controlplane.domain.service.TenantOperationResult
 import com.axians.eaf.controlplane.domain.service.TenantService
@@ -109,8 +110,7 @@ class TenantManagementEndpointTest {
             // Then
             assertThat(response.tenantId).isEmpty()
             assertThat(response.name).isEmpty()
-            assertThat(response.message)
-                .contains("Tenant with name 'Duplicate Name' already exists")
+            assertThat(response.message).contains("Tenant with name 'Duplicate Name' already exists")
         }
 
     @Test
@@ -118,23 +118,25 @@ class TenantManagementEndpointTest {
         runTest {
             // Given
             val tenantId = "tenant-456"
-            val tenantDetailsResponse =
-                TenantDetailsResponse(
-                    tenant =
-                        TenantDto(
-                            id = tenantId,
-                            name = "Retrieved Tenant",
-                            status = TenantStatus.ACTIVE,
-                            settings = validSettingsDto,
-                            createdAt = Instant.now(),
-                            lastModified = Instant.now(),
-                        ),
+            val now = Instant.now()
+            val tenant =
+                Tenant(
+                    id = TenantId(tenantId),
+                    name = "Retrieved Tenant",
+                    status = TenantStatus.ACTIVE,
+                    settings = validSettingsDto.toDomain(),
+                    createdAt = now,
+                    lastModified = now,
+                )
+            val tenantDetails =
+                TenantDetails(
+                    tenant = tenant,
                     userCount = 25,
                     activeUsers = 20,
-                    lastActivity = Instant.now().minusSeconds(3600),
+                    lastActivity = now.minusSeconds(3600),
                 )
 
-            val serviceResult = TenantDetailsResult.success(tenantDetailsResponse)
+            val serviceResult = TenantDetailsResult.success(tenantDetails)
 
             coEvery { tenantService.getTenantDetails(tenantId) } returns serviceResult
 
@@ -174,6 +176,7 @@ class TenantManagementEndpointTest {
         runTest {
             // Given
             val tenantId = "tenant-789"
+            val now = Instant.now()
             val updateRequest =
                 UpdateTenantRequest(
                     name = "Updated Name",
@@ -185,17 +188,17 @@ class TenantManagementEndpointTest {
                         ),
                 )
 
-            val tenantDto =
-                TenantDto(
-                    id = tenantId,
+            val updatedTenant =
+                Tenant(
+                    id = TenantId(tenantId),
                     name = "Updated Name",
                     status = TenantStatus.ACTIVE,
-                    settings = updateRequest.settings,
-                    createdAt = Instant.now(),
-                    lastModified = Instant.now(),
+                    settings = updateRequest.settings.toDomain(),
+                    createdAt = now,
+                    lastModified = now,
                 )
 
-            val serviceResult = UpdateTenantResult.success(tenantDto)
+            val serviceResult = UpdateTenantResult.success(updatedTenant)
 
             // Mock both update and subsequent get calls
             coEvery {
@@ -206,15 +209,15 @@ class TenantManagementEndpointTest {
                 )
             } returns serviceResult
 
-            val detailsResponse =
-                TenantDetailsResponse(
-                    tenant = tenantDto,
+            val details =
+                TenantDetails(
+                    tenant = updatedTenant,
                     userCount = 30,
                     activeUsers = 25,
-                    lastActivity = Instant.now(),
+                    lastActivity = now,
                 )
             coEvery { tenantService.getTenantDetails(tenantId) } returns
-                TenantDetailsResult.success(detailsResponse)
+                TenantDetailsResult.success(details)
 
             // When
             val response = endpoint.updateTenant(tenantId, updateRequest)

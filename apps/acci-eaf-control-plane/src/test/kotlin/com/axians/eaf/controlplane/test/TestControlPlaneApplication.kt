@@ -1,6 +1,7 @@
 package com.axians.eaf.controlplane.test
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 /**
  * Test application class for Control Plane integration tests. Placed in separate package to avoid
@@ -15,4 +16,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
             "com.axians.eaf.iam.client",
         ],
 )
+@EnableJpaRepositories("com.axians.eaf.controlplane.infrastructure.adapter.outbound.repository")
 class TestControlPlaneApplication
+
+fun main(args: Array<String>) {
+    // ... existing code ...
+}

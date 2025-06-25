@@ -20,8 +20,7 @@ import com.axians.eaf.controlplane.domain.port.InvitationRepository
 import com.axians.eaf.controlplane.domain.port.RoleRepository
 import com.axians.eaf.controlplane.domain.port.TenantRepository
 import com.axians.eaf.controlplane.domain.port.UserRepository
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
+import org.slf4j.LoggerFactory
 import java.time.Instant
 
 /** Result types for invitation operations. */
@@ -38,19 +37,19 @@ sealed class InvitationResult {
 }
 
 /**
- * Domain service for invitation management operations. Handles the complete invitation workflow
- * including creation, email sending, acceptance, and user account creation.
+ * Domain service for managing user invitations. This service handles the logic for creating,
+ * sending, and managing the lifecycle of user invitations.
  */
-@Service
 class InvitationService(
     private val invitationRepository: InvitationRepository,
     private val userRepository: UserRepository,
     private val roleRepository: RoleRepository,
     private val tenantRepository: TenantRepository,
     private val emailService: EmailService,
-    @Value("\${eaf.control-plane.invitation.base-url:http://localhost:8080/accept-invitation}")
-    private val invitationBaseUrl: String,
+    private val invitationLinkBaseUrl: String,
 ) {
+    private val logger = LoggerFactory.getLogger(InvitationService::class.java)
+
     /** Invite a new user to join a tenant. */
     suspend fun inviteUser(
         request: InviteUserRequest,
@@ -109,7 +108,7 @@ class InvitationService(
             val savedInvitation = invitationRepository.save(invitation)
 
             // Send invitation email
-            val invitationUrl = "$invitationBaseUrl?token=${savedInvitation.token.value}"
+            val invitationUrl = "$invitationLinkBaseUrl?token=${savedInvitation.token.value}"
             val emailResult = emailService.sendInvitationEmail(savedInvitation, invitationUrl)
 
             if (!emailResult.success) {
@@ -163,7 +162,7 @@ class InvitationService(
             val savedInvitation = invitationRepository.save(resentInvitation)
 
             // Send email
-            val invitationUrl = "$invitationBaseUrl?token=${savedInvitation.token.value}"
+            val invitationUrl = "$invitationLinkBaseUrl?token=${savedInvitation.token.value}"
             val emailResult =
                 emailService.sendInvitationReminderEmail(savedInvitation, invitationUrl)
 

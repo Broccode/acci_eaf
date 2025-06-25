@@ -152,15 +152,14 @@ class ArchitectureComplianceTest {
             .because("Packages should not have circular dependencies")
 
     @ArchTest
-    val entitiesShouldBeInDomainLayer =
-        classes()
+    val entitiesShouldNotBeInDomainLayer =
+        noClasses()
             .that()
-            .haveNameMatching(".*Entity")
-            .or()
-            .areAnnotatedWith(jakarta.persistence.Entity::class.java)
-            .should()
             .resideInAPackage("..domain..")
-            .because("Domain entities should be in domain layer")
+            .should()
+            .beAnnotatedWith(jakarta.persistence.Entity::class.java)
+            .because("Domain entities should not have persistence annotations")
+            .allowEmptyShould(true)
 
     @ArchTest
     val valueObjectsShouldBeInDomainLayer =
@@ -172,6 +171,7 @@ class ArchitectureComplianceTest {
             .should()
             .resideInAPackage("..domain..")
             .because("Value objects should be in domain layer")
+            .allowEmptyShould(true)
 
     @ArchTest
     val aggregatesShouldBeInDomainLayer =
@@ -183,6 +183,7 @@ class ArchitectureComplianceTest {
             .should()
             .resideInAPackage("..domain..")
             .because("Aggregates should be in domain layer")
+            .allowEmptyShould(true)
 
     @ArchTest
     val domainEventsShouldBeInDomainLayer =

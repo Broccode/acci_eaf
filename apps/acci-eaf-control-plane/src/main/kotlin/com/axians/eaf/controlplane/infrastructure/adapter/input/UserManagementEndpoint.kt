@@ -5,6 +5,7 @@ import com.axians.eaf.controlplane.application.dto.user.CreateUserRequest
 import com.axians.eaf.controlplane.application.dto.user.CreateUserResponse
 import com.axians.eaf.controlplane.application.dto.user.PasswordResetResponse
 import com.axians.eaf.controlplane.application.dto.user.UserDetailsResponse
+import com.axians.eaf.controlplane.application.dto.user.UserDto
 import com.axians.eaf.controlplane.application.dto.user.UserFilter
 import com.axians.eaf.controlplane.application.dto.user.UserStatusResponse
 import com.axians.eaf.controlplane.application.dto.user.UserSummary
@@ -87,12 +88,15 @@ class UserManagementEndpoint(
 
         return runBlocking {
             try {
-                val result = userService.getUserDetails(userId)
-
-                when (result) {
+                when (val result = userService.getUserDetails(userId)) {
                     is UserDetailsResult.Success -> {
                         logger.debug("User details retrieved: {}", userId)
-                        result.details
+                        UserDetailsResponse(
+                            user = UserDto.fromDomain(result.details.user),
+                            permissions = result.details.permissions,
+                            lastLoginFormatted = result.details.lastLoginFormatted,
+                            accountAge = result.details.accountAge,
+                        )
                     }
                     is UserDetailsResult.NotFound -> {
                         logger.warn("User not found: {}", userId)
@@ -268,8 +272,7 @@ class UserManagementEndpoint(
     fun canUserAccess(userId: String): Boolean =
         runBlocking {
             try {
-                val result = userService.getUserDetails(userId)
-                when (result) {
+                when (val result = userService.getUserDetails(userId)) {
                     is UserDetailsResult.Success ->
                         result.details.user.status
                             .canAccess()

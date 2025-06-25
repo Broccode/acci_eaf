@@ -1,8 +1,6 @@
 package com.axians.eaf.controlplane.domain.service
 
 import com.axians.eaf.controlplane.application.dto.tenant.PagedResponse
-import com.axians.eaf.controlplane.application.dto.user.UserDetailsResponse
-import com.axians.eaf.controlplane.application.dto.user.UserDto
 import com.axians.eaf.controlplane.application.dto.user.UserFilter
 import com.axians.eaf.controlplane.application.dto.user.UserSummary
 import com.axians.eaf.controlplane.domain.model.tenant.TenantId
@@ -10,19 +8,20 @@ import com.axians.eaf.controlplane.domain.model.user.User
 import com.axians.eaf.controlplane.domain.model.user.UserId
 import com.axians.eaf.controlplane.domain.model.user.UserStatus
 import com.axians.eaf.controlplane.domain.port.UserRepository
-import org.springframework.stereotype.Service
+import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
 /**
- * Domain service for user management operations. Encapsulates business logic for user lifecycle
- * management.
+ * Domain service for user management. This service handles all business logic related to user
+ * creation, status changes, and profile management.
  */
-@Service
 class UserService(
     private val userRepository: UserRepository,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     /** Creates a new user with the specified details. */
     suspend fun createUser(
         email: String,
@@ -80,8 +79,8 @@ class UserService(
         val accountAge = formatRelativeTime(user.createdAt)
 
         val response =
-            UserDetailsResponse(
-                user = UserDto.fromDomain(user),
+            UserDetails(
+                user = user,
                 permissions = permissions,
                 lastLoginFormatted = lastLoginFormatted,
                 accountAge = accountAge,
@@ -174,6 +173,13 @@ class UserService(
     }
 }
 
+data class UserDetails(
+    val user: User,
+    val permissions: Set<String>,
+    val lastLoginFormatted: String?,
+    val accountAge: String,
+)
+
 /** Result types for user operations. */
 sealed class CreateUserResult {
     data class Success(
@@ -199,9 +205,10 @@ sealed class CreateUserResult {
     }
 }
 
+/** Result types for user detail retrieval. */
 sealed class UserDetailsResult {
     data class Success(
-        val details: UserDetailsResponse,
+        val details: UserDetails,
     ) : UserDetailsResult()
 
     data class NotFound(
@@ -209,7 +216,7 @@ sealed class UserDetailsResult {
     ) : UserDetailsResult()
 
     companion object {
-        fun success(details: UserDetailsResponse): UserDetailsResult = Success(details)
+        fun success(details: UserDetails): UserDetailsResult = Success(details)
 
         fun notFound(message: String): UserDetailsResult = NotFound(message)
     }

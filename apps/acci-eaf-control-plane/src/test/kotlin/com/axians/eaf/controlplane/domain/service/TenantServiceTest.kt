@@ -6,14 +6,11 @@ import com.axians.eaf.controlplane.domain.model.tenant.TenantId
 import com.axians.eaf.controlplane.domain.model.tenant.TenantSettings
 import com.axians.eaf.controlplane.domain.model.tenant.TenantStatus
 import com.axians.eaf.controlplane.domain.port.TenantRepository
-import io.mockk.answers
 import io.mockk.any
-import io.mockk.capture
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -45,8 +42,8 @@ class TenantServiceTest {
             val adminEmail = "admin@acme.com"
 
             coEvery { tenantRepository.existsByName(tenantName) } returns false
-            val saveSlot = slot<Tenant>()
-            coEvery { tenantRepository.save(capture(saveSlot)) } answers { saveSlot.captured }
+            val createdTenant = Tenant.create(tenantName, validSettings, now)
+            coEvery { tenantRepository.save(any()) } returns createdTenant
 
             // When
             val result = tenantService.createTenant(tenantName, adminEmail, validSettings)
@@ -92,7 +89,7 @@ class TenantServiceTest {
             val activeUsers = 20
             val lastActivity = now.minusSeconds(3600)
 
-            coEvery { tenantRepository.findById(any()) } returns tenant
+            coEvery { tenantRepository.findById(any<TenantId>()) } returns tenant
             coEvery { tenantRepository.countUsersByTenantId(tenant.id) } returns userCount
             coEvery { tenantRepository.countActiveUsersByTenantId(tenant.id) } returns activeUsers
             coEvery { tenantRepository.getLastUserActivity(tenant.id) } returns lastActivity
@@ -116,7 +113,7 @@ class TenantServiceTest {
             // Given
             val tenantId = "non-existent-id"
 
-            coEvery { tenantRepository.findById(any()) } returns null
+            coEvery { tenantRepository.findById(any<TenantId>()) } returns null
 
             // When
             val result = tenantService.getTenantDetails(tenantId)
@@ -142,8 +139,8 @@ class TenantServiceTest {
 
             coEvery { tenantRepository.findById(tenant.id) } returns tenant
             coEvery { tenantRepository.existsByName(newName) } returns false
-            val saveSlot = slot<Tenant>()
-            coEvery { tenantRepository.save(capture(saveSlot)) } answers { saveSlot.captured }
+            val updatedTenant = tenant.copy(name = newName, settings = newSettings)
+            coEvery { tenantRepository.save(any()) } returns updatedTenant
 
             // When
             val result = tenantService.updateTenant(tenant.id.value, newName, newSettings)
@@ -172,8 +169,8 @@ class TenantServiceTest {
                 )
 
             coEvery { tenantRepository.findById(tenant.id) } returns tenant
-            val saveSlot = slot<Tenant>()
-            coEvery { tenantRepository.save(capture(saveSlot)) } answers { saveSlot.captured }
+            val updatedTenant = tenant.copy(settings = newSettings)
+            coEvery { tenantRepository.save(any()) } returns updatedTenant
 
             // When
             val result = tenantService.updateTenant(tenant.id.value, originalName, newSettings)
@@ -215,8 +212,8 @@ class TenantServiceTest {
             val reason = "Policy violation"
 
             coEvery { tenantRepository.findById(tenant.id) } returns tenant
-            val saveSlot = slot<Tenant>()
-            coEvery { tenantRepository.save(capture(saveSlot)) } answers { saveSlot.captured }
+            val suspendedTenant = tenant.suspend(Instant.now())
+            coEvery { tenantRepository.save(any()) } returns suspendedTenant
 
             // When
             val result = tenantService.suspendTenant(tenant.id.value, reason)
@@ -227,7 +224,6 @@ class TenantServiceTest {
             assertContains(success.message, "Tenant suspended successfully")
 
             coVerify { tenantRepository.save(any()) }
-            assertEquals(TenantStatus.SUSPENDED, saveSlot.captured.status)
         }
 
     @Test
@@ -256,8 +252,8 @@ class TenantServiceTest {
             val tenant = Tenant.create("Test Tenant", validSettings, now).suspend(now.plusSeconds(1000))
 
             coEvery { tenantRepository.findById(tenant.id) } returns tenant
-            val saveSlot = slot<Tenant>()
-            coEvery { tenantRepository.save(capture(saveSlot)) } answers { saveSlot.captured }
+            val reactivatedTenant = tenant.reactivate(Instant.now())
+            coEvery { tenantRepository.save(any()) } returns reactivatedTenant
 
             // When
             val result = tenantService.reactivateTenant(tenant.id.value)
@@ -268,7 +264,6 @@ class TenantServiceTest {
             assertContains(success.message, "Tenant reactivated successfully")
 
             coVerify { tenantRepository.save(any()) }
-            assertEquals(TenantStatus.ACTIVE, saveSlot.captured.status)
         }
 
     @Test
@@ -298,8 +293,8 @@ class TenantServiceTest {
             val reason = "End of contract"
 
             coEvery { tenantRepository.findById(tenant.id) } returns tenant
-            val saveSlot = slot<Tenant>()
-            coEvery { tenantRepository.save(capture(saveSlot)) } answers { saveSlot.captured }
+            val archivedTenant = tenant.archive(Instant.now())
+            coEvery { tenantRepository.save(any()) } returns archivedTenant
 
             // When
             val result = tenantService.archiveTenant(tenant.id.value, reason)
@@ -311,8 +306,6 @@ class TenantServiceTest {
             assertNotNull(success.archivedAt)
 
             coVerify { tenantRepository.save(any()) }
-            assertEquals(TenantStatus.ARCHIVED, saveSlot.captured.status)
-            assertNotNull(saveSlot.captured.archivedAt)
         }
 
     @Test

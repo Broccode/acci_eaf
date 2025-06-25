@@ -11,12 +11,7 @@ import com.axians.eaf.controlplane.domain.model.user.UserId
 import com.axians.eaf.controlplane.domain.port.AuditEventPublisher
 import com.axians.eaf.controlplane.domain.port.AuditRepository
 import com.axians.eaf.core.security.EafSecurityContextHolder
-import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
-import org.springframework.web.context.request.RequestContextHolder
-import org.springframework.web.context.request.ServletRequestAttributes
 import java.time.Instant
 
 /** Result types for audit operations. */
@@ -37,13 +32,11 @@ sealed class AuditResult {
  * Domain service for comprehensive audit trail management and logging. Handles all audit operations
  * including action logging, event publishing, and trail querying.
  */
-@Service
 class AuditService(
     private val auditRepository: AuditRepository,
     private val auditEventPublisher: AuditEventPublisher,
     private val securityContextHolder: EafSecurityContextHolder,
-    @Value("\${app.audit.async-publishing:true}") private val asyncPublishing: Boolean = true,
-    @Value("\${app.audit.include-request-details:true}")
+    private val asyncPublishing: Boolean = true,
     private val includeRequestDetails: Boolean = true,
 ) {
     private val logger = LoggerFactory.getLogger(AuditService::class.java)
@@ -298,73 +291,23 @@ class AuditService(
             throw IllegalStateException("Unable to determine current user ID", e)
         }
 
+    private fun extractRequestContext(): RequestContext {
+        if (!includeRequestDetails) {
+            return RequestContext.empty()
+        }
+        return RequestContext("unknown", "unknown", null, null, emptyMap())
+    }
+
     private data class RequestContext(
         val ipAddress: String,
         val userAgent: String,
         val sessionId: String?,
         val correlationId: String?,
         val details: Map<String, Any>,
-    )
-
-    private fun extractRequestContext(): RequestContext =
-        try {
-            val request = getCurrentHttpRequest()
-
-            val ipAddress = extractIpAddress(request)
-            val userAgent = request?.getHeader("User-Agent") ?: "Unknown"
-            val sessionId = request?.session?.id
-            val correlationId =
-                request?.getHeader("X-Correlation-ID") ?: request?.getHeader("X-Request-ID")
-
-            val details =
-                if (includeRequestDetails && request != null) {
-                    buildMap<String, Any> {
-                        put("requestMethod", request.method)
-                        put("requestUri", request.requestURI)
-                        request.queryString?.let { put("queryString", it) }
-                        put("remoteHost", request.remoteHost)
-                        put("serverName", request.serverName)
-                        put("serverPort", request.serverPort)
-                    }
-                } else {
-                    emptyMap()
-                }
-
-            RequestContext(ipAddress, userAgent, sessionId, correlationId, details)
-        } catch (e: Exception) {
-            logger.warn("Failed to extract complete request context: ${e.message}")
-            RequestContext(
-                ipAddress = "Unknown",
-                userAgent = "Unknown",
-                sessionId = null,
-                correlationId = null,
-                details = emptyMap(),
-            )
+    ) {
+        companion object {
+            fun empty() = RequestContext("n/a", "n/a", null, null, emptyMap())
         }
-
-    private fun getCurrentHttpRequest(): HttpServletRequest? =
-        try {
-            val requestAttributes =
-                RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes
-            requestAttributes?.request
-        } catch (e: Exception) {
-            null
-        }
-
-    private fun extractIpAddress(request: HttpServletRequest?): String {
-        if (request == null) return "Unknown"
-
-        val xForwardedFor = request.getHeader("X-Forwarded-For")
-        if (!xForwardedFor.isNullOrBlank()) {
-            return xForwardedFor.split(",").firstOrNull()?.trim() ?: request.remoteAddr
-        }
-
-        val xRealIp = request.getHeader("X-Real-IP")
-        if (!xRealIp.isNullOrBlank()) {
-            return xRealIp
-        }
-
-        return request.remoteAddr ?: "Unknown"
     }
 
     private suspend fun publishAuditEventSafely(auditEntry: AuditEntry) {

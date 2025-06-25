@@ -1,3 +1,5 @@
+@file:Suppress("INLINE_FROM_HIGHER_PLATFORM")
+
 package com.axians.eaf.controlplane
 
 import org.springframework.boot.autoconfigure.SpringBootApplication

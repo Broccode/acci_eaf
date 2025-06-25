@@ -1,8 +1,6 @@
 package com.axians.eaf.controlplane.domain.service
 
 import com.axians.eaf.controlplane.application.dto.tenant.PagedResponse
-import com.axians.eaf.controlplane.application.dto.tenant.TenantDetailsResponse
-import com.axians.eaf.controlplane.application.dto.tenant.TenantDto
 import com.axians.eaf.controlplane.application.dto.tenant.TenantFilter
 import com.axians.eaf.controlplane.application.dto.tenant.TenantSummary
 import com.axians.eaf.controlplane.domain.model.tenant.Tenant
@@ -10,14 +8,12 @@ import com.axians.eaf.controlplane.domain.model.tenant.TenantId
 import com.axians.eaf.controlplane.domain.model.tenant.TenantSettings
 import com.axians.eaf.controlplane.domain.model.tenant.TenantStatus
 import com.axians.eaf.controlplane.domain.port.TenantRepository
-import org.springframework.stereotype.Service
 import java.time.Instant
 
 /**
- * Domain service for tenant management operations. Encapsulates business logic for tenant lifecycle
- * management.
+ * Domain service for managing tenants. It orchestrates all tenant-related operations, ensuring that
+ * business rules are enforced.
  */
-@Service
 class TenantService(
     private val tenantRepository: TenantRepository,
 ) {
@@ -59,15 +55,15 @@ class TenantService(
         val activeUsers = tenantRepository.countActiveUsersByTenantId(tenant.id)
         val lastActivity = tenantRepository.getLastUserActivity(tenant.id)
 
-        val response =
-            TenantDetailsResponse(
-                tenant = TenantDto.fromDomain(tenant),
+        val details =
+            TenantDetails(
+                tenant = tenant,
                 userCount = userCount,
                 activeUsers = activeUsers,
                 lastActivity = lastActivity,
             )
 
-        return TenantDetailsResult.success(response)
+        return TenantDetailsResult.success(details)
     }
 
     /** Updates an existing tenant's details. */
@@ -89,7 +85,7 @@ class TenantService(
         val updatedTenant = tenant.updateDetails(name, settings)
         val savedTenant = tenantRepository.save(updatedTenant)
 
-        return UpdateTenantResult.success(TenantDto.fromDomain(savedTenant))
+        return UpdateTenantResult.success(savedTenant)
     }
 
     /** Suspends a tenant, preventing user access. */
@@ -163,6 +159,13 @@ class TenantService(
     }
 }
 
+data class TenantDetails(
+    val tenant: Tenant,
+    val userCount: Int,
+    val activeUsers: Int,
+    val lastActivity: Instant?,
+)
+
 /** Result types for tenant operations. */
 sealed class CreateTenantResult {
     data class Success(
@@ -188,7 +191,7 @@ sealed class CreateTenantResult {
 
 sealed class TenantDetailsResult {
     data class Success(
-        val details: TenantDetailsResponse,
+        val details: TenantDetails,
     ) : TenantDetailsResult()
 
     data class NotFound(
@@ -196,7 +199,7 @@ sealed class TenantDetailsResult {
     ) : TenantDetailsResult()
 
     companion object {
-        fun success(details: TenantDetailsResponse): TenantDetailsResult = Success(details)
+        fun success(details: TenantDetails): TenantDetailsResult = Success(details)
 
         fun notFound(message: String): TenantDetailsResult = NotFound(message)
     }
@@ -204,7 +207,7 @@ sealed class TenantDetailsResult {
 
 sealed class UpdateTenantResult {
     data class Success(
-        val tenant: TenantDto,
+        val tenant: Tenant,
     ) : UpdateTenantResult()
 
     data class NotFound(
@@ -216,7 +219,7 @@ sealed class UpdateTenantResult {
     ) : UpdateTenantResult()
 
     companion object {
-        fun success(tenant: TenantDto): UpdateTenantResult = Success(tenant)
+        fun success(tenant: Tenant): UpdateTenantResult = Success(tenant)
 
         fun notFound(message: String): UpdateTenantResult = NotFound(message)
 

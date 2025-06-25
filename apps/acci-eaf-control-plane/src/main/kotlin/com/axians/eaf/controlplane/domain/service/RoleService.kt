@@ -7,16 +7,16 @@ import com.axians.eaf.controlplane.domain.model.user.Role
 import com.axians.eaf.controlplane.domain.model.user.RoleId
 import com.axians.eaf.controlplane.domain.model.user.RoleScope
 import com.axians.eaf.controlplane.domain.port.RoleRepository
-import org.springframework.stereotype.Service
+import com.axians.eaf.controlplane.domain.port.TenantRepository
 import java.util.UUID
 
 /**
- * Domain service for role and permission management operations. Encapsulates business logic for
- * role lifecycle management and permission assignment.
+ * Domain service for managing roles and permissions. This service centralizes all business logic
+ * for role creation, modification, and permission assignments.
  */
-@Service
 class RoleService(
     private val roleRepository: RoleRepository,
+    private val tenantRepository: TenantRepository,
 ) {
     // Role Management Operations
 
