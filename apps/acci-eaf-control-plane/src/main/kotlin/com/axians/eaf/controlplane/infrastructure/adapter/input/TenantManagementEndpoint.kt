@@ -32,6 +32,7 @@ import org.springframework.validation.annotation.Validated
  * https://github.com/vaadin/hilla/issues/3443 Remove comment from @Endpoint when Vaadin/Hilla ships
  * the fix.
  */
+
 // @Endpoint
 @Service
 @Validated

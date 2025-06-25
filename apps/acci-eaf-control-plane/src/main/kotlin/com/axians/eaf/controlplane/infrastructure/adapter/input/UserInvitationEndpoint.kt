@@ -26,6 +26,7 @@ import org.springframework.security.access.prepost.PreAuthorize
  * FIXME: Temporarily disabled - ALL collection types trigger KotlinNullabilityPlugin crash See:
  * https://github.com/vaadin/hilla/issues/3443 Will re-enable when Vaadin/Hilla ships the fix.
  */
+
 // @Endpoint
 // @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
 class UserInvitationEndpoint(
