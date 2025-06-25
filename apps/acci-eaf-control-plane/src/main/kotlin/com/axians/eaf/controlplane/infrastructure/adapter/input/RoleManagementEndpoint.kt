@@ -5,11 +5,11 @@ import com.axians.eaf.controlplane.application.dto.role.CreatePermissionResponse
 import com.axians.eaf.controlplane.application.dto.role.CreateRoleRequest
 import com.axians.eaf.controlplane.application.dto.role.CreateRoleResponse
 import com.axians.eaf.controlplane.application.dto.role.DeleteRoleResponse
+import com.axians.eaf.controlplane.application.dto.role.PermissionDto
+import com.axians.eaf.controlplane.application.dto.role.RoleDto
 import com.axians.eaf.controlplane.application.dto.role.RolePermissionResponse
 import com.axians.eaf.controlplane.application.dto.role.UpdateRoleRequest
 import com.axians.eaf.controlplane.application.dto.role.UpdateRoleResponse
-import com.axians.eaf.controlplane.application.dto.user.PermissionDto
-import com.axians.eaf.controlplane.application.dto.user.RoleDto
 import com.axians.eaf.controlplane.domain.model.user.RoleScope
 import com.axians.eaf.controlplane.domain.service.CreatePermissionResult
 import com.axians.eaf.controlplane.domain.service.CreateRoleResult
@@ -18,7 +18,6 @@ import com.axians.eaf.controlplane.domain.service.RolePermissionResult
 import com.axians.eaf.controlplane.domain.service.RoleService
 import com.axians.eaf.controlplane.domain.service.UpdateRoleResult
 import com.vaadin.flow.server.auth.AnonymousAllowed
-import com.vaadin.hilla.Endpoint
 import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
 import kotlinx.coroutines.runBlocking
@@ -27,15 +26,19 @@ import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 
 /**
- * Hilla endpoint for role and permission management operations. Provides type-safe frontend access
- * to role and permission CRUD operations.
+ * Hilla endpoint for role management operations. Provides type-safe access to role lifecycle and
+ * permission management.
+ *
+ * FIXME: Temporarily disabled due to KotlinNullabilityPlugin crash in Vaadin 24.8.0 See:
+ * https://github.com/vaadin/hilla/issues/3443 Remove comment from @Endpoint when Vaadin/Hilla ships
+ * the fix.
  */
-@Endpoint
+// @Endpoint
 @Service
 @Validated
-@RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
+// @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
 class RoleManagementEndpoint(
-    private val roleService: RoleService,
+        private val roleService: RoleService,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(RoleManagementEndpoint::class.java)
@@ -45,20 +48,20 @@ class RoleManagementEndpoint(
 
     /** Creates a new role with the specified configuration. */
     fun createRole(
-        @Valid request: CreateRoleRequest,
+            @Valid request: CreateRoleRequest,
     ): CreateRoleResponse {
         logger.info("Creating role: {} with scope: {}", request.name, request.scope)
 
         return runBlocking {
             try {
                 val result =
-                    roleService.createRole(
-                        name = request.name,
-                        description = request.description,
-                        scope = request.scope,
-                        tenantId = request.tenantId,
-                        permissions = request.permissions,
-                    )
+                        roleService.createRole(
+                                name = request.name,
+                                description = request.description,
+                                scope = request.scope,
+                                tenantId = request.tenantId,
+                                permissions = request.getUniquePermissions(),
+                        )
 
                 when (result) {
                     is CreateRoleResult.Success -> {
@@ -79,19 +82,19 @@ class RoleManagementEndpoint(
 
     /** Updates an existing role's details. */
     fun updateRole(
-        roleId: String,
-        @Valid request: UpdateRoleRequest,
+            roleId: String,
+            @Valid request: UpdateRoleRequest,
     ): UpdateRoleResponse? {
         logger.info("Updating role: {}", roleId)
 
         return runBlocking {
             try {
                 val result =
-                    roleService.updateRole(
-                        roleId = roleId,
-                        name = request.name,
-                        description = request.description,
-                    )
+                        roleService.updateRole(
+                                roleId = roleId,
+                                name = request.name,
+                                description = request.description,
+                        )
 
                 when (result) {
                     is UpdateRoleResult.Success -> {
@@ -152,8 +155,8 @@ class RoleManagementEndpoint(
 
     /** Assigns a permission to a role. */
     fun assignPermission(
-        roleId: String,
-        permissionId: String,
+            roleId: String,
+            permissionId: String,
     ): RolePermissionResponse? {
         logger.info("Assigning permission {} to role {}", permissionId, roleId)
 
@@ -164,9 +167,9 @@ class RoleManagementEndpoint(
 
                 if (role == null || permission == null) {
                     logger.warn(
-                        "Role or permission not found: roleId={}, permissionId={}",
-                        roleId,
-                        permissionId,
+                            "Role or permission not found: roleId={}, permissionId={}",
+                            roleId,
+                            permissionId,
                     )
                     return@runBlocking null
                 }
@@ -176,15 +179,15 @@ class RoleManagementEndpoint(
                 when (result) {
                     is RolePermissionResult.Success -> {
                         logger.info(
-                            "Permission assigned successfully: {} to {}",
-                            permissionId,
-                            roleId,
+                                "Permission assigned successfully: {} to {}",
+                                permissionId,
+                                roleId,
                         )
                         RolePermissionResponse.assigned(
-                            roleId,
-                            role.name,
-                            permissionId,
-                            permission.name,
+                                roleId,
+                                role.name,
+                                permissionId,
+                                permission.name,
                         )
                     }
                     is RolePermissionResult.NotFound -> {
@@ -205,8 +208,8 @@ class RoleManagementEndpoint(
 
     /** Removes a permission from a role. */
     fun removePermission(
-        roleId: String,
-        permissionId: String,
+            roleId: String,
+            permissionId: String,
     ): RolePermissionResponse? {
         logger.info("Removing permission {} from role {}", permissionId, roleId)
 
@@ -217,9 +220,9 @@ class RoleManagementEndpoint(
 
                 if (role == null || permission == null) {
                     logger.warn(
-                        "Role or permission not found: roleId={}, permissionId={}",
-                        roleId,
-                        permissionId,
+                            "Role or permission not found: roleId={}, permissionId={}",
+                            roleId,
+                            permissionId,
                     )
                     return@runBlocking null
                 }
@@ -229,15 +232,15 @@ class RoleManagementEndpoint(
                 when (result) {
                     is RolePermissionResult.Success -> {
                         logger.info(
-                            "Permission removed successfully: {} from {}",
-                            permissionId,
-                            roleId,
+                                "Permission removed successfully: {} from {}",
+                                permissionId,
+                                roleId,
                         )
                         RolePermissionResponse.removed(
-                            roleId,
-                            role.name,
-                            permissionId,
-                            permission.name,
+                                roleId,
+                                role.name,
+                                permissionId,
+                                permission.name,
                         )
                     }
                     is RolePermissionResult.NotFound -> {
@@ -281,8 +284,8 @@ class RoleManagementEndpoint(
     /** Lists roles by scope and optional tenant ID. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
     fun listRoles(
-        scope: RoleScope,
-        tenantId: String? = null,
+            scope: RoleScope,
+            tenantId: String? = null,
     ): List<RoleDto> {
         logger.debug("Listing roles with scope: {} and tenantId: {}", scope, tenantId)
 
@@ -320,25 +323,25 @@ class RoleManagementEndpoint(
     /** Creates a new permission. */
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN") // Only platform admins can create permissions
     fun createPermission(
-        @Valid request: CreatePermissionRequest,
+            @Valid request: CreatePermissionRequest,
     ): CreatePermissionResponse {
         logger.info("Creating permission: {} for resource: {}", request.name, request.resource)
 
         return runBlocking {
             try {
                 val result =
-                    roleService.createPermission(
-                        name = request.name,
-                        description = request.description,
-                        resource = request.resource,
-                        action = request.action,
-                    )
+                        roleService.createPermission(
+                                name = request.name,
+                                description = request.description,
+                                resource = request.resource,
+                                action = request.action,
+                        )
 
                 when (result) {
                     is CreatePermissionResult.Success -> {
                         logger.info(
-                            "Permission created successfully: {}",
-                            result.permission.id.value,
+                                "Permission created successfully: {}",
+                                result.permission.id.value,
                         )
                         CreatePermissionResponse.success(result.permission)
                     }
@@ -350,7 +353,7 @@ class RoleManagementEndpoint(
             } catch (exception: Exception) {
                 logger.error("Error creating permission: ${request.name}", exception)
                 CreatePermissionResponse.failure(
-                    "Failed to create permission: ${exception.message}",
+                        "Failed to create permission: ${exception.message}",
                 )
             }
         }

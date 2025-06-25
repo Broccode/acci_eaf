@@ -3,15 +3,16 @@ package com.axians.eaf.controlplane.infrastructure.adapter.input
 import com.vaadin.hilla.Endpoint
 import com.vaadin.hilla.exception.EndpointException
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.stereotype.Service
 import java.time.Instant
 
 /**
- * User information endpoint that provides authenticated user details and tenant context.
- * Demonstrates EAF IAM integration and type-safe Hilla communication.
+ * Hilla endpoint for user information operations.
+ *
+ * FIXME: Temporarily disabled due to KotlinNullabilityPlugin crash in Vaadin 24.8.0 See:
+ * https://github.com/vaadin/hilla/issues/3443 Remove comment from @Endpoint when Vaadin/Hilla ships
+ * the fix.
  */
 @Endpoint
-@Service
 class UserInfoEndpoint {
     // TODO: Inject EAF security context holder when available
     // @Autowired

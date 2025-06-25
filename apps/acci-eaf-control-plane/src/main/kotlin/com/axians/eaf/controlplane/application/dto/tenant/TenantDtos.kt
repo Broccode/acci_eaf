@@ -69,15 +69,29 @@ data class TenantSettingsDto(
     val maxUsers: Int,
     @field:NotEmpty(message = "At least one allowed domain must be specified")
     val allowedDomains: List<@NotBlank String>,
-    val features: Set<String> = emptySet(),
+    val features: List<String> = emptyList(),
     val customSettings: Map<String, Any> = emptyMap(),
 ) {
+    init {
+        require(features.toSet().size == features.size) { "Duplicate features are not allowed" }
+        require(features.all { it.isNotBlank() }) { "Feature names cannot be blank" }
+        require(allowedDomains.toSet().size == allowedDomains.size) {
+            "Duplicate domains are not allowed"
+        }
+    }
+
+    /** Get unique features as a Set for domain layer processing. */
+    fun getUniqueFeatures(): Set<String> = features.toSet()
+
+    /** Get unique allowed domains as a Set for domain layer processing. */
+    fun getUniqueAllowedDomains(): Set<String> = allowedDomains.toSet()
+
     /** Converts DTO to domain model with validation. */
     fun toDomain(): TenantSettings =
         TenantSettings(
             maxUsers = maxUsers,
             allowedDomains = allowedDomains,
-            features = features,
+            features = features.toSet(),
             customSettings = customSettings,
         )
 
@@ -87,7 +101,7 @@ data class TenantSettingsDto(
             TenantSettingsDto(
                 maxUsers = settings.maxUsers,
                 allowedDomains = settings.allowedDomains,
-                features = settings.features,
+                features = settings.features.toList(),
                 customSettings = settings.customSettings,
             )
     }

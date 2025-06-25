@@ -80,3 +80,8 @@ dependencies {
 vaadin {
     productionMode = true
 }
+
+// Fix task dependency issue between Vaadin and Spotless
+tasks.named("spotlessKotlin") {
+    mustRunAfter("vaadinPrepareFrontend")
+}

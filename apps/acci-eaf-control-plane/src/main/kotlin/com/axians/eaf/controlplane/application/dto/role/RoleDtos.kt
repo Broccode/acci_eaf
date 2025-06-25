@@ -1,7 +1,5 @@
 package com.axians.eaf.controlplane.application.dto.role
 
-import com.axians.eaf.controlplane.application.dto.user.PermissionDto
-import com.axians.eaf.controlplane.application.dto.user.RoleDto
 import com.axians.eaf.controlplane.domain.model.user.Permission
 import com.axians.eaf.controlplane.domain.model.user.Role
 import com.axians.eaf.controlplane.domain.model.user.RoleScope
@@ -19,8 +17,65 @@ data class CreateRoleRequest(
     val description: String,
     val scope: RoleScope,
     val tenantId: String? = null,
-    val permissions: Set<String> = emptySet(),
-)
+    val permissions: List<String> = emptyList(),
+) {
+    init {
+        require(permissions.toSet().size == permissions.size) {
+            "Duplicate permissions are not allowed"
+        }
+        require(permissions.all { it.isNotBlank() }) { "Permission IDs cannot be blank" }
+    }
+
+    /** Get unique permissions as a Set for domain layer processing. */
+    fun getUniquePermissions(): Set<String> = permissions.toSet()
+}
+
+/** Role information DTO. */
+data class RoleDto(
+    val id: String,
+    val name: String,
+    val description: String,
+    val scope: RoleScope,
+    val tenantId: String?,
+    val permissions: List<PermissionDto>,
+) {
+    companion object {
+        /** Creates DTO from domain model. */
+        fun fromDomain(role: Role): RoleDto =
+            RoleDto(
+                id = role.id.value,
+                name = role.name,
+                description = role.description,
+                scope = role.scope,
+                tenantId = role.tenantId?.value,
+                permissions =
+                    role.permissions.map { PermissionDto.fromDomain(it) }.toList(),
+            )
+    }
+}
+
+/** Permission information DTO. */
+data class PermissionDto(
+    val id: String,
+    val name: String,
+    val description: String,
+    val resource: String,
+    val action: String,
+    val permissionString: String,
+) {
+    companion object {
+        /** Creates DTO from domain model. */
+        fun fromDomain(permission: Permission): PermissionDto =
+            PermissionDto(
+                id = permission.id.value,
+                name = permission.name,
+                description = permission.description,
+                resource = permission.resource,
+                action = permission.action,
+                permissionString = permission.toPermissionString(),
+            )
+    }
+}
 
 /** Response after successful role creation. */
 data class CreateRoleResponse(
@@ -45,7 +100,7 @@ data class CreateRoleResponse(
                         description = "",
                         scope = RoleScope.PLATFORM,
                         tenantId = null,
-                        permissions = emptySet(),
+                        permissions = emptyList(),
                     ),
                 message = message,
                 timestamp = Instant.now(),
@@ -208,10 +263,19 @@ data class RoleFilter(
     val scope: RoleScope? = null,
     val tenantId: String? = null,
     val namePattern: String? = null,
-    val permissionIds: Set<String> = emptySet(),
+    val permissionIds: List<String> = emptyList(),
     val includePermissions: Boolean = false,
     val includeUserCount: Boolean = false,
-)
+) {
+    init {
+        require(permissionIds.toSet().size == permissionIds.size) {
+            "Duplicate permission IDs are not allowed in filter"
+        }
+    }
+
+    /** Get unique permission IDs as a Set for domain layer processing. */
+    fun getUniquePermissionIds(): Set<String> = permissionIds.toSet()
+}
 
 /** Filter criteria for permission queries. */
 data class PermissionFilter(

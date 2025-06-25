@@ -308,7 +308,7 @@ class InvitationService(
                     firstName = savedInvitation.firstName,
                     lastName = savedInvitation.lastName,
                     tenantId = savedInvitation.tenantId.value,
-                    roles = savedInvitation.roles.map { it.value }.toSet(),
+                    roles = savedInvitation.roles.map { it.value }.toList(),
                     message = "Invitation accepted successfully. Welcome!",
                 )
 

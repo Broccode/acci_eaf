@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 /**
- * Health check endpoint that provides system status information. This endpoint is accessible from
- * the frontend via type-safe Hilla calls.
+ * Health endpoint for the control plane service.
+ *
+ * FIXME: Test endpoint to isolate KotlinNullabilityPlugin crash See:
+ * https://github.com/vaadin/hilla/issues/3443
  */
 @Endpoint
 @Service

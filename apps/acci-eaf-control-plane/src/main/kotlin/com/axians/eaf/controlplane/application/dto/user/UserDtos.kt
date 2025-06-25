@@ -23,10 +23,18 @@ data class CreateUserRequest(
     @field:Size(max = 50, message = "Last name cannot exceed 50 characters")
     val lastName: String,
     @field:NotBlank(message = "Tenant ID cannot be blank") val tenantId: String,
-    val roles: Set<String> = emptySet(),
+    val roles: List<String> = emptyList(),
     val sendWelcomeEmail: Boolean = true,
     val activateImmediately: Boolean = false,
-)
+) {
+    init {
+        require(roles.toSet().size == roles.size) { "Duplicate roles are not allowed" }
+        require(roles.all { it.isNotBlank() }) { "Role names cannot be blank" }
+    }
+
+    /** Get unique roles as a Set for domain layer processing. */
+    fun getUniqueRoles(): Set<String> = roles.toSet()
+}
 
 /** Response after successful user creation. */
 data class CreateUserResponse(
@@ -75,7 +83,7 @@ data class UpdateUserRequest(
 /** Detailed user information response. */
 data class UserDetailsResponse(
     val user: UserDto,
-    val permissions: Set<String>,
+    val permissions: List<String>,
     val lastLoginFormatted: String?,
     val accountAge: String,
 )
@@ -89,7 +97,7 @@ data class UserDto(
     val lastName: String,
     val fullName: String,
     val status: UserStatus,
-    val roles: Set<RoleDto>,
+    val roles: List<RoleDto>,
     val lastLogin: Instant?,
     val createdAt: Instant,
     val lastModified: Instant,
@@ -107,7 +115,7 @@ data class UserDto(
                 lastName = user.lastName,
                 fullName = user.getFullName(),
                 status = user.status,
-                roles = user.roles.map { RoleDto.fromDomain(it) }.toSet(),
+                roles = user.roles.map { RoleDto.fromDomain(it) }.toList(),
                 lastLogin = user.lastLogin,
                 createdAt = user.createdAt,
                 lastModified = user.lastModified,
@@ -124,7 +132,7 @@ data class RoleDto(
     val description: String,
     val scope: RoleScope,
     val tenantId: String?,
-    val permissions: Set<PermissionDto>,
+    val permissions: List<PermissionDto>,
 ) {
     companion object {
         /** Creates DTO from domain model. */
@@ -138,7 +146,7 @@ data class RoleDto(
                 permissions =
                     role.permissions
                         .map { PermissionDto.fromDomain(it) }
-                        .toSet(),
+                        .toList(),
             )
     }
 }
@@ -287,11 +295,21 @@ data class PasswordResetResponse(
 
 /** Request for bulk user operations. */
 data class BulkUserUpdateRequest(
-    @field:NotEmpty(message = "User IDs cannot be empty") val userIds: Set<String>,
+    @field:NotEmpty(message = "User IDs cannot be empty") val userIds: List<String>,
     val operation: BulkUserOperation,
     val roleId: String? = null,
     val reason: String? = null,
-)
+) {
+    init {
+        require(userIds.toSet().size == userIds.size) {
+            "Duplicate user IDs are not allowed"
+        }
+        require(userIds.all { it.isNotBlank() }) { "User IDs cannot be blank" }
+    }
+
+    /** Get unique user IDs as a Set for domain layer processing. */
+    fun getUniqueUserIds(): Set<String> = userIds.toSet()
+}
 
 /** Supported bulk user operations. */
 enum class BulkUserOperation {
@@ -341,11 +359,20 @@ data class UserFilter(
     val status: UserStatus? = null,
     val emailPattern: String? = null,
     val namePattern: String? = null,
-    val roleNames: Set<String> = emptySet(),
+    val roleNames: List<String> = emptyList(),
     val createdAfter: Instant? = null,
     val createdBefore: Instant? = null,
     val lastLoginAfter: Instant? = null,
     val lastLoginBefore: Instant? = null,
     val page: Int = 0,
     val size: Int = 20,
-)
+) {
+    init {
+        require(roleNames.toSet().size == roleNames.size) {
+            "Duplicate role names are not allowed in filter"
+        }
+    }
+
+    /** Get unique role names as a Set for domain layer processing. */
+    fun getUniqueRoleNames(): Set<String> = roleNames.toSet()
+}
