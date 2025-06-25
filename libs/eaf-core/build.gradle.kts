@@ -33,4 +33,5 @@ dependencies {
     testImplementation(libs.archunit.junit5)
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlin.coroutines.test)
+    testImplementation(libs.junit.platform.launcher)
 }
