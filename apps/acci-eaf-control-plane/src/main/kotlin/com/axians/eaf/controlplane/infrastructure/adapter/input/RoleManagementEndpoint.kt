@@ -25,6 +25,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.validation.annotation.Validated
 
+// @Endpoint
+// @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
+
 /**
  * Hilla endpoint for role management operations. Provides type-safe access to role lifecycle and
  * permission management.
@@ -33,11 +36,8 @@ import org.springframework.validation.annotation.Validated
  * https://github.com/vaadin/hilla/issues/3443 Remove comment from @Endpoint when Vaadin/Hilla ships
  * the fix.
  */
-
-// @Endpoint
 @Service
 @Validated
-// @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
 class RoleManagementEndpoint(
         private val roleService: RoleService,
 ) {
