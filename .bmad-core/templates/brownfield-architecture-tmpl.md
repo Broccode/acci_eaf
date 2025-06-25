@@ -241,9 +241,9 @@ Present component architecture and apply `tasks#advanced-elicitation` protocol]]
 
 [[LLM: Create Mermaid diagram showing how new components interact with existing ones]]
 
-````mermaid
+```mermaid
 {{component_interaction_diagram}}
-```text
+```
 
 ## API Design and Integration
 
@@ -260,8 +260,7 @@ Present API design and apply `tasks#advanced-elicitation` protocol]]
 
 ^^CONDITION: has_new_api^^
 
-**API Integration Strategy:** {{api_integration_strategy}}
-**Authentication:** {{auth_integration}}
+**API Integration Strategy:** {{api_integration_strategy}} **Authentication:** {{auth_integration}}
 **Versioning:** {{versioning_approach}}
 
 <<REPEAT: new_endpoint>>
@@ -277,13 +276,13 @@ Present API design and apply `tasks#advanced-elicitation` protocol]]
 
 ```json
 {{request_schema}}
-````
+```
 
 **Response:**
 
-````json
+```json
 {{response_schema}}
-```text
+```
 
 <</REPEAT>>
 
@@ -332,7 +331,7 @@ Present integration plan and apply `tasks#advanced-elicitation` protocol]]
 
 ```plaintext
 {{existing_structure_relevant_parts}}
-````
+```
 
 ### New File Organization
 

@@ -55,6 +55,10 @@ Manual Test Steps:
 [[LLM: (SM Agent) When Drafting Story, leave next prompt in place for dev agent to remove and update - remove this line to the SM]]
 [[LLM: (Dev Agent) Anything the SM needs to know that deviated from the story that might impact drafting the next story.]]
 
+### File List
+
+[[LLM: (Dev Agent) List every new file created, or existing file modified in a bullet list.]]
+
 ### Change Log
 
 [[LLM: (SM Agent) When Drafting Story, leave next prompt in place for dev agent to remove and update- remove this line to the SM]]
@@ -62,3 +66,7 @@ Manual Test Steps:
 
 | Date | Version | Description | Author |
 | :--- | :------ | :---------- | :----- |
+
+## QA Results
+
+[[LLM: QA Agent Results]]

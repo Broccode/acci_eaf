@@ -354,7 +354,7 @@ Use YAML format for better readability. If no REST API, skip this section.]]
 
 ^^CONDITION: has_rest_api^^
 
-````yaml
+```yaml
 openapi: 3.0.0
 info:
   title:
@@ -368,7 +368,7 @@ servers:
       '[object Object]': null
     description:
       '[object Object]': null
-```text
+```
 
 ^^/CONDITION: has_rest_api^^
 
@@ -399,9 +399,11 @@ After presenting the database schema, apply `tasks#advanced-elicitation` protoco
 5. Best practices for the chosen frameworks
 6. Clear separation of concerns
 
-Adapt the structure based on project needs. For monorepos, show service separation. For serverless, show function organization. Include language-specific conventions.
+Adapt the structure based on project needs. For monorepos, show service separation. For serverless,
+show function organization. Include language-specific conventions.
 
-After presenting the structure, apply `tasks#advanced-elicitation` protocol to refine based on user feedback.]]
+After presenting the structure, apply `tasks#advanced-elicitation` protocol to refine based on user
+feedback.]]
 
 ```plaintext
 {{project-root}}/
@@ -431,7 +433,6 @@ After presenting the structure, apply `tasks#advanced-elicitation` protocol to r
 ├── {{package-manifest}}        # Dependencies manifest
 ├── {{config-files}}            # Language/framework configs
 └── README.md                   # Project documentation
-```text
 
 @{example: monorepo-structure}
 project-root/
@@ -443,6 +444,7 @@ project-root/
 ├── scripts/ # Monorepo management scripts
 └── package.json # Root package.json with workspaces
 @{/example}
+```
 
 [[LLM: After presenting the source tree structure, apply `tasks#advanced-elicitation` protocol]]
 
@@ -474,14 +476,13 @@ Get user input on deployment preferences and CI/CD tool choices.]]
 
 <<REPEAT: environment>>
 
-- **{{env_name}}:** {{env_purpose}} - {{env_details}}
-  <</REPEAT>>
+- **{{env_name}}:** {{env_purpose}} - {{env_details}} <</REPEAT>>
 
 ### Environment Promotion Flow
 
 ```text
 {{promotion_flow_diagram}}
-````
+```
 
 ### Rollback Strategy
 

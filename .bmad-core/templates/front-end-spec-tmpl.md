@@ -76,9 +76,9 @@ After presenting this section, apply `tasks#advanced-elicitation` protocol]]
 
 ### Site Map / Screen Inventory
 
-````mermaid
+```mermaid
 {{sitemap_diagram}}
-```text
+```
 
 @{example: sitemap}
 
@@ -95,7 +95,7 @@ graph TD
     D --> D1[Profile]
     D --> D2[Settings]
     D --> D3[Billing]
-````
+```
 
 @{/example}
 

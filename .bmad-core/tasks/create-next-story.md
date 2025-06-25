@@ -8,47 +8,43 @@ task ensures the story is enriched with all necessary technical context, require
 acceptance criteria, making it ready for efficient implementation by a Developer Agent with minimal
 need for additional research.
 
-## Inputs for this Task
-
-- Access to the project's documentation repository, specifically:
-  - `docs/index.md` (hereafter "Index Doc")
-  - All Epic files - located in one of these locations:
-    - Primary: `docs/prd/epic-{n}-{description}.md` (e.g.,
-      `epic-1-foundation-core-infrastructure.md`)
-    - Secondary: `docs/epics/epic-{n}-{description}.md`
-    - User-specified location if not found in above paths
-  - Existing story files in `docs/stories/`
-  - Main PRD (hereafter "PRD Doc")
-  - Main Architecture Document (hereafter "Main Arch Doc")
-  - Frontend Architecture Document (hereafter "Frontend Arch Doc," if relevant)
-  - Project Structure Guide (`docs/project-structure.md`)
-  - Operational Guidelines Document (`docs/operational-guidelines.md`)
-  - Technology Stack Document (`docs/tech-stack.md`)
-  - Data Models Document (as referenced in Index Doc)
-  - API Reference Document (as referenced in Index Doc)
-  - UI/UX Specifications, Style Guides, Component Guides (if relevant, as referenced in Index Doc)
-- The `bmad-core/templates/story-tmpl.md` (hereafter "Story Template")
-- The `bmad-core/checklists/story-draft-checklist.md` (hereafter "Story Draft Checklist")
-- User confirmation to proceed with story identification and, if needed, to override warnings about
-  incomplete prerequisite stories.
-
 ## Task Execution Instructions
+
+### 0. Load Core Configuration
+
+[[LLM: CRITICAL - This MUST be your first step]]
+
+- Load `.bmad-core/core-config.yml` from the project root
+- If the file does not exist:
+  - HALT and inform the user: "core-config.yml not found. This file is required for story creation.
+    You can:
+    1. Copy it from GITHUB BMAD-METHOD/bmad-core/core-config.yml and configure it for your project
+    2. Run the BMAD installer against your project to upgrade and add the file automatically Please
+       add and configure core-config.yml before proceeding."
+- Extract the following key configurations:
+  - `devStoryLocation`: Where to save story files
+  - `prd.prdSharded`: Whether PRD is sharded or monolithic
+  - `prd.prdFile`: Location of monolithic PRD (if not sharded)
+  - `prd.prdShardedLocation`: Location of sharded epic files
+  - `prd.epicFilePattern`: Pattern for epic files (e.g., `epic-{n}*.md`)
+  - `architecture.architectureVersion`: Architecture document version
+  - `architecture.architectureSharded`: Whether architecture is sharded
+  - `architecture.architectureFile`: Location of monolithic architecture
+  - `architecture.architectureShardedLocation`: Location of sharded architecture files
 
 ### 1. Identify Next Story for Preparation
 
 #### 1.1 Locate Epic Files
 
-- First, determine where epic files are located:
-  - Check `docs/prd/` for files matching pattern `epic-{n}-*.md`
-  - If not found, check `docs/epics/` for files matching pattern `epic-{n}-*.md`
-  - If still not found, ask user: "Unable to locate epic files. Please specify the path where epic
-    files are stored."
-- Note: Epic files follow naming convention `epic-{n}-{description}.md` (e.g.,
-  `epic-1-foundation-core-infrastructure.md`)
+- Based on `prdSharded` from config:
+  - **If `prdSharded: true`**: Look for epic files in `prdShardedLocation` using `epicFilePattern`
+  - **If `prdSharded: false`**: Load the full PRD from `prdFile` and extract epics from section
+    headings (## Epic N or ### Epic N)
 
 #### 1.2 Review Existing Stories
 
-- Review `docs/stories/` to find the highest-numbered story file.
+- Check `devStoryLocation` from config (e.g., `docs/stories/`) for existing story files
+- If the directory exists and has at least 1 file, find the highest-numbered story file.
 - **If a highest story file exists (`{lastEpicNum}.{lastStoryNum}.story.md`):**
 
   - Verify its `Status` is 'Done' (or equivalent).
@@ -68,24 +64,49 @@ need for additional research.
     ```
 
   - Proceed only if user selects option 3 (Override) or if the last story was 'Done'.
-  - If proceeding: Look for the Epic File for `{lastEpicNum}` (e.g., `epic-{lastEpicNum}-*.md`) and
-    check for a story numbered `{lastStoryNum + 1}`. If it exists and its prerequisites (per Epic
-    File) are met, this is the next story.
-  - Else (story not found or prerequisites not met): The next story is the first story in the next
-    Epic File (e.g., look for `epic-{lastEpicNum + 1}-*.md`, then `epic-{lastEpicNum + 2}-*.md`,
-    etc.) whose prerequisites are met.
+  - If proceeding: Look for the Epic File for `{lastEpicNum}` (e.g., `epic-{lastEpicNum}*.md`) and
+    parse it to find ALL stories in that epic. **ALWAYS select the next sequential story** (e.g., if
+    last was 2.2, next MUST be 2.3).
+  - If the next sequential story has unmet prerequisites, present this to the user:
+
+    ```plaintext
+    ALERT: Next story has unmet prerequisites:
+    Story: {epicNum}.{storyNum} - {Story Title}
+    Prerequisites not met: [list specific prerequisites]
+
+    Would you like to:
+    1. Create the story anyway (mark prerequisites as pending)
+    2. Skip to a different story (requires your specific instruction)
+    3. Cancel story creation
+
+    Please choose an option (1/2/3):
+    ```
+
+  - If there are no more stories in the current epic (e.g., 2.9 was done and there is no 2.10):
+
+    ```plaintext
+    Epic {epicNum} Complete: All stories in Epic {epicNum} have been completed.
+
+    Would you like to:
+    1. Begin Epic {epicNum + 1} with story {epicNum + 1}.1
+    2. Select a specific story to work on
+    3. Cancel story creation
+
+    Please choose an option (1/2/3):
+    ```
+
+  - **CRITICAL**: NEVER automatically skip to another epic or non-sequential story. The user MUST
+    explicitly instruct which story to create if skipping the sequential order.
 
 - **If no story files exist in `docs/stories/`:**
-  - The next story is the first story in the first epic file (look for `epic-1-*.md`, then
-    `epic-2-*.md`, etc.) whose prerequisites are met.
-- If no suitable story with met prerequisites is found, report to the user that story creation is
-  blocked, specifying what prerequisites are pending. HALT task.
+  - The next story is ALWAYS 1.1 (the first story of the first epic).
+  - If story 1.1 has unmet prerequisites, follow the same alert process as above.
 - Announce the identified story to the user: "Identified next story for preparation:
   {epicNum}.{storyNum} - {Story Title}".
 
-### 2. Gather Core Story Requirements (from Epic File)
+### 2. Gather Core Story Requirements (from Epic)
 
-- For the identified story, open its parent Epic File (e.g., `epic-{epicNum}-*.md` from the location
+- For the identified story, review its parent Epic (e.g., `epic-{epicNum}*.md` from the location
   identified in step 1.1).
 - Extract: Exact Title, full Goal/User Story statement, initial list of Requirements, all Acceptance
   Criteria (ACs), and any predefined high-level Tasks.
@@ -96,7 +117,7 @@ need for additional research.
 [[LLM: This step is CRITICAL for continuity and learning from implementation experience]]
 
 - If this is not the first story (i.e., previous story exists):
-  - Read the previous story file: `docs/stories/{prevEpicNum}.{prevStoryNum}.story.md`
+  - Read the previous sequential story from `docs/stories`
   - Pay special attention to:
     - Dev Agent Record sections (especially Completion Notes and Debug Log References)
     - Any deviations from planned implementation
@@ -105,18 +126,30 @@ need for additional research.
     - Any "lessons learned" or notes for future stories
   - Extract relevant insights that might inform the current story's preparation
 
-### 4. Gather & Synthesize Architecture Context from Sharded Docs
+### 4. Gather & Synthesize Architecture Context
 
-[[LLM: CRITICAL - You MUST gather technical details from the sharded architecture documents. NEVER make up technical details not found in these documents.]]
+[[LLM: CRITICAL - You MUST gather technical details from the architecture documents. NEVER make up technical details not found in these documents.]]
 
-#### 4.1 Start with Architecture Index
+#### 4.1 Determine Architecture Document Strategy
 
-- Read `docs/architecture/index.md` to understand the full scope of available documentation
-- Identify which sharded documents are most relevant to the current story
+Based on configuration loaded in Step 0:
 
-#### 4.2 Recommended Reading Order Based on Story Type
+- **If `architectureVersion: v4` and `architectureSharded: true`**:
+  - Read `{architectureShardedLocation}/index.md` to understand available documentation
+  - Follow the structured reading order in section 4.2 below
+- **If `architectureVersion: v4` and `architectureSharded: false`**:
+  - Load the monolithic architecture from `architectureFile`
+  - Extract relevant sections based on v4 structure (tech stack, project structure, etc.)
+- **If `architectureVersion` is NOT v4**:
+  - Inform user: "Architecture document is not v4 format. Will use best judgment to find relevant
+    information."
+  - If `architectureSharded: true`: Search sharded files by filename relevance
+  - If `architectureSharded: false`: Search within monolithic `architectureFile` for relevant
+    sections
 
-[[LLM: Read documents in this order, but ALWAYS verify relevance to the specific story. Skip irrelevant sections but NEVER skip documents that contain information needed for the story.]]
+#### 4.2 Recommended Reading Order Based on Story Type (v4 Sharded Only)
+
+[[LLM: Use this structured approach ONLY for v4 sharded architecture. For other versions, use best judgment based on file names and content.]]
 
 **For ALL Stories:**
 
@@ -170,7 +203,8 @@ Format references as: `[Source: architecture/{filename}.md#{section}]`
 
 ### 6. Populate Story Template with Full Context
 
-- Create a new story file: `docs/stories/{epicNum}.{storyNum}.story.md`.
+- Create a new story file: `{devStoryLocation}/{epicNum}.{storyNum}.story.md` (using location from
+  config).
 - Use the Story Template to structure the file.
 - Fill in:
   - Story `{EpicNum}.{StoryNum}: {Short Title Copied from Epic File}`
@@ -222,7 +256,8 @@ Format references as: `[Source: architecture/{filename}.md#{section}]`
 - Verify all source references are included for technical details
 - Ensure tasks align with both epic requirements and architecture constraints
 - Update status to "Draft"
-- Save the story file to `docs/stories/{epicNum}.{storyNum}.story.md`
+- Save the story file to `{devStoryLocation}/{epicNum}.{storyNum}.story.md` (using location from
+  config)
 
 ### 9. Report Completion
 

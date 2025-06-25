@@ -6,9 +6,33 @@
 - Create a folder structure to organize the sharded documents
 - Maintain all content integrity including code blocks, diagrams, and markdown formatting
 
-## Recommended Method: @kayvan/markdown-tree-parser
+## Primary Method: Automatic with markdown-tree
 
-[[LLM: First, suggest the user install and use the @kayvan/markdown-tree-parser tool if the md-tree command is unavailable so we can have the best performance and reliable document sharding. Let the user know this will save cost of having the LLM to the expensive sharding operation. Give instructions for MPV NPX and PNPM global installs.]]
+[[LLM: First, check if markdownExploder is set to true in bmad-core/core-config.yml. If it is,
+attempt to run the command: `md-tree explode {input file} {output path}`.
+
+If the command succeeds, inform the user that the document has been sharded successfully and STOP -
+do not proceed further.
+
+If the command fails (especially with an error indicating the command is not found or not
+available), inform the user: "The markdownExploder setting is enabled but the md-tree command is not
+available. Please either:
+
+1. Install @kayvan/markdown-tree-parser globally with: `npm install -g @kayvan/markdown-tree-parser`
+2. Or set markdownExploder to false in bmad-core/core-config.yml
+
+**IMPORTANT: STOP HERE - do not proceed with manual sharding until one of the above actions is
+taken.**"
+
+If markdownExploder is set to false, inform the user: "The markdownExploder setting is currently
+false. For better performance and reliability, you should:
+
+1. Set markdownExploder to true in bmad-core/core-config.yml
+2. Install @kayvan/markdown-tree-parser globally with: `npm install -g @kayvan/markdown-tree-parser`
+
+I will now proceed with the manual sharding process."
+
+Then proceed with the manual method below ONLY if markdownExploder is false.]]
 
 ### Installation and Usage
 
@@ -41,19 +65,19 @@ If the user has @kayvan/markdown-tree-parser installed, use it and skip the manu
 
 ---
 
-## Manual Method (if @kayvan/markdown-tree-parser is not available)
+## Manual Method (if @kayvan/markdown-tree-parser is not available or user indicated manual method)
 
 [[LLM: Only proceed with the manual instructions below if the user cannot or does not want to use @kayvan/markdown-tree-parser.]]
 
 ### Task Instructions
 
-### 1. Identify Document and Target Location
+1. Identify Document and Target Location
 
 - Determine which document to shard (user-provided path)
 - Create a new folder under `docs/` with the same name as the document (without extension)
 - Example: `docs/prd.md` → create folder `docs/prd/`
 
-### 2. Parse and Extract Sections
+2. Parse and Extract Sections
 
 [[LLM: When sharding the document:
 
@@ -63,7 +87,8 @@ If the user has @kayvan/markdown-tree-parser installed, use it and skip the manu
    - Extract the section heading and ALL content until the next level 2 section
    - Include all subsections, code blocks, diagrams, lists, tables, etc.
    - Be extremely careful with:
-     - Fenced code blocks (```) - ensure you capture the full block including closing backticks
+     - Fenced code blocks (```) - ensure you capture the full block including closing backticks and
+       account for potential misleading level 2's that are actually part of a fenced section example
      - Mermaid diagrams - preserve the complete diagram syntax
      - Nested markdown elements
      - Multi-line content that might contain ## inside code blocks
@@ -83,7 +108,7 @@ For each extracted section:
 
 2. **Adjust heading levels**:
 
-   - The level 2 heading becomes level 1 (# instead of ##)
+   - The level 2 heading becomes level 1 (# instead of ##) in the sharded new document
    - All subsection levels decrease by 1:
 
    ```txt
@@ -102,7 +127,7 @@ Create an `index.md` file in the sharded folder that:
 1. Contains the original level 1 heading and any content before the first level 2 section
 2. Lists all the sharded files with links:
 
-`````markdown
+```markdown
 # Original Document Title
 
 [Original introduction content if any]
@@ -112,8 +137,7 @@ Create an `index.md` file in the sharded folder that:
 - [Section Name 1](./section-name-1.md)
 - [Section Name 2](./section-name-2.md)
 - [Section Name 3](./section-name-3.md) ...
-
-````text
+```
 
 ### 5. Preserve Special Content
 
@@ -123,10 +147,7 @@ Create an `index.md` file in the sharded folder that:
 
    ```language
    content
-````
-`````
-
-````
+   ```
 
 2. **Mermaid diagrams**: Preserve complete syntax:
 
@@ -176,4 +197,3 @@ Document sharded successfully:
 - Preserve ALL formatting, including whitespace where significant
 - Handle edge cases like sections with code blocks containing ## symbols
 - Ensure the sharding is reversible (could reconstruct the original from shards)
-````

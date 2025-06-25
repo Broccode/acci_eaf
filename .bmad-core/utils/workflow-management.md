@@ -45,14 +45,14 @@ workflows that are configured in the current team's `workflows` field.
 
 Example response format:
 
-````text
+```text
 Available workflows for [Team Name]:
 1. [workflow-id] - [Brief description based on workflow type]
 2. [workflow-id] - [Brief description based on workflow type]
 [... etc. ...]
 
 Use /workflow-start {number or id} to begin a workflow.
-```text
+```
 
 ### /workflow-start {workflow-id}
 
@@ -78,7 +78,7 @@ In Progress:
     - Create PRD (John) - awaiting input
 
 Next: Technical Architecture
-```text
+```
 
 ### /workflow-resume
 
@@ -94,7 +94,7 @@ BMad: I see you've completed Discovery and part of Product Planning.
       - UX Strategy with Sally (ux-expert)
 
       Would you like me to load Sally to continue?
-```text
+```
 
 ### /workflow-next
 
@@ -140,7 +140,7 @@ workflow_state:
       status: in-progress
       created_by: pm
       started: 2024-01-15T11:00:00.000Z
-````
+```
 
 ### 4. Workflow Interruption Handling
 
@@ -154,7 +154,7 @@ When user returns after interruption:
 
 Example:
 
-````text
+```text
 User: I'm working on a new app. Here's my PRD and architecture doc.
 BMad: I see you have a PRD and architecture document. Based on these artifacts,
       it looks like you're following the greenfield-fullstack workflow and have completed
@@ -164,7 +164,7 @@ BMad: I see you have a PRD and architecture document. Based on these artifacts,
       - Load Sarah (Product Owner) to validate all artifacts
 
       Would you like to continue with this workflow?
-```text
+```
 
 ## Workflow Context Passing
 
@@ -190,7 +190,7 @@ Sally: I see we're in the Product Planning stage of the greenfield-fullstack wor
 
        Let's create the UX strategy and UI specifications. First, let me review
        the PRD to understand the features we're designing for...
-```text
+```
 
 ## Multi-Path Workflows
 
@@ -203,7 +203,7 @@ conditional_paths:
   - condition: project_type == 'web'
     next_stage: web-architecture
   - default: fullstack-architecture
-````
+```
 
 Handle these by asking clarifying questions when needed.
 

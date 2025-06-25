@@ -70,7 +70,42 @@ workflow:
 
     - workflow_end:
       action: move_to_ide
-      notes: 'All planning artifacts complete. Move to IDE environment to begin development. Explain to the user the IDE Development Workflow next steps: data#bmad-kb:IDE Development Workflow'
+      notes: |
+        Planning phase complete! Now transition to IDE Development:
+
+        1. ENSURE DOCUMENTS ARE IN PROJECT:
+           - Copy final prd.md to project's docs/prd.md
+           - Copy final architecture.md to project's docs/architecture.md
+           - All documents must be in the project before proceeding
+
+        2. SHARD DOCUMENTS (in IDE):
+           - Option A: Use PO agent to shard: @po then ask to shard docs/prd.md
+           - Option B: Manual: Drag shard-doc task + docs/prd.md into chat
+           - This creates docs/prd/ and docs/architecture/ folders with sharded content
+
+        3. START DEVELOPMENT CYCLE:
+           a. SM Agent (New Chat): @sm → *create
+              - Creates next story from sharded docs
+              - Review and approve story (Draft → Approved)
+           
+           b. Dev Agent (New Chat): @dev
+              - Implements approved story
+              - Updates File List with all changes
+              - Marks story as "Review" when complete
+           
+           c. QA Agent (New Chat): @qa → review-story
+              - Senior dev review with refactoring ability
+              - Fixes small issues directly
+              - Leaves checklist for remaining items
+              - Updates story status (Review → Done or stays Review)
+           
+           d. If QA left unchecked items:
+              - Dev Agent (New Chat): Address remaining items
+              - Return to QA for final approval
+
+        4. REPEAT: Continue cycle for all epic stories
+
+        Reference: data#bmad-kb:IDE Development Workflow
 
   flow_diagram: |
     ```mermaid
