@@ -15,7 +15,6 @@ dependencyResolutionManagement {
 
 // Include backend applications
 include(":apps:iam-service")
-// include(":apps:ticket-management-service")
 include(":apps:acci-eaf-control-plane")
 
 // Include backend libraries
