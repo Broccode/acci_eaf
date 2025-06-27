@@ -2,7 +2,7 @@ package com.axians.eaf.controlplane.infrastructure.security.monitoring
 
 import com.axians.eaf.controlplane.domain.model.audit.AdminAction
 import com.axians.eaf.controlplane.domain.service.AuditService
-import com.axians.eaf.controlplane.infrastructure.security.config.SecurityProperties
+import com.axians.eaf.controlplane.infrastructure.configuration.SecurityProperties
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -44,7 +44,8 @@ class SecurityMonitoringService(
 
         synchronized(attempts) {
             // Clean up old attempts (older than lockout duration)
-            val cutoff = now.minus(securityProperties.authLockoutDurationMinutes, ChronoUnit.MINUTES)
+            val cutoff =
+                now.minus(securityProperties.authLockoutDurationMinutes, ChronoUnit.MINUTES)
             attempts.removeIf { it.isBefore(cutoff) }
 
             // Add current attempt
@@ -64,7 +65,8 @@ class SecurityMonitoringService(
                 when {
                     recentAttempts >= securityProperties.maxFailedAuthAttempts * 2 ->
                         SecurityThreatLevel.CRITICAL
-                    recentAttempts >= securityProperties.maxFailedAuthAttempts -> SecurityThreatLevel.HIGH
+                    recentAttempts >= securityProperties.maxFailedAuthAttempts ->
+                        SecurityThreatLevel.HIGH
                     recentAttempts >= securityProperties.maxFailedAuthAttempts / 2 ->
                         SecurityThreatLevel.MEDIUM
                     else -> SecurityThreatLevel.LOW
@@ -87,14 +89,16 @@ class SecurityMonitoringService(
             if (recentAttempts >= securityProperties.maxFailedAuthAttempts) {
                 sendSecurityAlert(
                     alertType = "BRUTE_FORCE_ATTEMPT",
-                    message = "Potential brute force attack detected for identifier: $identifier",
+                    message =
+                        "Potential brute force attack detected for identifier: $identifier",
                     threatLevel = threatLevel,
                     details =
                         mapOf(
                             "identifier" to identifier,
                             "attemptCount" to recentAttempts,
                             "ipAddress" to (ipAddress ?: "unknown"),
-                            "timeWindow" to "${securityProperties.authLockoutDurationMinutes} minutes",
+                            "timeWindow" to
+                                "${securityProperties.authLockoutDurationMinutes} minutes",
                         ),
                 )
             }
@@ -283,7 +287,8 @@ class SecurityMonitoringService(
                 rateLimitTracking.values.sumOf { requests ->
                     requests.count { it.isAfter(windowStart) }
                 },
-            monitoringWindowMinutes = securityProperties.monitoring.suspiciousActivityWindowMinutes,
+            monitoringWindowMinutes =
+                securityProperties.monitoring.suspiciousActivityWindowMinutes,
             timestamp = now,
         )
     }

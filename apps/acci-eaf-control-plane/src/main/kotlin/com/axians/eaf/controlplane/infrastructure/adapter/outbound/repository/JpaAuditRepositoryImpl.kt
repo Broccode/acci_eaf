@@ -14,17 +14,17 @@ import com.axians.eaf.controlplane.domain.port.AuditRepository
 import com.axians.eaf.controlplane.infrastructure.adapter.outbound.entity.AuditEntryEntity
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 /**
  * JPA-based implementation of the AuditRepository domain port. Provides comprehensive audit trail
  * persistence and querying capabilities.
+ *
+ * This is an adapter that bridges the domain port with Spring Data JPA infrastructure.
  */
-@Repository
-@Transactional
+@Component
 class JpaAuditRepositoryImpl(
     private val jpaRepository: JpaAuditRepository,
 ) : AuditRepository {
@@ -137,12 +137,13 @@ class JpaAuditRepositoryImpl(
     ): List<AuditEntry> {
         val entities =
             if (fromDate != null && toDate != null) {
-                jpaRepository.findByTargetTypeAndTargetIdAndTimestampBetweenOrderByTimestampDesc(
-                    targetType,
-                    targetId,
-                    fromDate,
-                    toDate,
-                )
+                jpaRepository
+                    .findByTargetTypeAndTargetIdAndTimestampBetweenOrderByTimestampDesc(
+                        targetType,
+                        targetId,
+                        fromDate,
+                        toDate,
+                    )
             } else {
                 jpaRepository.findByTargetTypeAndTargetIdOrderByTimestampDesc(
                     targetType,
@@ -217,7 +218,9 @@ class JpaAuditRepositoryImpl(
         jpaRepository.findBySessionIdOrderByTimestampDesc(sessionId).map { it.toDomain() }
 
     override suspend fun findByCorrelationId(correlationId: String): List<AuditEntry> =
-        jpaRepository.findByCorrelationIdOrderByTimestampDesc(correlationId).map { it.toDomain() }
+        jpaRepository.findByCorrelationIdOrderByTimestampDesc(correlationId).map {
+            it.toDomain()
+        }
 
     override suspend fun findByIpAddress(
         ipAddress: String,
@@ -329,7 +332,8 @@ class JpaAuditRepositoryImpl(
                     // Convert date to string format
                     val date = row[0] as java.sql.Date
                     val localDate = date.toLocalDate()
-                    localDate.format(DateTimeFormatter.ISO_LOCAL_DATE) to (row[1] as Number).toLong()
+                    localDate.format(DateTimeFormatter.ISO_LOCAL_DATE) to
+                        (row[1] as Number).toLong()
                 }
 
         return AuditStatistics(

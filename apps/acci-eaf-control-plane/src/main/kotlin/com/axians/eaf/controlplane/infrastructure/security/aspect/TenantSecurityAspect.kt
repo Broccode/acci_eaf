@@ -11,6 +11,8 @@ import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import java.lang.reflect.Parameter
 
@@ -28,13 +30,14 @@ import java.lang.reflect.Parameter
 @Component
 class TenantSecurityAspect(
     private val securityContextHolder: EafSecurityContextHolder,
-    private val auditService: AuditService,
 ) {
+    @Lazy @Autowired
+    private lateinit var auditService: AuditService
     private val logger = LoggerFactory.getLogger(TenantSecurityAspect::class.java)
 
     /**
-     * Intercepts method calls annotated with @RequiresTenantAccess. Validates tenant access and logs
-     * security events.
+     * Intercepts method calls annotated with @RequiresTenantAccess. Validates tenant access and
+     * logs security events.
      */
     @Around("@annotation(requiresTenantAccess)")
     fun enforceTenantAccess(
