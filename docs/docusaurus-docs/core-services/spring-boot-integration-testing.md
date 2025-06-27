@@ -14,6 +14,7 @@ Integration tests in EAF services use:
 
 - **Spring Boot Test** framework for application context loading
 - **Testcontainers** for database isolation with PostgreSQL
+- **SpringMockK** for mocking Spring beans in integration tests
 - **JPA repositories** for persistence layer testing
 - **Hexagonal architecture** patterns with proper port/adapter separation
 
@@ -130,6 +131,130 @@ logging.level.org.springframework=DEBUG
 
 # Testcontainers will override database configuration
 ```
+
+## SpringMockK Integration Patterns
+
+### When to Use SpringMockK vs Regular MockK
+
+**Use SpringMockK (`@MockkBean`, `@SpykBean`) when:**
+
+- Writing Spring Boot integration tests (`@SpringBootTest`, `@WebMvcTest`, etc.)
+- You need mocked beans to be part of the Spring application context
+- Testing controllers, services, or other Spring-managed components
+- You want to test the full Spring wiring with some dependencies mocked
+
+**Use Regular MockK when:**
+
+- Writing pure unit tests
+- Testing classes in isolation
+- You don't need Spring context
+- Faster test execution is important
+
+### Web Layer Integration Testing
+
+For testing web controllers with mocked use cases:
+
+```kotlin
+@SpringBootTest(classes = [TestIamServiceApplication::class])
+@AutoConfigureMockMvc
+class UserWebAdapterTest {
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    @MockkBean
+    private lateinit var createUserUseCase: CreateUserUseCase
+
+    @MockkBean
+    private lateinit var securityContextHolder: EafSecurityContextHolder
+
+    @Test
+    fun `should create user successfully when valid request provided`() {
+        // Given
+        every { createUserUseCase.createUser(any()) } returns createUserResult
+        every { securityContextHolder.getTenantId() } returns "tenant-123"
+
+        // When & Then
+        mockMvc.perform(post("/api/v1/tenants/tenant-123/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated)
+
+        verify { createUserUseCase.createUser(any()) }
+    }
+}
+```
+
+### Full Stack Integration Testing
+
+For end-to-end testing with minimal mocking:
+
+```kotlin
+@SpringBootTest(classes = [TestIamServiceApplication::class])
+@Testcontainers
+@ActiveProfiles("test")
+@Transactional
+@AutoConfigureMockMvc
+@Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
+class UserManagementIntegrationTest {
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    // Only mock external dependencies
+    @MockkBean
+    private lateinit var securityContextHolder: EafSecurityContextHolder
+
+    @Test
+    fun `should create user successfully through complete flow`() {
+        // Given - Mock only security context
+        every { securityContextHolder.getTenantId() } returns "test-tenant-123"
+
+        // When & Then - Test full stack with real persistence
+        mockMvc.perform(post("/api/v1/tenants/test-tenant-123/users")
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.email").value("user@example.com"))
+    }
+}
+```
+
+### Partial Mocking with @SpykBean
+
+For testing components where you want to spy on some methods:
+
+```kotlin
+@SpringBootTest(classes = [TestServiceApplication::class])
+class ServiceIntegrationTest {
+
+    @SpykBean
+    private lateinit var emailService: EmailService
+
+    @Autowired
+    private lateinit var userService: UserService
+
+    @Test
+    fun `should send email when user is created`() {
+        // Given
+        every { emailService.sendWelcomeEmail(any()) } just Runs
+
+        // When
+        userService.createUser(validRequest)
+
+        // Then
+        verify { emailService.sendWelcomeEmail(any()) }
+    }
+}
+```
+
+### SpringMockK Best Practices
+
+1. **Minimize Mocking**: Only mock external dependencies and infrastructure concerns
+2. **Use @MockkBean for Boundaries**: Mock at application boundaries (controllers, external
+   services)
+3. **Prefer Real Components**: Test business logic with real implementations when possible
+4. **Mock Security Context**: Use `@MockkBean` for `EafSecurityContextHolder` in tests
+5. **Clean Setup**: Use `@BeforeEach` methods to configure common mock behaviors
 
 ## Architecture Principles
 
