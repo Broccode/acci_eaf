@@ -19,8 +19,8 @@ experience of the EAF.**
 - **Core "Must-Have" Functionalities:**
   - Selected monorepo tool (e.g., Nx) initialized with basic backend (Kotlin/Spring) and frontend
     (TBD UI) module structures.
-  - Basic CI pipeline (e.g., GitHub Actions) integrating linters (Spotless for Kotlin,
-    Prettier/ESLint for UI), code formatters, and automated unit test execution for initial modules.
+  - Basic CI pipeline (e.g., GitHub Actions) integrating linters (ktlint for Kotlin, Prettier/ESLint
+    for UI), code formatters, and automated unit test execution for initial modules.
   - Functional TDD setup for both Kotlin/Spring (JUnit/MockK) and the chosen frontend framework,
     with example tests.
   - Initial structure for the "Launchpad" Developer Portal (e.g., using Docusaurus) established.

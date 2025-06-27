@@ -124,7 +124,7 @@ your-service/
 - Kotlin, Spring Boot, and JPA plugins
 - All EAF SDK dependencies (`eaf-core`, `eaf-eventing-sdk`, `eaf-eventsourcing-sdk`)
 - Testing dependencies (JUnit 5, MockK, ArchUnit, Testcontainers)
-- Spotless formatting configuration
+- ktlint formatting configuration
 
 #### 2. Application Class
 

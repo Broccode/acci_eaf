@@ -24,7 +24,7 @@ services and components with proper architecture patterns, testing setup, and EA
 - 🧪 **TDD Ready** - Includes unit tests, integration tests, and ArchUnit architectural tests
 - 📦 **EAF SDK Integration** - Pre-configured with all EAF core libraries and SDKs
 - 🎯 **Nx Monorepo** - Full integration with the Nx build system
-- ✨ **Code Quality** - Spotless formatting and consistent coding standards
+- ✨ **Code Quality** - ktlint formatting and consistent coding standards
 - 🔧 **Spring Boot** - Complete Spring Boot setup with EAF conventions
 
 ### Getting Started

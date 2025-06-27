@@ -567,7 +567,7 @@ applications built on EAF. Linting and formatting tools will enforce many of the
 - **Primary Language:** Kotlin (for backend).
 - **Style Guide & Linter/Formatter:**
   - Kotlin: Adhere to official Kotlin Coding Conventions.
-  - Tooling: Spotless with Ktlint or Kfmt for automated formatting and linting, integrated into CI.
+  - Tooling: ktlint for automated formatting and linting, integrated into CI.
 - **Naming Conventions (Kotlin):**
   - Packages: lowercase, dot-separated (e.g., `com.axians.eaf.iam.application.service`).
   - Classes/Interfaces/Objects/Enums/Annotations: PascalCase (e.g., `TenantProvisioningService`).

@@ -31,7 +31,7 @@
           and triggers on pushes/PRs to `main`.
        2. CI pipeline executes `nx affected:build --all` and `nx affected:test --all` (or equivalent
           commands covering both backend and frontend).
-       3. Spotless for Kotlin formatting is integrated into the Gradle build and enforced by CI.
+       3. ktlint for Kotlin formatting is integrated into the Gradle build and enforced by CI.
        4. ESLint/Prettier (or chosen UI framework equivalents) are configured for frontend code in
           `ui-foundation-kit` and `acci-eaf-control-plane/frontend` and enforced by CI.
        5. Build fails if linting, formatting, or tests fail for any affected project.

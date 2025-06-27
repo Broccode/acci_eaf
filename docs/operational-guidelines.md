@@ -68,7 +68,7 @@ applications built on EAF. Linting and formatting tools will enforce many of the
 - **Primary Language:** Kotlin (for backend).
 - **Style Guide & Linter/Formatter:**
   - Kotlin: Adhere to official Kotlin Coding Conventions.
-  - Tooling: Spotless with Ktlint or Kfmt for automated formatting and linting, integrated into CI.
+  - Tooling: ktlint for automated formatting and linting, integrated into CI.
 - **Naming Conventions (Kotlin):**
   - Packages: lowercase, dot-separated (e.g., `com.axians.eaf.iam.application.service`).
   - Classes/Interfaces/Objects/Enums/Annotations: PascalCase (e.g., `TenantProvisioningService`).
@@ -374,12 +374,27 @@ applications built on EAF. Linting and formatting tools will enforce many of the
   import jakarta.validation.constraints.*
   ```
 
-- **Organize imports** in the following order (automatically handled by IDE and Spotless):
+- **Organize imports** in the following order (automatically handled by IDE and ktlint):
 
   1. Standard library imports
   2. Third-party library imports
   3. EAF framework imports
   4. Application-specific imports
+
+- **Wildcard imports are prohibited** - always import specific classes, functions, and constants:
+
+  ```kotlin
+  // ✅ Preferred - specific imports
+  import com.axians.eaf.domain.model.User
+  import com.axians.eaf.domain.model.UserStatus
+  import jakarta.validation.constraints.Email
+  ```
+
+  ```kotlin
+  // ❌ Prohibited - wildcard imports
+  import com.axians.eaf.domain.model.*
+  import jakarta.validation.constraints.*
+  ```
 
 - **Asynchronous Operations (Kotlin):** Primarily use Kotlin Coroutines for asynchronous
   programming. Adhere to structured concurrency principles. Avoid blocking threads unnecessarily.

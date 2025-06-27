@@ -38,7 +38,7 @@
        5. Its internal structure strictly adheres to Hexagonal Architecture principles, with clear
           separation of domain, application, and infrastructure concerns, as scaffolded/guided by
           EAF.
-       6. All code passes CI checks, including linting (Spotless), formatting, all unit tests, and
+       6. All code passes CI checks, including linting (ktlint), formatting, all unit tests, and
           relevant ArchUnit tests.
        7. If a UI is part of the pilot, it is built using components from the `ui-foundation-kit`
           and Vaadin/Hilla/React.

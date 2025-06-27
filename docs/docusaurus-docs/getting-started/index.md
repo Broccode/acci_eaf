@@ -118,7 +118,7 @@ ACCI EAF is built on three core principles that guide every aspect of developmen
 - **ACCI EAF CLI** - Code generation following architectural patterns
 - **Docker Compose** - Local infrastructure orchestration
 - **Gradle** - Build automation and dependency management
-- **Spotless** - Code formatting and style enforcement
+- **ktlint** - Code formatting and style enforcement
 
 ## 💡 Success Tips
 

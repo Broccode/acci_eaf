@@ -318,7 +318,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.springframework.boot")
     id("io.spring.dependency-management")
-    id("com.diffplug.spotless")
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 dependencies {
@@ -376,7 +376,7 @@ nx build user-profile
 nx test user-profile
 
 # Check code formatting
-nx run user-profile:spotlessCheck
+nx run user-profile:ktlintCheck
 ```
 
 ### Run the Service

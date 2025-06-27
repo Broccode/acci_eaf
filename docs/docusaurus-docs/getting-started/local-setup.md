@@ -153,7 +153,7 @@ File → Settings → Build → Compiler → Annotation Processors
 File → Settings → Editor → Code Style → Kotlin
 Import scheme: Use Kotlin official style guide
 
-# Configure Spotless
+# Configure ktlint
 File → Settings → Tools → Actions on Save
 ✓ Reformat code
 ✓ Optimize imports
@@ -211,7 +211,7 @@ nx run-many --target=test --projects=iam-service,eaf-core,eaf-eventing-sdk,eaf-e
 nx test iam-service
 
 # Check code quality
-nx run-many --target=spotlessCheck --all
+nx run-many --target=ktlintCheck --all
 ```
 
 ### Frontend Tests

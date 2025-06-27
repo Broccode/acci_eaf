@@ -329,7 +329,7 @@ Acceptance Criteria based on the approved architecture.
           triggers on pushes/PRs to `main`.
        2. CI pipeline executes `nx affected:build --all` and `nx affected:test --all` (or equivalent
           commands covering both backend and frontend).
-       3. Spotless for Kotlin formatting is integrated into the Gradle build and enforced by CI.
+       3. ktlint for Kotlin formatting is integrated into the Gradle build and enforced by CI.
        4. ESLint/Prettier (or chosen UI framework equivalents) are configured for frontend code in
           `ui-foundation-kit` and `acci-eaf-control-plane/frontend` and enforced by CI.
        5. Build fails if linting, formatting, or tests fail for any affected project.
@@ -705,7 +705,7 @@ Acceptance Criteria based on the approved architecture.
      - As a Developer (Michael, Majlinda), I want to use the ACCI EAF CLI to quickly generate a new,
        fully structured Kotlin/Spring backend service module within the Nx monorepo, complete with a
        Hexagonal Architecture layout, TDD setup (JUnit 5, MockK, ArchUnit stubs), integrated core
-       EAF SDKs (for logging, context, basic eventing/ES if applicable), default Spotless formatting
+       EAF SDKs (for logging, context, basic eventing/ES if applicable), default ktlint formatting
        configuration, and boilerplate for local NATS/PostgreSQL connection (via Docker Compose
        references), so I can bypass manual boilerplate and immediately start developing
        domain-specific logic according to EAF best practices.
@@ -725,7 +725,7 @@ Acceptance Criteria based on the approved architecture.
        4. A basic TDD setup is present: `src/test/kotlin` directory with example unit tests for a
           sample application service and an ArchUnit test class placeholder with example rules.
        5. A main application class for Spring Boot (e.g., `@SpringBootApplication`) is generated.
-       6. Spotless configuration is included and applied in the `build.gradle.kts`.
+       6. ktlint configuration is included and applied in the `build.gradle.kts`.
        7. Example `application.yml` or `.properties` files include placeholders and comments for
           connecting to local NATS and PostgreSQL instances (referencing connection details for the
           EAF standard Docker Compose setup).
@@ -763,7 +763,7 @@ Acceptance Criteria based on the approved architecture.
           SDK annotation) for the specified event type.
        5. Generated components are placed in appropriate packages according to the service's
           Hexagonal Architecture and DDD conventions.
-       6. All generated Kotlin code adheres to EAF coding standards and passes Spotless formatting.
+       6. All generated Kotlin code adheres to EAF coding standards and passes ktlint formatting.
   3. **Story 2.6.3: Basic Frontend Module Generation via CLI for Vaadin/Hilla/React**
      - As a Frontend Developer (Lirika), I want to use the ACCI EAF CLI to generate a new frontend
        module structure (for Vaadin/Hilla with React) within an EAF application (e.g., as part of
@@ -906,7 +906,7 @@ Acceptance Criteria based on the approved architecture.
        5. Its internal structure strictly adheres to Hexagonal Architecture principles, with clear
           separation of domain, application, and infrastructure concerns, as scaffolded/guided by
           EAF.
-       6. All code passes CI checks, including linting (Spotless), formatting, all unit tests, and
+       6. All code passes CI checks, including linting (ktlint), formatting, all unit tests, and
           relevant ArchUnit tests.
        7. If a UI is part of the pilot, it is built using components from the `ui-foundation-kit`
           and Vaadin/Hilla/React.
