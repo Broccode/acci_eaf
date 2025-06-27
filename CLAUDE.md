@@ -144,7 +144,7 @@ Each service follows hexagonal architecture:
 
 ### Code Quality
 
-- **Kotlin**: Spotless + KtLint formatting
+- **Kotlin**: KtLint formatting
 - **TypeScript**: ESLint + Prettier
 - **Git hooks**: Pre-commit formatting enforcement
 
