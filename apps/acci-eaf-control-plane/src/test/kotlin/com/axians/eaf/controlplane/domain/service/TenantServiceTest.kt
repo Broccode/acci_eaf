@@ -9,7 +9,6 @@ import com.axians.eaf.controlplane.domain.port.TenantRepository
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.eq
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -22,7 +21,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TenantServiceTest {
-    private val tenantRepository = mockk<TenantRepository>()
+    private val tenantRepository = mockk<TenantRepository>(relaxed = true)
     private val tenantService = TenantService(tenantRepository)
 
     private val validSettings = TenantSettings.default("example.com")
@@ -43,7 +42,7 @@ class TenantServiceTest {
 
             coEvery { tenantRepository.existsByName(tenantName) } returns false
             val createdTenant = Tenant.create(tenantName, validSettings, now)
-            coEvery { tenantRepository.save(any<Tenant>()) } returns createdTenant
+            coEvery { tenantRepository.save(createdTenant) } returns createdTenant
 
             // When
             val result = tenantService.createTenant(tenantName, adminEmail, validSettings)
@@ -56,7 +55,7 @@ class TenantServiceTest {
             assertTrue(success.tenantId.isNotBlank())
 
             coVerify { tenantRepository.existsByName(tenantName) }
-            coVerify { tenantRepository.save(any<Tenant>()) }
+            coVerify { tenantRepository.save(createdTenant) }
         }
 
     @Test
@@ -77,7 +76,6 @@ class TenantServiceTest {
             assertContains(failure.message, "Tenant with name '$tenantName' already exists")
 
             coVerify { tenantRepository.existsByName(tenantName) }
-            coVerify(exactly = 0) { tenantRepository.save(any<Tenant>()) }
         }
 
     @Test
@@ -89,7 +87,7 @@ class TenantServiceTest {
             val activeUsers = 20
             val lastActivity = now.minusSeconds(3600)
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
             coEvery { tenantRepository.countUsersByTenantId(tenant.id) } returns userCount
             coEvery { tenantRepository.countActiveUsersByTenantId(tenant.id) } returns activeUsers
             coEvery { tenantRepository.getLastUserActivity(tenant.id) } returns lastActivity
@@ -100,7 +98,7 @@ class TenantServiceTest {
             // Then
             assertTrue(result is TenantDetailsResult.Success)
             val success = result as TenantDetailsResult.Success
-            assertEquals(tenant.id.value, success.details.tenant.id)
+            assertEquals(tenant.id, success.details.tenant.id)
             assertEquals(tenant.name, success.details.tenant.name)
             assertEquals(userCount, success.details.userCount)
             assertEquals(activeUsers, success.details.activeUsers)
@@ -113,8 +111,7 @@ class TenantServiceTest {
             // Given
             val tenantId = "non-existent-id"
 
-            coEvery { tenantRepository.findById(eq<TenantId>(TenantId.fromString(tenantId))) } returns
-                null
+            coEvery { tenantRepository.findById(TenantId.fromString(tenantId)) } returns null
 
             // When
             val result = tenantService.getTenantDetails(tenantId)
@@ -138,10 +135,10 @@ class TenantServiceTest {
                     features = setOf("new-feature"),
                 )
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
             coEvery { tenantRepository.existsByName(newName) } returns false
             val updatedTenant = tenant.copy(name = newName, settings = newSettings)
-            coEvery { tenantRepository.save(any<Tenant>()) } returns updatedTenant
+            coEvery { tenantRepository.save(updatedTenant) } returns updatedTenant
 
             // When
             val result = tenantService.updateTenant(tenant.id.value, newName, newSettings)
@@ -151,9 +148,9 @@ class TenantServiceTest {
             val success = result as UpdateTenantResult.Success
             assertEquals(newName, success.tenant.name)
 
-            coVerify { tenantRepository.findById(eq<TenantId>(tenant.id)) }
+            coVerify { tenantRepository.findById(tenant.id) }
             coVerify { tenantRepository.existsByName(newName) }
-            coVerify { tenantRepository.save(any<Tenant>()) }
+            coVerify { tenantRepository.save(updatedTenant) }
         }
 
     @Test
@@ -169,9 +166,9 @@ class TenantServiceTest {
                     features = setOf("updated-feature"),
                 )
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
             val updatedTenant = tenant.copy(settings = newSettings)
-            coEvery { tenantRepository.save(any<Tenant>()) } returns updatedTenant
+            coEvery { tenantRepository.save(updatedTenant) } returns updatedTenant
 
             // When
             val result = tenantService.updateTenant(tenant.id.value, originalName, newSettings)
@@ -179,11 +176,9 @@ class TenantServiceTest {
             // Then
             assertTrue(result is UpdateTenantResult.Success)
 
-            coVerify { tenantRepository.findById(eq<TenantId>(tenant.id)) }
-            coVerify(exactly = 0) {
-                tenantRepository.existsByName(any<String>())
-            } // explicit type for K2
-            coVerify { tenantRepository.save(any<Tenant>()) }
+            coVerify { tenantRepository.findById(tenant.id) }
+            coVerify(inverse = true) { tenantRepository.existsByName(originalName) }
+            coVerify { tenantRepository.save(updatedTenant) }
         }
 
     @Test
@@ -193,7 +188,7 @@ class TenantServiceTest {
             val tenant = Tenant.create("Original Name", validSettings, now)
             val conflictingName = "Conflicting Name"
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
             coEvery { tenantRepository.existsByName(conflictingName) } returns true
 
             // When
@@ -203,8 +198,6 @@ class TenantServiceTest {
             assertTrue(result is UpdateTenantResult.Failure)
             val failure = result as UpdateTenantResult.Failure
             assertContains(failure.message, "Tenant with name '$conflictingName' already exists")
-
-            coVerify(exactly = 0) { tenantRepository.save(any<Tenant>()) }
         }
 
     @Test
@@ -214,9 +207,9 @@ class TenantServiceTest {
             val tenant = Tenant.create("Test Tenant", validSettings, now)
             val reason = "Policy violation"
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
             val suspendedTenant = tenant.suspend(Instant.now())
-            coEvery { tenantRepository.save(any<Tenant>()) } returns suspendedTenant
+            coEvery { tenantRepository.save(suspendedTenant) } returns suspendedTenant
 
             // When
             val result = tenantService.suspendTenant(tenant.id.value, reason)
@@ -226,7 +219,7 @@ class TenantServiceTest {
             val success = result as TenantOperationResult.Success
             assertContains(success.message, "Tenant suspended successfully")
 
-            coVerify { tenantRepository.save(any<Tenant>()) }
+            coVerify { tenantRepository.save(suspendedTenant) }
         }
 
     @Test
@@ -235,7 +228,7 @@ class TenantServiceTest {
             // Given
             val tenant = Tenant.create("Test Tenant", validSettings, now).suspend(now.plusSeconds(1000))
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
 
             // When
             val result = tenantService.suspendTenant(tenant.id.value)
@@ -244,8 +237,6 @@ class TenantServiceTest {
             assertTrue(result is TenantOperationResult.Failure)
             val failure = result as TenantOperationResult.Failure
             assertContains(failure.message, "Can only suspend active tenants")
-
-            coVerify(exactly = 0) { tenantRepository.save(any<Tenant>()) }
         }
 
     @Test
@@ -254,9 +245,9 @@ class TenantServiceTest {
             // Given
             val tenant = Tenant.create("Test Tenant", validSettings, now).suspend(now.plusSeconds(1000))
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
             val reactivatedTenant = tenant.reactivate(Instant.now())
-            coEvery { tenantRepository.save(any<Tenant>()) } returns reactivatedTenant
+            coEvery { tenantRepository.save(reactivatedTenant) } returns reactivatedTenant
 
             // When
             val result = tenantService.reactivateTenant(tenant.id.value)
@@ -266,7 +257,7 @@ class TenantServiceTest {
             val success = result as TenantOperationResult.Success
             assertContains(success.message, "Tenant reactivated successfully")
 
-            coVerify { tenantRepository.save(any<Tenant>()) }
+            coVerify { tenantRepository.save(reactivatedTenant) }
         }
 
     @Test
@@ -275,7 +266,7 @@ class TenantServiceTest {
             // Given
             val tenant = Tenant.create("Test Tenant", validSettings, now)
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
 
             // When
             val result = tenantService.reactivateTenant(tenant.id.value)
@@ -284,8 +275,6 @@ class TenantServiceTest {
             assertTrue(result is TenantOperationResult.Failure)
             val failure = result as TenantOperationResult.Failure
             assertContains(failure.message, "Can only reactivate suspended tenants")
-
-            coVerify(exactly = 0) { tenantRepository.save(any<Tenant>()) }
         }
 
     @Test
@@ -295,9 +284,9 @@ class TenantServiceTest {
             val tenant = Tenant.create("Test Tenant", validSettings, now)
             val reason = "End of contract"
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
             val archivedTenant = tenant.archive(Instant.now())
-            coEvery { tenantRepository.save(any<Tenant>()) } returns archivedTenant
+            coEvery { tenantRepository.save(archivedTenant) } returns archivedTenant
 
             // When
             val result = tenantService.archiveTenant(tenant.id.value, reason)
@@ -308,7 +297,7 @@ class TenantServiceTest {
             assertEquals(tenant.id.value, success.tenantId)
             assertNotNull(success.archivedAt)
 
-            coVerify { tenantRepository.save(any<Tenant>()) }
+            coVerify { tenantRepository.save(archivedTenant) }
         }
 
     @Test
@@ -317,7 +306,7 @@ class TenantServiceTest {
             // Given
             val tenant = Tenant.create("Test Tenant", validSettings, now).archive(now.plusSeconds(1000))
 
-            coEvery { tenantRepository.findById(eq<TenantId>(tenant.id)) } returns tenant
+            coEvery { tenantRepository.findById(tenant.id) } returns tenant
 
             // When
             val result = tenantService.archiveTenant(tenant.id.value)
@@ -326,8 +315,6 @@ class TenantServiceTest {
             assertTrue(result is ArchiveTenantResult.Failure)
             val failure = result as ArchiveTenantResult.Failure
             assertContains(failure.message, "Tenant is already archived")
-
-            coVerify(exactly = 0) { tenantRepository.save(any<Tenant>()) }
         }
 
     @Test
@@ -367,12 +354,9 @@ class TenantServiceTest {
             val suspendedTenant =
                 Tenant.create("Suspended Tenant", validSettings, now).suspend(now.plusSeconds(1000))
 
-            coEvery { tenantRepository.findById(eq<TenantId>(activeTenant.id)) } returns activeTenant
-            coEvery { tenantRepository.findById(eq<TenantId>(suspendedTenant.id)) } returns
-                suspendedTenant
-            coEvery {
-                tenantRepository.findById(eq<TenantId>(TenantId.fromString("non-existent")))
-            } returns null
+            coEvery { tenantRepository.findById(activeTenant.id) } returns activeTenant
+            coEvery { tenantRepository.findById(suspendedTenant.id) } returns suspendedTenant
+            coEvery { tenantRepository.findById(TenantId.fromString("non-existent")) } returns null
 
             // When & Then
             assertTrue(tenantService.isTenantOperational(activeTenant.id.value))

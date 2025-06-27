@@ -122,6 +122,7 @@ commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "co
 vaadin-spring-boot-starter = { module = "com.vaadin:vaadin-spring-boot-starter", version.ref = "vaadin" }
 hilla-spring-boot-starter = { module = "com.vaadin:hilla-spring-boot-starter", version.ref = "hilla" }
 reactor-netty-http = { module = "io.projectreactor.netty:reactor-netty-http" }
+mockk-dsl-jvm = { module = "io.mockk:mockk-dsl-jvm", version.ref = "mockk" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -9,8 +9,8 @@
     "lint:fix": "nx run-many --target=lint --all --fix",
     "format": "npm run format:all",
     "format:check": "npm run format:check:all",
-    "format:all": "npm run format:nx && npm run format:prettier",
-    "format:check:all": "npm run format:check:nx && npm run format:check:prettier",
+    "format:all": "npm run format:nx && npm run format:prettier && npm run format:kotlin",
+    "format:check:all": "npm run format:check:nx && npm run format:check:prettier && npm run format:kotlin:check",
     "format:nx": "nx format:write",
     "format:check:nx": "nx format:check",
     "format:prettier": "prettier --write .",
@@ -25,7 +25,10 @@
     "ci:summary": "./scripts/ci-summary.sh",
     "help": "npm run ci:summary",
     "precommit": "npm run format:check:all && npm run lint",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format:kotlin": "nx run-many --target=ktlintFormat --all",
+    "format:kotlin:check": "nx run-many --target=ktlintCheck --all",
+    "lint:kotlin": "nx run-many --target=ktlintCheck --all"
   },
   "private": true,
   "devDependencies": {
@@ -84,7 +87,7 @@
       "eslint --fix"
     ],
     "**/*.kt": [
-      "bash -c 'nx affected --target=ktlintFormat --uncommitted'"
+      "nx affected --target=ktlintFormat --uncommitted"
     ]
   }
 }

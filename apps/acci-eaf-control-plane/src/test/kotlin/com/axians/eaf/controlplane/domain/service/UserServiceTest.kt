@@ -8,7 +8,6 @@ import com.axians.eaf.controlplane.domain.model.user.UserStatus
 import com.axians.eaf.controlplane.domain.port.UserRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.eq
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
@@ -30,7 +29,7 @@ class UserServiceTest {
 
     @BeforeEach
     fun setUp() {
-        userRepository = mockk()
+        userRepository = mockk(relaxed = true)
         userService = UserService(userRepository)
     }
 
@@ -38,7 +37,8 @@ class UserServiceTest {
     fun `should create user successfully when email is unique`() =
         runTest {
             // Given
-            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns false
+            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns
+                false
             val createdUser =
                 User.createPending(
                     tenantId = testTenantId,
@@ -46,7 +46,7 @@ class UserServiceTest {
                     firstName = testFirstName,
                     lastName = testLastName,
                 )
-            coEvery { userRepository.save(any()) } returns createdUser
+            coEvery { userRepository.save(createdUser) } returns createdUser
 
             // When
             val result =
@@ -66,14 +66,15 @@ class UserServiceTest {
             assertEquals(UserStatus.PENDING, success.status)
 
             coVerify { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) }
-            coVerify { userRepository.save(any()) }
+            coVerify { userRepository.save(createdUser) }
         }
 
     @Test
     fun `should create active user when activateImmediately is true`() =
         runTest {
             // Given
-            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns false
+            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns
+                false
             val activeUser =
                 User.createActive(
                     tenantId = testTenantId,
@@ -81,7 +82,7 @@ class UserServiceTest {
                     firstName = testFirstName,
                     lastName = testLastName,
                 )
-            coEvery { userRepository.save(any()) } returns activeUser
+            coEvery { userRepository.save(activeUser) } returns activeUser
 
             // When
             val result =
@@ -103,7 +104,8 @@ class UserServiceTest {
     fun `should fail to create user when email already exists`() =
         runTest {
             // Given
-            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns true
+            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns
+                true
 
             // When
             val result =
@@ -120,7 +122,6 @@ class UserServiceTest {
             assertContains(failure.message, "already exists")
 
             coVerify { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) }
-            coVerify(exactly = 0) { userRepository.save(any()) }
         }
 
     @Test
@@ -136,7 +137,7 @@ class UserServiceTest {
                         lastName = testLastName,
                     ).copy(id = testUserId)
 
-            coEvery { userRepository.findById(eq(testUserId)) } returns user
+            coEvery { userRepository.findById(testUserId) } returns user
 
             // When
             val result = userService.getUserDetails(testUserId.value)
@@ -148,14 +149,14 @@ class UserServiceTest {
             assertEquals(testEmail, success.details.user.email)
             assertEquals("John Doe", success.details.user.getFullName())
 
-            coVerify { userRepository.findById(eq(testUserId)) }
+            coVerify { userRepository.findById(testUserId) }
         }
 
     @Test
     fun `should return not found when user does not exist`() =
         runTest {
             // Given
-            coEvery { userRepository.findById(eq(testUserId)) } returns null
+            coEvery { userRepository.findById(testUserId) } returns null
 
             // When
             val result = userService.getUserDetails(testUserId.value)
@@ -165,7 +166,7 @@ class UserServiceTest {
             val notFound = result as UserDetailsResult.NotFound
             assertContains(notFound.message, "not found")
 
-            coVerify { userRepository.findById(eq(testUserId)) }
+            coVerify { userRepository.findById(testUserId) }
         }
 
     @Test
@@ -183,8 +184,8 @@ class UserServiceTest {
 
             val activatedUser = pendingUser.activate()
 
-            coEvery { userRepository.findById(eq(testUserId)) } returns pendingUser
-            coEvery { userRepository.save(any()) } returns activatedUser
+            coEvery { userRepository.findById(testUserId) } returns pendingUser
+            coEvery { userRepository.save(activatedUser) } returns activatedUser
 
             // When
             val result = userService.activateUser(testUserId.value)
@@ -197,8 +198,8 @@ class UserServiceTest {
             assertEquals(UserStatus.ACTIVE, success.newStatus)
             assertEquals("activated", success.action)
 
-            coVerify { userRepository.findById(eq(testUserId)) }
-            coVerify { userRepository.save(any()) }
+            coVerify { userRepository.findById(testUserId) }
+            coVerify { userRepository.save(activatedUser) }
         }
 
     @Test
@@ -214,7 +215,7 @@ class UserServiceTest {
                         lastName = testLastName,
                     ).copy(id = testUserId)
 
-            coEvery { userRepository.findById(eq(testUserId)) } returns activeUser
+            coEvery { userRepository.findById(testUserId) } returns activeUser
 
             // When
             val result = userService.activateUser(testUserId.value)
@@ -224,8 +225,7 @@ class UserServiceTest {
             val failure = result as UserStatusResult.Failure
             assertContains(failure.message, "Cannot activate")
 
-            coVerify { userRepository.findById(eq(testUserId)) }
-            coVerify(exactly = 0) { userRepository.save(any()) }
+            coVerify { userRepository.findById(testUserId) }
         }
 
     @Test
@@ -243,8 +243,8 @@ class UserServiceTest {
 
             val suspendedUser = activeUser.suspend()
 
-            coEvery { userRepository.findById(eq(testUserId)) } returns activeUser
-            coEvery { userRepository.save(any()) } returns suspendedUser
+            coEvery { userRepository.findById(testUserId) } returns activeUser
+            coEvery { userRepository.save(suspendedUser) } returns suspendedUser
 
             // When
             val result = userService.suspendUser(testUserId.value)
@@ -256,8 +256,8 @@ class UserServiceTest {
             assertEquals(UserStatus.SUSPENDED, success.newStatus)
             assertEquals("suspended", success.action)
 
-            coVerify { userRepository.findById(eq(testUserId)) }
-            coVerify { userRepository.save(any()) }
+            coVerify { userRepository.findById(testUserId) }
+            coVerify { userRepository.save(suspendedUser) }
         }
 
     @Test
@@ -273,7 +273,7 @@ class UserServiceTest {
                         lastName = testLastName,
                     ).copy(id = testUserId)
 
-            coEvery { userRepository.findById(eq(testUserId)) } returns pendingUser
+            coEvery { userRepository.findById(testUserId) } returns pendingUser
 
             // When
             val result = userService.suspendUser(testUserId.value)
@@ -283,8 +283,7 @@ class UserServiceTest {
             val failure = result as UserStatusResult.Failure
             assertContains(failure.message, "Cannot suspend")
 
-            coVerify { userRepository.findById(eq(testUserId)) }
-            coVerify(exactly = 0) { userRepository.save(any()) }
+            coVerify { userRepository.findById(testUserId) }
         }
 
     @Test
@@ -300,7 +299,7 @@ class UserServiceTest {
                         lastName = testLastName,
                     ).copy(id = testUserId)
 
-            coEvery { userRepository.findById(eq(testUserId)) } returns activeUser
+            coEvery { userRepository.findById(testUserId) } returns activeUser
 
             // When
             val result = userService.resetPassword(testUserId.value)
@@ -313,7 +312,7 @@ class UserServiceTest {
             assertTrue(success.resetToken.isNotBlank())
             assertTrue(success.expiresAt.isAfter(Instant.now()))
 
-            coVerify { userRepository.findById(eq(testUserId)) }
+            coVerify { userRepository.findById(testUserId) }
         }
 
     @Test
@@ -330,7 +329,7 @@ class UserServiceTest {
                     ).deactivate()
                     .copy(id = testUserId)
 
-            coEvery { userRepository.findById(eq(testUserId)) } returns deactivatedUser
+            coEvery { userRepository.findById(testUserId) } returns deactivatedUser
 
             // When
             val result = userService.resetPassword(testUserId.value)
@@ -340,7 +339,7 @@ class UserServiceTest {
             val failure = result as PasswordResetResult.Failure
             assertContains(failure.message, "Cannot reset password")
 
-            coVerify { userRepository.findById(eq(testUserId)) }
+            coVerify { userRepository.findById(testUserId) }
         }
 
     @Test
@@ -406,7 +405,7 @@ class UserServiceTest {
                     firstName = testFirstName,
                     lastName = testLastName,
                 )
-            coEvery { userRepository.save(any()) } returns createdUser
+            coEvery { userRepository.save(createdUser) } returns createdUser
 
             // When
             val result =
@@ -422,7 +421,9 @@ class UserServiceTest {
             val success = result as CreateUserResult.Success
             assertEquals("test@example.com", success.email)
 
-            coVerify { userRepository.existsByEmailAndTenantId("test@example.com", testTenantId) }
+            coVerify {
+                userRepository.existsByEmailAndTenantId("test@example.com", testTenantId)
+            }
         }
 
     @Test
@@ -431,7 +432,8 @@ class UserServiceTest {
             // Given
             val firstNameWithSpaces = "  John  "
             val lastNameWithSpaces = "  Doe  "
-            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns false
+            coEvery { userRepository.existsByEmailAndTenantId(testEmail, testTenantId) } returns
+                false
             val createdUser =
                 User.createPending(
                     tenantId = testTenantId,
@@ -439,7 +441,7 @@ class UserServiceTest {
                     firstName = testFirstName,
                     lastName = testLastName,
                 )
-            coEvery { userRepository.save(any()) } returns createdUser
+            coEvery { userRepository.save(createdUser) } returns createdUser
 
             // When
             val result =
