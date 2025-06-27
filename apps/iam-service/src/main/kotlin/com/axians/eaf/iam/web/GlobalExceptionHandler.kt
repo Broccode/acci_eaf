@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
 /**
- * Global exception handler for the IAM service.
- * Maps application exceptions to appropriate HTTP status codes.
+ * Global exception handler for the IAM service. Maps application exceptions to appropriate HTTP
+ * status codes.
  */
 @RestControllerAdvice
 class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     /**
-     * Handles IllegalArgumentException and maps to 400 Bad Request.
-     * This covers cases like duplicate email, invalid status, etc.
+     * Handles IllegalArgumentException and maps to 400 Bad Request. This covers cases like duplicate
+     * email, invalid status, etc.
      */
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(exception: IllegalArgumentException): ResponseEntity<ErrorResponse> {
@@ -37,10 +37,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
-        val errors =
-            ex.bindingResult.fieldErrors.mapNotNull {
-                it.defaultMessage
-            }
+        val errors = ex.bindingResult.fieldErrors.mapNotNull { it.defaultMessage }
         val errorMessage = if (errors.isNotEmpty()) errors.joinToString(", ") else "Validation failed"
         return ResponseEntity.badRequest().body(ErrorResponse(errorMessage))
     }
@@ -48,20 +45,14 @@ class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     fun handleAuthenticationException(ex: AuthenticationException): ResponseEntity<ErrorResponse> =
-        ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse("Authentication required"))
+        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse("Authentication required"))
 
     @ExceptionHandler(AccessDeniedException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     fun handleAccessDeniedException(ex: AccessDeniedException): ResponseEntity<ErrorResponse> =
-        ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
-            .body(ErrorResponse("Access denied"))
+        ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse("Access denied"))
 
-    /**
-     * Generic error response structure.
-     */
+    /** Generic error response structure. */
     data class ErrorResponse(
         val error: String,
     )

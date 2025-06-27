@@ -14,29 +14,20 @@ import java.time.Instant
 @Entity
 @Table(name = "users")
 data class UserEntity(
-    @Id
-    @Column(name = "user_id", nullable = false, unique = true)
-    val userId: String,
-    @Column(name = "tenant_id", nullable = false)
-    val tenantId: String,
-    @Column(name = "email", nullable = false, length = 320, unique = true)
-    val email: String,
-    @Column(name = "username", nullable = true, length = 255)
-    val username: String? = null,
-    @Column(name = "password_hash", nullable = true, length = 255)
-    val passwordHash: String? = null,
+    @Id @Column(name = "user_id", nullable = false, unique = true) val userId: String,
+    @Column(name = "tenant_id", nullable = false) val tenantId: String,
+    @Column(name = "email", nullable = false, length = 320, unique = true) val email: String,
+    @Column(name = "username", nullable = true, length = 255) val username: String? = null,
+    @Column(name = "password_hash", nullable = true, length = 255) val passwordHash: String? = null,
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 50)
     val role: UserRole,
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     val status: UserStatus,
-    @Column(name = "created_at", nullable = false)
-    val createdAt: Instant,
-    @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant,
-    @Column(name = "last_login", nullable = true)
-    val lastLogin: Instant? = null,
+    @Column(name = "created_at", nullable = false) val createdAt: Instant,
+    @Column(name = "updated_at", nullable = false) val updatedAt: Instant,
+    @Column(name = "last_login", nullable = true) val lastLogin: Instant? = null,
 )
 
 fun UserEntity.toDomain(): User =

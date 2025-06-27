@@ -43,8 +43,7 @@ value class SecureToken(
         fun generate(length: Int = 64): SecureToken {
             require(length >= 32) { "Token length must be at least 32 characters" }
 
-            val token =
-                (1..length).map { chars[secureRandom.nextInt(chars.length)] }.joinToString("")
+            val token = (1..length).map { chars[secureRandom.nextInt(chars.length)] }.joinToString("")
 
             return SecureToken(token)
         }
@@ -68,7 +67,6 @@ enum class InvitationStatus {
 
     /** Invitation has been manually cancelled. */
     CANCELLED,
-
     ;
 
     /** Check if this status indicates the invitation is still active. */

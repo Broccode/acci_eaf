@@ -72,7 +72,6 @@ enum class AdminAction {
 
     // Generic
     CUSTOM_ACTION,
-
     ;
 
     /** Get a human-readable description of this action. */
@@ -169,7 +168,6 @@ enum class UserAction {
 
     // Generic
     CUSTOM_USER_ACTION,
-
     ;
 
     /** Get a human-readable description of this action. */
@@ -269,12 +267,8 @@ data class AuditEntry(
         require(targetId.isNotBlank()) { "Target ID cannot be blank" }
         require(ipAddress.isNotBlank()) { "IP address cannot be blank" }
         require(userAgent.isNotBlank()) { "User agent cannot be blank" }
-        require(!success || errorMessage == null) {
-            "Successful actions cannot have error messages"
-        }
-        require(success || !errorMessage.isNullOrBlank()) {
-            "Failed actions must have error messages"
-        }
+        require(!success || errorMessage == null) { "Successful actions cannot have error messages" }
+        require(success || !errorMessage.isNullOrBlank()) { "Failed actions must have error messages" }
     }
 
     /** Check if this audit entry represents a security event. */

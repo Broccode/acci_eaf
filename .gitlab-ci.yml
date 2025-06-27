@@ -132,7 +132,7 @@ main:
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t build --parallel=2
     # Run Kotlin/Gradle formatting check
     - 'echo "🎨 Step 5: Kotlin formatting check..."'
-    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t spotlessCheck
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t ktlintCheck
   after_script:
     - |
       if [ "$CI_JOB_STATUS" = "failed" ]; then
@@ -203,7 +203,7 @@ retry_main:
     - echo "🔍 Retrying affected commands from $NX_BASE to $NX_HEAD"
     # Retry with conservative settings
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint test build --skip-nx-cache --parallel=1
-    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t spotlessCheck
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t ktlintCheck
   artifacts:
     when: always
     reports:

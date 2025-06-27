@@ -24,18 +24,16 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.AccessDeniedHandler
 
 /**
- * Spring Security configuration for the IAM service.
- * Provides basic authentication with hardcoded users for MVP testing.
+ * Spring Security configuration for the IAM service. Provides basic authentication with hardcoded
+ * users for MVP testing.
  */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 class SecurityConfig {
-    @Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+    @Bean fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
-    @Bean
-    fun eafSecurityContextHolder(): EafSecurityContextHolder = DefaultEafSecurityContextHolder()
+    @Bean fun eafSecurityContextHolder(): EafSecurityContextHolder = DefaultEafSecurityContextHolder()
 
     @Bean
     fun userDetailsService(passwordEncoder: PasswordEncoder): UserDetailsService {
@@ -73,31 +71,26 @@ class SecurityConfig {
                     .authenticated()
                     .anyRequest()
                     .authenticated()
-            }.httpBasic { basic ->
-                basic.authenticationEntryPoint(customAuthenticationEntryPoint)
-            }.exceptionHandling { exceptions ->
+            }.httpBasic { basic -> basic.authenticationEntryPoint(customAuthenticationEntryPoint) }
+            .exceptionHandling { exceptions ->
                 exceptions
                     .accessDeniedHandler(customAccessDeniedHandler)
                     .authenticationEntryPoint(customAuthenticationEntryPoint)
             }.csrf { csrf ->
                 // For development/testing - consider proper CSRF protection in production
                 csrf.disable()
-            }.headers { headers ->
-                headers.frameOptions().deny()
-            }
+            }.headers { headers -> headers.frameOptions().deny() }
 
         return http.build()
     }
 
-    /**
-     * Custom AccessDeniedHandler that returns JSON responses for 403 Forbidden errors
-     */
+    /** Custom AccessDeniedHandler that returns JSON responses for 403 Forbidden errors */
     @Bean
     fun customAccessDeniedHandler(): AccessDeniedHandler =
         AccessDeniedHandler {
-                request: HttpServletRequest,
-                response: HttpServletResponse,
-                accessDeniedException: AccessDeniedException,
+            request: HttpServletRequest,
+            response: HttpServletResponse,
+            accessDeniedException: AccessDeniedException,
             ->
             response.status = HttpServletResponse.SC_FORBIDDEN
             response.contentType = MediaType.APPLICATION_JSON_VALUE
@@ -108,15 +101,13 @@ class SecurityConfig {
             response.writer.write(objectMapper.writeValueAsString(errorResponse))
         }
 
-    /**
-     * Custom AuthenticationEntryPoint that returns JSON responses for 401 Unauthorized errors
-     */
+    /** Custom AuthenticationEntryPoint that returns JSON responses for 401 Unauthorized errors */
     @Bean
     fun customAuthenticationEntryPoint(): AuthenticationEntryPoint =
         AuthenticationEntryPoint {
-                request: HttpServletRequest,
-                response: HttpServletResponse,
-                authException: AuthenticationException,
+            request: HttpServletRequest,
+            response: HttpServletResponse,
+            authException: AuthenticationException,
             ->
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.contentType = MediaType.APPLICATION_JSON_VALUE

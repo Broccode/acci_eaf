@@ -158,7 +158,7 @@ jobs:
       # Run Kotlin/Gradle formatting check for affected backend projects
       - name: Run affected Kotlin formatting checks
         if: success() || steps.tests.outcome == 'success'
-        run: npx nx affected -t spotlessCheck
+        run: npx nx affected -t ktlintCheck
 
       # Enhanced cleanup on failure
       - name: Clean and retry on failure

@@ -4,8 +4,8 @@ import com.axians.eaf.core.hexagonal.port.OutboundPort
 import com.axians.eaf.iam.domain.model.User
 
 /**
- * Outbound port interface for querying and persisting user data.
- * This defines what the application needs from external persistence systems for user operations.
+ * Outbound port interface for querying and persisting user data. This defines what the application
+ * needs from external persistence systems for user operations.
  */
 interface FindUsersByTenantIdPort : OutboundPort {
     /**

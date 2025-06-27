@@ -45,7 +45,9 @@ class GenerateFrontendComponentCommand : Runnable {
                     println("📁 Location: apps/$appName/src/main/frontend/components/$componentName/")
                 }
                 else -> {
-                    System.err.println("❌ Error: Must specify either --lib=ui-foundation-kit or --app=<app-name>")
+                    System.err.println(
+                        "❌ Error: Must specify either --lib=ui-foundation-kit or --app=<app-name>",
+                    )
                     System.exit(1)
                 }
             }

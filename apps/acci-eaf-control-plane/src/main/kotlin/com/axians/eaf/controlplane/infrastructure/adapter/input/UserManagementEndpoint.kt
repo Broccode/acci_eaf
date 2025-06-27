@@ -27,8 +27,8 @@ import org.springframework.validation.annotation.Validated
 @Endpoint
 @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
 @HillaWorkaround(
-        description =
-                "Endpoint was preemptively disabled due to Hilla issue #3443, but analysis shows no DTOs were affected. Re-enabling and marking for audit."
+    description =
+        "Endpoint was preemptively disabled due to Hilla issue #3443, but analysis shows no DTOs were affected. Re-enabling and marking for audit.",
 )
 /**
  * Hilla endpoint for user management operations. Provides type-safe frontend access to user
@@ -36,7 +36,7 @@ import org.springframework.validation.annotation.Validated
  */
 @Validated
 class UserManagementEndpoint(
-        private val userService: UserService,
+    private val userService: UserService,
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(UserManagementEndpoint::class.java)
@@ -44,33 +44,33 @@ class UserManagementEndpoint(
 
     /** Creates a new user with the specified details. */
     fun createUser(
-            @Valid request: CreateUserRequest,
+        @Valid request: CreateUserRequest,
     ): CreateUserResponse {
         logger.info("Creating user: {} in tenant: {}", request.email, request.tenantId)
 
         return runBlocking {
             try {
                 val result =
-                        userService.createUser(
-                                email = request.email,
-                                firstName = request.firstName,
-                                lastName = request.lastName,
-                                tenantId = request.tenantId,
-                                activateImmediately = request.activateImmediately,
-                        )
+                    userService.createUser(
+                        email = request.email,
+                        firstName = request.firstName,
+                        lastName = request.lastName,
+                        tenantId = request.tenantId,
+                        activateImmediately = request.activateImmediately,
+                    )
 
                 when (result) {
                     is CreateUserResult.Success -> {
                         logger.info(
-                                "User created successfully: {} ({})",
-                                result.userId,
-                                result.email,
+                            "User created successfully: {} ({})",
+                            result.userId,
+                            result.email,
                         )
                         CreateUserResponse.success(
-                                result.userId,
-                                result.email,
-                                result.fullName,
-                                result.status,
+                            result.userId,
+                            result.email,
+                            result.fullName,
+                            result.status,
                         )
                     }
                     is CreateUserResult.Failure -> {
@@ -95,10 +95,10 @@ class UserManagementEndpoint(
                     is UserDetailsResult.Success -> {
                         logger.debug("User details retrieved: {}", userId)
                         UserDetailsResponse(
-                                user = UserDto.fromDomain(result.details.user),
-                                permissions = result.details.permissions.toList(),
-                                lastLoginFormatted = result.details.lastLoginFormatted,
-                                accountAge = result.details.accountAge,
+                            user = UserDto.fromDomain(result.details.user),
+                            permissions = result.details.permissions.toList(),
+                            lastLoginFormatted = result.details.lastLoginFormatted,
+                            accountAge = result.details.accountAge,
                         )
                     }
                     is UserDetailsResult.NotFound -> {
@@ -125,23 +125,25 @@ class UserManagementEndpoint(
                     is UserStatusResult.Success -> {
                         logger.info("User activated successfully: {}", userId)
                         UserStatusResponse.success(
-                                userId = result.userId,
-                                email = result.email,
-                                fullName = result.fullName,
-                                oldStatus = result.oldStatus,
-                                newStatus = result.newStatus,
-                                action = result.action,
+                            userId = result.userId,
+                            email = result.email,
+                            fullName = result.fullName,
+                            oldStatus = result.oldStatus,
+                            newStatus = result.newStatus,
+                            action = result.action,
                         )
                     }
-                    is UserStatusResult.NotFound, is UserStatusResult.Failure -> {
+                    is UserStatusResult.NotFound,
+                    is UserStatusResult.Failure,
+                    -> {
                         logger.warn(
-                                "Failed to activate user {}: {}",
-                                userId,
-                                when (result) {
-                                    is UserStatusResult.NotFound -> result.message
-                                    is UserStatusResult.Failure -> result.message
-                                    else -> "Unknown error"
-                                },
+                            "Failed to activate user {}: {}",
+                            userId,
+                            when (result) {
+                                is UserStatusResult.NotFound -> result.message
+                                is UserStatusResult.Failure -> result.message
+                                else -> "Unknown error"
+                            },
                         )
                         null
                     }
@@ -155,8 +157,8 @@ class UserManagementEndpoint(
 
     /** Suspends an active user account. */
     fun suspendUser(
-            userId: String,
-            reason: String?,
+        userId: String,
+        reason: String?,
     ): UserStatusResponse? {
         logger.info("Suspending user: {} with reason: {}", userId, reason)
 
@@ -168,23 +170,25 @@ class UserManagementEndpoint(
                     is UserStatusResult.Success -> {
                         logger.info("User suspended successfully: {}", userId)
                         UserStatusResponse.success(
-                                userId = result.userId,
-                                email = result.email,
-                                fullName = result.fullName,
-                                oldStatus = result.oldStatus,
-                                newStatus = result.newStatus,
-                                action = result.action,
+                            userId = result.userId,
+                            email = result.email,
+                            fullName = result.fullName,
+                            oldStatus = result.oldStatus,
+                            newStatus = result.newStatus,
+                            action = result.action,
                         )
                     }
-                    is UserStatusResult.NotFound, is UserStatusResult.Failure -> {
+                    is UserStatusResult.NotFound,
+                    is UserStatusResult.Failure,
+                    -> {
                         logger.warn(
-                                "Failed to suspend user {}: {}",
-                                userId,
-                                when (result) {
-                                    is UserStatusResult.NotFound -> result.message
-                                    is UserStatusResult.Failure -> result.message
-                                    else -> "Unknown error"
-                                },
+                            "Failed to suspend user {}: {}",
+                            userId,
+                            when (result) {
+                                is UserStatusResult.NotFound -> result.message
+                                is UserStatusResult.Failure -> result.message
+                                else -> "Unknown error"
+                            },
                         )
                         null
                     }
@@ -208,10 +212,10 @@ class UserManagementEndpoint(
                     is PasswordResetResult.Success -> {
                         logger.info("Password reset initiated for user: {}", userId)
                         PasswordResetResponse.success(
-                                userId = result.userId,
-                                email = result.email,
-                                resetToken = result.resetToken,
-                                expiresAt = result.expiresAt,
+                            userId = result.userId,
+                            email = result.email,
+                            resetToken = result.resetToken,
+                            expiresAt = result.expiresAt,
                         )
                     }
                     is PasswordResetResult.NotFound -> {
@@ -220,9 +224,9 @@ class UserManagementEndpoint(
                     }
                     is PasswordResetResult.Failure -> {
                         logger.warn(
-                                "Failed to reset password for user {}: {}",
-                                userId,
-                                result.message,
+                            "Failed to reset password for user {}: {}",
+                            userId,
+                            result.message,
                         )
                         PasswordResetResponse.failure(result.message)
                     }
@@ -254,35 +258,38 @@ class UserManagementEndpoint(
     /** Gets a summary of users for a specific tenant. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
     fun getUsersForTenant(
-            tenantId: String,
-            page: Int = 0,
-            size: Int = 20,
+        tenantId: String,
+        page: Int = 0,
+        size: Int = 20,
     ): PagedResponse<UserSummary> {
         logger.debug("Retrieving users for tenant: {} (page: {}, size: {})", tenantId, page, size)
 
         val filter =
-                UserFilter(
-                        tenantId = tenantId,
-                        page = page,
-                        size = size,
-                )
+            UserFilter(
+                tenantId = tenantId,
+                page = page,
+                size = size,
+            )
 
         return listUsers(filter)
     }
 
     /** Checks if a user exists and can access the system. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun canUserAccess(userId: String): Boolean = runBlocking {
-        try {
-            when (val result = userService.getUserDetails(userId)) {
-                is UserDetailsResult.Success -> result.details.user.status.canAccess()
-                is UserDetailsResult.NotFound -> false
+    fun canUserAccess(userId: String): Boolean =
+        runBlocking {
+            try {
+                when (val result = userService.getUserDetails(userId)) {
+                    is UserDetailsResult.Success ->
+                        result.details.user.status
+                            .canAccess()
+                    is UserDetailsResult.NotFound -> false
+                }
+            } catch (exception: Exception) {
+                logger.error("Error checking user access: $userId", exception)
+                false
             }
-        } catch (exception: Exception) {
-            logger.error("Error checking user access: $userId", exception)
-            false
         }
-    }
 
     /** Gets user statistics for dashboard purposes. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
@@ -298,19 +305,19 @@ class UserManagementEndpoint(
                 val suspendedUsers = allUsers.content.count { it.status == UserStatus.SUSPENDED }
 
                 UserStatistics(
-                        totalUsers = totalUsers,
-                        activeUsers = activeUsers,
-                        pendingUsers = pendingUsers,
-                        suspendedUsers = suspendedUsers,
-                        recentlyActive =
-                                allUsers.content.count {
-                                    it.lastLogin != null &&
-                                            java.time.Duration.between(
-                                                            it.lastLogin,
-                                                            java.time.Instant.now(),
-                                                    )
-                                                    .toDays() <= 7
-                                },
+                    totalUsers = totalUsers,
+                    activeUsers = activeUsers,
+                    pendingUsers = pendingUsers,
+                    suspendedUsers = suspendedUsers,
+                    recentlyActive =
+                        allUsers.content.count {
+                            it.lastLogin != null &&
+                                java.time.Duration
+                                    .between(
+                                        it.lastLogin,
+                                        java.time.Instant.now(),
+                                    ).toDays() <= 7
+                        },
                 )
             } catch (exception: Exception) {
                 logger.error("Error getting user statistics for tenant: $tenantId", exception)
@@ -322,9 +329,9 @@ class UserManagementEndpoint(
 
 /** User statistics for dashboard display. */
 data class UserStatistics(
-        val totalUsers: Int,
-        val activeUsers: Int,
-        val pendingUsers: Int,
-        val suspendedUsers: Int,
-        val recentlyActive: Int,
+    val totalUsers: Int,
+    val activeUsers: Int,
+    val pendingUsers: Int,
+    val suspendedUsers: Int,
+    val recentlyActive: Int,
 )

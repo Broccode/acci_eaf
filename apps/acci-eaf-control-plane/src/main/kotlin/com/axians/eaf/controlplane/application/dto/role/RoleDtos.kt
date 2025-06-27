@@ -48,8 +48,7 @@ data class RoleDto(
                 description = role.description,
                 scope = role.scope,
                 tenantId = role.tenantId?.value,
-                permissions =
-                    role.permissions.map { PermissionDto.fromDomain(it) }.toList(),
+                permissions = role.permissions.map { PermissionDto.fromDomain(it) }.toList(),
             )
     }
 }

@@ -30,7 +30,7 @@
       "executor": "@nx/gradle:gradle",
       "outputs": ["{workspaceRoot}/apps/acci-eaf-control-plane/build/reports"],
       "options": {
-        "taskName": ":apps:acci-eaf-control-plane:spotlessCheck"
+        "taskName": ":apps:acci-eaf-control-plane:ktlintCheck"
       }
     }
   },

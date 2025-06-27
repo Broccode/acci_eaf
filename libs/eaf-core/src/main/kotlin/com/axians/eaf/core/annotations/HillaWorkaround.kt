@@ -8,14 +8,14 @@ package com.axians.eaf.core.annotations
  * @property description A brief explanation of the workaround implemented.
  */
 @Target(
-        AnnotationTarget.CLASS,
-        AnnotationTarget.FUNCTION,
-        AnnotationTarget.PROPERTY,
-        AnnotationTarget.VALUE_PARAMETER,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.VALUE_PARAMETER,
 )
 @Retention(AnnotationRetention.SOURCE)
 @MustBeDocumented
 annotation class HillaWorkaround(
-        val issue: String = "https://github.com/vaadin/hilla/issues/3443",
-        val description: String,
+    val issue: String = "https://github.com/vaadin/hilla/issues/3443",
+    val description: String,
 )

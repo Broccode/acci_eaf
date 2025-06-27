@@ -33,8 +33,8 @@ class TenantSecurityAspect(
     private val logger = LoggerFactory.getLogger(TenantSecurityAspect::class.java)
 
     /**
-     * Intercepts method calls annotated with @RequiresTenantAccess. Validates tenant access and
-     * logs security events.
+     * Intercepts method calls annotated with @RequiresTenantAccess. Validates tenant access and logs
+     * security events.
      */
     @Around("@annotation(requiresTenantAccess)")
     fun enforceTenantAccess(

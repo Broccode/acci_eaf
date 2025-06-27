@@ -97,8 +97,8 @@ class RoleEntity(
 
     companion object {
         /**
-         * Create an entity from a domain Role object. Note: Permissions need to be managed
-         * separately for proper JPA handling.
+         * Create an entity from a domain Role object. Note: Permissions need to be managed separately
+         * for proper JPA handling.
          */
         fun fromDomain(role: Role): RoleEntity =
             RoleEntity(
@@ -110,8 +110,8 @@ class RoleEntity(
             )
 
         /**
-         * Create an entity from a domain Role object with permissions. This method properly handles
-         * the ManyToMany relationship.
+         * Create an entity from a domain Role object with permissions. This method properly handles the
+         * ManyToMany relationship.
          */
         fun fromDomainWithPermissions(
             role: Role,

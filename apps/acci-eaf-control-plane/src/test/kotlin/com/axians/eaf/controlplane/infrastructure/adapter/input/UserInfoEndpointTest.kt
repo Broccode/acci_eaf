@@ -142,16 +142,12 @@ class UserInfoEndpointTest {
 
         // When & Then - Too low
         val lowException =
-            assertThrows<EndpointException> {
-                userInfoEndpoint.updateUserPreferences(tooLowRequest)
-            }
+            assertThrows<EndpointException> { userInfoEndpoint.updateUserPreferences(tooLowRequest) }
         assertThat(lowException.message).contains("Items per page must be between 5 and 100")
 
         // When & Then - Too high
         val highException =
-            assertThrows<EndpointException> {
-                userInfoEndpoint.updateUserPreferences(tooHighRequest)
-            }
+            assertThrows<EndpointException> { userInfoEndpoint.updateUserPreferences(tooHighRequest) }
         assertThat(highException.message).contains("Items per page must be between 5 and 100")
     }
 

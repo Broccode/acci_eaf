@@ -3,8 +3,8 @@ package com.axians.eaf.iam.application.port.inbound
 import com.axians.eaf.core.hexagonal.port.InboundPort
 
 /**
- * Inbound port for updating a user's status within a tenant.
- * This use case is typically invoked by a TENANT_ADMIN to activate/deactivate users.
+ * Inbound port for updating a user's status within a tenant. This use case is typically invoked by
+ * a TENANT_ADMIN to activate/deactivate users.
  */
 interface UpdateUserStatusUseCase : InboundPort<UpdateUserStatusCommand, UpdateUserStatusResult> {
     /**
@@ -15,24 +15,18 @@ interface UpdateUserStatusUseCase : InboundPort<UpdateUserStatusCommand, UpdateU
      */
     fun updateUserStatus(command: UpdateUserStatusCommand): UpdateUserStatusResult
 
-    /**
-     * Handle method required by InboundPort interface.
-     */
+    /** Handle method required by InboundPort interface. */
     override fun handle(command: UpdateUserStatusCommand): UpdateUserStatusResult = updateUserStatus(command)
 }
 
-/**
- * Command for updating a user's status.
- */
+/** Command for updating a user's status. */
 data class UpdateUserStatusCommand(
     val tenantId: String,
     val userId: String,
     val newStatus: String,
 )
 
-/**
- * Result of user status update operation.
- */
+/** Result of user status update operation. */
 data class UpdateUserStatusResult(
     val userId: String,
     val tenantId: String,

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class CommandGeneratorTest {
-    @TempDir
-    lateinit var tempDir: File
+    @TempDir lateinit var tempDir: File
 
     private lateinit var generator: CommandGenerator
 
@@ -18,12 +17,13 @@ class CommandGeneratorTest {
         generator = CommandGenerator(tempDir)
 
         // Create a basic settings.gradle.kts for testing
-        File(tempDir, "settings.gradle.kts").writeText(
-            """
-            rootProject.name = "test-project"
-            include(":apps:test-service")
-            """.trimIndent(),
-        )
+        File(tempDir, "settings.gradle.kts")
+            .writeText(
+                """
+                rootProject.name = "test-project"
+                include(":apps:test-service")
+                """.trimIndent(),
+            )
 
         // Create a basic service structure
         val serviceDir = File(tempDir, "apps/test-service")
@@ -79,7 +79,10 @@ class CommandGeneratorTest {
 
         // Then
         val commandFile =
-            File(tempDir, "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/command/UpdateUser.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/command/UpdateUser.kt",
+            )
         assertThat(commandFile).exists()
 
         val content = commandFile.readText()
@@ -96,7 +99,10 @@ class CommandGeneratorTest {
 
         // Then
         val aggregateFile =
-            File(tempDir, "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt",
+            )
         val content = aggregateFile.readText()
 
         // Check that import was added
@@ -119,7 +125,10 @@ class CommandGeneratorTest {
 
         // Then
         val aggregateFile =
-            File(tempDir, "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt",
+            )
         val content = aggregateFile.readText()
 
         // Should have both command handlers
@@ -134,9 +143,8 @@ class CommandGeneratorTest {
     @Test
     fun `should throw exception when service directory does not exist`() {
         // When & Then
-        assertThatThrownBy {
-            generator.generateCommand("UpdateUser", "User", "non-existent-service")
-        }.isInstanceOf(IllegalStateException::class.java)
+        assertThatThrownBy { generator.generateCommand("UpdateUser", "User", "non-existent-service") }
+            .isInstanceOf(IllegalStateException::class.java)
             .hasMessageContaining("Service directory does not exist")
     }
 

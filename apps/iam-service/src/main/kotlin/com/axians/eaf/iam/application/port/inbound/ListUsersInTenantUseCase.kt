@@ -3,8 +3,8 @@ package com.axians.eaf.iam.application.port.inbound
 import com.axians.eaf.core.hexagonal.port.InboundPort
 
 /**
- * Inbound port for listing all users within a specific tenant.
- * This use case is typically invoked by a TENANT_ADMIN to view users in their tenant.
+ * Inbound port for listing all users within a specific tenant. This use case is typically invoked
+ * by a TENANT_ADMIN to view users in their tenant.
  */
 interface ListUsersInTenantUseCase : InboundPort<ListUsersInTenantQuery, ListUsersInTenantResult> {
     /**
@@ -15,30 +15,22 @@ interface ListUsersInTenantUseCase : InboundPort<ListUsersInTenantQuery, ListUse
      */
     fun listUsers(query: ListUsersInTenantQuery): ListUsersInTenantResult
 
-    /**
-     * Handle method required by InboundPort interface.
-     */
+    /** Handle method required by InboundPort interface. */
     override fun handle(command: ListUsersInTenantQuery): ListUsersInTenantResult = listUsers(command)
 }
 
-/**
- * Query for listing users in a tenant.
- */
+/** Query for listing users in a tenant. */
 data class ListUsersInTenantQuery(
     val tenantId: String,
 )
 
-/**
- * Result of listing users in a tenant.
- */
+/** Result of listing users in a tenant. */
 data class ListUsersInTenantResult(
     val tenantId: String,
     val users: List<UserSummary>,
 )
 
-/**
- * Summary information about a user.
- */
+/** Summary information about a user. */
 data class UserSummary(
     val userId: String,
     val email: String,

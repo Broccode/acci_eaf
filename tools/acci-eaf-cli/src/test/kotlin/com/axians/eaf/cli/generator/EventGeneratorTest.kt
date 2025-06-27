@@ -8,8 +8,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class EventGeneratorTest {
-    @TempDir
-    lateinit var tempDir: File
+    @TempDir lateinit var tempDir: File
 
     private lateinit var generator: EventGenerator
 
@@ -18,12 +17,13 @@ class EventGeneratorTest {
         generator = EventGenerator(tempDir)
 
         // Create a basic settings.gradle.kts for testing
-        File(tempDir, "settings.gradle.kts").writeText(
-            """
-            rootProject.name = "test-project"
-            include(":apps:test-service")
-            """.trimIndent(),
-        )
+        File(tempDir, "settings.gradle.kts")
+            .writeText(
+                """
+                rootProject.name = "test-project"
+                include(":apps:test-service")
+                """.trimIndent(),
+            )
 
         // Create a basic service structure
         val serviceDir = File(tempDir, "apps/test-service")
@@ -79,7 +79,10 @@ class EventGeneratorTest {
 
         // Then
         val eventFile =
-            File(tempDir, "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/event/UserUpdated.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/event/UserUpdated.kt",
+            )
         assertThat(eventFile).exists()
 
         val content = eventFile.readText()
@@ -97,7 +100,10 @@ class EventGeneratorTest {
 
         // Then
         val aggregateFile =
-            File(tempDir, "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt",
+            )
         val content = aggregateFile.readText()
 
         // Check that import was added
@@ -120,7 +126,10 @@ class EventGeneratorTest {
 
         // Then
         val aggregateFile =
-            File(tempDir, "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt",
+            )
         val content = aggregateFile.readText()
 
         // Should have both event sourcing handlers
@@ -135,9 +144,8 @@ class EventGeneratorTest {
     @Test
     fun `should throw exception when service directory does not exist`() {
         // When & Then
-        assertThatThrownBy {
-            generator.generateEvent("UserUpdated", "User", "non-existent-service")
-        }.isInstanceOf(IllegalStateException::class.java)
+        assertThatThrownBy { generator.generateEvent("UserUpdated", "User", "non-existent-service") }
+            .isInstanceOf(IllegalStateException::class.java)
             .hasMessageContaining("Service directory does not exist")
     }
 

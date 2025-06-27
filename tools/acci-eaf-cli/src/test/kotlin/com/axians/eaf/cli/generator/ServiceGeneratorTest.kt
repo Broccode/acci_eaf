@@ -7,8 +7,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class ServiceGeneratorTest {
-    @TempDir
-    lateinit var tempDir: File
+    @TempDir lateinit var tempDir: File
 
     private lateinit var generator: ServiceGenerator
 
@@ -17,17 +16,18 @@ class ServiceGeneratorTest {
         generator = ServiceGenerator(tempDir)
 
         // Create a basic settings.gradle.kts for testing
-        File(tempDir, "settings.gradle.kts").writeText(
-            """
-            rootProject.name = "test-project"
+        File(tempDir, "settings.gradle.kts")
+            .writeText(
+                """
+                rootProject.name = "test-project"
 
-            // Include backend applications
-            include(":apps:existing-service")
+                // Include backend applications
+                include(":apps:existing-service")
 
-            // Include tools
-            // include(":tools:acci-eaf-cli")
-            """.trimIndent(),
-        )
+                // Include tools
+                // include(":tools:acci-eaf-cli")
+                """.trimIndent(),
+            )
     }
 
     @Test
@@ -43,7 +43,8 @@ class ServiceGeneratorTest {
         assertThat(File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice")).exists()
         assertThat(File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/application")).exists()
         assertThat(File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/domain")).exists()
-        assertThat(File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/infrastructure")).exists()
+        assertThat(File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/infrastructure"))
+            .exists()
 
         // Check test directory structure
         assertThat(File(serviceDir, "src/test/kotlin/com/axians/eaf/testservice")).exists()

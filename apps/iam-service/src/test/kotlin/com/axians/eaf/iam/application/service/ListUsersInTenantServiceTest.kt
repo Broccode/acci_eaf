@@ -87,9 +87,7 @@ class ListUsersInTenantServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
-                listUsersInTenantService.listUsers(query)
-            }
+            assertThrows<IllegalArgumentException> { listUsersInTenantService.listUsers(query) }
 
         assertEquals("Tenant ID cannot be blank", exception.message)
     }

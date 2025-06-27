@@ -43,7 +43,10 @@ class CreateTenantServiceTest {
         assertEquals("Test Company", result.tenantName)
         assertEquals(mockUser.userId, result.tenantAdminUserId)
         assertEquals("admin@testcompany.com", result.tenantAdminEmail)
-        assertEquals("Invitation link sent to admin@testcompany.com for tenant Test Company", result.invitationDetails)
+        assertEquals(
+            "Invitation link sent to admin@testcompany.com for tenant Test Company",
+            result.invitationDetails,
+        )
 
         verify(exactly = 1) { saveTenantPort.existsByTenantName("Test Company") }
         verify(exactly = 1) { saveTenantPort.existsByEmail("admin@testcompany.com") }
@@ -62,10 +65,7 @@ class CreateTenantServiceTest {
         every { saveTenantPort.existsByTenantName("Existing Company") } returns true
 
         // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                createTenantService.handle(command)
-            }
+        val exception = assertThrows<IllegalArgumentException> { createTenantService.handle(command) }
 
         assertEquals("Tenant with name 'Existing Company' already exists", exception.message)
         verify(exactly = 1) { saveTenantPort.existsByTenantName("Existing Company") }
@@ -86,10 +86,7 @@ class CreateTenantServiceTest {
         every { saveTenantPort.existsByEmail("existing@admin.com") } returns true
 
         // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                createTenantService.handle(command)
-            }
+        val exception = assertThrows<IllegalArgumentException> { createTenantService.handle(command) }
 
         assertEquals("User with email 'existing@admin.com' already exists", exception.message)
         verify(exactly = 1) { saveTenantPort.existsByTenantName("New Company") }
@@ -107,10 +104,7 @@ class CreateTenantServiceTest {
             )
 
         // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                createTenantService.handle(command)
-            }
+        val exception = assertThrows<IllegalArgumentException> { createTenantService.handle(command) }
 
         assertEquals("Tenant name cannot be blank", exception.message)
         verify(exactly = 0) { saveTenantPort.existsByTenantName(any()) }
@@ -128,10 +122,7 @@ class CreateTenantServiceTest {
             )
 
         // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                createTenantService.handle(command)
-            }
+        val exception = assertThrows<IllegalArgumentException> { createTenantService.handle(command) }
 
         assertEquals("Email must be valid", exception.message)
         verify(exactly = 0) { saveTenantPort.existsByTenantName(any()) }

@@ -29,8 +29,8 @@ import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.junit.jupiter.Testcontainers
 
 /**
- * Integration test for user management functionality.
- * Tests the complete flow from web layer to persistence layer.
+ * Integration test for user management functionality. Tests the complete flow from web layer to
+ * persistence layer.
  */
 @SpringBootTest(
     classes = [TestIamServiceApplication::class],
@@ -43,14 +43,11 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @AutoConfigureMockMvc
 @Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 class UserManagementIntegrationTest {
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var mockMvc: MockMvc
 
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    @Autowired private lateinit var objectMapper: ObjectMapper
 
-    @MockkBean
-    private lateinit var securityContextHolder: EafSecurityContextHolder
+    @MockkBean private lateinit var securityContextHolder: EafSecurityContextHolder
 
     @BeforeEach
     fun setUp() {
@@ -218,8 +215,7 @@ class UserManagementIntegrationTest {
         // When & Then
         mockMvc
             .perform(
-                get("/api/v1/tenants/empty-tenant/users")
-                    .with(user("testuser").roles("TENANT_ADMIN")),
+                get("/api/v1/tenants/empty-tenant/users").with(user("testuser").roles("TENANT_ADMIN")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.tenantId").value("empty-tenant"))
             .andExpect(jsonPath("$.users").isArray)

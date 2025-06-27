@@ -35,7 +35,14 @@ class CommandGenerator(
         generateCommandFile(serviceDir, packagePath, packageName, commandName, aggregateName)
 
         // Add command handler to existing Aggregate
-        addCommandHandlerToAggregate(serviceDir, packagePath, packageName, commandName, aggregateName, serviceName)
+        addCommandHandlerToAggregate(
+            serviceDir,
+            packagePath,
+            packageName,
+            commandName,
+            aggregateName,
+            serviceName,
+        )
 
         println("Generated command '$commandName' and added handler to aggregate '$aggregateName'")
     }
@@ -62,7 +69,8 @@ class CommandGenerator(
         aggregateName: String,
         serviceName: String,
     ) {
-        val aggregateFile = File(serviceDir, "src/main/kotlin/$packagePath/domain/model/$aggregateName.kt")
+        val aggregateFile =
+            File(serviceDir, "src/main/kotlin/$packagePath/domain/model/$aggregateName.kt")
 
         if (!aggregateFile.exists()) {
             throw IllegalStateException(
@@ -110,7 +118,9 @@ class CommandGenerator(
             lines.add(lastClosingBraceIndex, "")
             lines.add(lastClosingBraceIndex + 1, commandHandlerMethod)
         } else {
-            throw IllegalStateException("Could not find the end of the $aggregateName class to add the command handler")
+            throw IllegalStateException(
+                "Could not find the end of the $aggregateName class to add the command handler",
+            )
         }
 
         aggregateFile.writeText(lines.joinToString("\n"))

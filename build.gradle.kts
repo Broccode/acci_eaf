@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.jpa) apply false
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.dependency.management) apply false
-    alias(libs.plugins.spotless) apply false
+    alias(libs.plugins.ktlint) apply false
     id("dev.nx.gradle.project-graph") version "+"
 }
 
@@ -25,7 +25,13 @@ allprojects {
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "com.diffplug.spotless")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    // Access the central version catalog inside sub-project build scripts
+    val catalog = rootProject.extensions.getByType<org.gradle.api.artifacts.VersionCatalogsExtension>().named("libs")
+    extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension>("ktlint") {
+        version.set(catalog.findVersion("ktlint").get().requiredVersion)
+    }
 
     afterEvaluate {
         if (plugins.hasPlugin("java") && !project.path.startsWith(":tools:")) {
@@ -34,22 +40,6 @@ subprojects {
                     languageVersion.set(JavaLanguageVersion.of(21))
                 }
             }
-        }
-    }
-
-    // Configure Spotless for Kotlin formatting
-    configure<com.diffplug.gradle.spotless.SpotlessExtension> {
-        kotlin {
-            target("src/**/*.kt")
-            ktlint(libs.versions.ktlint.get())
-                .setEditorConfigPath("$rootDir/.editorconfig")
-            trimTrailingWhitespace()
-            indentWithSpaces(4)
-            endWithNewline()
-        }
-        kotlinGradle {
-            target("*.gradle.kts")
-            ktlint(libs.versions.ktlint.get())
         }
     }
 

@@ -21,17 +21,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest(classes = [TestIamServiceApplication::class])
 @AutoConfigureMockMvc
 class TenantWebAdapterTest {
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var mockMvc: MockMvc
 
-    @MockkBean
-    private lateinit var createTenantUseCase: CreateTenantUseCase
+    @MockkBean private lateinit var createTenantUseCase: CreateTenantUseCase
 
-    @MockkBean
-    private lateinit var securityContextHolder: EafSecurityContextHolder
+    @MockkBean private lateinit var securityContextHolder: EafSecurityContextHolder
 
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    @Autowired private lateinit var objectMapper: ObjectMapper
 
     @Test
     fun `should create tenant successfully when valid request provided`() {

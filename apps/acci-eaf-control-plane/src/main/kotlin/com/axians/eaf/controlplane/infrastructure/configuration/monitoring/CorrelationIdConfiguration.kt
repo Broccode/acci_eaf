@@ -14,11 +14,9 @@ import java.util.UUID
 /** Configuration for correlation ID management and request tracking */
 @Configuration
 class CorrelationIdConfiguration {
-    @Bean
-    fun correlationIdFilter(): CorrelationIdFilter = CorrelationIdFilter()
+    @Bean fun correlationIdFilter(): CorrelationIdFilter = CorrelationIdFilter()
 
-    @Bean
-    fun correlationIdService(): CorrelationIdService = CorrelationIdService()
+    @Bean fun correlationIdService(): CorrelationIdService = CorrelationIdService()
 }
 
 /**
@@ -161,8 +159,7 @@ class CorrelationIdService {
     /** Create a context map for async processing */
     fun getCurrentContext(): Map<String, String> =
         mapOf(
-            CorrelationIdFilter.CORRELATION_ID_MDC_KEY to
-                (getCurrentCorrelationId() ?: ""),
+            CorrelationIdFilter.CORRELATION_ID_MDC_KEY to (getCurrentCorrelationId() ?: ""),
             CorrelationIdFilter.TENANT_ID_MDC_KEY to (getCurrentTenantId() ?: ""),
             CorrelationIdFilter.USER_ID_MDC_KEY to (getCurrentUserId() ?: ""),
         ).filterValues { it.isNotEmpty() }

@@ -23,16 +23,16 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Transactional
 @Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 @TestPropertySource(
-    properties = [
-        "eaf.system.initialize-default-tenant=false", // Disable auto-initialization for clean database test
-    ],
+    properties =
+        [
+            "eaf.system.initialize-default-tenant=false", // Disable auto-initialization for clean
+            // database test
+        ],
 )
 class IamServiceIntegrationTest {
-    @Autowired
-    private lateinit var tenantJpaRepository: TenantJpaRepository
+    @Autowired private lateinit var tenantJpaRepository: TenantJpaRepository
 
-    @Autowired
-    private lateinit var userJpaRepository: UserJpaRepository
+    @Autowired private lateinit var userJpaRepository: UserJpaRepository
 
     @Test
     fun `should verify integration components are wired correctly`() {

@@ -28,8 +28,7 @@ class RoleTest {
         val description = "Platform-wide administrative role"
 
         // When
-        val role =
-            Role.createPlatformRole(id = roleId, name = name, description = description)
+        val role = Role.createPlatformRole(id = roleId, name = name, description = description)
 
         // Then
         assertEquals(roleId, role.id)
@@ -374,9 +373,7 @@ class RoleTest {
 
         // When removing some permissions
         val roleWithFewerPermissions =
-            roleWithAllPermissions
-                .removePermission(permissions[0])
-                .removePermission(permissions[2])
+            roleWithAllPermissions.removePermission(permissions[0]).removePermission(permissions[2])
 
         // Then
         assertEquals(3, roleWithFewerPermissions.permissions.size)
@@ -407,9 +404,7 @@ class RoleTest {
 
         // When
         val modifiedRole =
-            originalRole
-                .addPermission(permission)
-                .updateDetails("New Name", "New Description")
+            originalRole.addPermission(permission).updateDetails("New Name", "New Description")
 
         // Then
         // Original role should remain unchanged

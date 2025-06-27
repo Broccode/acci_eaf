@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 /**
- * Application service for listing users within a tenant.
- * This service retrieves all users belonging to a specific tenant.
+ * Application service for listing users within a tenant. This service retrieves all users belonging
+ * to a specific tenant.
  */
 @Service
 class ListUsersInTenantService(

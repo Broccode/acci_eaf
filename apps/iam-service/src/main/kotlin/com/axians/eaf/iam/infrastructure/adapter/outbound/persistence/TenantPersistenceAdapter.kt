@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Outbound adapter that implements the SaveTenantPort using JPA repositories.
- * This adapter handles all persistence concerns for tenant and user entities.
+ * Outbound adapter that implements the SaveTenantPort using JPA repositories. This adapter handles
+ * all persistence concerns for tenant and user entities.
  */
 @Component
 @Transactional

@@ -8,9 +8,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 /**
- * Persistence adapter for user-related operations.
- * This adapter implements the FindUsersByTenantIdPort and provides
- * the concrete implementation for user persistence operations.
+ * Persistence adapter for user-related operations. This adapter implements the
+ * FindUsersByTenantIdPort and provides the concrete implementation for user persistence operations.
  */
 @Component
 class UserPersistenceAdapter(
@@ -52,7 +51,11 @@ class UserPersistenceAdapter(
         val savedEntity = userJpaRepository.save(userEntity)
         val savedUser = savedEntity.toDomain()
 
-        logger.debug("Successfully saved user with ID: {} in tenant: {}", savedUser.userId, savedUser.tenantId)
+        logger.debug(
+            "Successfully saved user with ID: {} in tenant: {}",
+            savedUser.userId,
+            savedUser.tenantId,
+        )
         return savedUser
     }
 }

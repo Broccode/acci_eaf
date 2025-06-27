@@ -33,9 +33,7 @@ class EafSdkIntegrationTest {
 
         @Container
         val natsContainer: GenericContainer<*> =
-            GenericContainer("nats:2.10-alpine")
-                .withExposedPorts(4222)
-                .withCommand("--jetstream")
+            GenericContainer("nats:2.10-alpine").withExposedPorts(4222).withCommand("--jetstream")
 
         @JvmStatic
         @DynamicPropertySource

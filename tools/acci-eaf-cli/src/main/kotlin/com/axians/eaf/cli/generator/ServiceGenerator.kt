@@ -62,7 +62,8 @@ class ServiceGenerator(
         File(serviceDir, "src/main/kotlin/$packagePath/domain/model").mkdirs()
         File(serviceDir, "src/main/kotlin/$packagePath/domain/port").mkdirs()
         File(serviceDir, "src/main/kotlin/$packagePath/infrastructure/adapter/input/web").mkdirs()
-        File(serviceDir, "src/main/kotlin/$packagePath/infrastructure/adapter/output/persistence").mkdirs()
+        File(serviceDir, "src/main/kotlin/$packagePath/infrastructure/adapter/output/persistence")
+            .mkdirs()
         File(serviceDir, "src/main/kotlin/$packagePath/infrastructure/config").mkdirs()
         File(serviceDir, "src/main/resources").mkdirs()
 
@@ -105,7 +106,8 @@ class ServiceGenerator(
             } else {
                 "${className}ServiceApplication"
             }
-        File(serviceDir, "src/main/kotlin/$packagePath/$applicationClassName.kt").writeText(applicationContent)
+        File(serviceDir, "src/main/kotlin/$packagePath/$applicationClassName.kt")
+            .writeText(applicationContent)
 
         // Generate sample controller
         val controllerContent = templateEngine.generateSampleController(packageName, className)
@@ -116,10 +118,12 @@ class ServiceGenerator(
 
         // Generate sample domain model
         val domainModelContent = templateEngine.generateSampleDomainModel(packageName, className)
-        File(serviceDir, "src/main/kotlin/$packagePath/domain/model/Sample$className.kt").writeText(domainModelContent)
+        File(serviceDir, "src/main/kotlin/$packagePath/domain/model/Sample$className.kt")
+            .writeText(domainModelContent)
 
         // Generate sample application service interface
-        val serviceInterfaceContent = templateEngine.generateSampleServiceInterface(packageName, className)
+        val serviceInterfaceContent =
+            templateEngine.generateSampleServiceInterface(packageName, className)
         File(
             serviceDir,
             "src/main/kotlin/$packagePath/application/port/input/Sample${className}UseCase.kt",
@@ -143,7 +147,8 @@ class ServiceGenerator(
 
         // Generate ArchUnit test
         val archTestContent = templateEngine.generateArchitectureTest(packageName, className)
-        File(serviceDir, "src/test/kotlin/$packagePath/architecture/ArchitectureTest.kt").writeText(archTestContent)
+        File(serviceDir, "src/test/kotlin/$packagePath/architecture/ArchitectureTest.kt")
+            .writeText(archTestContent)
 
         // Generate sample service test
         val serviceTestContent = templateEngine.generateSampleServiceTest(packageName, className)
@@ -193,9 +198,7 @@ class ServiceGenerator(
     }
 
     private fun String.toCamelCase(): String =
-        this
-            .split("-")
-            .joinToString("") { word ->
-                word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-            }
+        this.split("-").joinToString("") { word ->
+            word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+        }
 }

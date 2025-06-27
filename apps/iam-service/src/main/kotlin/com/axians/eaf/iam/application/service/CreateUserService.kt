@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 /**
- * Application service for creating users within a tenant.
- * This service orchestrates the user creation process and enforces business rules.
+ * Application service for creating users within a tenant. This service orchestrates the user
+ * creation process and enforces business rules.
  */
 @Service
 class CreateUserService(
@@ -43,7 +43,11 @@ class CreateUserService(
         // Save user
         val savedUser = findUsersByTenantIdPort.saveUser(user)
 
-        logger.info("Successfully created user with ID: {} for tenant: {}", savedUser.userId, savedUser.tenantId)
+        logger.info(
+            "Successfully created user with ID: {} for tenant: {}",
+            savedUser.userId,
+            savedUser.tenantId,
+        )
 
         // Log placeholder for email invitation
         logger.info("TODO: Send invitation email to {} for user activation", savedUser.email)

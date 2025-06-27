@@ -8,9 +8,9 @@ import org.springframework.boot.ApplicationRunner
 import org.springframework.stereotype.Component
 
 /**
- * Application runner that triggers system initialization on startup.
- * This adapter is responsible for creating default tenant and superadmin user
- * when the system is configured for single-tenant deployment.
+ * Application runner that triggers system initialization on startup. This adapter is responsible
+ * for creating default tenant and superadmin user when the system is configured for single-tenant
+ * deployment.
  */
 @Component
 class DataInitializerAdapter(

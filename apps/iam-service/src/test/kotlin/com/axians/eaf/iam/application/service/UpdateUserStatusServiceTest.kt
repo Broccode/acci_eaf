@@ -38,8 +38,9 @@ class UpdateUserStatusServiceTest {
             )
         val activatedUser = existingUser.activate()
 
-        every { findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123") } returns
-            existingUser
+        every {
+            findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123")
+        } returns existingUser
         every { findUsersByTenantIdPort.saveUser(any()) } returns activatedUser
 
         // When
@@ -75,8 +76,9 @@ class UpdateUserStatusServiceTest {
             )
         val deactivatedUser = existingUser.deactivate()
 
-        every { findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123") } returns
-            existingUser
+        every {
+            findUsersByTenantIdPort.findUserByIdAndTenantId(existingUser.userId, "tenant-123")
+        } returns existingUser
         every { findUsersByTenantIdPort.saveUser(any()) } returns deactivatedUser
 
         // When
@@ -101,13 +103,13 @@ class UpdateUserStatusServiceTest {
                 newStatus = "ACTIVE",
             )
 
-        every { findUsersByTenantIdPort.findUserByIdAndTenantId("nonexistent-user", "tenant-123") } returns null
+        every {
+            findUsersByTenantIdPort.findUserByIdAndTenantId("nonexistent-user", "tenant-123")
+        } returns null
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
-                updateUserStatusService.updateUserStatus(command)
-            }
+            assertThrows<IllegalArgumentException> { updateUserStatusService.updateUserStatus(command) }
 
         assertEquals("User with ID nonexistent-user not found in tenant tenant-123", exception.message)
         verify { findUsersByTenantIdPort.findUserByIdAndTenantId("nonexistent-user", "tenant-123") }
@@ -126,12 +128,11 @@ class UpdateUserStatusServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
-                updateUserStatusService.updateUserStatus(command)
-            }
+            assertThrows<IllegalArgumentException> { updateUserStatusService.updateUserStatus(command) }
 
         // The error message should match the format from the service implementation
-        // UserStatus.entries.joinToString(", ") { it.name } produces the enum values in declaration order
+        // UserStatus.entries.joinToString(", ") { it.name } produces the enum values in declaration
+        // order
         assertEquals(
             "Invalid status: INVALID_STATUS. Valid statuses are: PENDING_ACTIVATION, ACTIVE, INACTIVE, SUSPENDED",
             exception.message,
@@ -154,9 +155,7 @@ class UpdateUserStatusServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
-                updateUserStatusService.updateUserStatus(command)
-            }
+            assertThrows<IllegalArgumentException> { updateUserStatusService.updateUserStatus(command) }
 
         assertEquals("Tenant ID cannot be blank", exception.message)
     }
@@ -173,9 +172,7 @@ class UpdateUserStatusServiceTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
-                updateUserStatusService.updateUserStatus(command)
-            }
+            assertThrows<IllegalArgumentException> { updateUserStatusService.updateUserStatus(command) }
 
         assertEquals("User ID cannot be blank", exception.message)
     }

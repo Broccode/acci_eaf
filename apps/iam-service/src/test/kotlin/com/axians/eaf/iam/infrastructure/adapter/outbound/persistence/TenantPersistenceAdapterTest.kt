@@ -26,8 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Transactional
 @Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 class TenantPersistenceAdapterTest {
-    @Autowired
-    private lateinit var tenantPersistenceAdapter: TenantPersistenceAdapter
+    @Autowired private lateinit var tenantPersistenceAdapter: TenantPersistenceAdapter
 
     @Test
     fun `should save tenant with admin successfully`() {

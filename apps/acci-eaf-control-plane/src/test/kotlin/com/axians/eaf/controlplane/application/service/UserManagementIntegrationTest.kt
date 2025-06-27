@@ -48,8 +48,7 @@ class UserManagementIntegrationTest {
             val createdTenant =
                 when (tenantResult) {
                     is CreateTenantResult.Success -> tenantResult
-                    is CreateTenantResult.Failure ->
-                        fail("Tenant creation failed: ${tenantResult.message}")
+                    is CreateTenantResult.Failure -> fail("Tenant creation failed: ${tenantResult.message}")
                 }
 
             assertEquals("Acme Corporation", createdTenant.tenantName)
@@ -114,8 +113,7 @@ class UserManagementIntegrationTest {
             val tenant =
                 when (tenantResult) {
                     is CreateTenantResult.Success -> tenantResult
-                    is CreateTenantResult.Failure ->
-                        fail("Tenant creation failed: ${tenantResult.message}")
+                    is CreateTenantResult.Failure -> fail("Tenant creation failed: ${tenantResult.message}")
                 }
 
             // Test successful user creation
@@ -131,8 +129,7 @@ class UserManagementIntegrationTest {
             val user =
                 when (userResult) {
                     is CreateUserResult.Success -> userResult
-                    is CreateUserResult.Failure ->
-                        fail("User creation failed: ${userResult.message}")
+                    is CreateUserResult.Failure -> fail("User creation failed: ${userResult.message}")
                 }
 
             assertEquals("valid@test.com", user.email)
@@ -152,8 +149,7 @@ class UserManagementIntegrationTest {
             val tenant =
                 when (tenantResult) {
                     is CreateTenantResult.Success -> tenantResult
-                    is CreateTenantResult.Failure ->
-                        fail("Tenant creation failed: ${tenantResult.message}")
+                    is CreateTenantResult.Failure -> fail("Tenant creation failed: ${tenantResult.message}")
                 }
 
             val userResult =
@@ -168,8 +164,7 @@ class UserManagementIntegrationTest {
             val user =
                 when (userResult) {
                     is CreateUserResult.Success -> userResult
-                    is CreateUserResult.Failure ->
-                        fail("User creation failed: ${userResult.message}")
+                    is CreateUserResult.Failure -> fail("User creation failed: ${userResult.message}")
                 }
 
             // Basic validation
@@ -202,15 +197,13 @@ class UserManagementIntegrationTest {
             val tenant1 =
                 when (tenant1Result) {
                     is CreateTenantResult.Success -> tenant1Result
-                    is CreateTenantResult.Failure ->
-                        fail("Tenant1 creation failed: ${tenant1Result.message}")
+                    is CreateTenantResult.Failure -> fail("Tenant1 creation failed: ${tenant1Result.message}")
                 }
 
             val tenant2 =
                 when (tenant2Result) {
                     is CreateTenantResult.Success -> tenant2Result
-                    is CreateTenantResult.Failure ->
-                        fail("Tenant2 creation failed: ${tenant2Result.message}")
+                    is CreateTenantResult.Failure -> fail("Tenant2 creation failed: ${tenant2Result.message}")
                 }
 
             // Create users in different tenants
@@ -226,8 +219,7 @@ class UserManagementIntegrationTest {
                         )
                     when (result) {
                         is CreateUserResult.Success -> result
-                        is CreateUserResult.Failure ->
-                            fail("User creation failed: ${result.message}")
+                        is CreateUserResult.Failure -> fail("User creation failed: ${result.message}")
                     }
                 }
 
@@ -243,8 +235,7 @@ class UserManagementIntegrationTest {
                         )
                     when (result) {
                         is CreateUserResult.Success -> result
-                        is CreateUserResult.Failure ->
-                            fail("User creation failed: ${result.message}")
+                        is CreateUserResult.Failure -> fail("User creation failed: ${result.message}")
                     }
                 }
 

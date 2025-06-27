@@ -2,7 +2,6 @@ package com.axians.eaf.controlplane.domain.model.user
 
 /**
  * Represents the current status of a user in the system.
- *
  * - PENDING: User has been created but hasn't activated their account
  * - ACTIVE: User is operational and can access services
  * - SUSPENDED: User access is temporarily disabled

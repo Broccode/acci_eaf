@@ -34,7 +34,7 @@ class EafCoroutineContextTest {
             val element = SecurityContextElement()
 
             // When
-            withContext(element) {
+            withContext<Unit>(element) {
                 // Then
                 assertSame(securityContext, SecurityContextHolder.getContext())
             }
@@ -49,7 +49,7 @@ class EafCoroutineContextTest {
             val element = CorrelationIdElement()
 
             // When
-            withContext(element) {
+            withContext<Unit>(element) {
                 // Then
                 assertEquals(correlationId, CorrelationIdManager.getCurrentCorrelationId())
             }
@@ -66,7 +66,7 @@ class EafCoroutineContextTest {
             val element = EafContextElement()
 
             // When
-            withContext(element) {
+            withContext<Unit>(element) {
                 // Then
                 assertSame(securityContext, SecurityContextHolder.getContext())
                 assertEquals(correlationId, CorrelationIdManager.getCurrentCorrelationId())
@@ -103,7 +103,7 @@ class EafCoroutineContextTest {
             val newCorrelationId = "new-correlation-id"
 
             // When
-            withContext(EafContextElement(newSecurityContext, newCorrelationId)) {
+            withContext<Unit>(EafContextElement(newSecurityContext, newCorrelationId)) {
                 // Verify new context is active
                 assertSame(newSecurityContext, SecurityContextHolder.getContext())
                 assertEquals(newCorrelationId, CorrelationIdManager.getCurrentCorrelationId())
@@ -129,7 +129,7 @@ class EafCoroutineContextTest {
             // When/Then
             assertThrows(RuntimeException::class.java) {
                 runBlocking {
-                    withContext(EafContextElement(newSecurityContext, newCorrelationId)) {
+                    withContext<Unit>(EafContextElement(newSecurityContext, newCorrelationId)) {
                         throw RuntimeException("Test exception")
                     }
                 }
@@ -148,7 +148,7 @@ class EafCoroutineContextTest {
             val newCorrelationId = "new-correlation-id"
 
             // When
-            withContext(EafContextElement(newSecurityContext, newCorrelationId)) {
+            withContext<Unit>(EafContextElement(newSecurityContext, newCorrelationId)) {
                 // Verify new context is active
                 assertSame(newSecurityContext, SecurityContextHolder.getContext())
                 assertEquals(newCorrelationId, CorrelationIdManager.getCurrentCorrelationId())
@@ -172,7 +172,7 @@ class EafCoroutineContextTest {
 
         // Then
         runBlocking {
-            withContext(element) {
+            withContext<Unit>(element) {
                 assertSame(securityContext, SecurityContextHolder.getContext())
                 assertEquals(correlationId, CorrelationIdManager.getCurrentCorrelationId())
             }
@@ -189,7 +189,7 @@ class EafCoroutineContextTest {
             CorrelationIdManager.setCorrelationId(correlationId)
 
             // When/Then
-            withContext(coroutineContext.withEafContext()) {
+            withContext<Unit>(coroutineContext.withEafContext()) {
                 assertSame(securityContext, SecurityContextHolder.getContext())
                 assertEquals(correlationId, CorrelationIdManager.getCurrentCorrelationId())
             }

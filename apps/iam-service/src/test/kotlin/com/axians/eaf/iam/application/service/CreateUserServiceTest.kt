@@ -69,10 +69,7 @@ class CreateUserServiceTest {
         every { saveTenantPort.existsByEmail("existing@example.com") } returns true
 
         // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                createUserService.createUser(command)
-            }
+        val exception = assertThrows<IllegalArgumentException> { createUserService.createUser(command) }
 
         assertEquals("User with email existing@example.com already exists", exception.message)
         verify { saveTenantPort.existsByEmail("existing@example.com") }
@@ -90,10 +87,7 @@ class CreateUserServiceTest {
             )
 
         // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                createUserService.createUser(command)
-            }
+        val exception = assertThrows<IllegalArgumentException> { createUserService.createUser(command) }
 
         assertEquals("Tenant ID cannot be blank", exception.message)
     }
@@ -109,10 +103,7 @@ class CreateUserServiceTest {
             )
 
         // When & Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                createUserService.createUser(command)
-            }
+        val exception = assertThrows<IllegalArgumentException> { createUserService.createUser(command) }
 
         assertEquals("Email cannot be blank", exception.message)
     }

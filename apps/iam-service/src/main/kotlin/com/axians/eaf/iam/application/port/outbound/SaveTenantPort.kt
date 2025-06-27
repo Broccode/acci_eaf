@@ -5,8 +5,8 @@ import com.axians.eaf.iam.domain.model.Tenant
 import com.axians.eaf.iam.domain.model.User
 
 /**
- * Outbound port interface for persisting tenant and user data.
- * This defines what the application needs from external persistence systems.
+ * Outbound port interface for persisting tenant and user data. This defines what the application
+ * needs from external persistence systems.
  */
 interface SaveTenantPort : OutboundPort {
     /**
@@ -38,9 +38,7 @@ interface SaveTenantPort : OutboundPort {
     fun existsByEmail(email: String): Boolean
 }
 
-/**
- * Result object for tenant and admin save operation.
- */
+/** Result object for tenant and admin save operation. */
 data class SaveTenantResult(
     val savedTenant: Tenant,
     val savedTenantAdmin: User,

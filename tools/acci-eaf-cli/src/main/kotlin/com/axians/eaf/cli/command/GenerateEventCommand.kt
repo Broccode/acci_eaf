@@ -38,7 +38,9 @@ class GenerateEventCommand : Runnable {
             val currentDir = File(System.getProperty("user.dir"))
             val generator = EventGenerator(currentDir)
 
-            println("Generating event '$eventName' for aggregate '$aggregateName' in service '$serviceName'...")
+            println(
+                "Generating event '$eventName' for aggregate '$aggregateName' in service '$serviceName'...",
+            )
             generator.generateEvent(eventName, aggregateName, serviceName)
             println("✅ Event '$eventName' generated successfully!")
         } catch (e: Exception) {

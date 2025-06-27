@@ -34,23 +34,17 @@ import java.util.UUID
 @SpringBootTest(classes = [TestIamServiceApplication::class])
 @AutoConfigureMockMvc
 class UserWebAdapterTest {
-    @Autowired
-    private lateinit var mockMvc: MockMvc
+    @Autowired private lateinit var mockMvc: MockMvc
 
-    @MockkBean
-    private lateinit var createUserUseCase: CreateUserUseCase
+    @MockkBean private lateinit var createUserUseCase: CreateUserUseCase
 
-    @MockkBean
-    private lateinit var listUsersInTenantUseCase: ListUsersInTenantUseCase
+    @MockkBean private lateinit var listUsersInTenantUseCase: ListUsersInTenantUseCase
 
-    @MockkBean
-    private lateinit var updateUserStatusUseCase: UpdateUserStatusUseCase
+    @MockkBean private lateinit var updateUserStatusUseCase: UpdateUserStatusUseCase
 
-    @MockkBean
-    private lateinit var securityContextHolder: EafSecurityContextHolder
+    @MockkBean private lateinit var securityContextHolder: EafSecurityContextHolder
 
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    @Autowired private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setUp() {
@@ -121,8 +115,7 @@ class UserWebAdapterTest {
         // When & Then
         mockMvc
             .perform(
-                get("/api/v1/tenants/tenant-123/users")
-                    .with(user("testuser").roles("TENANT_ADMIN")),
+                get("/api/v1/tenants/tenant-123/users").with(user("testuser").roles("TENANT_ADMIN")),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.tenantId").value("tenant-123"))
             .andExpect(jsonPath("$.users").isArray)
@@ -182,8 +175,7 @@ class UserWebAdapterTest {
         // When & Then
         mockMvc
             .perform(
-                get("/api/v1/tenants/tenant-123/users")
-                    .with(user("testuser").roles("USER")),
+                get("/api/v1/tenants/tenant-123/users").with(user("testuser").roles("USER")),
             ).andExpect(status().isForbidden)
     }
 

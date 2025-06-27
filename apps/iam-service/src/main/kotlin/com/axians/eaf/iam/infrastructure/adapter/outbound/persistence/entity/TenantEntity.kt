@@ -13,18 +13,13 @@ import java.time.Instant
 @Entity
 @Table(name = "tenants")
 data class TenantEntity(
-    @Id
-    @Column(name = "tenant_id", nullable = false, unique = true)
-    val tenantId: String,
-    @Column(name = "name", nullable = false, length = 255, unique = true)
-    val name: String,
+    @Id @Column(name = "tenant_id", nullable = false, unique = true) val tenantId: String,
+    @Column(name = "name", nullable = false, length = 255, unique = true) val name: String,
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     val status: TenantStatus,
-    @Column(name = "created_at", nullable = false)
-    val createdAt: Instant,
-    @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant,
+    @Column(name = "created_at", nullable = false) val createdAt: Instant,
+    @Column(name = "updated_at", nullable = false) val updatedAt: Instant,
 )
 
 fun TenantEntity.toDomain(): Tenant =

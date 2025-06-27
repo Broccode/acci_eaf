@@ -110,8 +110,8 @@ class UserInvitationEndpoint(
     }
 
     /**
-     * Accept an invitation using the secure token. This endpoint is accessible without
-     * authentication for new users.
+     * Accept an invitation using the secure token. This endpoint is accessible without authentication
+     * for new users.
      */
     @AnonymousAllowed
     suspend fun acceptInvitation(
@@ -137,8 +137,8 @@ class UserInvitationEndpoint(
     }
 
     /**
-     * List invitations with optional filtering and pagination. Tenant admins can only see
-     * invitations for their tenant.
+     * List invitations with optional filtering and pagination. Tenant admins can only see invitations
+     * for their tenant.
      */
     suspend fun listInvitations(
         email: String? = null,
@@ -155,9 +155,9 @@ class UserInvitationEndpoint(
                     status =
                         status?.let {
                             try {
-                                com.axians.eaf.controlplane.domain.model.invitation
-                                    .InvitationStatus
-                                    .valueOf(it)
+                                com.axians.eaf.controlplane.domain.model.invitation.InvitationStatus.valueOf(
+                                    it,
+                                )
                             } catch (e: IllegalArgumentException) {
                                 throw EndpointException("Invalid status value: $it")
                             }
@@ -173,8 +173,7 @@ class UserInvitationEndpoint(
             return when (result) {
                 is InvitationResult.Success<*> -> {
                     @Suppress("UNCHECKED_CAST")
-                    result.data
-                        as PagedResponse<InvitationSummary>
+                    result.data as PagedResponse<InvitationSummary>
                 }
                 is InvitationResult.Error -> throw EndpointException(result.message)
             }

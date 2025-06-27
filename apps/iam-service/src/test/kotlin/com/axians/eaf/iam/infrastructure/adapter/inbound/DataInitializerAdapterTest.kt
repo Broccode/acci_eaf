@@ -19,9 +19,8 @@ class DataInitializerAdapterTest {
         val properties = SystemInitializationProperties(initializeDefaultTenant = true)
         val adapter = DataInitializerAdapter(systemInitializationService, properties)
 
-        every {
-            systemInitializationService.initializeDefaultTenantIfRequired()
-        } returns InitializationResult(wasInitialized = true, message = "TestTenant")
+        every { systemInitializationService.initializeDefaultTenantIfRequired() } returns
+            InitializationResult(wasInitialized = true, message = "TestTenant")
 
         // When
         adapter.run(applicationArguments)
@@ -49,9 +48,8 @@ class DataInitializerAdapterTest {
         val properties = SystemInitializationProperties(initializeDefaultTenant = true)
         val adapter = DataInitializerAdapter(systemInitializationService, properties)
 
-        every {
-            systemInitializationService.initializeDefaultTenantIfRequired()
-        } throws RuntimeException("Database connection failed")
+        every { systemInitializationService.initializeDefaultTenantIfRequired() } throws
+            RuntimeException("Database connection failed")
 
         // When & Then - should not throw exception
         adapter.run(applicationArguments)

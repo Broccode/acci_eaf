@@ -93,11 +93,11 @@ echo ""
 
 # Step 3: Kotlin formatting check (like GitLab CI)
 echo "🎨 Step 3: Kotlin formatting check..."
-if npx nx affected --base=$NX_BASE --head=$NX_HEAD -t spotlessCheck; then
+if npx nx affected --base=$NX_BASE --head=$NX_HEAD -t ktlintCheck; then
     echo "✅ Kotlin formatting check passed"
 else
     echo "❌ Kotlin formatting check failed"
-    echo "💡 Run 'npx nx affected -t spotlessApply' to fix Kotlin formatting"
+    echo "💡 Run 'npx nx affected -t ktlintFormat' to fix Kotlin formatting"
     exit 1
 fi
 

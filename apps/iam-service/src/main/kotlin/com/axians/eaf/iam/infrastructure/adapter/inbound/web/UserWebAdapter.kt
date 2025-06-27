@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
- * Web adapter for user management operations.
- * Provides REST endpoints for creating, listing, and updating users within tenants.
- * This is an inbound adapter that translates HTTP requests to use case calls.
+ * Web adapter for user management operations. Provides REST endpoints for creating, listing, and
+ * updating users within tenants. This is an inbound adapter that translates HTTP requests to use
+ * case calls.
  */
 @RestController
 @RequestMapping("/api/v1/tenants/{tenantId}/users")
@@ -36,6 +36,7 @@ class UserWebAdapter(
 ) {
     /**
      * Validates that the authenticated user can access the specified tenant.
+     *
      * @param tenantId the tenant ID from the path parameter
      * @throws IllegalArgumentException if the user cannot access the tenant
      */
@@ -48,10 +49,7 @@ class UserWebAdapter(
         }
     }
 
-    /**
-     * Create a new user within a tenant.
-     * Only TENANT_ADMIN users can create new users.
-     */
+    /** Create a new user within a tenant. Only TENANT_ADMIN users can create new users. */
     @PostMapping
     @PreAuthorize("hasRole('ROLE_TENANT_ADMIN')")
     fun createUser(
@@ -80,8 +78,8 @@ class UserWebAdapter(
     }
 
     /**
-     * List all users within a specific tenant.
-     * Only TENANT_ADMIN users can list users in their tenant.
+     * List all users within a specific tenant. Only TENANT_ADMIN users can list users in their
+     * tenant.
      */
     @GetMapping
     @PreAuthorize("hasRole('ROLE_TENANT_ADMIN')")
@@ -111,8 +109,7 @@ class UserWebAdapter(
     }
 
     /**
-     * Update the status of a user within a tenant.
-     * Only TENANT_ADMIN users can update user status.
+     * Update the status of a user within a tenant. Only TENANT_ADMIN users can update user status.
      */
     @PutMapping("/{userId}/status")
     @PreAuthorize("hasRole('ROLE_TENANT_ADMIN')")
@@ -175,8 +172,7 @@ data class UserSummaryResponse(
 )
 
 data class UpdateUserStatusRequest(
-    @field:NotBlank(message = "New status cannot be blank")
-    val newStatus: String,
+    @field:NotBlank(message = "New status cannot be blank") val newStatus: String,
 )
 
 data class UpdateUserStatusResponse(

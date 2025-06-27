@@ -41,9 +41,8 @@ class SystemInitializationServiceTest {
 
         every { saveTenantPort.existsByTenantName("TestTenant") } returns false
         every { saveTenantPort.existsByEmail("admin@test.com") } returns false
-        every {
-            saveTenantPort.saveTenantWithAdmin(capture(tenantSlot), capture(userSlot))
-        } returns SaveTenantResult(savedTenant, savedUser)
+        every { saveTenantPort.saveTenantWithAdmin(capture(tenantSlot), capture(userSlot)) } returns
+            SaveTenantResult(savedTenant, savedUser)
 
         // When
         val result = systemInitializationService.initializeDefaultTenantIfRequired()
@@ -93,7 +92,10 @@ class SystemInitializationServiceTest {
 
         // Then
         assertFalse(result.wasInitialized)
-        assertEquals("System already initialized - superadmin email 'admin@test.com' exists", result.message)
+        assertEquals(
+            "System already initialized - superadmin email 'admin@test.com' exists",
+            result.message,
+        )
 
         verify { saveTenantPort.existsByTenantName("TestTenant") }
         verify { saveTenantPort.existsByEmail("admin@test.com") }
@@ -105,9 +107,8 @@ class SystemInitializationServiceTest {
         // Given
         every { saveTenantPort.existsByTenantName("TestTenant") } returns false
         every { saveTenantPort.existsByEmail("admin@test.com") } returns false
-        every {
-            saveTenantPort.saveTenantWithAdmin(any(), any())
-        } throws RuntimeException("Database error")
+        every { saveTenantPort.saveTenantWithAdmin(any(), any()) } throws
+            RuntimeException("Database error")
 
         // When & Then
         assertThrows<RuntimeException> {
@@ -129,9 +130,8 @@ class SystemInitializationServiceTest {
 
         every { saveTenantPort.existsByTenantName("TestTenant") } returns false
         every { saveTenantPort.existsByEmail("admin@test.com") } returns false
-        every {
-            saveTenantPort.saveTenantWithAdmin(capture(tenantSlot), capture(userSlot))
-        } returns SaveTenantResult(savedTenant, savedUser)
+        every { saveTenantPort.saveTenantWithAdmin(capture(tenantSlot), capture(userSlot)) } returns
+            SaveTenantResult(savedTenant, savedUser)
 
         // When
         systemInitializationService.initializeDefaultTenantIfRequired()

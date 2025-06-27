@@ -56,21 +56,16 @@ class EafNatsHealthIndicator(
                         "connectivity" to "error",
                         "error" to
                             mapOf(
-                                "exceptionType" to
-                                    exception::class.simpleName,
-                                "message" to
-                                    (
-                                        exception.message
-                                            ?: "Unknown error"
-                                    ),
+                                "exceptionType" to exception::class.simpleName,
+                                "message" to (exception.message ?: "Unknown error"),
                             ),
                     ),
             )
         }
 
     /**
-     * Performs comprehensive NATS connection health check. Checks connection status, server info,
-     * and JetStream availability.
+     * Performs comprehensive NATS connection health check. Checks connection status, server info, and
+     * JetStream availability.
      */
     private fun performNatsHealthCheck(): Map<String, Any> {
         val connectionStatus = natsConnection.status

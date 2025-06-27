@@ -23,8 +23,7 @@ import java.util.UUID
 @Transactional
 @Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 class UserPersistenceAdapterTest {
-    @Autowired
-    private lateinit var userPersistenceAdapter: UserPersistenceAdapter
+    @Autowired private lateinit var userPersistenceAdapter: UserPersistenceAdapter
 
     @Test
     fun `should save and find user by id`() {
@@ -41,7 +40,8 @@ class UserPersistenceAdapterTest {
 
         // When
         val savedUser = userPersistenceAdapter.saveUser(user)
-        val foundUser = userPersistenceAdapter.findUserByIdAndTenantId(savedUser.userId, savedUser.tenantId)
+        val foundUser =
+            userPersistenceAdapter.findUserByIdAndTenantId(savedUser.userId, savedUser.tenantId)
 
         // Then
         assertNotNull(foundUser)

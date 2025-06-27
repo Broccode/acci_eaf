@@ -14,17 +14,22 @@ package com.axians.eaf.controlplane.infrastructure.security.annotation
  * 5. Allow tenant administrators to access only their own tenant
  *
  * @param tenantIdParamName The name of the parameter containing the target tenant ID.
+ *
  * ```
  *                          Defaults to "tenantId". The aspect will look for this parameter
  *                          in the method arguments to determine the target tenant.
  * @param allowGlobalAccess
  * ```
+ *
  * Whether to allow global administrators to bypass tenant restrictions.
+ *
  * ```
  *                          Defaults to true.
  * @param auditAccess
  * ```
+ *
  * Whether to log access attempts to the audit trail.
+ *
  * ```
  *                    Defaults to true for security monitoring.
  * ```
@@ -46,10 +51,12 @@ annotation class RequiresTenantAccess(
  *
  * @param roles The roles required to access this method
  * @param requireAll Whether all roles are required (AND) or any role is sufficient (OR).
+ *
  * ```
  *                   Defaults to false (OR logic).
  * @param auditAccess
  * ```
+ *
  * Whether to log access attempts. Defaults to true.
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
@@ -68,16 +75,20 @@ annotation class RequiresRoles(
  *
  * @param permissions The permissions required to access this method
  * @param requireAll Whether all permissions are required (AND) or any permission is sufficient
- * (OR).
+ *   (OR).
+ *
  * ```
  *                   Defaults to false (OR logic).
  * @param tenantScoped
  * ```
+ *
  * Whether permissions should be validated within tenant scope.
+ *
  * ```
  *                     Defaults to true.
  * @param auditAccess
  * ```
+ *
  * Whether to log access attempts. Defaults to true.
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)

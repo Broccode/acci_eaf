@@ -24,10 +24,10 @@ class MonitoringConfiguration {
     /** CircuitBreaker registry for resilience patterns */
     @Bean fun circuitBreakerRegistry(): CircuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults()
 
-    /*
-     * NATS connection for messaging health checks Note: This is a basic configuration - should be
-     * enhanced with proper connection pooling. Temporarily disabled to fix compilation issues
-     */
+  /*
+   * NATS connection for messaging health checks Note: This is a basic configuration - should be
+   * enhanced with proper connection pooling. Temporarily disabled to fix compilation issues
+   */
 
     // @Bean
     // fun natsConnection(): Connection {

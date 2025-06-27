@@ -15,8 +15,8 @@ import java.util.UUID
 @Repository
 interface JpaRoleRepository : JpaRepository<RoleEntity, UUID> {
     /**
-     * Find a role by name within a specific scope and tenant. For platform roles, tenantId should
-     * be null.
+     * Find a role by name within a specific scope and tenant. For platform roles, tenantId should be
+     * null.
      */
     fun findByNameAndScopeAndTenantId(
         name: String,

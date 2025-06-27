@@ -26,8 +26,7 @@ class SecurityMonitoringConfiguration {
         securityAuditLogger: SecurityAuditLogger,
     ): SecurityEventListener = SecurityEventListener(meterRegistry, securityAuditLogger)
 
-    @Bean
-    fun securityAuditLogger(): SecurityAuditLogger = SecurityAuditLogger()
+    @Bean fun securityAuditLogger(): SecurityAuditLogger = SecurityAuditLogger()
 
     @Bean
     fun securityMetrics(meterRegistry: MeterRegistry): SecurityMetrics = SecurityMetrics(meterRegistry)
@@ -329,10 +328,7 @@ class SecurityMetrics(
     }
 
     fun incrementLoginAttempts(clientIp: String): Long =
-        loginAttemptsByIp
-            .computeIfAbsent(clientIp) {
-                AtomicLong(0)
-            }.incrementAndGet()
+        loginAttemptsByIp.computeIfAbsent(clientIp) { AtomicLong(0) }.incrementAndGet()
 
     fun resetLoginAttempts(clientIp: String) {
         loginAttemptsByIp.remove(clientIp)

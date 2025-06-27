@@ -6,15 +6,16 @@ import picocli.CommandLine
     name = "generate",
     description = ["Generate EAF components and services"],
     mixinStandardHelpOptions = true,
-    subcommands = [
-        GenerateServiceCommand::class,
-        GenerateAggregateCommand::class,
-        GenerateCommandCommand::class,
-        GenerateEventCommand::class,
-        GenerateProjectorCommand::class,
-        GenerateFrontendViewCommand::class,
-        GenerateFrontendComponentCommand::class,
-    ],
+    subcommands =
+        [
+            GenerateServiceCommand::class,
+            GenerateAggregateCommand::class,
+            GenerateCommandCommand::class,
+            GenerateEventCommand::class,
+            GenerateProjectorCommand::class,
+            GenerateFrontendViewCommand::class,
+            GenerateFrontendComponentCommand::class,
+        ],
 )
 class GenerateCommand : Runnable {
     override fun run() {

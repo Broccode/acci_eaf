@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 /**
- * JPA Repository for Tenant entities.
- * Provides database operations for tenant management with proper tenant isolation.
+ * JPA Repository for Tenant entities. Provides database operations for tenant management with
+ * proper tenant isolation.
  */
 @Repository
 interface TenantJpaRepository : JpaRepository<TenantEntity, String> {

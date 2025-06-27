@@ -37,8 +37,7 @@ class IamUserRepositoryAdapter(
         val request = HttpEntity(user.toIamRequest(), headers)
 
         val response = restTemplate.postForObject<IamUserResponse>(url, request)
-        return response?.toDomainUser()
-            ?: throw RuntimeException("Failed to save user to IAM service")
+        return response?.toDomainUser() ?: throw RuntimeException("Failed to save user to IAM service")
     }
 
     override suspend fun findById(userId: UserId): User? =
@@ -131,8 +130,7 @@ class IamUserRepositoryAdapter(
             val request = HttpEntity(userIds.map { it.value }, headers)
 
             val responses =
-                restTemplate.postForObject<List<IamUserResponse>>(url, request)
-                    ?: emptyList()
+                restTemplate.postForObject<List<IamUserResponse>>(url, request) ?: emptyList()
             responses.map { it.toDomainUser() }
         } catch (e: Exception) {
             emptyList()
@@ -151,8 +149,7 @@ class IamUserRepositoryAdapter(
         status: UserStatus,
     ): Long =
         try {
-            val url =
-                "$iamServiceUrl/api/users/count/by-tenant/${tenantId.value}?status=$status"
+            val url = "$iamServiceUrl/api/users/count/by-tenant/${tenantId.value}?status=$status"
             restTemplate.getForObject<Long>(url) ?: 0L
         } catch (e: Exception) {
             0L

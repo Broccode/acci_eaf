@@ -2,7 +2,6 @@ package com.axians.eaf.controlplane.domain.model.tenant
 
 /**
  * Represents the current status of a tenant in the system.
- *
  * - ACTIVE: Tenant is operational and users can access services
  * - SUSPENDED: Tenant access is temporarily disabled
  * - ARCHIVED: Tenant is permanently disabled but data is retained

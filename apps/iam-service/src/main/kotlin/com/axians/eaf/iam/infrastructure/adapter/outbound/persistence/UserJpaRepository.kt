@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 /**
- * JPA Repository for User entities.
- * Provides database operations for user management with proper tenant isolation.
+ * JPA Repository for User entities. Provides database operations for user management with proper
+ * tenant isolation.
  */
 @Repository
 interface UserJpaRepository : JpaRepository<UserEntity, String> {
@@ -51,7 +51,9 @@ interface UserJpaRepository : JpaRepository<UserEntity, String> {
      * @param tenantId The tenant ID
      * @return The user if found, null otherwise
      */
-    @Query("SELECT u FROM UserEntity u WHERE LOWER(u.email) = LOWER(:email) AND u.tenantId = :tenantId")
+    @Query(
+        "SELECT u FROM UserEntity u WHERE LOWER(u.email) = LOWER(:email) AND u.tenantId = :tenantId",
+    )
     fun findByEmailAndTenantIdIgnoreCase(
         @Param("email") email: String,
         @Param("tenantId") tenantId: String,

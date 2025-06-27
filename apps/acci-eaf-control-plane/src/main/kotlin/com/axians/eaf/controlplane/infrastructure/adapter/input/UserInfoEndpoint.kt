@@ -19,8 +19,7 @@ class UserInfoEndpoint {
     // private lateinit var eafSecurityContextHolder: EafSecurityContextHolder
 
     /**
-     * Get current authenticated user information with tenant context. Requires valid
-     * authentication.
+     * Get current authenticated user information with tenant context. Requires valid authentication.
      */
     @PreAuthorize("isAuthenticated()")
     fun getCurrentUser(): UserInfoResponse =
@@ -47,20 +46,15 @@ class UserInfoEndpoint {
                         roles = userRoles,
                         tenantId = tenantId,
                         tenantName = "Demo Tenant Corporation",
-                        lastLoginAt =
-                            Instant
-                                .now()
-                                .minusSeconds(300), // 5 minutes ago
+                        lastLoginAt = Instant.now().minusSeconds(300), // 5 minutes ago
                         accountStatus = "ACTIVE",
                     ),
                 permissions =
                     UserPermissions(
-                        canCreateTenants =
-                            userRoles.contains("SUPER_ADMIN"),
+                        canCreateTenants = userRoles.contains("SUPER_ADMIN"),
                         canManageUsers = userRoles.contains("TENANT_ADMIN"),
                         canViewAuditLogs = true,
-                        canModifyConfiguration =
-                            userRoles.contains("SUPER_ADMIN"),
+                        canModifyConfiguration = userRoles.contains("SUPER_ADMIN"),
                     ),
                 metadata =
                     ResponseMetadata(
@@ -113,10 +107,7 @@ class UserInfoEndpoint {
             )
         }
 
-    /**
-     * Update user preferences with validation. Demonstrates input validation and error
-     * handling.
-     */
+    /** Update user preferences with validation. Demonstrates input validation and error handling. */
     @PreAuthorize("isAuthenticated()")
     fun updateUserPreferences(request: UpdatePreferencesRequest): UserPreferencesResponse =
         try {
@@ -136,12 +127,8 @@ class UserInfoEndpoint {
                         timezone = request.timezone ?: "UTC",
                         dateFormat = request.dateFormat ?: "yyyy-MM-dd",
                         itemsPerPage = request.itemsPerPage ?: 25,
-                        enableNotifications =
-                            request.enableNotifications
-                                ?: true,
-                        dashboardLayout =
-                            request.dashboardLayout
-                                ?: emptyMap(),
+                        enableNotifications = request.enableNotifications ?: true,
+                        dashboardLayout = request.dashboardLayout ?: emptyMap(),
                     ),
                 metadata =
                     ResponseMetadata(

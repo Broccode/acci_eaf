@@ -143,10 +143,7 @@ data class RoleDto(
                 description = role.description,
                 scope = role.scope,
                 tenantId = role.tenantId?.value,
-                permissions =
-                    role.permissions
-                        .map { PermissionDto.fromDomain(it) }
-                        .toList(),
+                permissions = role.permissions.map { PermissionDto.fromDomain(it) }.toList(),
             )
     }
 }
@@ -301,9 +298,7 @@ data class BulkUserUpdateRequest(
     val reason: String? = null,
 ) {
     init {
-        require(userIds.toSet().size == userIds.size) {
-            "Duplicate user IDs are not allowed"
-        }
+        require(userIds.toSet().size == userIds.size) { "Duplicate user IDs are not allowed" }
         require(userIds.all { it.isNotBlank() }) { "User IDs cannot be blank" }
     }
 

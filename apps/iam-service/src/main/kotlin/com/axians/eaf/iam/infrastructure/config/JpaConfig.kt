@@ -5,6 +5,10 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @Configuration
-@EnableJpaRepositories(basePackages = ["com.axians.eaf.iam.infrastructure.adapter.outbound.persistence"])
-@EntityScan(basePackages = ["com.axians.eaf.iam.infrastructure.adapter.outbound.persistence.entity"])
+@EnableJpaRepositories(
+    basePackages = ["com.axians.eaf.iam.infrastructure.adapter.outbound.persistence"],
+)
+@EntityScan(
+    basePackages = ["com.axians.eaf.iam.infrastructure.adapter.outbound.persistence.entity"],
+)
 class JpaConfig

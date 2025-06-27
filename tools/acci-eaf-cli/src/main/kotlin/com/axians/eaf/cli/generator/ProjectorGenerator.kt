@@ -32,7 +32,14 @@ class ProjectorGenerator(
         val packageName = "com.axians.eaf.${serviceName.replace("-", "")}"
 
         // Generate Projector class
-        generateProjectorFile(serviceDir, packagePath, packageName, projectorName, eventName, serviceName)
+        generateProjectorFile(
+            serviceDir,
+            packagePath,
+            packageName,
+            projectorName,
+            eventName,
+            serviceName,
+        )
 
         println("Generated projector '$projectorName' for event '$eventName' in service '$serviceName'")
     }
@@ -45,10 +52,12 @@ class ProjectorGenerator(
         eventName: String,
         serviceName: String,
     ) {
-        val projectorContent = templateEngine.generateProjector(packageName, projectorName, eventName, serviceName)
+        val projectorContent =
+            templateEngine.generateProjector(packageName, projectorName, eventName, serviceName)
 
         // Create projector in the infrastructure/adapter/input/messaging package
-        val projectorDir = File(serviceDir, "src/main/kotlin/$packagePath/infrastructure/adapter/input/messaging")
+        val projectorDir =
+            File(serviceDir, "src/main/kotlin/$packagePath/infrastructure/adapter/input/messaging")
         projectorDir.mkdirs()
 
         File(projectorDir, "$projectorName.kt").writeText(projectorContent)

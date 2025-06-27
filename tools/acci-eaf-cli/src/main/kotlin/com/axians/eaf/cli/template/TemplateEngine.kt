@@ -711,7 +711,5 @@ private fun String.toSnakeCase(): String =
         "// TODO: Implement frontend component template for $componentName"
 }
 
-/**
- * Extension function to convert PascalCase to snake_case
- */
+/** Extension function to convert PascalCase to snake_case */
 private fun String.toSnakeCase(): String = this.replace(Regex("([a-z])([A-Z])"), "$1_$2").lowercase()

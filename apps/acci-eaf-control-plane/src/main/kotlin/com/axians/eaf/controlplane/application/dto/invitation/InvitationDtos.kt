@@ -61,9 +61,7 @@ data class InvitationResponse(
 
 /** Request to accept an invitation. */
 data class AcceptInvitationRequest(
-    @field:NotBlank(message = "Token is required")
-    @field:JsonProperty("token")
-    val token: String,
+    @field:NotBlank(message = "Token is required") @field:JsonProperty("token") val token: String,
     @field:NotBlank(message = "Password is required")
     @field:Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters")
     @field:JsonProperty("password")

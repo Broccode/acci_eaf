@@ -4,8 +4,8 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * User aggregate root representing a user within a specific tenant in the EAF system.
- * This entity contains pure business logic and has no infrastructure dependencies.
+ * User aggregate root representing a user within a specific tenant in the EAF system. This entity
+ * contains pure business logic and has no infrastructure dependencies.
  */
 data class User(
     val userId: String = UUID.randomUUID().toString(),
@@ -30,9 +30,7 @@ data class User(
     companion object {
         private fun isValidEmail(email: String): Boolean = email.contains("@") && email.length <= 320
 
-        /**
-         * Factory method to create an initial Tenant Administrator.
-         */
+        /** Factory method to create an initial Tenant Administrator. */
         fun createTenantAdmin(
             tenantId: String,
             email: String,
@@ -50,8 +48,8 @@ data class User(
         }
 
         /**
-         * Factory method to create a SuperAdmin user.
-         * SuperAdmins have system-wide privileges and are associated with a tenant.
+         * Factory method to create a SuperAdmin user. SuperAdmins have system-wide privileges and are
+         * associated with a tenant.
          */
         fun createSuperAdmin(
             tenantId: String,
@@ -69,9 +67,7 @@ data class User(
             )
         }
 
-        /**
-         * Factory method to create a regular user within a tenant.
-         */
+        /** Factory method to create a regular user within a tenant. */
         fun createUser(
             tenantId: String,
             email: String,
@@ -91,36 +87,28 @@ data class User(
         }
     }
 
-    /**
-     * Domain method to activate the user account.
-     */
+    /** Domain method to activate the user account. */
     fun activate(): User =
         copy(
             status = UserStatus.ACTIVE,
             updatedAt = Instant.now(),
         )
 
-    /**
-     * Domain method to deactivate the user account.
-     */
+    /** Domain method to deactivate the user account. */
     fun deactivate(): User =
         copy(
             status = UserStatus.INACTIVE,
             updatedAt = Instant.now(),
         )
 
-    /**
-     * Domain method to suspend the user account.
-     */
+    /** Domain method to suspend the user account. */
     fun suspend(): User =
         copy(
             status = UserStatus.SUSPENDED,
             updatedAt = Instant.now(),
         )
 
-    /**
-     * Domain method to set the password hash.
-     */
+    /** Domain method to set the password hash. */
     fun setPasswordHash(passwordHash: String): User {
         require(passwordHash.isNotBlank()) { "Password hash cannot be blank" }
         require(passwordHash.length >= 60) { "Password hash appears to be invalid (too short)" }
@@ -131,43 +119,31 @@ data class User(
         )
     }
 
-    /**
-     * Domain method to record successful login.
-     */
+    /** Domain method to record successful login. */
     fun recordLogin(): User =
         copy(
             lastLogin = Instant.now(),
             updatedAt = Instant.now(),
         )
 
-    /**
-     * Domain method to check if user is active.
-     */
+    /** Domain method to check if user is active. */
     fun isActive(): Boolean = status == UserStatus.ACTIVE
 
-    /**
-     * Domain method to check if user is a tenant administrator.
-     */
+    /** Domain method to check if user is a tenant administrator. */
     fun isTenantAdmin(): Boolean = role == UserRole.TENANT_ADMIN
 
-    /**
-     * Domain method to check if user is a super administrator.
-     */
+    /** Domain method to check if user is a super administrator. */
     fun isSuperAdmin(): Boolean = role == UserRole.SUPER_ADMIN
 }
 
-/**
- * Enum representing the possible roles of a user.
- */
+/** Enum representing the possible roles of a user. */
 enum class UserRole {
     SUPER_ADMIN,
     TENANT_ADMIN,
     USER,
 }
 
-/**
- * Enum representing the possible states of a user.
- */
+/** Enum representing the possible states of a user. */
 enum class UserStatus {
     PENDING_ACTIVATION,
     ACTIVE,

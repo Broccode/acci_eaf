@@ -32,8 +32,7 @@ data class AuditEntryEntity(
     val details: String = "{}",
     @Column(name = "timestamp", nullable = false) val timestamp: Instant,
     @Column(name = "ip_address", nullable = false, length = 45) val ipAddress: String,
-    @Column(name = "user_agent", nullable = false, columnDefinition = "TEXT")
-    val userAgent: String,
+    @Column(name = "user_agent", nullable = false, columnDefinition = "TEXT") val userAgent: String,
     @Enumerated(EnumType.STRING)
     @Column(name = "severity", nullable = false, length = 20)
     val severity: AuditSeverity = AuditSeverity.INFO,

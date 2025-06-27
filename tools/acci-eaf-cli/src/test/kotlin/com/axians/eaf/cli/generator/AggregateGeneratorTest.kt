@@ -8,8 +8,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class AggregateGeneratorTest {
-    @TempDir
-    lateinit var tempDir: File
+    @TempDir lateinit var tempDir: File
 
     private lateinit var generator: AggregateGenerator
 
@@ -18,12 +17,13 @@ class AggregateGeneratorTest {
         generator = AggregateGenerator(tempDir)
 
         // Create a basic settings.gradle.kts for testing
-        File(tempDir, "settings.gradle.kts").writeText(
-            """
-            rootProject.name = "test-project"
-            include(":apps:test-service")
-            """.trimIndent(),
-        )
+        File(tempDir, "settings.gradle.kts")
+            .writeText(
+                """
+                rootProject.name = "test-project"
+                include(":apps:test-service")
+                """.trimIndent(),
+            )
 
         // Create a basic service structure
         val serviceDir = File(tempDir, "apps/test-service")
@@ -41,19 +41,28 @@ class AggregateGeneratorTest {
 
         // Check that command file is created
         val commandFile =
-            File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/domain/command/CreateUserCommand.kt")
+            File(
+                serviceDir,
+                "src/main/kotlin/com/axians/eaf/testservice/domain/command/CreateUserCommand.kt",
+            )
         assertThat(commandFile).exists()
 
         // Check that event file is created
-        val eventFile = File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/domain/event/UserCreatedEvent.kt")
+        val eventFile =
+            File(
+                serviceDir,
+                "src/main/kotlin/com/axians/eaf/testservice/domain/event/UserCreatedEvent.kt",
+            )
         assertThat(eventFile).exists()
 
         // Check that aggregate file is created
-        val aggregateFile = File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt")
+        val aggregateFile =
+            File(serviceDir, "src/main/kotlin/com/axians/eaf/testservice/domain/model/User.kt")
         assertThat(aggregateFile).exists()
 
         // Check that test file is created
-        val testFile = File(serviceDir, "src/test/kotlin/com/axians/eaf/testservice/domain/model/UserTest.kt")
+        val testFile =
+            File(serviceDir, "src/test/kotlin/com/axians/eaf/testservice/domain/model/UserTest.kt")
         assertThat(testFile).exists()
     }
 
@@ -104,7 +113,10 @@ class AggregateGeneratorTest {
 
         // Then
         val aggregateFile =
-            File(tempDir, "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/Customer.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/main/kotlin/com/axians/eaf/testservice/domain/model/Customer.kt",
+            )
         val content = aggregateFile.readText()
 
         assertThat(content).contains("package com.axians.eaf.testservice.domain.model")
@@ -124,7 +136,10 @@ class AggregateGeneratorTest {
 
         // Then
         val testFile =
-            File(tempDir, "apps/test-service/src/test/kotlin/com/axians/eaf/testservice/domain/model/AccountTest.kt")
+            File(
+                tempDir,
+                "apps/test-service/src/test/kotlin/com/axians/eaf/testservice/domain/model/AccountTest.kt",
+            )
         val content = testFile.readText()
 
         assertThat(content).contains("package com.axians.eaf.testservice.domain.model")
@@ -139,9 +154,8 @@ class AggregateGeneratorTest {
     @Test
     fun `should throw exception when service directory does not exist`() {
         // When & Then
-        assertThatThrownBy {
-            generator.generateAggregate("User", "non-existent-service")
-        }.isInstanceOf(IllegalStateException::class.java)
+        assertThatThrownBy { generator.generateAggregate("User", "non-existent-service") }
+            .isInstanceOf(IllegalStateException::class.java)
             .hasMessageContaining("Service directory does not exist")
     }
 }

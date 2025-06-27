@@ -23,16 +23,15 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Transactional
 @Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 @TestPropertySource(
-    properties = [
-        "eaf.system.initialize-default-tenant=false",
-    ],
+    properties =
+        [
+            "eaf.system.initialize-default-tenant=false",
+        ],
 )
 class SystemInitializationIntegrationTest {
-    @Autowired
-    private lateinit var tenantJpaRepository: TenantJpaRepository
+    @Autowired private lateinit var tenantJpaRepository: TenantJpaRepository
 
-    @Autowired
-    private lateinit var userJpaRepository: UserJpaRepository
+    @Autowired private lateinit var userJpaRepository: UserJpaRepository
 
     @Test
     fun `should not initialize default tenant when disabled`() {

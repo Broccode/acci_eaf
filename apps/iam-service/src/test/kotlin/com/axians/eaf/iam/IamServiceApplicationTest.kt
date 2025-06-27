@@ -15,8 +15,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Import(JpaConfig::class, PostgresTestcontainerConfiguration::class)
 class IamServiceApplicationTest {
     companion object {
-        @Container
-        val postgresContainer = PostgresTestcontainerConfiguration().postgresContainer()
+        @Container val postgresContainer = PostgresTestcontainerConfiguration().postgresContainer()
     }
 
     @Test

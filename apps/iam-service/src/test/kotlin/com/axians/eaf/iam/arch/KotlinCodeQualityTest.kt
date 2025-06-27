@@ -7,13 +7,11 @@ import org.junit.jupiter.api.Test
 /**
  * ArchUnit tests to enforce Kotlin coding standards and architectural patterns for the IAM service.
  *
- * These tests are introduced step by step to ensure clean architecture and coding standards.
- * Each test enforces specific rules that help maintain code quality and architectural integrity.
+ * These tests are introduced step by step to ensure clean architecture and coding standards. Each
+ * test enforces specific rules that help maintain code quality and architectural integrity.
  */
 class KotlinCodeQualityTest {
-    private val iamClasses =
-        ClassFileImporter()
-            .importPackages("com.axians.eaf.iam")
+    private val iamClasses = ClassFileImporter().importPackages("com.axians.eaf.iam")
 
     // ========================================
     // STEP 1: Domain Layer Independence

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class ProjectorGeneratorTest {
-    @TempDir
-    lateinit var tempDir: File
+    @TempDir lateinit var tempDir: File
 
     private lateinit var generator: ProjectorGenerator
 
@@ -18,12 +17,13 @@ class ProjectorGeneratorTest {
         generator = ProjectorGenerator(tempDir)
 
         // Create a basic settings.gradle.kts for testing
-        File(tempDir, "settings.gradle.kts").writeText(
-            """
-            rootProject.name = "test-project"
-            include(":apps:test-service")
-            """.trimIndent(),
-        )
+        File(tempDir, "settings.gradle.kts")
+            .writeText(
+                """
+                rootProject.name = "test-project"
+                include(":apps:test-service")
+                """.trimIndent(),
+            )
 
         // Create service directories for all tests
         createServiceDirectory("test-service")
@@ -73,12 +73,16 @@ class ProjectorGeneratorTest {
 
         assertThat(
             content,
-        ).contains("package com.axians.eaf.usermanagementservice.infrastructure.adapter.input.messaging")
+        ).contains(
+            "package com.axians.eaf.usermanagementservice.infrastructure.adapter.input.messaging",
+        )
         assertThat(content).contains("@Component")
         assertThat(content).contains("class OrderReportProjector")
-        assertThat(content).contains("@NatsJetStreamListener(\"events.user.management.service.order_completed\")")
+        assertThat(content)
+            .contains("@NatsJetStreamListener(\"events.user.management.service.order_completed\")")
         assertThat(content).contains("fun handle(event: OrderCompleted)")
-        assertThat(content).contains("logger.info(\"Processing OrderCompleted for aggregate: {}\", event.aggregateId)")
+        assertThat(content)
+            .contains("logger.info(\"Processing OrderCompleted for aggregate: {}\", event.aggregateId)")
     }
 
     @Test
@@ -94,8 +98,10 @@ class ProjectorGeneratorTest {
             )
         val content = projectorFile.readText()
 
-        // Check that service name is converted from "notification-service" to "notification.service" in NATS subject
-        assertThat(content).contains("@NatsJetStreamListener(\"events.notification.service.email_sent\")")
+        // Check that service name is converted from "notification-service" to "notification.service" in
+        // NATS subject
+        assertThat(content)
+            .contains("@NatsJetStreamListener(\"events.notification.service.email_sent\")")
         assertThat(content).contains("fun handle(event: EmailSent)")
     }
 
@@ -113,7 +119,8 @@ class ProjectorGeneratorTest {
         val content = projectorFile.readText()
 
         // Check that event name is converted from "UserProfileUpdated" to "user_profile_updated"
-        assertThat(content).contains("@NatsJetStreamListener(\"events.user.service.user_profile_updated\")")
+        assertThat(content)
+            .contains("@NatsJetStreamListener(\"events.user.service.user_profile_updated\")")
         assertThat(content).contains("fun handle(event: UserProfileUpdated)")
     }
 
@@ -133,7 +140,8 @@ class ProjectorGeneratorTest {
         assertThat(content).contains("import com.axians.eaf.eventing.NatsJetStreamListener")
         assertThat(content).contains("import org.slf4j.LoggerFactory")
         assertThat(content).contains("import org.springframework.stereotype.Component")
-        assertThat(content).contains("private val logger = LoggerFactory.getLogger(PaymentProjector::class.java)")
+        assertThat(content)
+            .contains("private val logger = LoggerFactory.getLogger(PaymentProjector::class.java)")
     }
 
     @Test

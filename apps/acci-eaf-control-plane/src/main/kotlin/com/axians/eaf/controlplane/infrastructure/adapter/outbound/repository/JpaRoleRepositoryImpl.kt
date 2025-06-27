@@ -28,9 +28,7 @@ class JpaRoleRepositoryImpl(
         val permissionEntities =
             role.permissions
                 .mapNotNull { permission ->
-                    jpaPermissionRepository
-                        .findById(UUID.fromString(permission.id.value))
-                        .orElse(null)
+                    jpaPermissionRepository.findById(UUID.fromString(permission.id.value)).orElse(null)
                 }.toSet()
 
         // Create role entity with permissions
@@ -112,14 +110,10 @@ class JpaRoleRepositoryImpl(
             .orElse(null)
 
     override suspend fun findAllPermissions(): List<Permission> =
-        jpaPermissionRepository.findAllOrderedByResourceAndAction().map {
-            it.toDomain()
-        }
+        jpaPermissionRepository.findAllOrderedByResourceAndAction().map { it.toDomain() }
 
     override suspend fun findPermissionsByResource(resource: String): List<Permission> =
-        jpaPermissionRepository.findByResource(resource).map {
-            it.toDomain()
-        }
+        jpaPermissionRepository.findByResource(resource).map { it.toDomain() }
 
     override suspend fun existsPermissionById(permissionId: PermissionId): Boolean =
         jpaPermissionRepository.existsById(UUID.fromString(permissionId.value))

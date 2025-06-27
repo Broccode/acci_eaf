@@ -35,7 +35,14 @@ class EventGenerator(
         generateEventFile(serviceDir, packagePath, packageName, eventName, aggregateName)
 
         // Add event sourcing handler to existing Aggregate
-        addEventSourcingHandlerToAggregate(serviceDir, packagePath, packageName, eventName, aggregateName, serviceName)
+        addEventSourcingHandlerToAggregate(
+            serviceDir,
+            packagePath,
+            packageName,
+            eventName,
+            aggregateName,
+            serviceName,
+        )
 
         println("Generated event '$eventName' and added handler to aggregate '$aggregateName'")
     }
@@ -62,7 +69,8 @@ class EventGenerator(
         aggregateName: String,
         serviceName: String,
     ) {
-        val aggregateFile = File(serviceDir, "src/main/kotlin/$packagePath/domain/model/$aggregateName.kt")
+        val aggregateFile =
+            File(serviceDir, "src/main/kotlin/$packagePath/domain/model/$aggregateName.kt")
 
         if (!aggregateFile.exists()) {
             throw IllegalStateException(

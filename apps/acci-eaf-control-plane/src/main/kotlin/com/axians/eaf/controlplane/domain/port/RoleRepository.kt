@@ -30,8 +30,7 @@ interface RoleRepository {
     ): List<Role>
 
     /**
-     * Finds all roles for a specific tenant (includes both tenant-scoped and platform-scoped
-     * roles).
+     * Finds all roles for a specific tenant (includes both tenant-scoped and platform-scoped roles).
      */
     suspend fun findRolesByTenantId(tenantId: TenantId): List<Role>
 

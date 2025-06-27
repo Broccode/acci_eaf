@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 /**
- * Application service for updating user status within a tenant.
- * This service handles user activation, deactivation, and suspension.
+ * Application service for updating user status within a tenant. This service handles user
+ * activation, deactivation, and suspension.
  */
 @Service
 class UpdateUserStatusService(

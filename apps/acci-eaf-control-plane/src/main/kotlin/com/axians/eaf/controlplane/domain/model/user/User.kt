@@ -29,9 +29,7 @@ data class User(
         require(firstName.length <= 50) {
             "First name cannot exceed 50 characters: ${firstName.length}"
         }
-        require(lastName.length <= 50) {
-            "Last name cannot exceed 50 characters: ${lastName.length}"
-        }
+        require(lastName.length <= 50) { "Last name cannot exceed 50 characters: ${lastName.length}" }
         require(lastModified >= createdAt) { "Last modified cannot be before created date" }
         require(status != UserStatus.ACTIVE || activatedAt != null) {
             "Active users must have an activation date"

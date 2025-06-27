@@ -34,8 +34,8 @@ class ControlPlaneHealthEndpoint(
         )
 
     /**
-     * Comprehensive health check including EAF service connectivity. Tests actual connectivity to
-     * IAM and NATS services.
+     * Comprehensive health check including EAF service connectivity. Tests actual connectivity to IAM
+     * and NATS services.
      */
     fun getDetailedHealth(): DetailedHealthResponse {
         val overallStatus = mutableListOf<String>()

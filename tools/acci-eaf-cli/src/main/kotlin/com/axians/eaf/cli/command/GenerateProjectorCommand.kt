@@ -13,9 +13,10 @@ import kotlin.system.exitProcess
 class GenerateProjectorCommand : Runnable {
     @CommandLine.Parameters(
         index = "0",
-        description = [
-            "The name of the projector to generate (e.g., 'UserReadModelProjector', 'OrderReportProjector')",
-        ],
+        description =
+            [
+                "The name of the projector to generate (e.g., 'UserReadModelProjector', 'OrderReportProjector')",
+            ],
     )
     lateinit var projectorName: String
 
@@ -40,7 +41,9 @@ class GenerateProjectorCommand : Runnable {
             val currentDir = File(System.getProperty("user.dir"))
             val generator = ProjectorGenerator(currentDir)
 
-            println("Generating projector '$projectorName' for event '$eventName' in service '$serviceName'...")
+            println(
+                "Generating projector '$projectorName' for event '$eventName' in service '$serviceName'...",
+            )
             generator.generateProjector(projectorName, eventName, serviceName)
             println("✅ Projector '$projectorName' generated successfully!")
         } catch (e: Exception) {

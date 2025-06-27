@@ -23,11 +23,9 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Transactional
 @Import(PostgresTestcontainerConfiguration::class, JpaConfig::class)
 class SystemInitializationEnabledIntegrationTest {
-    @Autowired
-    private lateinit var tenantJpaRepository: TenantJpaRepository
+    @Autowired private lateinit var tenantJpaRepository: TenantJpaRepository
 
-    @Autowired
-    private lateinit var userJpaRepository: UserJpaRepository
+    @Autowired private lateinit var userJpaRepository: UserJpaRepository
 
     @Test
     fun `should initialize default tenant and admin user when enabled`() {

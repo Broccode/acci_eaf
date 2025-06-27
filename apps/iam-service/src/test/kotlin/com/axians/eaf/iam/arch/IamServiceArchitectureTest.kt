@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test
 /**
  * ArchUnit tests specific to the IAM Service.
  *
- * This test class extends the base EAF architectural rules with
- * IAM-specific requirements and constraints.
+ * This test class extends the base EAF architectural rules with IAM-specific requirements and
+ * constraints.
  */
 class IamServiceArchitectureTest {
     private val iamClasses = ClassFileImporter().importPackages("com.axians.eaf.iam")

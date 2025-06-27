@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 /**
- * Application service that implements the Create Tenant use case.
- * This service orchestrates the domain logic and uses outbound ports for external interactions.
+ * Application service that implements the Create Tenant use case. This service orchestrates the
+ * domain logic and uses outbound ports for external interactions.
  */
 @Service
 @Transactional

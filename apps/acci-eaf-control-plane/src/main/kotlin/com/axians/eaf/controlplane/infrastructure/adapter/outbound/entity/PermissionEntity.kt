@@ -18,8 +18,7 @@ import java.util.UUID
 @Table(
     name = "permissions",
     uniqueConstraints = [UniqueConstraint(name = "uk_permission_name", columnNames = ["name"])],
-    indexes =
-        [Index(name = "idx_permissions_resource_action", columnList = "resource, action")],
+    indexes = [Index(name = "idx_permissions_resource_action", columnList = "resource, action")],
 )
 class PermissionEntity(
     @Id @Column(name = "id", columnDefinition = "UUID") val id: UUID = UUID.randomUUID(),

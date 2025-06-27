@@ -14,8 +14,10 @@ import org.testcontainers.junit.jupiter.Testcontainers
 
 /**
  * Integration test for Hilla endpoints within Spring Boot context. This test verifies that
+ *
  * @BrowserCallable endpoints are properly registered and can be called within the Spring
- * application context. Uses PostgreSQL with Testcontainers for proper database integration testing.
+ *   application context. Uses PostgreSQL with Testcontainers for proper database integration
+ *   testing.
  */
 @SpringBootTest(classes = [ControlPlaneApplication::class])
 @Testcontainers

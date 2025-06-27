@@ -40,8 +40,7 @@ class RoleService(
 
         // Check if role name already exists in the same scope/tenant
         if (roleRepository.existsRoleByName(name, scope, parsedTenantId)) {
-            val scopeDescription =
-                if (scope == RoleScope.PLATFORM) "platform" else "tenant $tenantId"
+            val scopeDescription = if (scope == RoleScope.PLATFORM) "platform" else "tenant $tenantId"
             return CreateRoleResult.failure(
                 "Role with name '$name' already exists in $scopeDescription",
             )

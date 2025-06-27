@@ -38,7 +38,9 @@ class GenerateCommandCommand : Runnable {
             val currentDir = File(System.getProperty("user.dir"))
             val generator = CommandGenerator(currentDir)
 
-            println("Generating command '$commandName' for aggregate '$aggregateName' in service '$serviceName'...")
+            println(
+                "Generating command '$commandName' for aggregate '$aggregateName' in service '$serviceName'...",
+            )
             generator.generateCommand(commandName, aggregateName, serviceName)
             println("✅ Command '$commandName' generated successfully!")
         } catch (e: Exception) {

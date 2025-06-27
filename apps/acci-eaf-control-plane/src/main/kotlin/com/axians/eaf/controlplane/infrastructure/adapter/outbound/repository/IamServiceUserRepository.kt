@@ -88,8 +88,7 @@ class IamServiceUserRepository(
                         response.users.filter { user ->
                             (filter.status == null || user.status == filter.status.name) &&
                                 run {
-                                    val searchTerm =
-                                        filter.emailPattern ?: filter.namePattern
+                                    val searchTerm = filter.emailPattern ?: filter.namePattern
                                     if (searchTerm == null) {
                                         true
                                     } else {
@@ -162,9 +161,7 @@ class IamServiceUserRepository(
         withContext(Dispatchers.IO) {
             try {
                 val response = iamServiceClient.listUsers(tenantId.value)
-                response.users.filter { it.status == status.name }.map {
-                    convertToUser(it, tenantId)
-                }
+                response.users.filter { it.status == status.name }.map { convertToUser(it, tenantId) }
             } catch (e: Exception) {
                 emptyList()
             }

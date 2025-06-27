@@ -163,8 +163,7 @@ class InvitationService(
 
             // Send email
             val invitationUrl = "$invitationLinkBaseUrl?token=${savedInvitation.token.value}"
-            val emailResult =
-                emailService.sendInvitationReminderEmail(savedInvitation, invitationUrl)
+            val emailResult = emailService.sendInvitationReminderEmail(savedInvitation, invitationUrl)
 
             val event =
                 InvitationEvent.InvitationResent(

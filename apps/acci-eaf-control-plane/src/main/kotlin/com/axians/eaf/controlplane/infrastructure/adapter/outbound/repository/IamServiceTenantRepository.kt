@@ -32,7 +32,8 @@ class IamServiceTenantRepository(
                     CreateTenantRequest(
                         tenantName = tenant.name,
                         initialAdminEmail =
-                            "admin@${tenant.name.lowercase().replace(" ", "")}.com", // TODO: Get from tenant settings
+                            "admin@${tenant.name.lowercase().replace(" ", "")}.com", // TODO: Get from
+                        // tenant settings
                     )
                 val response = iamServiceClient.createTenant(request)
 

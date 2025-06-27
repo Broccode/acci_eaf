@@ -48,10 +48,8 @@ class EafIamHealthIndicator(
                             "serviceUrl" to eafIamProperties.serviceUrl,
                             "connectivity" to "available",
                             "responseTimeMs" to responseTime,
-                            "healthEndpoint" to
-                                "${eafIamProperties.serviceUrl}$HEALTH_ENDPOINT",
-                            "responseStatus" to
-                                (healthResponse["status"] ?: "unknown"),
+                            "healthEndpoint" to "${eafIamProperties.serviceUrl}$HEALTH_ENDPOINT",
+                            "responseStatus" to (healthResponse["status"] ?: "unknown"),
                         ),
                 )
             } else {
@@ -92,8 +90,7 @@ class EafIamHealthIndicator(
                     mapOf(
                         "serviceUrl" to eafIamProperties.serviceUrl,
                         "connectivity" to "error",
-                        "healthEndpoint" to
-                            "${eafIamProperties.serviceUrl}$HEALTH_ENDPOINT",
+                        "healthEndpoint" to "${eafIamProperties.serviceUrl}$HEALTH_ENDPOINT",
                         "error" to errorDetails,
                     ),
             )
@@ -115,8 +112,7 @@ class EafIamHealthIndicator(
             val healthUrl = "${eafIamProperties.serviceUrl}$HEALTH_ENDPOINT"
 
             @Suppress("UNCHECKED_CAST")
-            val response =
-                restTemplate.getForObject(healthUrl, Map::class.java) as? Map<String, Any>
+            val response = restTemplate.getForObject(healthUrl, Map::class.java) as? Map<String, Any>
 
             response
         } catch (e: Exception) {

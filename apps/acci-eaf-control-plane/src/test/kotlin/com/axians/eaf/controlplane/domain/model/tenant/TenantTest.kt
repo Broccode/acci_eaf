@@ -111,9 +111,7 @@ class TenantTest {
 
         // When & Then
         val exception =
-            assertThrows<IllegalArgumentException> {
-                tenant.updateDetails("New Name", validSettings)
-            }
+            assertThrows<IllegalArgumentException> { tenant.updateDetails("New Name", validSettings) }
         assertTrue(exception.message!!.contains("Cannot update archived tenant"))
     }
 

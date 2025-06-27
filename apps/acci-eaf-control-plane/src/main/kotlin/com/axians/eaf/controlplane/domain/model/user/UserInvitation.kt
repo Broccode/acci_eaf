@@ -90,9 +90,7 @@ data class UserInvitation(
      * @throws IllegalStateException if the invitation cannot be accepted
      */
     fun accept(): UserInvitation {
-        require(canBeAccepted()) {
-            "Cannot accept invitation: status=$status, expired=${isExpired()}"
-        }
+        require(canBeAccepted()) { "Cannot accept invitation: status=$status, expired=${isExpired()}" }
 
         return copy(
             status = UserInvitationStatus.ACCEPTED,

@@ -116,23 +116,23 @@ class ControlPlaneMetrics(
     private val activeSessions = AtomicLong(0)
 
     init {
-        /*
-        TODO: Fix gauge registration - temporarily disabled to resolve compilation
+    /*
+    TODO: Fix gauge registration - temporarily disabled to resolve compilation
 
-        Register gauges for current system state using simple function references
+    Register gauges for current system state using simple function references
 
-        Gauge.builder("eaf.controlplane.tenants.active.current")
-                .description("Current number of active tenants")
-                .register(meterRegistry) { activeTenants.get().toDouble() }
+    Gauge.builder("eaf.controlplane.tenants.active.current")
+            .description("Current number of active tenants")
+            .register(meterRegistry) { activeTenants.get().toDouble() }
 
-        Gauge.builder("eaf.controlplane.users.active.current")
-                .description("Current number of active users")
-                .register(meterRegistry) { activeUsers.get().toDouble() }
+    Gauge.builder("eaf.controlplane.users.active.current")
+            .description("Current number of active users")
+            .register(meterRegistry) { activeUsers.get().toDouble() }
 
-        Gauge.builder("eaf.controlplane.sessions.active.current")
-                .description("Current number of active sessions")
-                .register(meterRegistry) { activeSessions.get().toDouble() }
-         */
+    Gauge.builder("eaf.controlplane.sessions.active.current")
+            .description("Current number of active sessions")
+            .register(meterRegistry) { activeSessions.get().toDouble() }
+     */
     }
 
     // Tenant Management Operations
