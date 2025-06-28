@@ -186,9 +186,11 @@ fun natsEventProcessorConfiguration(): EventProcessingConfigurer {
 
 1. Deploy new event-driven audit system alongside existing
 2. Use feature flags to control rollout:
+
    ```kotlin
    @ConditionalOnProperty("eaf.audit.event-driven.enabled")
    ```
+
 3. Monitor both systems for consistency
 4. Gradually migrate tenants
 
