@@ -115,7 +115,7 @@ CHECK (payload_type IS NOT NULL AND LENGTH(TRIM(payload_type)) > 0);
 -- Add constraint for payload_revision format
 ALTER TABLE domain_events
 ADD CONSTRAINT chk_payload_revision_format
-CHECK (payload_revision IS NOT NULL AND payload_revision ~ '^[0-9]+\\.[0-9]+$');
+CHECK (payload_revision IS NOT NULL AND payload_revision ~ '^[0-9]+\.[0-9]+$');
 
 -- Analyze table to update statistics for query planner
 ANALYZE domain_events;
