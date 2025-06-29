@@ -33,10 +33,9 @@ Confirm with the user their preferred interaction style:
 
 ### 3. Execute Template
 
-- Load specified template from `templates#*` or the `.bmad-core/templates directory`
+- Load specified template from `templates#*` or the /templates directory
 - Follow ALL embedded LLM instructions within the template
-- Process template markup according to `utils#template-format` or `.bmad-core/utils/template-format`
-  conventions
+- Process template markup according to `utils#template-format` conventions
 
 ### 4. Template Processing Rules
 

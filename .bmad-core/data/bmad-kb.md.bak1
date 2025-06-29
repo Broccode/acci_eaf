@@ -822,7 +822,7 @@ focused on development.
 ### Using Expansion Packs
 
 1. **Browse Available Packs**: Check `expansion-packs/` directory
-2. **Get Inspiration**: See `docs/expansion-packs.md` for detailed examples and ideas
+2. **Get Inspiration**: See `docs/expansion-pack-ideas.md` for detailed examples
 3. **Install via CLI**:
    ```bash
    npx bmad-method install
