@@ -6,8 +6,8 @@ import com.axians.eaf.eventsourcing.model.PersistedEvent
 /**
  * Port interface for event store repository operations.
  *
- * This interface defines the contract for persisting and retrieving events and snapshots
- * from the event store with strict tenant isolation.
+ * This interface defines the contract for persisting and retrieving events and snapshots from the
+ * event store with strict tenant isolation.
  */
 interface EventStoreRepository {
     /**
@@ -21,8 +21,10 @@ interface EventStoreRepository {
      * @param aggregateId The aggregate identifier
      * @param expectedVersion The expected current version (last sequence number) of the aggregate
      *
-     * @throws OptimisticLockingFailureException if the expected version doesn't match the current version
-     * @throws IllegalArgumentException if events are empty or belong to different aggregates/tenants
+     * @throws OptimisticLockingFailureException if the expected version doesn't match the current
+     * version
+     * @throws IllegalArgumentException if events are empty or belong to different
+     * aggregates/tenants
      */
     suspend fun appendEvents(
         events: List<PersistedEvent>,
@@ -64,6 +66,35 @@ interface EventStoreRepository {
         fromSequenceNumber: Long,
         toSequenceNumber: Long? = null,
     ): List<PersistedEvent>
+
+    /**
+     * Retrieves events from the global event stream starting from a specific global sequence ID.
+     *
+     * This method is used by TrackingEventProcessor for event streaming across all aggregates
+     * within a tenant.
+     *
+     * @param tenantId The tenant identifier for isolation
+     * @param fromGlobalSequence The starting global sequence ID (exclusive)
+     * @param batchSize Maximum number of events to retrieve
+     *
+     * @return List of events ordered by global sequence ID
+     */
+    suspend fun readEventsFrom(
+        tenantId: String,
+        fromGlobalSequence: Long,
+        batchSize: Int = 100,
+    ): List<PersistedEvent>
+
+    /**
+     * Gets the highest global sequence ID for events in the specified tenant.
+     *
+     * This is used to create head tokens for TrackingEventProcessor.
+     *
+     * @param tenantId The tenant identifier for isolation
+     *
+     * @return The maximum global sequence ID or 0 if no events exist
+     */
+    suspend fun getMaxGlobalSequence(tenantId: String): Long
 
     /**
      * Saves or updates a snapshot for the specified aggregate.

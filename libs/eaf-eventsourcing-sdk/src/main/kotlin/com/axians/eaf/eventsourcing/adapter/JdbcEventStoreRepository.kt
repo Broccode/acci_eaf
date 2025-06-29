@@ -28,7 +28,8 @@ class JdbcEventStoreRepository(
 ) : EventStoreRepository {
     companion object {
         // Event queries
-        private const val INSERT_EVENT_SQL = """
+        private const val INSERT_EVENT_SQL =
+            """
             INSERT INTO domain_events (
                 event_id, stream_id, aggregate_id, aggregate_type, expected_version,
                 sequence_number, tenant_id, event_type, payload, metadata, timestamp_utc
@@ -38,7 +39,8 @@ class JdbcEventStoreRepository(
             )
         """
 
-        private const val SELECT_EVENTS_SQL = """
+        private const val SELECT_EVENTS_SQL =
+            """
             SELECT global_sequence_id, event_id, stream_id, aggregate_id, aggregate_type,
                    expected_version, sequence_number, tenant_id, event_type, payload, metadata, timestamp_utc
             FROM domain_events
@@ -47,7 +49,8 @@ class JdbcEventStoreRepository(
             ORDER BY sequence_number ASC
         """
 
-        private const val SELECT_EVENTS_RANGE_SQL = """
+        private const val SELECT_EVENTS_RANGE_SQL =
+            """
             SELECT global_sequence_id, event_id, stream_id, aggregate_id, aggregate_type,
                    expected_version, sequence_number, tenant_id, event_type, payload, metadata, timestamp_utc
             FROM domain_events
@@ -57,14 +60,34 @@ class JdbcEventStoreRepository(
             ORDER BY sequence_number ASC
         """
 
-        private const val SELECT_CURRENT_VERSION_SQL = """
+        private const val SELECT_CURRENT_VERSION_SQL =
+            """
             SELECT MAX(sequence_number)
             FROM domain_events
             WHERE tenant_id = :tenantId AND aggregate_id = :aggregateId
         """
 
+        // Global streaming queries for TrackingEventProcessor
+        private const val SELECT_EVENTS_FROM_GLOBAL_SEQUENCE_SQL =
+            """
+            SELECT global_sequence_id, event_id, stream_id, aggregate_id, aggregate_type,
+                   expected_version, sequence_number, tenant_id, event_type, payload, metadata, timestamp_utc
+            FROM domain_events
+            WHERE tenant_id = :tenantId AND global_sequence_id > :fromGlobalSequence
+            ORDER BY global_sequence_id ASC
+            LIMIT :batchSize
+        """
+
+        private const val SELECT_MAX_GLOBAL_SEQUENCE_SQL =
+            """
+            SELECT COALESCE(MAX(global_sequence_id), 0)
+            FROM domain_events
+            WHERE tenant_id = :tenantId
+        """
+
         // Snapshot queries
-        private const val INSERT_SNAPSHOT_SQL = """
+        private const val INSERT_SNAPSHOT_SQL =
+            """
             INSERT INTO aggregate_snapshots (
                 aggregate_id, tenant_id, aggregate_type, last_sequence_number,
                 snapshot_payload_jsonb, version, timestamp_utc
@@ -80,7 +103,8 @@ class JdbcEventStoreRepository(
                 timestamp_utc = EXCLUDED.timestamp_utc
         """
 
-        private const val SELECT_SNAPSHOT_SQL = """
+        private const val SELECT_SNAPSHOT_SQL =
+            """
             SELECT id, aggregate_id, tenant_id, aggregate_type, last_sequence_number,
                    snapshot_payload_jsonb, version, timestamp_utc
             FROM aggregate_snapshots
@@ -193,9 +217,38 @@ class JdbcEventStoreRepository(
     override suspend fun getCurrentVersion(
         tenantId: String,
         aggregateId: String,
-    ): Long? =
+    ): Long? = withContext(Dispatchers.IO) { getCurrentVersionInternal(tenantId, aggregateId) }
+
+    override suspend fun readEventsFrom(
+        tenantId: String,
+        fromGlobalSequence: Long,
+        batchSize: Int,
+    ): List<PersistedEvent> =
         withContext(Dispatchers.IO) {
-            getCurrentVersionInternal(tenantId, aggregateId)
+            val parameters =
+                MapSqlParameterSource().apply {
+                    addValue("tenantId", tenantId)
+                    addValue("fromGlobalSequence", fromGlobalSequence)
+                    addValue("batchSize", batchSize)
+                }
+
+            jdbcTemplate.query(
+                SELECT_EVENTS_FROM_GLOBAL_SEQUENCE_SQL,
+                parameters,
+                persistedEventRowMapper,
+            )
+        }
+
+    override suspend fun getMaxGlobalSequence(tenantId: String): Long =
+        withContext(Dispatchers.IO) {
+            val parameters = MapSqlParameterSource().apply { addValue("tenantId", tenantId) }
+
+            jdbcTemplate.queryForObject(
+                SELECT_MAX_GLOBAL_SEQUENCE_SQL,
+                parameters,
+                Long::class.java,
+            )
+                ?: 0L
         }
 
     private fun getCurrentVersionInternal(

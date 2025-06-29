@@ -21,6 +21,12 @@ dependencies {
   implementation(libs.spring.context)
   implementation(libs.spring.boot.autoconfigure)
 
+  // Spring Web for web-related components
+  implementation(libs.spring.web)
+
+  // Micrometer for metrics
+  implementation(libs.micrometer.core)
+
   // Coroutines for async context propagation
   implementation(libs.kotlin.coroutines.core)
 

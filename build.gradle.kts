@@ -16,6 +16,13 @@ allprojects {
 
   repositories {
     mavenCentral()
+    // Sonatype OSS for milestone/snapshot releases
+    maven {
+      url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+    }
+    maven {
+      url = uri("https://oss.sonatype.org/content/repositories/staging/")
+    }
   }
 }
 

@@ -251,6 +251,25 @@ npx nx reset
 
 ---
 
+## 🚀 Recent Updates: Axon Framework 5 Migration
+
+**Epic 4.x Program Status**: ✅ **Foundation Complete** | 🔄 **Implementation in Progress**
+
+### Axon 5.0.0-M2 Integration Completed
+
+The EAF platform has been successfully migrated to **Axon Framework 5.0.0-M2**, establishing the
+foundation for modern event-sourcing capabilities:
+
+- **✅ Core EventStorageEngine**: PostgreSQL-based implementation compatible with Axon 5 API
+- **✅ Multi-tenant Support**: Enhanced tenant isolation with improved context management
+- **✅ Async-First Design**: CompletableFuture and MessageStream integration
+- **✅ Type-Safe Configuration**: Updated Spring Boot auto-configuration for Axon 5
+
+**Next Steps**: Integration testing, database schema optimization, and full Epic 4.x story
+completion.
+
+---
+
 <div align="center">
 
 **Built with ❤️ by the ACCI Engineering Team**
