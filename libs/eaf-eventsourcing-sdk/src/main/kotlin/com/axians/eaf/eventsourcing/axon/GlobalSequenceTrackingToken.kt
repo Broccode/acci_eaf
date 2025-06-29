@@ -15,8 +15,11 @@ data class GlobalSequenceTrackingToken(
 ) : TrackingToken,
     Serializable {
     override fun covers(other: TrackingToken?): Boolean =
-        other == null ||
-            (other is GlobalSequenceTrackingToken && globalSequence >= other.globalSequence)
+        when {
+            other == null -> true
+            other is GlobalSequenceTrackingToken -> globalSequence >= other.globalSequence
+            else -> true // Cover all non-GlobalSequenceTrackingToken types
+        }
 
     override fun upperBound(other: TrackingToken): TrackingToken =
         if (other is GlobalSequenceTrackingToken) {

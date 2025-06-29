@@ -254,7 +254,7 @@ object TenantContextHolder {
  * across coroutine suspension points.
  */
 class TenantCoroutineContext(
-    private val tenantId: String,
+    val tenantId: String,
 ) : CoroutineContext.Element {
     companion object Key : CoroutineContext.Key<TenantCoroutineContext>
 
@@ -263,11 +263,17 @@ class TenantCoroutineContext(
     /** Executes a suspend block with tenant context propagation. */
     suspend fun <T> withTenantContext(block: suspend () -> T): T =
         withContext(this) {
+            val previousTenantId = TenantContextHolder.getCurrentTenantId()
             TenantContextHolder.setCurrentTenantId(tenantId)
             try {
                 block()
             } finally {
-                TenantContextHolder.clear()
+                // Restore previous context instead of clearing
+                if (previousTenantId != null) {
+                    TenantContextHolder.setCurrentTenantId(previousTenantId)
+                } else {
+                    TenantContextHolder.clear()
+                }
             }
         }
 }
@@ -276,4 +282,20 @@ class TenantCoroutineContext(
 suspend fun <T> withTenantContext(
     tenantId: String,
     block: suspend () -> T,
-): T = TenantCoroutineContext(tenantId).withTenantContext(block)
+): T {
+    val tenantContext = TenantCoroutineContext(tenantId)
+    return withContext(tenantContext) {
+        val previousTenantId = TenantContextHolder.getCurrentTenantId()
+        TenantContextHolder.setCurrentTenantId(tenantId)
+        try {
+            block()
+        } finally {
+            // Restore previous context instead of clearing completely
+            if (previousTenantId != null) {
+                TenantContextHolder.setCurrentTenantId(previousTenantId)
+            } else {
+                TenantContextHolder.clear()
+            }
+        }
+    }
+}

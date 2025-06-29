@@ -39,14 +39,15 @@ dependencies {
 
   // Testing
   testImplementation(libs.spring.boot.starter.test)
+  testImplementation(libs.spring.boot.testcontainers)
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.junit.platform.launcher)
+  testImplementation(libs.kotlin.test)
+  testImplementation(libs.kotlin.test.junit5)
   testImplementation(libs.testcontainers.junit.jupiter)
   testImplementation(libs.testcontainers.postgresql)
   testImplementation(libs.mockk)
   testImplementation(libs.axon.test)
-  testImplementation(libs.kotlin.coroutines.test)
-  testImplementation(libs.archunit.junit5)
 }
 
 tasks.withType<Test> {

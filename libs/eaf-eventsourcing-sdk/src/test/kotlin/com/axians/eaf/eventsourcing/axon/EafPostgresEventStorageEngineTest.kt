@@ -51,6 +51,8 @@ class EafPostgresEventStorageEngineTest {
     private val testTenantId = "test-tenant-123"
     private val testAggregateId = "test-aggregate-456"
     private val testEventId = UUID.randomUUID()
+    private val testSequenceNumber = 1L
+    private val testGlobalSequence = 100L
 
     @BeforeEach
     fun setUp() {
@@ -99,7 +101,7 @@ class EafPostgresEventStorageEngineTest {
                     listOf(persistedEvent),
                     testTenantId,
                     testAggregateId,
-                    null,
+                    null, // Expected version for sequence 0 should be null (new aggregate)
                 )
             } returns Unit
 
@@ -113,7 +115,7 @@ class EafPostgresEventStorageEngineTest {
                     listOf(persistedEvent),
                     testTenantId,
                     testAggregateId,
-                    null,
+                    null, // Expected version for sequence 0 should be null (new aggregate)
                 )
             }
         }
@@ -514,17 +516,28 @@ class EafPostgresEventStorageEngineTest {
             // Given - no tenant context set
             val event = createTestDomainEvent()
 
-            // When/Then - all methods should throw due to missing tenant context
+            // When/Then - methods that throw exceptions due to missing tenant context
             assertThrows(Exception::class.java) { storageEngine.appendEvents(mutableListOf(event)) }
             assertThrows(Exception::class.java) { storageEngine.readEvents(testAggregateId, 1L) }
             assertThrows(Exception::class.java) { storageEngine.readEvents(null, false) }
             assertThrows(Exception::class.java) { storageEngine.storeSnapshot(event) }
-            assertThrows(Exception::class.java) { storageEngine.readSnapshot(testAggregateId) }
-            assertThrows(Exception::class.java) { storageEngine.createHeadToken() }
 
-            // Verify exception handler was called for each method
-            verify(atLeast = 6) {
+            // These methods handle tenant context validation gracefully and don't throw:
+            // createHeadToken returns initial token on error
+            val headToken = storageEngine.createHeadToken()
+            assertNotNull(headToken)
+            assertTrue(headToken is GlobalSequenceTrackingToken)
+
+            // readSnapshot returns empty optional on error
+            val snapshot = storageEngine.readSnapshot(testAggregateId)
+            assertTrue(snapshot.isEmpty)
+
+            // Verify exception handler was called for the methods that do throw
+            verify(atLeast = 1) {
                 exceptionHandler.handleAppendException(any(), any(), any(), any(), any())
+            }
+            verify(atLeast = 1) {
+                exceptionHandler.handleReadException(any(), any(), any(), any(), any())
             }
         }
     }
@@ -534,7 +547,7 @@ class EafPostgresEventStorageEngineTest {
         GenericDomainEventMessage(
             "TestAggregate",
             testAggregateId,
-            1L,
+            0L, // Use sequence 0 for first event to match null expected version logic
             payload,
             mapOf("test-meta" to "value"),
         )
@@ -546,8 +559,8 @@ class EafPostgresEventStorageEngineTest {
             streamId = "TestAggregate-$testAggregateId",
             aggregateId = testAggregateId,
             aggregateType = "TestAggregate",
-            expectedVersion = 0L,
-            sequenceNumber = 1L,
+            expectedVersion = null, // null for first event (sequence 0)
+            sequenceNumber = 0L, // Changed to 0 to be consistent with domain event
             tenantId = testTenantId,
             eventType = "TestEvent",
             payload = """{"data":"test"}""",

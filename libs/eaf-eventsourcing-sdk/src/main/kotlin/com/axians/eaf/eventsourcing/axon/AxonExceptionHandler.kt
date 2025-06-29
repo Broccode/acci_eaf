@@ -1,10 +1,12 @@
 package com.axians.eaf.eventsourcing.axon
 
+import com.axians.eaf.core.tenancy.TenantContextException
 import com.axians.eaf.eventsourcing.axon.exception.EventSerializationException
 import com.axians.eaf.eventsourcing.exception.OptimisticLockingFailureException
 import org.axonframework.eventsourcing.eventstore.EventStoreException
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import java.sql.SQLException
 
@@ -68,7 +70,9 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Database operation failed for $operation in tenant $tenantId"
+                val eventInfo = if (eventCount > 0) " $eventCount events" else ""
+                val message =
+                    "Database error during $operation in tenant $tenantId$eventInfo"
                 EventStoreException(message, exception)
             }
             is DataAccessException -> {
@@ -80,7 +84,37 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Data access failed for $operation in tenant $tenantId"
+                val eventInfo = if (eventCount > 0) " $eventCount events" else ""
+                val message =
+                    "Data access error during $operation in tenant $tenantId$eventInfo"
+                EventStoreException(message, exception)
+            }
+            is DataIntegrityViolationException -> {
+                logger.error(
+                    "Data integrity violation during {}: {} - {}",
+                    operation,
+                    context,
+                    exception.message,
+                    exception,
+                )
+
+                val eventInfo = if (eventCount > 0) " $eventCount events" else ""
+                val message =
+                    "Data integrity violation during $operation in tenant $tenantId$eventInfo"
+                EventStoreException(message, exception)
+            }
+            is TenantContextException -> {
+                logger.error(
+                    "Tenant context error during {}: {} - {}",
+                    operation,
+                    context,
+                    exception.message,
+                    exception,
+                )
+
+                val eventInfo = if (eventCount > 0) " $eventCount events" else ""
+                val message =
+                    "Tenant context error during $operation in tenant $tenantId$eventInfo"
                 EventStoreException(message, exception)
             }
             is EventSerializationException -> {
@@ -92,7 +126,9 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Event serialization failed for $operation in tenant $tenantId"
+                val eventInfo = if (eventCount > 0) " $eventCount events" else ""
+                val message =
+                    "Event serialization error during $operation in tenant $tenantId$eventInfo"
                 EventStoreException(message, exception)
             }
             is IllegalArgumentException -> {
@@ -130,7 +166,9 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Unexpected error during $operation in tenant $tenantId"
+                val eventInfo = if (eventCount > 0) " $eventCount events" else ""
+                val message =
+                    "Unexpected error during $operation in tenant $tenantId$eventInfo"
                 EventStoreException(message, exception)
             }
         }
@@ -154,7 +192,12 @@ class AxonExceptionHandler {
         exception: Exception,
     ): RuntimeException {
         val context =
-            buildErrorContext(operation, tenantId, aggregateId, sequenceInfo = sequenceInfo)
+            buildErrorContext(
+                operation,
+                tenantId,
+                aggregateId,
+                sequenceInfo = sequenceInfo,
+            )
 
         return when (exception) {
             is SQLException -> {
@@ -168,7 +211,10 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Database read operation failed for $operation in tenant $tenantId"
+                val aggregateContext = aggregateId?.let { ", aggregate=$it" } ?: ""
+                val sequenceContext = sequenceInfo?.let { " sequence $it" } ?: ""
+                val message =
+                    "Database error during $operation in tenant $tenantId$aggregateContext$sequenceContext"
                 EventStoreException(message, exception)
             }
             is DataAccessException -> {
@@ -180,7 +226,23 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Data access failed for $operation in tenant $tenantId"
+                val sequenceContext = sequenceInfo?.let { " sequence $it" } ?: ""
+                val message =
+                    "Data access error during $operation in tenant $tenantId$sequenceContext"
+                EventStoreException(message, exception)
+            }
+            is TenantContextException -> {
+                logger.error(
+                    "Tenant context error during {}: {} - {}",
+                    operation,
+                    context,
+                    exception.message,
+                    exception,
+                )
+
+                val sequenceContext = sequenceInfo?.let { " sequence $it" } ?: ""
+                val message =
+                    "Tenant context error during $operation in tenant $tenantId$sequenceContext"
                 EventStoreException(message, exception)
             }
             is EventSerializationException -> {
@@ -192,7 +254,9 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Event deserialization failed for $operation in tenant $tenantId"
+                val sequenceContext = sequenceInfo?.let { " sequence $it" } ?: ""
+                val message =
+                    "Event deserialization error during $operation in tenant $tenantId$sequenceContext"
                 EventStoreException(message, exception)
             }
             else -> {
@@ -204,7 +268,9 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Unexpected error during $operation in tenant $tenantId"
+                val sequenceContext = sequenceInfo?.let { " sequence $it" } ?: ""
+                val message =
+                    "Unexpected error during $operation in tenant $tenantId$sequenceContext"
                 EventStoreException(message, exception)
             }
         }
@@ -239,8 +305,20 @@ class AxonExceptionHandler {
                     exception,
                 )
 
+                val message = "Database error during $operation in tenant $tenantId"
+                EventStoreException(message, exception)
+            }
+            is DataAccessException -> {
+                logger.error(
+                    "Data access error during {}: {} - {}",
+                    operation,
+                    context,
+                    exception.message,
+                    exception,
+                )
+
                 val message =
-                    "Snapshot database operation failed for $operation in tenant $tenantId"
+                    "Data access error during $operation in tenant $tenantId"
                 EventStoreException(message, exception)
             }
             is EventSerializationException -> {
@@ -252,7 +330,8 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Snapshot serialization failed for $operation in tenant $tenantId"
+                val message =
+                    "Event serialization error during $operation in tenant $tenantId"
                 EventStoreException(message, exception)
             }
             else -> {
@@ -264,7 +343,8 @@ class AxonExceptionHandler {
                     exception,
                 )
 
-                val message = "Unexpected error during $operation in tenant $tenantId"
+                val message =
+                    "Unexpected error during $operation in tenant $tenantId"
                 EventStoreException(message, exception)
             }
         }
@@ -302,7 +382,12 @@ class AxonExceptionHandler {
         tenantId: String,
         details: String,
     ) {
-        logger.info("Successfully completed {} for tenant {}: {}", operation, tenantId, details)
+        logger.info(
+            "Successfully completed {} for tenant {}: {}",
+            operation,
+            tenantId,
+            details,
+        )
     }
 
     /** Builds consistent error context information for logging. */

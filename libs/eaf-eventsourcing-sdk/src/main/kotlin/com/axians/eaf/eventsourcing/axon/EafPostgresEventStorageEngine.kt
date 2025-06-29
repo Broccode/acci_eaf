@@ -38,12 +38,19 @@ class EafPostgresEventStorageEngine(
             events.forEach { event ->
                 if (event is DomainEventMessage<*>) {
                     val persistedEvent = eventMessageMapper.mapToPersistedEvent(event, tenantId)
+
+                    // Calculate expected version based on sequence number
+                    // For sequence 0: expectedVersion = null (new aggregate)
+                    // For sequence N: expectedVersion = N-1 (existing aggregate)
+                    val expectedVersion =
+                        if (event.sequenceNumber == 0L) null else event.sequenceNumber - 1
+
                     runBlocking {
                         eventStoreRepository.appendEvents(
                             listOf(persistedEvent),
                             tenantId,
                             event.aggregateIdentifier,
-                            null,
+                            expectedVersion,
                         )
                     }
                 }

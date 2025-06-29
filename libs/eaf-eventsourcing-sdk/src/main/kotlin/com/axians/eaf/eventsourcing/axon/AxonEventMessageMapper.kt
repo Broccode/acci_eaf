@@ -51,7 +51,9 @@ class AxonEventMessageMapper(
     ): PersistedEvent {
         val aggregateId =
             event.aggregateIdentifier
-                ?: throw IllegalArgumentException("Event must have an aggregate identifier")
+                ?: throw IllegalArgumentException(
+                    "Event must have an aggregate identifier",
+                )
         val aggregateType = event.type ?: "UnknownAggregate"
 
         return PersistedEvent(
@@ -82,7 +84,10 @@ class AxonEventMessageMapper(
                 .and(
                     GLOBAL_SEQUENCE_META_KEY,
                     persistedEvent.globalSequenceId?.toString() ?: "0",
-                ).and(EVENT_TIMESTAMP_META_KEY, persistedEvent.timestampUtc.toString())
+                ).and(
+                    EVENT_TIMESTAMP_META_KEY,
+                    persistedEvent.timestampUtc.toString(),
+                )
 
         return GenericDomainEventMessage(
             persistedEvent.aggregateType,
@@ -134,8 +139,12 @@ class AxonEventMessageMapper(
                 mapOf(
                     TENANT_ID_META_KEY to snapshot.tenantId,
                     AGGREGATE_VERSION_META_KEY to
-                        snapshot.lastSequenceNumber.toString(),
-                    EVENT_TIMESTAMP_META_KEY to snapshot.timestampUtc.toString(),
+                        snapshot.version
+                            .toString(), // Use version field for
+                    // snapshot
+                    // metadata
+                    EVENT_TIMESTAMP_META_KEY to
+                        snapshot.timestampUtc.toString(),
                 ),
             )
 
@@ -225,8 +234,10 @@ class AxonEventMessageMapper(
                 val minimalMetadata =
                     mapOf(
                         TENANT_ID_META_KEY to tenantId,
-                        AGGREGATE_VERSION_META_KEY to event.sequenceNumber.toString(),
-                        EVENT_TIMESTAMP_META_KEY to event.timestamp.toString(),
+                        AGGREGATE_VERSION_META_KEY to
+                            event.sequenceNumber.toString(),
+                        EVENT_TIMESTAMP_META_KEY to
+                            event.timestamp.toString(),
                     )
                 objectMapper.writeValueAsString(minimalMetadata)
             } else {
@@ -236,8 +247,14 @@ class AxonEventMessageMapper(
                 val enhancedMetadata =
                     metadata.asStringMap().apply {
                         put(TENANT_ID_META_KEY, tenantId)
-                        put(AGGREGATE_VERSION_META_KEY, event.sequenceNumber.toString())
-                        put(EVENT_TIMESTAMP_META_KEY, event.timestamp.toString())
+                        put(
+                            AGGREGATE_VERSION_META_KEY,
+                            event.sequenceNumber.toString(),
+                        )
+                        put(
+                            EVENT_TIMESTAMP_META_KEY,
+                            event.timestamp.toString(),
+                        )
                     }
                 objectMapper.writeValueAsString(enhancedMetadata)
             }

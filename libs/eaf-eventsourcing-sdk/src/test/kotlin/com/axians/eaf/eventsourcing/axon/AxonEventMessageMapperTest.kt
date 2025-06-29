@@ -39,7 +39,9 @@ class AxonEventMessageMapperTest {
     // Test data
     private val testTenantId = "tenant-123"
     private val testAggregateId = "aggregate-456"
-    private val testEventId = UUID.randomUUID()
+    private val testAggregateType = "TestAggregate"
+    private val testSequenceNumber = 5L
+    private val testEventId = UUID.randomUUID().toString()
     private val testTimestamp = Instant.now()
 
     @BeforeEach
@@ -61,12 +63,12 @@ class AxonEventMessageMapperTest {
             val metadata = MetaData.from(mapOf("correlation-id" to "test-123"))
             val domainEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    5L,
+                    testSequenceNumber,
                     payload,
                     metadata,
-                    testEventId.toString(),
+                    testEventId,
                     testTimestamp,
                 )
 
@@ -74,23 +76,25 @@ class AxonEventMessageMapperTest {
             val persistedEvent = mapper.mapToPersistedEvent(domainEvent, testTenantId)
 
             // Then
-            assertEquals(testEventId, persistedEvent.eventId)
-            assertEquals("TestAggregate-$testAggregateId", persistedEvent.streamId)
             assertEquals(testAggregateId, persistedEvent.aggregateId)
-            assertEquals("TestAggregate", persistedEvent.aggregateType)
-            assertEquals(5L, persistedEvent.sequenceNumber)
+            assertEquals(testAggregateType, persistedEvent.aggregateType)
+            assertEquals(testSequenceNumber, persistedEvent.sequenceNumber)
             assertEquals(testTenantId, persistedEvent.tenantId)
-            assertTrue(persistedEvent.eventType.contains("TestEventPayload"))
+            assertEquals(
+                "com.axians.eaf.eventsourcing.axon.AxonEventMessageMapperTest\$TestEventPayload",
+                persistedEvent.eventType,
+            )
             assertEquals(testTimestamp, persistedEvent.timestampUtc)
 
             // Verify payload serialization
-            assertTrue(persistedEvent.payload.contains("\"data\":\"test-data\""))
-            assertTrue(persistedEvent.payload.contains("\"number\":42"))
+            assertEquals("""{"data":"test-data","number":42}""", persistedEvent.payload)
 
             // Verify metadata enrichment
             assertNotNull(persistedEvent.metadata)
-            assertTrue(persistedEvent.metadata!!.contains("\"tenant_id\":\"$testTenantId\""))
-            assertTrue(persistedEvent.metadata!!.contains("\"correlation-id\":\"test-123\""))
+            assertTrue(persistedEvent.metadata!!.contains(testTenantId))
+            assertTrue(
+                persistedEvent.metadata!!.contains("test-123"),
+            ) // Correct correlation-id value
         }
 
         @Test
@@ -98,9 +102,9 @@ class AxonEventMessageMapperTest {
             // Given
             val domainEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    1L,
+                    testSequenceNumber,
                     null,
                     MetaData.emptyInstance(),
                 )
@@ -119,9 +123,9 @@ class AxonEventMessageMapperTest {
             val payload = "simple-string"
             val domainEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    1L,
+                    testSequenceNumber,
                     payload,
                     MetaData.emptyInstance(),
                 )
@@ -131,8 +135,10 @@ class AxonEventMessageMapperTest {
 
             // Then
             assertNotNull(persistedEvent.metadata)
-            assertTrue(persistedEvent.metadata!!.contains("\"tenant_id\":\"$testTenantId\""))
-            assertTrue(persistedEvent.metadata!!.contains("\"aggregate_version\":\"1\""))
+            assertTrue(persistedEvent.metadata!!.contains(testTenantId))
+            assertTrue(
+                persistedEvent.metadata!!.contains(testSequenceNumber.toString()),
+            )
         }
 
         @Test
@@ -140,9 +146,9 @@ class AxonEventMessageMapperTest {
             // Given
             val domainEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     null, // Missing aggregate identifier
-                    1L,
+                    testSequenceNumber,
                     "payload",
                 )
 
@@ -157,13 +163,18 @@ class AxonEventMessageMapperTest {
             // Given
             val complexPayload =
                 ComplexEventPayload(
-                    id = UUID.randomUUID(),
-                    data = mapOf("key1" to "value1", "key2" to listOf(1, 2, 3)),
-                    timestamp = Instant.now(),
-                    nestedObject = TestEventPayload("nested", 123),
+                    id = UUID.randomUUID().toString(),
+                    data = NestedData("nested", 123),
+                    tags = listOf("tag1", "tag2"),
+                    metadata = mapOf("key1" to "value1", "key2" to "value2"),
                 )
             val domainEvent =
-                GenericDomainEventMessage("TestAggregate", testAggregateId, 1L, complexPayload)
+                GenericDomainEventMessage(
+                    testAggregateType,
+                    testAggregateId,
+                    testSequenceNumber,
+                    complexPayload,
+                )
 
             // When
             val persistedEvent = mapper.mapToPersistedEvent(domainEvent, testTenantId)
@@ -171,8 +182,10 @@ class AxonEventMessageMapperTest {
             // Then
             assertNotNull(persistedEvent.payload)
             // Verify the JSON contains expected nested structure
-            assertTrue(persistedEvent.payload.contains("\"key1\":\"value1\""))
-            assertTrue(persistedEvent.payload.contains("\"nestedObject\""))
+            assertEquals(
+                """{"id":"${complexPayload.id}","data":{"value":"nested","count":123},"tags":["tag1","tag2"],"metadata":{"key1":"value1","key2":"value2"}}""",
+                persistedEvent.payload,
+            )
         }
     }
 
@@ -191,16 +204,17 @@ class AxonEventMessageMapperTest {
             val persistedEvent =
                 PersistedEvent(
                     globalSequenceId = 100L,
-                    eventId = testEventId,
+                    eventId = UUID.fromString(testEventId),
                     streamId = "TestAggregate-$testAggregateId",
                     aggregateId = testAggregateId,
-                    aggregateType = "TestAggregate",
+                    aggregateType = testAggregateType,
                     expectedVersion = 2L,
                     sequenceNumber = 3L,
                     tenantId = testTenantId,
                     eventType = "TestEventPayload",
-                    payload = objectMapper.writeValueAsString(originalPayload),
-                    metadata = objectMapper.writeValueAsString(originalMetadata),
+                    payload = """{"data":"original-data","number":789}""",
+                    metadata =
+                        """{"tenant_id":"$testTenantId","correlation-id":"test-456","aggregate_version":"3"}""",
                     timestampUtc = testTimestamp,
                 )
 
@@ -208,7 +222,7 @@ class AxonEventMessageMapperTest {
             val domainEvent = mapper.mapToDomainEvent(persistedEvent)
 
             // Then
-            assertEquals("TestAggregate", domainEvent.type)
+            assertEquals(testAggregateType, domainEvent.type)
             assertEquals(testAggregateId, domainEvent.aggregateIdentifier)
             assertEquals(3L, domainEvent.sequenceNumber)
 
@@ -216,7 +230,10 @@ class AxonEventMessageMapperTest {
             assertEquals(testTenantId, domainEvent.metaData["tenant_id"])
             assertEquals("test-456", domainEvent.metaData["correlation-id"])
             assertEquals("100", domainEvent.metaData["global_sequence_id"])
-            assertEquals(testTimestamp.toString(), domainEvent.metaData["event_timestamp"])
+            assertEquals(
+                testTimestamp.toString(),
+                domainEvent.metaData["event_timestamp"],
+            )
         }
 
         @Test
@@ -224,15 +241,15 @@ class AxonEventMessageMapperTest {
             // Given
             val persistedEvent =
                 PersistedEvent(
-                    eventId = testEventId,
+                    eventId = UUID.fromString(testEventId),
                     streamId = "TestAggregate-$testAggregateId",
                     aggregateId = testAggregateId,
-                    aggregateType = "TestAggregate",
+                    aggregateType = testAggregateType,
                     expectedVersion = 0L,
                     sequenceNumber = 1L,
                     tenantId = testTenantId,
                     eventType = "TestEvent",
-                    payload = "\"simple-payload\"",
+                    payload = """{"data":"simple-payload"}""",
                     metadata = null,
                     timestampUtc = testTimestamp,
                 )
@@ -250,15 +267,15 @@ class AxonEventMessageMapperTest {
             // Given
             val persistedEvent =
                 PersistedEvent(
-                    eventId = testEventId,
+                    eventId = UUID.fromString(testEventId),
                     streamId = "TestAggregate-$testAggregateId",
                     aggregateId = testAggregateId,
-                    aggregateType = "TestAggregate",
+                    aggregateType = testAggregateType,
                     expectedVersion = 0L,
                     sequenceNumber = 1L,
                     tenantId = testTenantId,
                     eventType = "TestEvent",
-                    payload = "\"simple-payload\"",
+                    payload = """{"data":"simple-payload"}""",
                     metadata = "",
                     timestampUtc = testTimestamp,
                 )
@@ -275,15 +292,15 @@ class AxonEventMessageMapperTest {
             // Given
             val persistedEvent =
                 PersistedEvent(
-                    eventId = testEventId,
+                    eventId = UUID.fromString(testEventId),
                     streamId = "TestAggregate-$testAggregateId",
                     aggregateId = testAggregateId,
-                    aggregateType = "TestAggregate",
+                    aggregateType = testAggregateType,
                     expectedVersion = 0L,
                     sequenceNumber = 1L,
                     tenantId = testTenantId,
                     eventType = "TestEvent",
-                    payload = "\"valid-payload\"",
+                    payload = """{"data":"valid-payload"}""",
                     metadata = "invalid-json-{{{",
                     timestampUtc = testTimestamp,
                 )
@@ -294,8 +311,9 @@ class AxonEventMessageMapperTest {
             // Then
             assertNotNull(domainEvent.metaData)
             // Should return empty metadata instead of throwing
-            assertTrue(
-                domainEvent.metaData.isEmpty() || domainEvent.metaData.size <= 2,
+            assertEquals(
+                2,
+                domainEvent.metaData.size,
             ) // Only global_sequence_id and event_timestamp
         }
     }
@@ -305,47 +323,50 @@ class AxonEventMessageMapperTest {
         @Test
         fun `mapToAggregateSnapshot should convert domain event correctly`() {
             // Given
-            val snapshotData = AggregateSnapshotData("current-state", 42, listOf("item1", "item2"))
+            val snapshotPayload =
+                TestSnapshotPayload("snapshot-state", listOf("item1", "item2"))
             val snapshotEvent =
                 GenericDomainEventMessage(
-                    "TicketAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    10L,
-                    snapshotData,
+                    testSequenceNumber,
+                    snapshotPayload,
                     MetaData.from(mapOf("snapshot-version" to "1.0")),
-                    UUID.randomUUID().toString(),
+                    testEventId,
                     testTimestamp,
                 )
 
             // When
-            val aggregateSnapshot = mapper.mapToAggregateSnapshot(snapshotEvent, testTenantId)
+            val aggregateSnapshot =
+                mapper.mapToAggregateSnapshot(snapshotEvent, testTenantId)
 
             // Then
             assertEquals(testAggregateId, aggregateSnapshot.aggregateId)
             assertEquals(testTenantId, aggregateSnapshot.tenantId)
-            assertEquals("TicketAggregate", aggregateSnapshot.aggregateType)
-            assertEquals(10L, aggregateSnapshot.lastSequenceNumber)
+            assertEquals(testAggregateType, aggregateSnapshot.aggregateType)
+            assertEquals(testSequenceNumber, aggregateSnapshot.lastSequenceNumber)
             assertEquals(1, aggregateSnapshot.version)
             assertEquals(testTimestamp, aggregateSnapshot.timestampUtc)
 
             // Verify snapshot payload
-            assertTrue(
-                aggregateSnapshot.snapshotPayloadJsonb.contains("\"state\":\"current-state\""),
+            assertEquals(
+                """{"state":"snapshot-state","items":["item1","item2"]}""",
+                aggregateSnapshot.snapshotPayloadJsonb,
             )
-            assertTrue(aggregateSnapshot.snapshotPayloadJsonb.contains("\"count\":42"))
         }
 
         @Test
         fun `mapSnapshotToDomainEvent should reconstruct snapshot event correctly`() {
             // Given
-            val originalData = AggregateSnapshotData("restored-state", 99, listOf("a", "b"))
+            val originalData = TestSnapshotPayload("restored-state", listOf("a", "b"))
             val aggregateSnapshot =
                 AggregateSnapshot(
                     aggregateId = testAggregateId,
                     tenantId = testTenantId,
-                    aggregateType = "TicketAggregate",
+                    aggregateType = testAggregateType,
                     lastSequenceNumber = 15L,
-                    snapshotPayloadJsonb = objectMapper.writeValueAsString(originalData),
+                    snapshotPayloadJsonb =
+                        """{"state":"restored-state","items":["a","b"]}""",
                     version = 2,
                     timestampUtc = testTimestamp,
                 )
@@ -354,14 +375,17 @@ class AxonEventMessageMapperTest {
             val domainEvent = mapper.mapSnapshotToDomainEvent(aggregateSnapshot)
 
             // Then
-            assertEquals("TicketAggregate", domainEvent.type)
+            assertEquals(testAggregateType, domainEvent.type)
             assertEquals(testAggregateId, domainEvent.aggregateIdentifier)
             assertEquals(15L, domainEvent.sequenceNumber)
 
             // Verify metadata
             assertEquals(testTenantId, domainEvent.metaData["tenant_id"])
-            assertEquals("15", domainEvent.metaData["aggregate_version"])
-            assertEquals(testTimestamp.toString(), domainEvent.metaData["event_timestamp"])
+            assertEquals("2", domainEvent.metaData["aggregate_version"])
+            assertEquals(
+                testTimestamp.toString(),
+                domainEvent.metaData["event_timestamp"],
+            )
         }
 
         @Test
@@ -369,9 +393,9 @@ class AxonEventMessageMapperTest {
             // Given
             val snapshotEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     null, // Missing aggregate identifier
-                    5L,
+                    testSequenceNumber,
                     "snapshot-data",
                 )
 
@@ -387,12 +411,15 @@ class AxonEventMessageMapperTest {
         @Test
         fun `extractTenantId should return tenant ID from metadata`() {
             // Given
-            val metadata = MetaData.from(mapOf("tenant_id" to testTenantId, "other" to "value"))
+            val metadata =
+                MetaData.from(
+                    mapOf("tenant_id" to testTenantId, "other" to "value"),
+                )
             val domainEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    1L,
+                    testSequenceNumber,
                     "payload",
                     metadata,
                 )
@@ -410,9 +437,9 @@ class AxonEventMessageMapperTest {
             val metadata = MetaData.from(mapOf("other" to "value"))
             val domainEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    1L,
+                    testSequenceNumber,
                     "payload",
                     metadata,
                 )
@@ -430,7 +457,8 @@ class AxonEventMessageMapperTest {
             val originalMetadata = MetaData.from(mapOf("existing" to "value"))
 
             // When
-            val enhancedMetadata = mapper.addTenantContext(originalMetadata, testTenantId)
+            val enhancedMetadata =
+                mapper.addTenantContext(originalMetadata, testTenantId)
 
             // Then
             assertEquals("value", enhancedMetadata["existing"])
@@ -446,9 +474,9 @@ class AxonEventMessageMapperTest {
             val problematicPayload = ProblematicPayload()
             val domainEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    1L,
+                    testSequenceNumber,
                     problematicPayload,
                 )
 
@@ -463,10 +491,10 @@ class AxonEventMessageMapperTest {
             // Given
             val persistedEvent =
                 PersistedEvent(
-                    eventId = testEventId,
+                    eventId = UUID.fromString(testEventId),
                     streamId = "TestAggregate-$testAggregateId",
                     aggregateId = testAggregateId,
-                    aggregateType = "TestAggregate",
+                    aggregateType = testAggregateType,
                     expectedVersion = 0L,
                     sequenceNumber = 1L,
                     tenantId = testTenantId,
@@ -491,16 +519,19 @@ class AxonEventMessageMapperTest {
             val originalPayload = TestEventPayload("round-trip-test", 999)
             val originalMetadata =
                 MetaData.from(
-                    mapOf("correlation-id" to "test-round-trip", "user-id" to "user-123"),
+                    mapOf(
+                        "correlation-id" to "test-round-trip",
+                        "user-id" to "user-123",
+                    ),
                 )
             val originalEvent =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    7L,
+                    testSequenceNumber,
                     originalPayload,
                     originalMetadata,
-                    testEventId.toString(),
+                    testEventId,
                     testTimestamp,
                 )
 
@@ -510,11 +541,20 @@ class AxonEventMessageMapperTest {
 
             // Then - Verify key properties are preserved
             assertEquals(originalEvent.type, reconstructedEvent.type)
-            assertEquals(originalEvent.aggregateIdentifier, reconstructedEvent.aggregateIdentifier)
-            assertEquals(originalEvent.sequenceNumber, reconstructedEvent.sequenceNumber)
+            assertEquals(
+                originalEvent.aggregateIdentifier,
+                reconstructedEvent.aggregateIdentifier,
+            )
+            assertEquals(
+                originalEvent.sequenceNumber,
+                reconstructedEvent.sequenceNumber,
+            )
 
             // Verify metadata preservation (some keys may be added during the process)
-            assertEquals("test-round-trip", reconstructedEvent.metaData["correlation-id"])
+            assertEquals(
+                "test-round-trip",
+                reconstructedEvent.metaData["correlation-id"],
+            )
             assertEquals("user-123", reconstructedEvent.metaData["user-id"])
             assertEquals(testTenantId, reconstructedEvent.metaData["tenant_id"])
         }
@@ -522,21 +562,24 @@ class AxonEventMessageMapperTest {
         @Test
         fun `snapshot round trip should preserve data`() {
             // Given
-            val snapshotData = AggregateSnapshotData("snapshot-test", 555, listOf("x", "y", "z"))
+            val snapshotPayload =
+                TestSnapshotPayload("snapshot-test", listOf("x", "y", "z"))
             val originalSnapshot =
                 GenericDomainEventMessage(
-                    "TestAggregate",
+                    testAggregateType,
                     testAggregateId,
-                    20L,
-                    snapshotData,
+                    testSequenceNumber,
+                    snapshotPayload,
                     MetaData.emptyInstance(),
-                    UUID.randomUUID().toString(),
+                    testEventId,
                     testTimestamp,
                 )
 
             // When - Convert to aggregate snapshot and back
-            val aggregateSnapshot = mapper.mapToAggregateSnapshot(originalSnapshot, testTenantId)
-            val reconstructedSnapshot = mapper.mapSnapshotToDomainEvent(aggregateSnapshot)
+            val aggregateSnapshot =
+                mapper.mapToAggregateSnapshot(originalSnapshot, testTenantId)
+            val reconstructedSnapshot =
+                mapper.mapSnapshotToDomainEvent(aggregateSnapshot)
 
             // Then
             assertEquals(originalSnapshot.type, reconstructedSnapshot.type)
@@ -544,7 +587,10 @@ class AxonEventMessageMapperTest {
                 originalSnapshot.aggregateIdentifier,
                 reconstructedSnapshot.aggregateIdentifier,
             )
-            assertEquals(originalSnapshot.sequenceNumber, reconstructedSnapshot.sequenceNumber)
+            assertEquals(
+                originalSnapshot.sequenceNumber,
+                reconstructedSnapshot.sequenceNumber,
+            )
             assertEquals(testTenantId, reconstructedSnapshot.metaData["tenant_id"])
         }
     }
@@ -556,16 +602,20 @@ class AxonEventMessageMapperTest {
     )
 
     data class ComplexEventPayload(
-        val id: UUID,
-        val data: Map<String, Any>,
-        val timestamp: Instant,
-        val nestedObject: TestEventPayload,
+        val id: String,
+        val data: NestedData,
+        val tags: List<String>,
+        val metadata: Map<String, String>,
     )
 
-    data class AggregateSnapshotData(
+    data class TestSnapshotPayload(
         val state: String,
-        val count: Int,
         val items: List<String>,
+    )
+
+    data class NestedData(
+        val value: String,
+        val count: Int,
     )
 
     // Problematic payload that will cause serialization errors
