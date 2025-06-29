@@ -48,6 +48,7 @@ dependencies {
   testImplementation(libs.testcontainers.postgresql)
   testImplementation(libs.mockk)
   testImplementation(libs.axon.test)
+  testImplementation(libs.flyway.core)
 }
 
 tasks.withType<Test> {
