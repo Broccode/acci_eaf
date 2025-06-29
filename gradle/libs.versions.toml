@@ -30,6 +30,7 @@ resilience4j = "2.1.0"
 logstashLogback = "8.1"
 ktlintGradle = "13.0.0-rc.1"
 axon = "4.11.2"
+jmh = "1.37"
 
 [libraries]
 # Kotlin
@@ -121,6 +122,10 @@ axon-modelling = { module = "org.axonframework:axon-modelling", version.ref = "a
 axon-eventsourcing = { module = "org.axonframework:axon-eventsourcing", version.ref = "axon" }
 axon-server-connector = { module = "org.axonframework:axon-server-connector", version.ref = "axon" }
 axon-test = { module = "org.axonframework:axon-test", version.ref = "axon" }
+
+# Performance Testing (JMH)
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 
 # Misc
 jakarta-servlet-api = { module = "jakarta.servlet:jakarta.servlet-api", version.ref = "jakartaServlet" }

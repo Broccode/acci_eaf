@@ -49,6 +49,11 @@ dependencies {
   testImplementation(libs.mockk)
   testImplementation(libs.axon.test)
   testImplementation(libs.flyway.core)
+
+  // Performance Testing (JMH)
+  testImplementation(libs.jmh.core)
+  testAnnotationProcessor(libs.jmh.generator.annprocess)
+  testCompileOnly(libs.jmh.generator.annprocess)
 }
 
 tasks.withType<Test> {
