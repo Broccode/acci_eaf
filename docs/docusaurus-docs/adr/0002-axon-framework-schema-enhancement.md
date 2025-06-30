@@ -141,9 +141,9 @@ libs/eaf-eventsourcing-sdk/src/main/resources/db/migration/V3__enhance_eventstor
 
 1. **Compatibility**: 100% backward compatibility with existing EAF SDK operations
 2. **Performance**:
-   - TrackingEventProcessor queries: >50% improvement
-   - Aggregate loading: >30% improvement
-   - Write performance: <10% degradation
+   - TrackingEventProcessor queries: &gt;50% improvement
+   - Aggregate loading: &gt;30% improvement
+   - Write performance: &lt;10% degradation
 3. **Migration**: Zero data loss during migration
 4. **Adoption**: Successful integration with Axon Framework components
 
@@ -170,5 +170,3 @@ libs/eaf-eventsourcing-sdk/src/main/resources/db/migration/V3__enhance_eventstor
 
 - [Axon Framework 4.11.2 Documentation](https://docs.axoniq.io/axon-framework-reference/4.11/)
 - [PostgreSQL Index Optimization](https://www.postgresql.org/docs/current/indexes.html)
-- [EAF Event Sourcing SDK](../../sdk-reference/eventsourcing-sdk/getting-started.md)
-- [Story 4.1.5: Database Schema Enhancement](../../stories/4.1.5.story.md)

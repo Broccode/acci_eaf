@@ -126,8 +126,9 @@ main:
     # Split tasks for better error isolation
     - 'echo "🔧 Step 2: Affected linting..."'
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint --parallel=3
-    - 'echo "🧪 Step 3: Affected tests..."'
-    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t test --parallel=2
+    # Enable lightweight performance smoke tests for early performance regression detection
+    - 'echo "🧪 Step 3: Affected tests (with performance smoke tests)..."'
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t test --parallel=2 -- -Dci.performance.enabled=true -Dperformance.smoke.tests.enabled=true
     - 'echo "🏗️  Step 4: Affected builds..."'
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t build --parallel=2
     # Run Kotlin/Gradle formatting check
@@ -201,8 +202,8 @@ retry_main:
     - NX_HEAD=$CI_COMMIT_SHA
     - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
     - echo "🔍 Retrying affected commands from $NX_BASE to $NX_HEAD"
-    # Retry with conservative settings
-    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint test build --skip-nx-cache --parallel=1
+    # Retry with conservative settings (including performance smoke tests)
+    - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t lint test build --skip-nx-cache --parallel=1 -- -Dci.performance.enabled=true -Dperformance.smoke.tests.enabled=true
     - npx nx affected --base=$NX_BASE --head=$NX_HEAD -t ktlintCheck
   artifacts:
     when: always

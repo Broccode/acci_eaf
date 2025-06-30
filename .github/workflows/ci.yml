@@ -119,9 +119,10 @@ jobs:
       - name: Run affected linting
         run: npx nx affected -t lint --parallel=3
 
-      - name: Run affected tests
+      # Enable lightweight performance smoke tests in CI for early performance regression detection
+      - name: Run affected tests (with performance smoke tests)
         id: tests
-        run: npx nx affected -t test --parallel=2
+        run: npx nx affected -t test --parallel=2 -- -Dci.performance.enabled=true -Dperformance.smoke.tests.enabled=true
         continue-on-error: true
 
       - name: Run affected builds
@@ -187,8 +188,8 @@ jobs:
 
           echo "✅ Cleanup complete. Retrying build..."
 
-          # Retry with single thread and no cache
-          npx nx affected -t build --skip-nx-cache --parallel=1
+          # Retry with single thread and no cache (including performance smoke tests)
+          npx nx affected -t build test --skip-nx-cache --parallel=1 -- -Dci.performance.enabled=true -Dperformance.smoke.tests.enabled=true
         continue-on-error: true
 
       # Upload artifacts only if we built something
