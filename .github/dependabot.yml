@@ -5,7 +5,32 @@
 
 version: 2
 updates:
-  - package-ecosystem: 'gradle' # See documentation for possible values
-    directory: '/' # Location of package manifests
+  # Gradle dependencies
+  - package-ecosystem: 'gradle'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+
+  # Root npm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+
+  # Documentation npm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/docs'
+    schedule:
+      interval: 'weekly'
+
+  # Control plane npm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/apps/acci-eaf-control-plane'
+    schedule:
+      interval: 'weekly'
+
+  # UI Foundation Kit npm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/libs/ui-foundation-kit'
     schedule:
       interval: 'weekly'
