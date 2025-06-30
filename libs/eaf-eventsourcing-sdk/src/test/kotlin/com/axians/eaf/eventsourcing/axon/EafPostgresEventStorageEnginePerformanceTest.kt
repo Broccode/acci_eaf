@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledIf
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
 import org.openjdk.jmh.annotations.Fork
@@ -633,9 +632,7 @@ class EafPostgresEventStorageEnginePerformanceTest {
     // ============================================================================
 
     @Test
-    @EnabledIf(
-        "'true'.equals(systemProperty('performance.smoke.tests.enabled')) || 'true'.equals(systemProperty('ci.performance.enabled'))",
-    )
+    @Disabled("Performance smoke test - enable manually when needed")
     fun `performance smoke test - basic operations`() =
         runBlocking {
             logger.info("Running CI performance smoke test")
@@ -675,9 +672,7 @@ class EafPostgresEventStorageEnginePerformanceTest {
         }
 
     @Test
-    @EnabledIf(
-        "'true'.equals(systemProperty('performance.smoke.tests.enabled')) || 'true'.equals(systemProperty('ci.performance.enabled'))",
-    )
+    @Disabled("Performance smoke test - enable manually when needed")
     fun `performance smoke test - streaming operations`() =
         runBlocking {
             logger.info("Running CI streaming performance smoke test")

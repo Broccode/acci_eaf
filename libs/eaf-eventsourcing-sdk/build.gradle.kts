@@ -15,6 +15,7 @@ dependencies {
   // Spring Boot
   implementation(libs.spring.boot.starter)
   implementation(libs.spring.boot.starter.data.jpa)
+  implementation(libs.spring.boot.starter.validation)
 
   // Axon Framework 4.11.2 - Using individual modules
   implementation(libs.axon.messaging)
@@ -47,6 +48,7 @@ dependencies {
   testImplementation(libs.testcontainers.junit.jupiter)
   testImplementation(libs.testcontainers.postgresql)
   testImplementation(libs.mockk)
+  testImplementation(libs.spring.mockk)
   testImplementation(libs.axon.test)
   testImplementation(libs.flyway.core)
 
