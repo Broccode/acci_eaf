@@ -24,6 +24,12 @@ dependencies {
   // Spring Web for web-related components
   implementation(libs.spring.web)
 
+  // Jakarta Servlet API for filters
+  implementation(libs.jakarta.servlet.api)
+
+  // Jakarta Validation for configuration properties
+  implementation("jakarta.validation:jakarta.validation-api")
+
   // Micrometer for metrics
   implementation(libs.micrometer.core)
 
@@ -40,4 +46,6 @@ dependencies {
   testImplementation(libs.kotlin.test)
   testImplementation(libs.kotlin.coroutines.test)
   testImplementation(libs.junit.platform.launcher)
+  testImplementation(libs.spring.boot.test)
+  testImplementation(libs.spring.boot.test.autoconfigure)
 }

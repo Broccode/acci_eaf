@@ -166,6 +166,7 @@ The EAF follows a **modern microservices architecture** with these key principle
 - **📡 Event-Driven**: NATS/JetStream for async messaging
 - **📝 CQRS/ES**: Axon Framework with PostgreSQL event store
 - **🌐 Multi-Tenant**: Account-based isolation for data and events
+- **🔐 Security-Tenant Integration**: Automatic tenant context propagation from Spring Security
 
 ### 🏗️ Infrastructure
 
@@ -194,6 +195,56 @@ The EAF follows a **modern microservices architecture** with these key principle
 Looking for deeper guidance? Visit the **Launchpad Developer Portal** (Docusaurus-powered) by
 running `nx serve docs` locally or browsing the hosted site (coming soon). All dependency versions
 live in the [Version Matrix](docs/docusaurus-docs/versions.md) so everyone stays in sync.
+
+### 🔐 Tenant Context Integration
+
+The EAF platform provides **automatic tenant context propagation** from Spring Security to all
+application layers:
+
+#### **Key Features**
+
+- **✅ Zero-Configuration**: Automatic setup via Spring Boot auto-configuration
+- **✅ Async-Aware**: Seamless tenant context for @Async, CompletableFuture, and @Scheduled methods
+- **✅ Security-First**: Rate limiting and abuse detection for tenant context operations
+- **✅ Fallback Support**: Header-based tenant extraction for non-JWT scenarios
+
+#### **Quick Usage Examples**
+
+```kotlin
+// 🔄 Automatic Context - No manual setup required!
+@Service
+class UserService {
+    fun getCurrentUserData(): UserData {
+        val tenantId = TenantContextHolder.getCurrentTenantId() // Always available!
+        return userRepository.findByTenantId(tenantId)
+    }
+}
+
+// ⚡ Async Operations - Tenant context automatically propagated
+@Service
+class NotificationService {
+    @Async
+    fun sendNotification(message: String) {
+        val tenantId = TenantContextHolder.getCurrentTenantId() // Available in async!
+        notificationProvider.send(tenantId, message)
+    }
+}
+
+// 🔮 CompletableFuture - Enhanced utilities for tenant-aware operations
+val future = TenantContextCompletableFuture.supplyWithTenantContext {
+    heavyComputationService.process()
+}
+```
+
+#### **Integration Points**
+
+- **Spring Security** → **SecurityTenantContextBridge** → **TenantContextHolder**
+- **@Async Methods** → **SecurityAwareTenantExecutor**
+- **CompletableFuture** → **TenantContextCompletableFuture**
+- **@Scheduled Tasks** → **TenantContextScheduledExecutor**
+
+For detailed configuration and advanced patterns, see
+[Tenant Context Integration Guide](docs/tenant-context-integration.md).
 
 ---
 
