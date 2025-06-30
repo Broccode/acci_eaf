@@ -1,3 +1,4 @@
+version: 4.21.1
 markdownExploder: true
 prd:
   prdFile: docs/prd.md
