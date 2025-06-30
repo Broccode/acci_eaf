@@ -39,6 +39,13 @@ const config: Config = {
     locales: ['en'],
   },
 
+  // Enable Mermaid diagrams
+  markdown: {
+    mermaid: true,
+  },
+
+  themes: ['@docusaurus/theme-mermaid'],
+
   // Add comprehensive favicon and icon support
   headTags: [
     {
@@ -183,6 +190,10 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['kotlin', 'java'],
+    },
+    // Mermaid theme configuration
+    mermaid: {
+      theme: { light: 'neutral', dark: 'dark' },
     },
   } satisfies Preset.ThemeConfig,
 };
