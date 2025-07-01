@@ -2,7 +2,7 @@
 # From root build.gradle.kts
 kotlin = "2.0.21"
 springBoot = "3.5.3"
-junit = "5.12.2"
+junit = "5.13.2"
 junitPlatform = "1.12.2"
 mockk = "1.14.4"
 springMockk = "4.0.2"
