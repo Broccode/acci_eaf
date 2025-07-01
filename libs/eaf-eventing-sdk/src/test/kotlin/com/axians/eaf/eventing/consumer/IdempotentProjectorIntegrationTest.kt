@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing.consumer
 
 import com.axians.eaf.eventing.config.NatsEventingProperties
@@ -372,9 +374,9 @@ class TestProjector {
     val processedEvents = mutableListOf<TestUserCreatedEvent>()
 
     fun handleUserCreated(
-        event: Any,
-        eventId: UUID,
-        tenantId: String,
+        @Suppress("UNUSED_PARAMETER") event: Any,
+        @Suppress("UNUSED_PARAMETER") eventId: UUID,
+        @Suppress("UNUSED_PARAMETER") tenantId: String,
     ) {
         processedEvents.add(event as TestUserCreatedEvent)
     }
@@ -383,9 +385,9 @@ class TestProjector {
 /** Test projector that always throws an exception. */
 class ErrorProjector {
     fun handleUserCreated(
-        event: Any,
-        eventId: UUID,
-        tenantId: String,
+        @Suppress("UNUSED_PARAMETER") event: Any,
+        @Suppress("UNUSED_PARAMETER") eventId: UUID,
+        @Suppress("UNUSED_PARAMETER") tenantId: String,
     ): Unit = throw RuntimeException("Simulated processing error")
 }
 
@@ -396,9 +398,9 @@ class AnnotatedTestProjector {
         projectorName = "AnnotatedTestProjector-handleUserCreated",
     )
     fun handleUserCreated(
-        event: Any,
-        eventId: UUID,
-        tenantId: String,
+        @Suppress("UNUSED_PARAMETER") event: Any,
+        @Suppress("UNUSED_PARAMETER") eventId: UUID,
+        @Suppress("UNUSED_PARAMETER") tenantId: String,
     ) {
         // no-op
     }

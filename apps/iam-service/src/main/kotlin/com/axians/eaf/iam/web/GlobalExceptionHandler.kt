@@ -19,8 +19,8 @@ class GlobalExceptionHandler {
     private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     /**
-     * Handles IllegalArgumentException and maps to 400 Bad Request. This covers cases like duplicate
-     * email, invalid status, etc.
+     * Handles IllegalArgumentException and maps to 400 Bad Request. This covers cases like
+     * duplicate email, invalid status, etc.
      */
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(exception: IllegalArgumentException): ResponseEntity<ErrorResponse> {
@@ -36,21 +36,29 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
+    fun handleValidationExceptions(
+        @Suppress("UNUSED_PARAMETER") ex: MethodArgumentNotValidException,
+    ): ResponseEntity<ErrorResponse> {
         val errors = ex.bindingResult.fieldErrors.mapNotNull { it.defaultMessage }
-        val errorMessage = if (errors.isNotEmpty()) errors.joinToString(", ") else "Validation failed"
+        val errorMessage =
+            if (errors.isNotEmpty()) errors.joinToString(", ") else "Validation failed"
         return ResponseEntity.badRequest().body(ErrorResponse(errorMessage))
     }
 
     @ExceptionHandler(AuthenticationException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleAuthenticationException(ex: AuthenticationException): ResponseEntity<ErrorResponse> =
-        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse("Authentication required"))
+    fun handleAuthenticationException(
+        @Suppress("UNUSED_PARAMETER") ex: AuthenticationException,
+    ): ResponseEntity<ErrorResponse> =
+        ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(ErrorResponse("Authentication required"))
 
     @ExceptionHandler(AccessDeniedException::class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    fun handleAccessDeniedException(ex: AccessDeniedException): ResponseEntity<ErrorResponse> =
-        ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse("Access denied"))
+    fun handleAccessDeniedException(
+        @Suppress("UNUSED_PARAMETER") ex: AccessDeniedException,
+    ): ResponseEntity<ErrorResponse> = ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponse("Access denied"))
 
     /** Generic error response structure. */
     data class ErrorResponse(

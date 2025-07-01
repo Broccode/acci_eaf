@@ -80,7 +80,7 @@ class TenantContextIntegrationAutoConfiguration {
 
         // Configure URL patterns
         if (properties.urlPatterns.isNotEmpty()) {
-            registration.addUrlPatterns(*properties.urlPatterns.toTypedArray())
+            properties.urlPatterns.forEach { pattern -> registration.addUrlPatterns(pattern) }
         } else {
             registration.addUrlPatterns("/*") // Default to all URLs
         }
@@ -125,9 +125,9 @@ class TenantContextIntegrationAutoConfiguration {
         havingValue = "true",
         matchIfMissing = true,
     )
-    fun tenantContextScheduledExecutor(bridge: SecurityTenantContextBridge): TenantContextScheduledExecutor {
+    fun tenantContextScheduledExecutor(): TenantContextScheduledExecutor {
         logger.debug("Creating TenantContextScheduledExecutor")
-        return TenantContextScheduledExecutor(bridge)
+        return TenantContextScheduledExecutor()
     }
 
     /** Creates TenantContextSecurityValidator for security and rate limiting. */

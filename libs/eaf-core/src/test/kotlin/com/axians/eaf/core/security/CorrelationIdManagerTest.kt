@@ -133,9 +133,9 @@ class CorrelationIdManagerTest {
         CorrelationIdManager.setCorrelationId(originalCorrelationId)
 
         // When/Then
-        assertThrows(RuntimeException::class.java) {
+        assertThrows(IllegalStateException::class.java) {
             CorrelationIdManager.withCorrelationId(blockCorrelationId) {
-                throw RuntimeException("Test exception")
+                throw IllegalStateException("Test exception")
             }
         }
 
@@ -172,7 +172,15 @@ class CorrelationIdManagerTest {
 
         // Then
         assertNotEquals(correlationId1, correlationId2)
-        assertTrue(correlationId1.matches(Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")))
-        assertTrue(correlationId2.matches(Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")))
+        assertTrue(
+            correlationId1.matches(
+                Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"),
+            ),
+        )
+        assertTrue(
+            correlationId2.matches(
+                Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"),
+            ),
+        )
     }
 }

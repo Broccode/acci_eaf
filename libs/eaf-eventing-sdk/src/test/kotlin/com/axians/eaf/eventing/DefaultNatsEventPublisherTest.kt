@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing
 
 import com.axians.eaf.eventing.config.NatsEventingProperties
@@ -48,18 +50,14 @@ class DefaultNatsEventPublisherTest {
     @Test
     fun `should throw IllegalArgumentException when tenantId is empty`() {
         assertThrows<IllegalArgumentException> {
-            runBlocking {
-                publisher.publish("test.subject", "", "test event")
-            }
+            runBlocking { publisher.publish("test.subject", "", "test event") }
         }
     }
 
     @Test
     fun `should throw IllegalArgumentException when tenantId is blank`() {
         assertThrows<IllegalArgumentException> {
-            runBlocking {
-                publisher.publish("test.subject", "   ", "test event")
-            }
+            runBlocking { publisher.publish("test.subject", "   ", "test event") }
         }
     }
 
@@ -70,9 +68,7 @@ class DefaultNatsEventPublisherTest {
 
         // When/Then
         assertThrows<EventPublishingException> {
-            runBlocking {
-                publisher.publish("test.subject", "tenant-123", "test event")
-            }
+            runBlocking { publisher.publish("test.subject", "tenant-123", "test event") }
         }
     }
 
@@ -90,9 +86,8 @@ class DefaultNatsEventPublisherTest {
             every { mockPublishAck.isDuplicate } returns false
             every { mockPublishAck.hasError() } returns false
 
-            every {
-                mockJetStream.publish(eq(expectedSubject), any<ByteArray>())
-            } returns mockPublishAck
+            every { mockJetStream.publish(eq(expectedSubject), any<ByteArray>()) } returns
+                mockPublishAck
 
             // When
             val result = publisher.publish(subject, tenantId, event)
@@ -117,9 +112,8 @@ class DefaultNatsEventPublisherTest {
             every { mockPublishAck.isDuplicate } returns false
             every { mockPublishAck.hasError() } returns false
 
-            every {
-                mockJetStream.publish(eq(expectedSubject), any<ByteArray>())
-            } returns mockPublishAck
+            every { mockJetStream.publish(eq(expectedSubject), any<ByteArray>()) } returns
+                mockPublishAck
 
             // When
             val result = publisher.publish(subject, tenantId, event, metadata)
@@ -143,9 +137,9 @@ class DefaultNatsEventPublisherTest {
             every { mockPublishAck.isDuplicate } returns false
             every { mockPublishAck.hasError() } returns false
 
-            every {
-                mockJetStream.publish(eq(expectedSubject), any<ByteArray>())
-            } throws RuntimeException("Temporary failure") andThen mockPublishAck
+            every { mockJetStream.publish(eq(expectedSubject), any<ByteArray>()) } throws
+                RuntimeException("Temporary failure") andThen
+                mockPublishAck
 
             // When
             val result = publisher.publish(subject, tenantId, event)
@@ -163,15 +157,12 @@ class DefaultNatsEventPublisherTest {
         val event = "test event"
         val expectedSubject = "$tenantId.$subject"
 
-        every {
-            mockJetStream.publish(eq(expectedSubject), any<ByteArray>())
-        } throws RuntimeException("Persistent failure")
+        every { mockJetStream.publish(eq(expectedSubject), any<ByteArray>()) } throws
+            RuntimeException("Persistent failure")
 
         // When/Then
         assertThrows<EventPublishingException> {
-            runBlocking {
-                publisher.publish(subject, tenantId, event)
-            }
+            runBlocking { publisher.publish(subject, tenantId, event) }
         }
 
         verify(exactly = properties.retry.maxAttempts) {
@@ -189,15 +180,11 @@ class DefaultNatsEventPublisherTest {
         every { mockPublishAck.hasError() } returns true
         every { mockPublishAck.error } returns "Stream not found"
 
-        every {
-            mockJetStream.publish(any<String>(), any<ByteArray>())
-        } returns mockPublishAck
+        every { mockJetStream.publish(any<String>(), any<ByteArray>()) } returns mockPublishAck
 
         // When/Then
         assertThrows<EventPublishingException> {
-            runBlocking {
-                publisher.publish(subject, tenantId, event)
-            }
+            runBlocking { publisher.publish(subject, tenantId, event) }
         }
     }
 
@@ -211,15 +198,11 @@ class DefaultNatsEventPublisherTest {
         every { mockPublishAck.hasError() } returns false
         every { mockPublishAck.seqno } returns 0L
 
-        every {
-            mockJetStream.publish(any<String>(), any<ByteArray>())
-        } returns mockPublishAck
+        every { mockJetStream.publish(any<String>(), any<ByteArray>()) } returns mockPublishAck
 
         // When/Then
         assertThrows<EventPublishingException> {
-            runBlocking {
-                publisher.publish(subject, tenantId, event)
-            }
+            runBlocking { publisher.publish(subject, tenantId, event) }
         }
     }
 }

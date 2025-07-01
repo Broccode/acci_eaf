@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown", "UnusedPrivateProperty", "MaxLineLength")
+
 package com.axians.eaf.eventsourcing.axon
 
 import com.axians.eaf.eventsourcing.axon.exception.EventSerializationException
@@ -323,8 +325,7 @@ class AxonEventMessageMapperTest {
         @Test
         fun `mapToAggregateSnapshot should convert domain event correctly`() {
             // Given
-            val snapshotPayload =
-                TestSnapshotPayload("snapshot-state", listOf("item1", "item2"))
+            val snapshotPayload = TestSnapshotPayload("snapshot-state", listOf("item1", "item2"))
             val snapshotEvent =
                 GenericDomainEventMessage(
                     testAggregateType,
@@ -337,8 +338,7 @@ class AxonEventMessageMapperTest {
                 )
 
             // When
-            val aggregateSnapshot =
-                mapper.mapToAggregateSnapshot(snapshotEvent, testTenantId)
+            val aggregateSnapshot = mapper.mapToAggregateSnapshot(snapshotEvent, testTenantId)
 
             // Then
             assertEquals(testAggregateId, aggregateSnapshot.aggregateId)
@@ -457,8 +457,7 @@ class AxonEventMessageMapperTest {
             val originalMetadata = MetaData.from(mapOf("existing" to "value"))
 
             // When
-            val enhancedMetadata =
-                mapper.addTenantContext(originalMetadata, testTenantId)
+            val enhancedMetadata = mapper.addTenantContext(originalMetadata, testTenantId)
 
             // Then
             assertEquals("value", enhancedMetadata["existing"])
@@ -562,8 +561,7 @@ class AxonEventMessageMapperTest {
         @Test
         fun `snapshot round trip should preserve data`() {
             // Given
-            val snapshotPayload =
-                TestSnapshotPayload("snapshot-test", listOf("x", "y", "z"))
+            val snapshotPayload = TestSnapshotPayload("snapshot-test", listOf("x", "y", "z"))
             val originalSnapshot =
                 GenericDomainEventMessage(
                     testAggregateType,
@@ -576,10 +574,8 @@ class AxonEventMessageMapperTest {
                 )
 
             // When - Convert to aggregate snapshot and back
-            val aggregateSnapshot =
-                mapper.mapToAggregateSnapshot(originalSnapshot, testTenantId)
-            val reconstructedSnapshot =
-                mapper.mapSnapshotToDomainEvent(aggregateSnapshot)
+            val aggregateSnapshot = mapper.mapToAggregateSnapshot(originalSnapshot, testTenantId)
+            val reconstructedSnapshot = mapper.mapSnapshotToDomainEvent(aggregateSnapshot)
 
             // Then
             assertEquals(originalSnapshot.type, reconstructedSnapshot.type)

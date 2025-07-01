@@ -41,20 +41,11 @@ class TenantAwareEventInterceptor : MessageHandlerInterceptor<EventMessage<*>> {
                 isReplay,
             )
 
-            // Set tenant context and process event
+            // Set tenant context and process event (let exceptions propagate)
             TenantContextHolder.executeInTenantContext(tenantId) {
-                try {
-                    val result = interceptorChain.proceed()
-                    logger.debug("Event processing completed successfully for tenant: {}", tenantId)
-                    result
-                } catch (exception: Exception) {
-                    logger.warn(
-                        "Event processing failed for tenant: {} - {}",
-                        tenantId,
-                        exception.message,
-                    )
-                    throw exception
-                }
+                val result = interceptorChain.proceed()
+                logger.debug("Event processing completed successfully for tenant: {}", tenantId)
+                result
             }
         } else {
             // Handle event without tenant context
@@ -84,13 +75,8 @@ class TenantAwareEventInterceptor : MessageHandlerInterceptor<EventMessage<*>> {
             isReplay,
         )
 
-        return try {
-            val result = interceptorChain.proceed()
-            logger.debug("System event processing completed: {}", eventType)
-            result
-        } catch (exception: Exception) {
-            logger.warn("System event processing failed: {} - {}", eventType, exception.message)
-            throw exception
-        }
+        val result = interceptorChain.proceed()
+        logger.debug("System event processing completed: {}", eventType)
+        return result
     }
 }

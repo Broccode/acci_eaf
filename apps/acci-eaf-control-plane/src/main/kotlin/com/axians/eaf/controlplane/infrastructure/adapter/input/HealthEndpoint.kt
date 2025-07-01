@@ -1,10 +1,15 @@
 package com.axians.eaf.controlplane.infrastructure.adapter.input
 
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.EndpointExceptionHandler
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ResponseConstants
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ResponseMetadata
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ResponseMetadataFactory
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ValidationException
 import com.axians.eaf.controlplane.infrastructure.adapter.outbound.health.EafIamHealthIndicator
 import com.axians.eaf.controlplane.infrastructure.adapter.outbound.health.EafNatsHealthIndicator
 import com.vaadin.hilla.Endpoint
-import com.vaadin.hilla.exception.EndpointException
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -20,40 +25,97 @@ class ControlPlaneHealthEndpoint(
     private val eafIamHealthIndicator: EafIamHealthIndicator? = null,
     private val eafNatsHealthIndicator: EafNatsHealthIndicator? = null,
 ) {
-    // TODO: Inject health indicators when available
-    // @Autowired
-    // private lateinit var healthIndicators: Map<String, HealthIndicator>
+    private val logger = LoggerFactory.getLogger(ControlPlaneHealthEndpoint::class.java)
 
     /** Basic health check endpoint. */
     fun getHealth(): HealthResponse =
-        HealthResponse(
-            status = "UP",
-            timestamp = Instant.now().toString(),
-            service = "ACCI EAF Control Plane",
-            version = "0.0.1-SNAPSHOT",
-        )
+        EndpointExceptionHandler.handleEndpointExecution("getHealth", logger) {
+            HealthResponse(
+                status = "UP",
+                timestamp = Instant.now().toString(),
+                service = "ACCI EAF Control Plane",
+                version = ResponseConstants.APPLICATION_VERSION,
+            )
+        }
 
     /**
-     * Comprehensive health check including EAF service connectivity. Tests actual connectivity to IAM
-     * and NATS services.
+     * Comprehensive health check including EAF service connectivity. Tests actual connectivity to
+     * IAM and NATS services.
      */
-    fun getDetailedHealth(): DetailedHealthResponse {
-        val overallStatus = mutableListOf<String>()
-        val serviceChecks = mutableMapOf<String, Any>()
+    fun getDetailedHealth(): DetailedHealthResponse =
+        EndpointExceptionHandler.handleEndpointExecution("getDetailedHealth", logger) {
+            val overallStatus = mutableListOf<String>()
+            val serviceChecks = mutableMapOf<String, Any>()
 
-        // Check EAF IAM connectivity
+            // Check EAF IAM connectivity
+            checkIamService(serviceChecks, overallStatus)
+
+            // Check EAF NATS connectivity
+            checkNatsService(serviceChecks, overallStatus)
+
+            // Determine overall status
+            val finalStatus = determineOverallHealthStatus(overallStatus)
+
+            DetailedHealthResponse(
+                status = finalStatus,
+                timestamp = Instant.now().toString(),
+                service = "ACCI EAF Control Plane",
+                version = ResponseConstants.APPLICATION_VERSION,
+                serviceChecks = serviceChecks,
+                summary = createHealthSummary(serviceChecks, overallStatus),
+            )
+        }
+
+    /** Get comprehensive system information with validation */
+    fun getSystemInfo(): SystemInfoResponse =
+        EndpointExceptionHandler.handleEndpointExecution("getSystemInfo", logger) {
+            SystemInfoResponse(
+                success = true,
+                systemInfo = createSystemInfo(),
+                metadata = ResponseMetadataFactory.createResponseMetadata("sysinfo"),
+            )
+        }
+
+    /** Enhanced echo endpoint with input validation */
+    fun echo(request: EchoRequest): EchoResponse =
+        EndpointExceptionHandler.handleEndpointExecution("echo", logger) {
+            validateEchoRequest(request)
+
+            EchoResponse(
+                success = true,
+                originalMessage = request.message!!,
+                timestamp = Instant.now(),
+                serverResponse = "Echo from Control Plane at ${Instant.now()}",
+                messageLength = request.message.length,
+                metadata = ResponseMetadataFactory.createResponseMetadata("echo"),
+            )
+        }
+
+    // Private helper methods
+
+    private fun checkIamService(
+        serviceChecks: MutableMap<String, Any>,
+        overallStatus: MutableList<String>,
+    ) {
         eafIamHealthIndicator?.let { indicator ->
-            try {
-                val iamHealth = runBlocking { indicator.checkHealth() }
-                serviceChecks["eafIam"] = iamHealth
-                overallStatus.add(iamHealth.status)
-            } catch (e: Exception) {
-                serviceChecks["eafIam"] =
-                    mapOf(
-                        "status" to "DOWN",
-                        "error" to "Health check failed: ${e.message}",
-                    )
-                overallStatus.add("DOWN")
+            val result =
+                EndpointExceptionHandler.handleHealthCheckExecution("EAF IAM", logger) {
+                    runBlocking { indicator.checkHealth() }
+                }
+
+            when (result) {
+                is EndpointExceptionHandler.HealthCheckResult.Success -> {
+                    serviceChecks["eafIam"] = result.data
+                    overallStatus.add(result.data.status)
+                }
+                is EndpointExceptionHandler.HealthCheckResult.Failure -> {
+                    serviceChecks["eafIam"] =
+                        mapOf(
+                            "status" to result.status,
+                            "error" to result.error,
+                        )
+                    overallStatus.add(result.status)
+                }
             }
         }
             ?: run {
@@ -63,20 +125,31 @@ class ControlPlaneHealthEndpoint(
                         "message" to "EAF IAM health indicator not available",
                     )
             }
+    }
 
-        // Check EAF NATS connectivity
+    private fun checkNatsService(
+        serviceChecks: MutableMap<String, Any>,
+        overallStatus: MutableList<String>,
+    ) {
         eafNatsHealthIndicator?.let { indicator ->
-            try {
-                val natsHealth = indicator.checkHealth()
-                serviceChecks["eafNats"] = natsHealth
-                overallStatus.add(natsHealth.status)
-            } catch (e: Exception) {
-                serviceChecks["eafNats"] =
-                    mapOf(
-                        "status" to "DOWN",
-                        "error" to "Health check failed: ${e.message}",
-                    )
-                overallStatus.add("DOWN")
+            val result =
+                EndpointExceptionHandler.handleHealthCheckExecution("EAF NATS", logger) {
+                    indicator.checkHealth()
+                }
+
+            when (result) {
+                is EndpointExceptionHandler.HealthCheckResult.Success -> {
+                    serviceChecks["eafNats"] = result.data
+                    overallStatus.add(result.data.status)
+                }
+                is EndpointExceptionHandler.HealthCheckResult.Failure -> {
+                    serviceChecks["eafNats"] =
+                        mapOf(
+                            "status" to result.status,
+                            "error" to result.error,
+                        )
+                    overallStatus.add(result.status)
+                }
             }
         }
             ?: run {
@@ -86,148 +159,52 @@ class ControlPlaneHealthEndpoint(
                         "message" to "EAF NATS health indicator not available",
                     )
             }
-
-        // Determine overall status
-        val finalStatus =
-            when {
-                overallStatus.any { it == "DOWN" } -> "DOWN"
-                overallStatus.any { it == "DEGRADED" } -> "DEGRADED"
-                overallStatus.all { it == "UP" } -> "UP"
-                else -> "UNKNOWN"
-            }
-
-        return DetailedHealthResponse(
-            status = finalStatus,
-            timestamp = Instant.now().toString(),
-            service = "ACCI EAF Control Plane",
-            version = "0.0.1-SNAPSHOT",
-            serviceChecks = serviceChecks,
-            summary =
-                mapOf(
-                    "totalChecks" to serviceChecks.size,
-                    "upServices" to overallStatus.count { it == "UP" },
-                    "downServices" to overallStatus.count { it == "DOWN" },
-                    "configuredServices" to overallStatus.size,
-                ),
-        )
     }
 
-    /** Get comprehensive system information with validation */
-    fun getSystemInfo(): SystemInfoResponse =
-        try {
-            SystemInfoResponse(
-                success = true,
-                systemInfo =
-                    SystemInfo(
-                        applicationName = "EAF Control Plane",
-                        version = "1.0.0-SNAPSHOT",
-                        buildTime = "2024-01-01T00:00:00Z", // TODO: Replace
-                        // with actual
-                        // build time
-                        environment = "development",
-                        javaVersion = System.getProperty("java.version"),
-                        springBootVersion = "3.3.1",
-                        hillaVersion = "2.5.8",
-                        uptime = calculateUptime(),
-                    ),
-                metadata =
-                    ResponseMetadata(
-                        timestamp = Instant.now(),
-                        requestId = "sysinfo-${System.currentTimeMillis()}",
-                        version = "1.0.0",
-                    ),
-            )
-        } catch (exception: Exception) {
-            SystemInfoResponse(
-                success = false,
-                error = "Failed to retrieve system information: ${exception.message}",
-                metadata =
-                    ResponseMetadata(
-                        timestamp = Instant.now(),
-                        requestId = "sysinfo-error-${System.currentTimeMillis()}",
-                        version = "1.0.0",
-                    ),
-            )
-        }
-
-    /** Enhanced echo endpoint with input validation */
-    fun echo(request: EchoRequest): EchoResponse =
-        try {
-            // Validate input
-            if (request.message.isNullOrBlank()) {
-                throw ValidationException("Message cannot be null or blank")
-            }
-
-            if (request.message.length > 1000) {
-                throw ValidationException("Message too long (max 1000 characters)")
-            }
-
-            EchoResponse(
-                success = true,
-                originalMessage = request.message,
-                timestamp = Instant.now(),
-                serverResponse = "Echo from Control Plane at ${Instant.now()}",
-                messageLength = request.message.length,
-                metadata =
-                    ResponseMetadata(
-                        timestamp = Instant.now(),
-                        requestId = "echo-${System.currentTimeMillis()}",
-                        version = "1.0.0",
-                    ),
-            )
-        } catch (exception: ValidationException) {
-            throw EndpointException("Invalid echo request: ${exception.message}")
-        } catch (exception: Exception) {
-            throw EndpointException("Echo failed: ${exception.message}")
-        }
-
-    // Private helper methods
-
-    private fun checkDatabaseHealth(): ServiceHealth {
-        // Simulate database health check
-        return ServiceHealth(
-            status = "UP",
-            details =
-                mapOf(
-                    "connectionPool" to "active",
-                    "totalConnections" to "10",
-                    "activeConnections" to "2",
-                ),
-            responseTime = "12ms",
-        )
-    }
-
-    private fun checkIamHealth(): ServiceHealth {
-        // Simulate IAM service health check
-        return ServiceHealth(
-            status = "UP",
-            details =
-                mapOf(
-                    "serviceUrl" to "http://localhost:8081",
-                    "lastCheck" to Instant.now().toString(),
-                ),
-            responseTime = "23ms",
-        )
-    }
-
-    private fun checkNatsHealth(): ServiceHealth {
-        // Simulate NATS health check
-        return ServiceHealth(
-            status = "UP",
-            details = mapOf("connectionStatus" to "CONNECTED", "subjects" to "5"),
-            responseTime = "8ms",
-        )
-    }
-
-    private fun determineOverallStatus(serviceHealths: Collection<ServiceHealth>): String =
+    private fun determineOverallHealthStatus(overallStatus: List<String>): String =
         when {
-            serviceHealths.all { it.status == "UP" } -> "healthy"
-            serviceHealths.any { it.status == "DOWN" } -> "unhealthy"
-            else -> "degraded"
+            overallStatus.any { it == "DOWN" } -> "DOWN"
+            overallStatus.any { it == "DEGRADED" } -> "DEGRADED"
+            overallStatus.all { it == "UP" } -> "UP"
+            else -> "UNKNOWN"
         }
+
+    private fun createHealthSummary(
+        serviceChecks: Map<String, Any>,
+        overallStatus: List<String>,
+    ): Map<String, Any> =
+        mapOf(
+            "totalChecks" to serviceChecks.size,
+            "upServices" to overallStatus.count { it == "UP" },
+            "downServices" to overallStatus.count { it == "DOWN" },
+            "configuredServices" to overallStatus.size,
+        )
+
+    private fun createSystemInfo(): SystemInfo =
+        SystemInfo(
+            applicationName = "EAF Control Plane",
+            version = ResponseConstants.APPLICATION_VERSION,
+            buildTime = ResponseConstants.DEFAULT_BUILD_TIME,
+            environment = ResponseConstants.DEFAULT_ENVIRONMENT,
+            javaVersion = System.getProperty("java.version"),
+            springBootVersion = ResponseConstants.DEFAULT_SPRING_BOOT_VERSION,
+            hillaVersion = ResponseConstants.DEFAULT_HILLA_VERSION,
+            uptime = calculateUptime(),
+        )
+
+    private fun validateEchoRequest(request: EchoRequest) {
+        if (request.message.isNullOrBlank()) {
+            throw ValidationException("Message cannot be null or blank")
+        }
+
+        if (request.message.length > ResponseConstants.MAX_MESSAGE_LENGTH) {
+            throw ValidationException(
+                "Message too long (max ${ResponseConstants.MAX_MESSAGE_LENGTH} characters)",
+            )
+        }
+    }
 
     private fun calculateUptime(): String {
-        // Simple uptime calculation
         val uptimeMs = System.currentTimeMillis() - startTime
         val minutes = uptimeMs / (1000 * 60)
         return "${minutes}m"

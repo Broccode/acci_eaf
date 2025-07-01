@@ -1,20 +1,22 @@
 package com.axians.eaf.controlplane.infrastructure.security.aspect
 
+import com.axians.eaf.controlplane.domain.event.SecurityAuditEvent
 import com.axians.eaf.controlplane.domain.exception.AuthenticationRequiredException
 import com.axians.eaf.controlplane.domain.exception.InsufficientPermissionException
-import com.axians.eaf.controlplane.domain.model.audit.AdminAction
-import com.axians.eaf.controlplane.domain.service.AuditService
 import com.axians.eaf.controlplane.infrastructure.security.annotation.RequiresTenantAccess
 import com.axians.eaf.core.security.EafSecurityContextHolder
+import com.axians.eaf.eventing.NatsEventPublisher
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Lazy
+import org.slf4j.MDC
 import org.springframework.stereotype.Component
-import java.lang.reflect.Parameter
+import java.util.concurrent.ConcurrentModificationException
+import java.util.concurrent.TimeoutException
 
 /**
  * Security aspect that enforces multi-tenant access control.
@@ -25,19 +27,22 @@ import java.lang.reflect.Parameter
  * 2. Target tenant ID from method parameters
  * 3. User's roles and permissions
  * 4. Global access rules for super administrators
+ *
+ * **Refactored for Story 4.2.3**: Removed circular dependency on AuditService. Audit logging is now
+ * handled through SecurityAuditEvent publishing. Added comprehensive MDC context enrichment for
+ * structured logging.
  */
 @Aspect
 @Component
 class TenantSecurityAspect(
     private val securityContextHolder: EafSecurityContextHolder,
+    private val eventPublisher: NatsEventPublisher,
 ) {
-    @Lazy @Autowired
-    private lateinit var auditService: AuditService
     private val logger = LoggerFactory.getLogger(TenantSecurityAspect::class.java)
 
     /**
-     * Intercepts method calls annotated with @RequiresTenantAccess. Validates tenant access and
-     * logs security events.
+     * Intercepts method calls annotated with @RequiresTenantAccess. Validates tenant access,
+     * enriches MDC logging context, and publishes security audit events.
      */
     @Around("@annotation(requiresTenantAccess)")
     fun enforceTenantAccess(
@@ -45,86 +50,363 @@ class TenantSecurityAspect(
         requiresTenantAccess: RequiresTenantAccess,
     ): Any? {
         val startTime = System.currentTimeMillis()
-        val methodName = "${joinPoint.signature.declaringTypeName}.${joinPoint.signature.name}"
+        val securityContext = extractSecurityContext(joinPoint, requiresTenantAccess)
 
+        enrichMdcContext(securityContext)
+
+        return try {
+            executeSecurityValidation(joinPoint, requiresTenantAccess, securityContext, startTime)
+        } finally {
+            cleanupMdcContext()
+        }
+    }
+
+    private fun executeSecurityValidation(
+        joinPoint: ProceedingJoinPoint,
+        requiresTenantAccess: RequiresTenantAccess,
+        securityContext: SecurityContext,
+        startTime: Long,
+    ): Any? =
         try {
-            // Validate authentication
-            if (!securityContextHolder.isAuthenticated()) {
-                throw AuthenticationRequiredException(
-                    "Authentication required for tenant-scoped operation",
-                )
-            }
+            validateAuthentication()
+            val validationResult =
+                performTenantValidation(joinPoint, requiresTenantAccess, securityContext)
 
-            val userTenantId =
-                securityContextHolder.getTenantIdOrNull()
-                    ?: throw AuthenticationRequiredException(
-                        "No tenant context found in authentication",
-                    )
-
-            // Extract target tenant ID from method arguments
-            val targetTenantId =
-                extractTenantIdFromArguments(joinPoint, requiresTenantAccess.tenantIdParamName)
-
-            // Validate tenant access
-            val accessResult =
-                validateTenantAccess(
-                    userTenantId = userTenantId,
-                    targetTenantId = targetTenantId,
-                    allowGlobalAccess = requiresTenantAccess.allowGlobalAccess,
-                    methodName = methodName,
-                )
-
-            // Log access attempt if auditing is enabled
             if (requiresTenantAccess.auditAccess) {
-                logTenantAccess(
-                    methodName = methodName,
-                    userTenantId = userTenantId,
-                    targetTenantId = targetTenantId,
-                    accessGranted = accessResult.granted,
-                    accessReason = accessResult.reason,
-                    globalAccess = accessResult.globalAccess,
-                )
+                publishTenantAccessEvent(validationResult.auditContext)
             }
 
-            // Proceed with method execution if access is granted
+            updateMdcWithTargetTenant(
+                validationResult.targetTenantId,
+                validationResult.validUserTenantId,
+            )
+
             val result = joinPoint.proceed()
+            logSuccessfulAccess(securityContext.methodName, startTime, validationResult)
 
-            // Log successful completion
-            val duration = System.currentTimeMillis() - startTime
-            logger.debug(
-                "Tenant access validation completed for {} in {}ms. User: {}, Target: {}, Access: {}",
-                methodName,
-                duration,
-                userTenantId,
-                targetTenantId,
-                accessResult.reason,
-            )
-
-            return result
+            result
         } catch (e: SecurityException) {
-            // Log security violation
-            val duration = System.currentTimeMillis() - startTime
-            logger.warn(
-                "Tenant access denied for {} after {}ms: {}",
-                methodName,
-                duration,
-                e.message,
+            handleSecurityException(
+                SecurityExceptionContext(
+                    exception = e,
+                    methodName = securityContext.methodName,
+                    startTime = startTime,
+                    userTenantId = securityContext.userTenantId,
+                    userId = securityContext.userId,
+                    correlationId = securityContext.correlationId,
+                    auditAccess = requiresTenantAccess.auditAccess,
+                ),
             )
-
-            // Audit the security violation
-            if (requiresTenantAccess.auditAccess) {
-                auditSecurityViolation(methodName, e)
-            }
-
             throw e
-        } catch (e: Exception) {
+        } catch (e: IllegalArgumentException) {
             logger.error(
-                "Unexpected error during tenant access validation for {}: {}",
-                methodName,
+                "Invalid argument during tenant access validation for {}: {}",
+                securityContext.methodName,
                 e.message,
                 e,
             )
             throw e
+        } catch (e: IllegalStateException) {
+            logger.error(
+                "Invalid state during tenant access validation for {}: {}",
+                securityContext.methodName,
+                e.message,
+                e,
+            )
+            throw e
+        } catch (e: TimeoutException) {
+            logger.error(
+                "Timeout during tenant access validation for {}: {}",
+                securityContext.methodName,
+                e.message,
+                e,
+            )
+            throw IllegalStateException("Security validation timeout", e)
+        } catch (e: ConcurrentModificationException) {
+            logger.error(
+                "Concurrency error during tenant access validation for {}: {}",
+                securityContext.methodName,
+                e.message,
+                e,
+            )
+            throw IllegalStateException("Security validation concurrency error", e)
+        }
+
+    private fun extractSecurityContext(
+        joinPoint: ProceedingJoinPoint,
+        requiresTenantAccess: RequiresTenantAccess,
+    ): SecurityContext {
+        val methodName = "${joinPoint.signature.declaringTypeName}.${joinPoint.signature.name}"
+        val userTenantId = securityContextHolder.getTenantIdOrNull()
+        val userId = securityContextHolder.getUserId()
+        val correlationId =
+            MDC.get("correlation_id") ?: java.util.UUID
+                .randomUUID()
+                .toString()
+
+        return SecurityContext(
+            methodName = methodName,
+            userTenantId = userTenantId,
+            userId = userId,
+            correlationId = correlationId,
+        )
+    }
+
+    private fun performTenantValidation(
+        joinPoint: ProceedingJoinPoint,
+        requiresTenantAccess: RequiresTenantAccess,
+        securityContext: SecurityContext,
+    ): ValidationResult {
+        val validUserTenantId =
+            securityContext.userTenantId
+                ?: throw AuthenticationRequiredException(
+                    "No tenant context found in authentication",
+                )
+
+        val targetTenantId =
+            extractTenantIdFromArguments(joinPoint, requiresTenantAccess.tenantIdParamName)
+
+        val accessResult =
+            validateTenantAccess(
+                userTenantId = validUserTenantId,
+                targetTenantId = targetTenantId,
+                allowGlobalAccess = requiresTenantAccess.allowGlobalAccess,
+                methodName = securityContext.methodName,
+            )
+
+        val auditContext =
+            TenantAccessAuditContext(
+                methodName = securityContext.methodName,
+                userTenantId = validUserTenantId,
+                userId = securityContext.userId,
+                targetTenantId = targetTenantId,
+                accessGranted = accessResult.granted,
+                accessReason = accessResult.reason,
+                globalAccess = accessResult.globalAccess,
+                correlationId = securityContext.correlationId,
+            )
+
+        return ValidationResult(
+            accessResult = accessResult,
+            targetTenantId = targetTenantId,
+            validUserTenantId = validUserTenantId,
+            auditContext = auditContext,
+        )
+    }
+
+    private fun updateMdcWithTargetTenant(
+        targetTenantId: String?,
+        userTenantId: String,
+    ) {
+        if (targetTenantId != null && targetTenantId != userTenantId) {
+            MDC.put("target_tenant_id", targetTenantId)
+        }
+    }
+
+    /** Validates that the user is authenticated. */
+    private fun validateAuthentication() {
+        if (!securityContextHolder.isAuthenticated()) {
+            throw AuthenticationRequiredException(
+                "Authentication required for tenant-scoped operation",
+            )
+        }
+    }
+
+    /** Logs successful tenant access. */
+    private fun logSuccessfulAccess(
+        methodName: String,
+        startTime: Long,
+        validationResult: ValidationResult,
+    ) {
+        val duration = System.currentTimeMillis() - startTime
+        logger.debug(
+            "Tenant access validation completed for {} in {}ms. User: {}, Target: {}, Access: {}",
+            methodName,
+            duration,
+            validationResult.validUserTenantId,
+            validationResult.targetTenantId,
+            validationResult.accessResult.reason,
+        )
+    }
+
+    /** Handles security exceptions with proper logging and audit events. */
+    private fun handleSecurityException(context: SecurityExceptionContext) {
+        val duration = System.currentTimeMillis() - context.startTime
+        logger.warn(
+            "Tenant access denied for {} after {}ms: {}",
+            context.methodName,
+            duration,
+            context.exception.message,
+        )
+
+        if (context.auditAccess) {
+            publishSecurityViolationEvent(
+                SecurityViolationContext(
+                    methodName = context.methodName,
+                    tenantId = context.userTenantId,
+                    userId = context.userId,
+                    exception = context.exception,
+                    correlationId = context.correlationId,
+                ),
+            )
+        }
+    }
+
+    /** Cleans up MDC context after request processing. */
+    private fun cleanupMdcContext() {
+        MDC.remove("tenant_id")
+        MDC.remove("user_id")
+        MDC.remove("security_method")
+        MDC.remove("target_tenant_id")
+        MDC.remove("user_roles")
+    }
+
+    /** Enriches MDC logging context with security-related information for structured logging. */
+    private fun enrichMdcContext(securityContext: SecurityContext) {
+        MDC.put("tenant_id", securityContext.userTenantId ?: "unknown")
+        MDC.put("user_id", securityContext.userId ?: "system")
+        MDC.put("security_method", securityContext.methodName)
+        MDC.put("correlation_id", securityContext.correlationId)
+
+        // Add security context metadata
+        if (securityContextHolder.isAuthenticated()) {
+            val roles =
+                securityContextHolder.getAuthentication()?.authorities?.joinToString(",") {
+                    it.authority.removePrefix("ROLE_")
+                }
+            if (!roles.isNullOrBlank()) {
+                MDC.put("user_roles", roles)
+            }
+        }
+    }
+
+    /**
+     * Publishes tenant access event for audit trail via event-driven architecture. Replaces direct
+     * audit service calls to eliminate circular dependency.
+     */
+    private fun publishTenantAccessEvent(context: TenantAccessAuditContext) {
+        try {
+            val securityEvent =
+                SecurityAuditEvent.tenantAccess(
+                    TenantAccessContext(
+                        tenantId = context.userTenantId,
+                        userId = context.userId,
+                        methodName = context.methodName,
+                        userTenantId = context.userTenantId,
+                        targetTenantId = context.targetTenantId,
+                        accessGranted = context.accessGranted,
+                        accessReason = context.accessReason,
+                        globalAccess = context.globalAccess,
+                        correlationId = context.correlationId,
+                    ),
+                )
+
+            // Publish event asynchronously to avoid blocking security validation
+            GlobalScope.launch {
+                try {
+                    eventPublisher.publish(
+                        subject = "security.audit.tenant_access",
+                        tenantId = context.userTenantId,
+                        event = securityEvent,
+                    )
+                } catch (e: IllegalStateException) {
+                    logger.warn(
+                        "Failed to publish tenant access audit event - invalid state: {}",
+                        e.message,
+                        e,
+                    )
+                } catch (e: TimeoutException) {
+                    logger.warn(
+                        "Failed to publish tenant access audit event - timeout: {}",
+                        e.message,
+                        e,
+                    )
+                } catch (e: SecurityException) {
+                    logger.warn(
+                        "Failed to publish tenant access audit event - security error: {}",
+                        e.message,
+                        e,
+                    )
+                }
+            }
+
+            logger.debug(
+                "Published tenant access audit event for method {} with outcome: {}",
+                context.methodName,
+                if (context.accessGranted) "GRANTED" else "DENIED",
+            )
+        } catch (e: IllegalArgumentException) {
+            // Event creation failure should not break security validation
+            logger.warn("Failed to create tenant access audit event: {}", e.message, e)
+        } catch (e: IllegalStateException) {
+            // Event publishing state issue should not break security validation
+            logger.warn(
+                "Failed to publish tenant access audit event due to invalid state: {}",
+                e.message,
+                e,
+            )
+        }
+    }
+
+    /**
+     * Publishes security violation event for audit trail via event-driven architecture. Replaces
+     * direct audit service calls to eliminate circular dependency.
+     */
+    private fun publishSecurityViolationEvent(context: SecurityViolationContext) {
+        try {
+            val securityEvent =
+                SecurityAuditEvent.securityViolation(
+                    tenantId = context.tenantId,
+                    userId = context.userId,
+                    methodName = context.methodName,
+                    exception = context.exception,
+                    correlationId = context.correlationId,
+                )
+
+            // Publish event asynchronously to avoid blocking security validation
+            GlobalScope.launch {
+                try {
+                    eventPublisher.publish(
+                        subject = "security.audit.violation",
+                        tenantId = context.tenantId ?: "unknown",
+                        event = securityEvent,
+                    )
+                } catch (e: IllegalStateException) {
+                    logger.warn(
+                        "Failed to publish security violation audit event - invalid state: {}",
+                        e.message,
+                        e,
+                    )
+                } catch (e: TimeoutException) {
+                    logger.warn(
+                        "Failed to publish security violation audit event - timeout: {}",
+                        e.message,
+                        e,
+                    )
+                } catch (e: SecurityException) {
+                    logger.warn(
+                        "Failed to publish security violation audit event - security error: {}",
+                        e.message,
+                        e,
+                    )
+                }
+            }
+
+            logger.debug(
+                "Published security violation audit event for method {} with exception: {}",
+                context.methodName,
+                context.exception.javaClass.simpleName,
+            )
+        } catch (e: IllegalArgumentException) {
+            // Event creation failure should not break security validation
+            logger.warn("Failed to create security violation audit event: {}", e.message, e)
+        } catch (e: IllegalStateException) {
+            // Event publishing state issue should not break security validation
+            logger.warn(
+                "Failed to publish security violation audit event due to invalid state: {}",
+                e.message,
+                e,
+            )
         }
     }
 
@@ -203,8 +485,7 @@ class TenantSecurityAspect(
             }
         }
 
-        // Look for @PathVariable or @RequestParam annotations (if available)
-        return extractTenantIdFromAnnotations(method.parameters, args, tenantIdParamName)
+        return null
     }
 
     /** Attempts to extract tenant ID from object properties. */
@@ -214,129 +495,118 @@ class TenantSecurityAspect(
     ): String? {
         if (obj == null) return null
 
-        try {
-            val clazz = obj.javaClass
+        return extractFromField(obj, tenantIdParamName) ?: extractFromGetter(obj, tenantIdParamName)
+    }
 
-            // Try to find a field with the specified name
+    /** Extracts tenant ID from object field. */
+    private fun extractFromField(
+        obj: Any,
+        tenantIdParamName: String,
+    ): String? =
+        try {
+            val field = obj.javaClass.getDeclaredField(tenantIdParamName)
+            field.isAccessible = true
+            val value = field.get(obj)
+            when (value) {
+                is String -> value
+                is com.axians.eaf.controlplane.domain.model.tenant.TenantId -> value.value
+                else -> value?.toString()
+            }
+        } catch (e: NoSuchFieldException) {
+            null
+        } catch (e: SecurityException) {
+            logger.debug("Security exception accessing field {}: {}", tenantIdParamName, e.message)
+            null
+        } catch (e: IllegalAccessException) {
+            logger.debug("Illegal access to field {}: {}", tenantIdParamName, e.message)
+            null
+        }
+
+    /** Extracts tenant ID from getter method. */
+    private fun extractFromGetter(
+        obj: Any,
+        tenantIdParamName: String,
+    ): String? {
+        val getterNames =
+            listOf(
+                "get${tenantIdParamName.replaceFirstChar { it.uppercase() }}",
+                "get$tenantIdParamName",
+                tenantIdParamName,
+            )
+
+        for (getterName in getterNames) {
             try {
-                val field = clazz.getDeclaredField(tenantIdParamName)
-                field.isAccessible = true
-                val value = field.get(obj)
+                val method = obj.javaClass.getDeclaredMethod(getterName)
+                method.isAccessible = true
+                val value = method.invoke(obj)
                 return when (value) {
                     is String -> value
                     is com.axians.eaf.controlplane.domain.model.tenant.TenantId -> value.value
                     else -> value?.toString()
                 }
-            } catch (e: NoSuchFieldException) {
-                // Field not found, try getter method
+            } catch (e: NoSuchMethodException) {
+                continue
+            } catch (e: SecurityException) {
+                logger.debug("Security exception accessing method {}: {}", getterName, e.message)
+                continue
+            } catch (e: IllegalAccessException) {
+                logger.debug("Illegal access to method {}: {}", getterName, e.message)
+                continue
+            } catch (e: java.lang.reflect.InvocationTargetException) {
+                logger.debug("Error invoking method {}: {}", getterName, e.targetException?.message)
+                continue
             }
-
-            // Try to find a getter method
-            val getterNames =
-                listOf(
-                    "get${tenantIdParamName.replaceFirstChar { it.uppercase() }}",
-                    "get$tenantIdParamName",
-                    tenantIdParamName,
-                )
-
-            for (getterName in getterNames) {
-                try {
-                    val method = clazz.getDeclaredMethod(getterName)
-                    method.isAccessible = true
-                    val value = method.invoke(obj)
-                    return when (value) {
-                        is String -> value
-                        is com.axians.eaf.controlplane.domain.model.tenant.TenantId -> value.value
-                        else -> value?.toString()
-                    }
-                } catch (e: NoSuchMethodException) {
-                    // Method not found, continue trying
-                }
-            }
-        } catch (e: Exception) {
-            logger.debug("Could not extract tenant ID from object: {}", e.message)
         }
-
         return null
     }
 
-    /** Attempts to extract tenant ID from method parameter annotations. */
-    private fun extractTenantIdFromAnnotations(
-        parameters: Array<Parameter>,
-        args: Array<Any?>,
-        tenantIdParamName: String,
-    ): String? {
-        // This could be extended to handle @PathVariable, @RequestParam, etc.
-        // For now, we'll just return null as those are typically handled by the framework
-        return null
-    }
+    /** Security context data for method validation. */
+    private data class SecurityContext(
+        val methodName: String,
+        val userTenantId: String?,
+        val userId: String?,
+        val correlationId: String,
+    )
 
-    /** Logs tenant access attempts for audit purposes. */
-    private fun logTenantAccess(
-        methodName: String,
-        userTenantId: String,
-        targetTenantId: String?,
-        accessGranted: Boolean,
-        accessReason: String,
-        globalAccess: Boolean,
-    ) {
-        try {
-            kotlinx.coroutines.runBlocking {
-                auditService.logAdminAction(
-                    action =
-                        if (accessGranted) {
-                            AdminAction.CUSTOM_ACTION
-                        } else {
-                            AdminAction.ACCESS_DENIED
-                        },
-                    targetType = "tenant_access",
-                    targetId = targetTenantId ?: "unknown",
-                    details =
-                        mapOf(
-                            "method" to methodName,
-                            "userTenantId" to userTenantId,
-                            "targetTenantId" to (targetTenantId ?: "null"),
-                            "accessReason" to accessReason,
-                            "globalAccess" to globalAccess,
-                            "accessType" to
-                                if (accessGranted) {
-                                    "ACCESS_GRANTED"
-                                } else {
-                                    "ACCESS_DENIED"
-                                },
-                            "timestamp" to System.currentTimeMillis(),
-                        ),
-                )
-            }
-        } catch (e: Exception) {
-            logger.warn("Failed to log tenant access audit entry: {}", e.message)
-        }
-    }
+    /** Context for tenant access audit events. */
+    private data class TenantAccessAuditContext(
+        val methodName: String,
+        val userTenantId: String,
+        val userId: String?,
+        val targetTenantId: String?,
+        val accessGranted: Boolean,
+        val accessReason: String,
+        val globalAccess: Boolean,
+        val correlationId: String,
+    )
 
-    /** Audits security violations. */
-    private fun auditSecurityViolation(
-        methodName: String,
-        exception: SecurityException,
-    ) {
-        try {
-            kotlinx.coroutines.runBlocking {
-                auditService.logAdminAction(
-                    action = AdminAction.ACCESS_DENIED,
-                    targetType = "security_violation",
-                    targetId = methodName,
-                    details =
-                        mapOf(
-                            "violationType" to exception.javaClass.simpleName,
-                            "message" to (exception.message ?: "Unknown error"),
-                            "method" to methodName,
-                            "timestamp" to System.currentTimeMillis(),
-                        ),
-                )
-            }
-        } catch (e: Exception) {
-            logger.warn("Failed to log security violation audit entry: {}", e.message)
-        }
-    }
+    /** Context for security violation events. */
+    private data class SecurityViolationContext(
+        val methodName: String,
+        val tenantId: String?,
+        val userId: String?,
+        val exception: SecurityException,
+        val correlationId: String,
+    )
+
+    /** Context for handling security exceptions. */
+    private data class SecurityExceptionContext(
+        val exception: SecurityException,
+        val methodName: String,
+        val startTime: Long,
+        val userTenantId: String?,
+        val userId: String?,
+        val correlationId: String,
+        val auditAccess: Boolean,
+    )
+
+    /** Result of validation process. */
+    private data class ValidationResult(
+        val accessResult: TenantAccessResult,
+        val targetTenantId: String?,
+        val validUserTenantId: String,
+        val auditContext: TenantAccessAuditContext,
+    )
 
     /** Result of tenant access validation. */
     private data class TenantAccessResult(

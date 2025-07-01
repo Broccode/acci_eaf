@@ -5,18 +5,19 @@ import com.axians.eaf.controlplane.infrastructure.adapter.outbound.entity.RoleEn
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import org.springframework.stereotype.Repository
 import java.util.UUID
 
 /**
  * JPA repository interface for RoleEntity persistence operations. Supports both platform-wide and
  * tenant-scoped role queries.
+ *
+ * Note: Spring Data JPA interfaces should not be annotated with @Repository as they are
+ * automatically detected and proxied by Spring.
  */
-@Repository
 interface JpaRoleRepository : JpaRepository<RoleEntity, UUID> {
     /**
-     * Find a role by name within a specific scope and tenant. For platform roles, tenantId should be
-     * null.
+     * Find a role by name within a specific scope and tenant. For platform roles, tenantId
+     * should be null.
      */
     fun findByNameAndScopeAndTenantId(
         name: String,
@@ -35,15 +36,6 @@ interface JpaRoleRepository : JpaRepository<RoleEntity, UUID> {
 
     /** Find all platform-wide roles. */
     fun findByScopeAndTenantIdIsNull(scope: RoleScope): List<RoleEntity>
-
-    /** Find all system roles (both platform and tenant-scoped). */
-    fun findByIsSystemRole(isSystemRole: Boolean): List<RoleEntity>
-
-    /** Find system roles by scope. */
-    fun findByScopeAndIsSystemRole(
-        scope: RoleScope,
-        isSystemRole: Boolean,
-    ): List<RoleEntity>
 
     /** Find roles by names within a scope and tenant. */
     fun findByNameInAndScopeAndTenantId(
@@ -100,12 +92,4 @@ interface JpaRoleRepository : JpaRepository<RoleEntity, UUID> {
 
     /** Count platform roles. */
     fun countByScopeAndTenantIdIsNull(scope: RoleScope): Long
-
-    /** Delete non-system roles by tenant (used when tenant is archived). */
-    @Query(
-        "DELETE FROM RoleEntity r WHERE r.scope = 'TENANT' AND r.tenantId = :tenantId AND r.isSystemRole = false",
-    )
-    fun deleteNonSystemRolesByTenantId(
-        @Param("tenantId") tenantId: UUID,
-    ): Int
 }

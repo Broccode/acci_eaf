@@ -14,5 +14,5 @@ import org.springframework.context.annotation.ComponentScan
 class IamServiceApplication
 
 fun main(args: Array<String>) {
-    runApplication<IamServiceApplication>(*args)
+    runApplication<IamServiceApplication>(args = args)
 }

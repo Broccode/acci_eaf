@@ -16,6 +16,9 @@ import kotlin.coroutines.CoroutineContext
 object TenantContextHolder {
     private val logger = LoggerFactory.getLogger(TenantContextHolder::class.java)
 
+    /** Maximum allowed length for tenant IDs to prevent abuse. */
+    private const val MAX_TENANT_ID_LENGTH = 64
+
     /** ThreadLocal storage for tenant ID with proper initialization and cleanup. */
     private val tenantContext: ThreadLocal<String> = ThreadLocal.withInitial { null }
 
@@ -81,7 +84,8 @@ object TenantContextHolder {
     fun requireCurrentTenantId(): String =
         getCurrentTenantId()
             ?: throw TenantContextException(
-                "No tenant context available. Ensure tenant context is set before accessing tenant-scoped resources.",
+                "No tenant context available. Ensure tenant context is set before " +
+                    "accessing tenant-scoped resources.",
             )
 
     /**
@@ -111,80 +115,7 @@ object TenantContextHolder {
     fun <T> executeInTenantContext(
         tenantId: String,
         block: () -> T,
-    ): T {
-        val previousTenant = getCurrentTenantId()
-
-        try {
-            setCurrentTenantId(tenantId)
-            logger.debug("Executing in tenant context: {}", tenantId)
-            return block()
-        } finally {
-            if (previousTenant != null) {
-                setCurrentTenantId(previousTenant)
-                logger.debug("Restored previous tenant context: {}", previousTenant)
-            } else {
-                clear()
-                logger.debug("Cleared tenant context after execution")
-            }
-        }
-    }
-
-    /**
-     * Validates the current tenant context and throws an exception if invalid.
-     *
-     * @param operation Description of the operation being performed for error context
-     * @throws TenantContextException if tenant context is invalid
-     */
-    @JvmStatic
-    fun validateTenantContext(operation: String) {
-        val tenantId = getCurrentTenantId()
-        if (tenantId.isNullOrBlank()) {
-            throw TenantContextException(
-                "Invalid tenant context for operation: $operation. " +
-                    "Ensure proper tenant context is established before performing tenant-scoped operations.",
-            )
-        }
-    }
-
-    /**
-     * Checks if a tenant context is currently set.
-     *
-     * @return true if tenant context is available, false otherwise
-     */
-    @JvmStatic fun hasTenantContext(): Boolean = getCurrentTenantId() != null
-
-    /**
-     * Gets a specific metadata value from the current tenant context.
-     *
-     * @param key The metadata key to retrieve
-     * @return The metadata value or null if not found
-     */
-    @JvmStatic
-    fun getTenantMetadata(key: String): String? = getCurrentTenantContext()?.metadata?.get(key)
-
-    /**
-     * Adds metadata to the current tenant context.
-     *
-     * @param key The metadata key
-     * @param value The metadata value
-     * @throws TenantContextException if no tenant context is set
-     */
-    @JvmStatic
-    fun addTenantMetadata(
-        key: String,
-        value: String,
-    ) {
-        val currentContext =
-            getCurrentTenantContext()
-                ?: throw TenantContextException(
-                    "Cannot add metadata - no tenant context is set",
-                )
-
-        val updatedContext = currentContext.withMetadata(key, value)
-        setCurrentTenantContext(updatedContext)
-
-        logger.debug("Added metadata to tenant context: {} = {}", key, value)
-    }
+    ): T = executeInTenantContext(TenantContext(tenantId), block)
 
     /**
      * Executes a block of code within a specific full tenant context. Automatically cleans up the
@@ -245,7 +176,7 @@ object TenantContextHolder {
         return tenantId
             .trim()
             .replace(Regex("[^a-zA-Z0-9_-]"), "")
-            .take(64) // Limit length to reasonable maximum
+            .take(MAX_TENANT_ID_LENGTH) // Limit length to reasonable maximum
     }
 }
 

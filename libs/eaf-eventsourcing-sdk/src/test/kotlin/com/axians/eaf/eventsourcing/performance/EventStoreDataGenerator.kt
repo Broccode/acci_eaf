@@ -1,3 +1,5 @@
+@file:Suppress("ExplicitGarbageCollectionCall", "UnusedPrivateProperty")
+
 package com.axians.eaf.eventsourcing.performance
 
 import com.axians.eaf.core.tenancy.TenantContextHolder
@@ -332,7 +334,9 @@ class EventStoreDataGenerator(
             sequenceNumber == 0 -> eventTypes.first() // Always start with "Created" event
             sequenceNumber == totalEvents - 1 &&
                 eventTypes.any {
-                    it.contains("Closed") || it.contains("Completed") || it.contains("Deleted")
+                    it.contains("Closed") ||
+                        it.contains("Completed") ||
+                        it.contains("Deleted")
                 } -> {
                 eventTypes.lastOrNull {
                     it.contains("Closed") || it.contains("Completed") || it.contains("Deleted")

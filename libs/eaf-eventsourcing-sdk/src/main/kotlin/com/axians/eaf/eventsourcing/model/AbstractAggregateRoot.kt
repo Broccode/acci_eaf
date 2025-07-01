@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.axians.eaf.eventsourcing.model
 
 import java.util.concurrent.CopyOnWriteArrayList
@@ -5,9 +7,9 @@ import java.util.concurrent.CopyOnWriteArrayList
 /**
  * Abstract base class for EAF aggregate roots.
  *
- * This class provides the foundation for implementing event-sourced aggregates in the EAF framework.
- * It manages uncommitted domain events, versioning for optimistic concurrency control, and
- * basic aggregate identity.
+ * This class provides the foundation for implementing event-sourced aggregates in the EAF
+ * framework. It manages uncommitted domain events, versioning for optimistic concurrency control,
+ * and basic aggregate identity.
  *
  * Subclasses should:
  * - Be annotated with @EafAggregate
@@ -17,21 +19,19 @@ import java.util.concurrent.CopyOnWriteArrayList
  * - Only modify state through event handlers
  */
 abstract class AbstractAggregateRoot<ID : Any> {
-    /**
-     * The unique identifier for this aggregate instance.
-     */
+    /** The unique identifier for this aggregate instance. */
     abstract val aggregateId: ID
 
     /**
-     * The current version of the aggregate (sequence number of the last applied event).
-     * Used for optimistic concurrency control.
+     * The current version of the aggregate (sequence number of the last applied event). Used for
+     * optimistic concurrency control.
      */
     var version: Long = 0L
         private set
 
     /**
-     * List of domain events that have been applied but not yet persisted.
-     * These events will be persisted when the aggregate is saved.
+     * List of domain events that have been applied but not yet persisted. These events will be
+     * persisted when the aggregate is saved.
      */
     private val uncommittedEvents: MutableList<Any> = CopyOnWriteArrayList()
 
@@ -54,8 +54,8 @@ abstract class AbstractAggregateRoot<ID : Any> {
     /**
      * Rehydrates this aggregate from a sequence of historical events.
      *
-     * This method is used by the repository when loading an aggregate from the event store.
-     * It replays events in order to reconstruct the aggregate's current state.
+     * This method is used by the repository when loading an aggregate from the event store. It
+     * replays events in order to reconstruct the aggregate's current state.
      *
      * @param events The historical events to replay
      * @param fromVersion The starting version (typically from a snapshot)
@@ -74,8 +74,8 @@ abstract class AbstractAggregateRoot<ID : Any> {
     /**
      * Returns all uncommitted events and clears the internal list.
      *
-     * This method is called by the repository when saving the aggregate to retrieve
-     * the events that need to be persisted.
+     * This method is called by the repository when saving the aggregate to retrieve the events that
+     * need to be persisted.
      *
      * @return List of uncommitted domain events
      */
@@ -92,9 +92,7 @@ abstract class AbstractAggregateRoot<ID : Any> {
      */
     fun peekUncommittedEvents(): List<Any> = uncommittedEvents.toList()
 
-    /**
-     * Returns true if this aggregate has uncommitted events.
-     */
+    /** Returns true if this aggregate has uncommitted events. */
     fun hasUncommittedEvents(): Boolean = uncommittedEvents.isNotEmpty()
 
     /**
@@ -109,8 +107,8 @@ abstract class AbstractAggregateRoot<ID : Any> {
     /**
      * Sets the version of the aggregate.
      *
-     * This method is intended for internal use by the repository when restoring
-     * an aggregate from a snapshot. Should not be used by application code.
+     * This method is intended for internal use by the repository when restoring an aggregate from a
+     * snapshot. Should not be used by application code.
      *
      * @param newVersion The version to set
      */
@@ -119,16 +117,16 @@ abstract class AbstractAggregateRoot<ID : Any> {
     }
 
     /**
-     * Returns the aggregate type name, used for event store stream identification.
-     * Defaults to the simple class name, but can be overridden for custom naming.
+     * Returns the aggregate type name, used for event store stream identification. Defaults to the
+     * simple class name, but can be overridden for custom naming.
      */
     open fun getAggregateType(): String = this::class.simpleName ?: "UnknownAggregate"
 
     /**
      * Handles a domain event by dispatching it to the appropriate event sourcing handler.
      *
-     * Subclasses should override this method to implement their event handling logic,
-     * typically using when expressions to dispatch to specific handler methods based on event type.
+     * Subclasses should override this method to implement their event handling logic, typically
+     * using when expressions to dispatch to specific handler methods based on event type.
      *
      * @param event The domain event to handle
      */
@@ -137,8 +135,8 @@ abstract class AbstractAggregateRoot<ID : Any> {
     /**
      * Creates a snapshot representation of this aggregate.
      *
-     * Subclasses can override this method to provide custom snapshot serialization.
-     * The default implementation returns null, indicating no snapshot support.
+     * Subclasses can override this method to provide custom snapshot serialization. The default
+     * implementation returns null, indicating no snapshot support.
      *
      * @return Snapshot data or null if snapshots are not supported
      */
@@ -147,8 +145,8 @@ abstract class AbstractAggregateRoot<ID : Any> {
     /**
      * Restores the aggregate state from a snapshot.
      *
-     * Subclasses should override this method if they support snapshots.
-     * This method is called before replaying events that occurred after the snapshot.
+     * Subclasses should override this method if they support snapshots. This method is called
+     * before replaying events that occurred after the snapshot.
      *
      * @param snapshot The snapshot data to restore from
      */

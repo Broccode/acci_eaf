@@ -1,0 +1,263 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:AuditModels.kt$AdminAction$fun getDescription(): String</ID>
+    <ID>CyclomaticComplexMethod:AuditModels.kt$UserAction$fun getDescription(): String</ID>
+    <ID>ForbiddenComment:ArchitectureComplianceTest.kt$ArchitectureComplianceTest$// TODO: Make more specific when ports are defined</ID>
+    <ID>ForbiddenComment:AuditService.kt$AuditService$// TODO: Extract from request</ID>
+    <ID>ForbiddenComment:BusinessMetricsConfiguration.kt$ControlPlaneMetrics$// TODO: Fix gauge registration - temporarily disabled to resolve compilation</ID>
+    <ID>ForbiddenComment:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$// TODO: Implement when EAF SDKs are available</ID>
+    <ID>ForbiddenComment:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$// TODO: Inject EAF SDKs when available</ID>
+    <ID>ForbiddenComment:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$// TODO: Test HTTP request context propagation</ID>
+    <ID>ForbiddenComment:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$// TODO: Test async context propagation</ID>
+    <ID>ForbiddenComment:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$// TODO: Test concurrent context isolation</ID>
+    <ID>ForbiddenComment:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$// TODO: Test context propagation through IAM service calls</ID>
+    <ID>ForbiddenComment:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$// TODO: Add when Hilla endpoints are ready</ID>
+    <ID>ForbiddenComment:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$// TODO: Implement audit trail validation</ID>
+    <ID>ForbiddenComment:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$// TODO: Implement complete auth flow</ID>
+    <ID>ForbiddenComment:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$// TODO: Implement configuration management</ID>
+    <ID>ForbiddenComment:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$// TODO: Implement user lifecycle workflow</ID>
+    <ID>ForbiddenComment:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$// TODO: Implement when domain layer and Hilla endpoints are ready</ID>
+    <ID>ForbiddenComment:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$// TODO: Test error handling across the entire stack</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Inject repositories when domain entities are implemented</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test audit trail persistence</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test connection pool configuration</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test entity relationships</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test migration rollback and recovery</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test multi-tenancy at database level</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test schema creation</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test tenant entity persistence</ID>
+    <ID>ForbiddenComment:DatabaseIntegrationTest.kt$DatabaseIntegrationTest$// TODO: Test transaction management</ID>
+    <ID>ForbiddenComment:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$// TODO: Implement when EAF Eventing SDK is available</ID>
+    <ID>ForbiddenComment:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$// TODO: Mock actual EAF event publisher</ID>
+    <ID>ForbiddenComment:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$// TODO: Mock publishing failure and retry logic</ID>
+    <ID>ForbiddenComment:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$// TODO: Replace with actual EAF event publisher interface</ID>
+    <ID>ForbiddenComment:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$// TODO: Return actual domain event when domain layer is implemented</ID>
+    <ID>ForbiddenComment:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$// TODO: Test event serialization</ID>
+    <ID>ForbiddenComment:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$// TODO: Verify tenant context is included in event metadata</ID>
+    <ID>ForbiddenComment:EafIamClientUnitTest.kt$EafIamClientUnitTest$// TODO: Implement when EAF IAM client interface is available</ID>
+    <ID>ForbiddenComment:EafIamClientUnitTest.kt$EafIamClientUnitTest$// TODO: Mock actual EAF IAM client authentication</ID>
+    <ID>ForbiddenComment:EafIamClientUnitTest.kt$EafIamClientUnitTest$// TODO: Mock authentication failure</ID>
+    <ID>ForbiddenComment:EafIamClientUnitTest.kt$EafIamClientUnitTest$// TODO: Replace with actual EAF IAM client interface</ID>
+    <ID>ForbiddenComment:EafIamClientUnitTest.kt$EafIamClientUnitTest$// TODO: Test role validation</ID>
+    <ID>ForbiddenComment:EafIamClientUnitTest.kt$EafIamClientUnitTest$// TODO: Test tenant context propagation</ID>
+    <ID>ForbiddenComment:EafSdkIntegrationTest.kt$EafSdkIntegrationTest$// TODO: Inject EAF SDKs when available</ID>
+    <ID>ForbiddenComment:EafSdkIntegrationTest.kt$EafSdkIntegrationTest$// TODO: Test actual NATS connectivity when EAF Eventing SDK is available</ID>
+    <ID>ForbiddenComment:EafSdkIntegrationTest.kt$EafSdkIntegrationTest$// TODO: Test actual database operations when JPA entities are implemented</ID>
+    <ID>ForbiddenComment:EafSdkIntegrationTest.kt$EafSdkIntegrationTest$// TODO: Test circuit breaker behavior when EAF services are unavailable</ID>
+    <ID>ForbiddenComment:EafSdkIntegrationTest.kt$EafSdkIntegrationTest$// TODO: Test tenant context propagation from IAM → Eventing → Security Context</ID>
+    <ID>ForbiddenComment:EafSdkIntegrationTest.kt$EafSdkIntegrationTest$// TODO: Verify that all EAF SDK configurations are properly loaded</ID>
+    <ID>ForbiddenComment:ErrorHandlingIntegrationTest.kt$ErrorHandlingIntegrationTest$// TODO: Inject beans when available</ID>
+    <ID>ForbiddenComment:ErrorHandlingIntegrationTest.kt$ErrorHandlingIntegrationTest$// TODO: Test IAM service circuit breaker</ID>
+    <ID>ForbiddenComment:ErrorHandlingIntegrationTest.kt$ErrorHandlingIntegrationTest$// TODO: Test NATS circuit breaker</ID>
+    <ID>ForbiddenComment:ErrorHandlingIntegrationTest.kt$ErrorHandlingIntegrationTest$// TODO: Test authentication error scenarios</ID>
+    <ID>ForbiddenComment:ErrorHandlingIntegrationTest.kt$ErrorHandlingIntegrationTest$// TODO: Test database resilience</ID>
+    <ID>ForbiddenComment:ErrorHandlingIntegrationTest.kt$ErrorHandlingIntegrationTest$// TODO: Test error tracking and correlation</ID>
+    <ID>ForbiddenComment:ErrorHandlingIntegrationTest.kt$ErrorHandlingIntegrationTest$// TODO: Test health check resilience</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Inject event components when available</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Test configuration change events</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Test domain event publishing</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Test event ordering guarantees</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Test event publishing resilience</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Test event serialization</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Test event size limits and performance</ID>
+    <ID>ForbiddenComment:EventFlowIntegrationTest.kt$EventFlowIntegrationTest$// TODO: Test tenant context propagation in events</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test EAF IAM health indicator</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test NATS health indicator</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test Prometheus integration</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test custom metrics endpoint</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test database health indicator</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test degraded health status</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test health check timeout behavior</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Test health endpoint security</ID>
+    <ID>ForbiddenComment:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$// TODO: Validate specific application information when configured</ID>
+    <ID>ForbiddenComment:HealthEndpoint.kt$ControlPlaneHealthEndpoint$* Health endpoint for the control plane service. * * FIXME: Test endpoint to isolate KotlinNullabilityPlugin crash See: * https://github.com/vaadin/hilla/issues/3443</ID>
+    <ID>ForbiddenComment:IamServiceTenantRepository.kt$IamServiceTenantRepository$// TODO: Get from</ID>
+    <ID>ForbiddenComment:IamServiceTenantRepository.kt$IamServiceTenantRepository$// TODO: Parse createdAt from IAM service response</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Inject security components when available</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Test CSRF protection</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Test authentication failure scenarios</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Test endpoint authorization</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Test security auditing</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Test session lifecycle</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Test super admin authentication</ID>
+    <ID>ForbiddenComment:SecurityIntegrationTest.kt$SecurityIntegrationTest$// TODO: Test tenant admin authentication and scope</ID>
+    <ID>ForbiddenComment:UserInfoEndpoint.kt$UserInfoEndpoint$* Hilla endpoint for user information operations. * * FIXME: Temporarily disabled due to KotlinNullabilityPlugin crash in Vaadin 24.8.0 See: * https://github.com/vaadin/hilla/issues/3443 Remove comment from @Endpoint when Vaadin/Hilla ships * the fix.</ID>
+    <ID>ForbiddenComment:UserInfoEndpoint.kt$UserInfoEndpoint$// TODO: Inject EAF security context holder when available</ID>
+    <ID>ForbiddenComment:UserInfoEndpoint.kt$UserInfoEndpoint$// TODO: Persist preferences when user repository is available</ID>
+    <ID>ForbiddenComment:UserInfoEndpoint.kt$UserInfoEndpoint$// TODO: Replace with actual EAF security context when available</ID>
+    <ID>ForbiddenComment:UserInvitationEndpoint.kt$UserInvitationEndpoint$* Hilla endpoint for user invitation management operations. Provides type-safe methods for * invitation workflow including creation, management, and acceptance. * * FIXME: Temporarily disabled - ALL collection types trigger KotlinNullabilityPlugin crash See: * https://github.com/vaadin/hilla/issues/3443 Will re-enable when Vaadin/Hilla ships the fix.</ID>
+    <ID>FunctionOnlyReturningConstant:SecurityMonitoringConfiguration.kt$SecurityEventListener$private fun extractTenantId(authentication: Authentication): String</ID>
+    <ID>FunctionOnlyReturningConstant:SecurityMonitoringConfiguration.kt$SecurityEventListener$private fun getClientIp(): String</ID>
+    <ID>LongMethod:EafIamHealthIndicator.kt$EafIamHealthIndicator$fun checkHealth(): HealthStatus</ID>
+    <ID>LongMethod:InvitationService.kt$InvitationService$suspend fun inviteUser( request: InviteUserRequest, tenantId: TenantId, invitedBy: UserId, ): InvitationResult</ID>
+    <ID>LongMethod:TenantSecurityAspect.kt$TenantSecurityAspect$private fun executeSecurityValidation( joinPoint: ProceedingJoinPoint, requiresTenantAccess: RequiresTenantAccess, securityContext: SecurityContext, startTime: Long, ): Any?</ID>
+    <ID>LongMethod:UserManagementIntegrationTest.kt$UserManagementIntegrationTest$@Test fun `should demonstrate multi-tenant user operations`()</ID>
+    <ID>LongParameterList:AuditModels.kt$AuditEntry.Companion$( tenantId: TenantId, performedBy: UserId, action: AdminAction, targetType: String, targetId: String, details: Map&lt;String, Any&gt; = emptyMap(), ipAddress: String, userAgent: String, success: Boolean = true, errorMessage: String? = null, sessionId: String? = null, correlationId: String? = null, )</ID>
+    <ID>LongParameterList:AuditModels.kt$AuditEntry.Companion$( tenantId: TenantId, performedBy: UserId, action: UserAction, targetType: String, targetId: String, details: Map&lt;String, Any&gt; = emptyMap(), ipAddress: String, userAgent: String, success: Boolean = true, errorMessage: String? = null, sessionId: String? = null, correlationId: String? = null, )</ID>
+    <ID>LongParameterList:AuditService.kt$AuditService$( tenantId: String, performedBy: String, action: String, targetType: String, targetId: String, details: Map&lt;String, Any&gt; = emptyMap(), success: Boolean = true, errorMessage: String? = null, )</ID>
+    <ID>LongParameterList:AuditService.kt$AuditService$( userId: String, action: UserAction, targetType: String, targetId: String, details: Map&lt;String, Any&gt; = emptyMap(), success: Boolean = true, errorMessage: String? = null, )</ID>
+    <ID>LongParameterList:InvitationModels.kt$Invitation.Companion$( tenantId: TenantId, email: String, firstName: String, lastName: String, roles: Set&lt;RoleId&gt;, invitedBy: UserId, expirationDays: Int = 7, customMessage: String? = null, )</ID>
+    <ID>LongParameterList:JpaAuditRepository.kt$JpaAuditRepository$( @Param("targetType") targetType: String?, @Param("targetId") targetId: String?, @Param("performedBy") performedBy: String?, @Param("action") action: String?, @Param("severity") severity: AuditSeverity?, @Param("success") success: Boolean?, @Param("tenantId") tenantId: String?, @Param("fromDate") fromDate: Instant?, @Param("toDate") toDate: Instant?, @Param("ipAddress") ipAddress: String?, @Param("sessionId") sessionId: String?, @Param("correlationId") correlationId: String?, pageable: Pageable, )</ID>
+    <ID>LongParameterList:PermissionEntity.kt$PermissionEntity$( @Id @Column(name = "id", columnDefinition = "UUID") val id: UUID = UUID.randomUUID(), @Column(name = "name", nullable = false, length = 100) val name: String, @Column(name = "description", columnDefinition = "TEXT") val description: String?, @Column(name = "resource", nullable = false, length = 50) val resource: String, @Column(name = "action", nullable = false, length = 50) val action: String, @CreationTimestamp @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(), @UpdateTimestamp @Column(name = "updated_at", nullable = false) val updatedAt: Instant = Instant.now(), )</ID>
+    <ID>LongParameterList:RoleEntity.kt$RoleEntity$( @Id @Column(name = "id", columnDefinition = "UUID") val id: UUID = UUID.randomUUID(), @Column(name = "name", nullable = false, length = 100) val name: String, @Column(name = "description", columnDefinition = "TEXT") val description: String?, @Enumerated(EnumType.STRING) @Column(name = "scope", nullable = false, length = 20) val scope: RoleScope, @Column(name = "tenant_id", columnDefinition = "UUID") val tenantId: UUID? = null, @CreationTimestamp @Column(name = "created_at", nullable = false) val createdAt: Instant = Instant.now(), @UpdateTimestamp @Column(name = "updated_at", nullable = false) val updatedAt: Instant = Instant.now(), @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE]) @JoinTable( name = "role_permissions", joinColumns = [JoinColumn(name = "role_id")], inverseJoinColumns = [JoinColumn(name = "permission_id")], ) val permissions: MutableSet&lt;PermissionEntity&gt; = mutableSetOf(), )</ID>
+    <ID>LongParameterList:User.kt$User.Companion$( tenantId: TenantId, email: String, firstName: String, lastName: String, initialRoles: Set&lt;Role&gt; = emptySet(), now: Instant = Instant.now(), )</ID>
+    <ID>LongParameterList:UserInvitation.kt$UserInvitation.Companion$( id: UserInvitationId, email: String, tenantId: TenantId, roleIds: Set&lt;String&gt;, invitedBy: String, expiresIn: Duration, )</ID>
+    <ID>LoopWithTooManyJumpStatements:TenantSecurityAspect.kt$TenantSecurityAspect$for</ID>
+    <ID>MagicNumber:AuditDtos.kt$AuditStatisticsRequest$24</ID>
+    <ID>MagicNumber:AuditDtos.kt$AuditStatisticsRequest$365</ID>
+    <ID>MagicNumber:AuditDtos.kt$AuditStatisticsRequest$60</ID>
+    <ID>MagicNumber:AuditDtos.kt$AuditTrailRequest$1000</ID>
+    <ID>MagicNumber:ConfigurationValidator.kt$ConfigurationValidator$8</ID>
+    <ID>MagicNumber:ControlPlaneProperties.kt$SecurityProperties$30</ID>
+    <ID>MagicNumber:HealthEndpoint.kt$ControlPlaneHealthEndpoint$1000</ID>
+    <ID>MagicNumber:HealthEndpoint.kt$ControlPlaneHealthEndpoint$60</ID>
+    <ID>MagicNumber:IamUserRepositoryAdapter.kt$IamUserRepositoryAdapter$10</ID>
+    <ID>MagicNumber:InvitationDtos.kt$InvitationFilter$100</ID>
+    <ID>MagicNumber:InvitationModels.kt$Invitation$24</ID>
+    <ID>MagicNumber:InvitationModels.kt$Invitation$60</ID>
+    <ID>MagicNumber:InvitationModels.kt$Invitation$60L</ID>
+    <ID>MagicNumber:InvitationModels.kt$Invitation.Companion$24</ID>
+    <ID>MagicNumber:InvitationModels.kt$Invitation.Companion$60</ID>
+    <ID>MagicNumber:InvitationModels.kt$Invitation.Companion$60L</ID>
+    <ID>MagicNumber:InvitationModels.kt$SecureToken$32</ID>
+    <ID>MagicNumber:InvitationModels.kt$SecureToken.Companion$32</ID>
+    <ID>MagicNumber:MonitoringConfiguration.kt$MonitoringConfiguration$10</ID>
+    <ID>MagicNumber:MonitoringConfiguration.kt$MonitoringConfiguration$5</ID>
+    <ID>MagicNumber:SecurityMonitoringService.kt$SecurityMonitoringService$10</ID>
+    <ID>MagicNumber:SecurityMonitoringService.kt$SecurityMonitoringService$5</ID>
+    <ID>MagicNumber:Tenant.kt$Tenant$100</ID>
+    <ID>MagicNumber:TenantSettings.kt$TenantSettings.Companion$253</ID>
+    <ID>MagicNumber:User.kt$User$50</ID>
+    <ID>MagicNumber:UserInfoEndpoint.kt$UserInfoEndpoint$3</ID>
+    <ID>MagicNumber:UserInvitation.kt$UserInvitation.Companion$32</ID>
+    <ID>MagicNumber:UserService.kt$UserService$24</ID>
+    <ID>MaxLineLength:AuditTrailEndpoint.kt$AuditTrailEndpoint$"This endpoint and its DTOs were analyzed for Hilla issue #3443 and found to be unaffected. No aliased collections are used."</ID>
+    <ID>MaxLineLength:JpaAuditRepository.kt$JpaAuditRepository$"SELECT COUNT(a) FROM AuditEntryEntity a WHERE a.success = false AND (:fromDate IS NULL OR a.timestamp &gt;= :fromDate) AND (:toDate IS NULL OR a.timestamp &lt;= :toDate)"</ID>
+    <ID>MaxLineLength:JpaRoleRepository.kt$JpaRoleRepository$"SELECT DISTINCT r FROM RoleEntity r LEFT JOIN FETCH r.permissions WHERE r.scope = 'PLATFORM' AND r.tenantId IS NULL"</ID>
+    <ID>MaxLineLength:JpaRoleRepository.kt$JpaRoleRepository$"SELECT DISTINCT r FROM RoleEntity r LEFT JOIN FETCH r.permissions WHERE r.scope = :scope AND r.tenantId = :tenantId"</ID>
+    <ID>MaxLineLength:RoleManagementEndpoint.kt$RoleManagementEndpoint$"Endpoint was preemptively disabled due to Hilla issue #3443, but analysis shows no DTOs were affected. Re-enabling and marking for audit."</ID>
+    <ID>MaxLineLength:TenantManagementEndpoint.kt$TenantManagementEndpoint$"Endpoint was preemptively disabled due to Hilla issue #3443, but analysis shows no DTOs were affected. Re-enabling and marking for audit."</ID>
+    <ID>MaxLineLength:UserManagementEndpoint.kt$UserManagementEndpoint$"Endpoint was preemptively disabled due to Hilla issue #3443, but analysis shows no DTOs were affected. Re-enabling and marking for audit."</ID>
+    <ID>MayBeConst:InvitationModels.kt$SecureToken.Companion$private val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"</ID>
+    <ID>RethrowCaughtException:EafIamHealthIndicator.kt$EafIamHealthIndicator$throw e</ID>
+    <ID>ReturnCount:InvitationService.kt$InvitationService$suspend fun acceptInvitation( token: String, request: AcceptInvitationRequest, ): InvitationResult</ID>
+    <ID>ReturnCount:InvitationService.kt$InvitationService$suspend fun cancelInvitation( invitationId: InvitationId, cancelledBy: UserId, reason: String = "Cancelled by administrator", ): InvitationResult</ID>
+    <ID>ReturnCount:InvitationService.kt$InvitationService$suspend fun inviteUser( request: InviteUserRequest, tenantId: TenantId, invitedBy: UserId, ): InvitationResult</ID>
+    <ID>ReturnCount:InvitationService.kt$InvitationService$suspend fun resendInvitation( invitationId: InvitationId, resentBy: UserId, ): InvitationResult</ID>
+    <ID>ReturnCount:RoleService.kt$RoleService$suspend fun assignPermissionToRole( roleId: String, permissionId: String, ): RolePermissionResult</ID>
+    <ID>ReturnCount:RoleService.kt$RoleService$suspend fun createRole( name: String, description: String, scope: RoleScope, tenantId: String? = null, permissions: Set&lt;String&gt; = emptySet(), ): CreateRoleResult</ID>
+    <ID>ReturnCount:RoleService.kt$RoleService$suspend fun removePermissionFromRole( roleId: String, permissionId: String, ): RolePermissionResult</ID>
+    <ID>ReturnCount:RoleService.kt$RoleService$suspend fun updateRole( roleId: String, name: String, description: String, ): UpdateRoleResult</ID>
+    <ID>ReturnCount:TenantSecurityAspect.kt$TenantSecurityAspect$private fun extractTenantIdFromArguments( joinPoint: ProceedingJoinPoint, tenantIdParamName: String, ): String?</ID>
+    <ID>ReturnCount:TenantSecurityAspect.kt$TenantSecurityAspect$private fun validateTenantAccess( userTenantId: String, targetTenantId: String?, allowGlobalAccess: Boolean, methodName: String, ): TenantAccessResult</ID>
+    <ID>ReturnCount:TenantService.kt$TenantService$suspend fun archiveTenant( tenantId: String, reason: String? = null, ): ArchiveTenantResult</ID>
+    <ID>ReturnCount:TenantService.kt$TenantService$suspend fun reactivateTenant(tenantId: String): TenantOperationResult</ID>
+    <ID>ReturnCount:TenantService.kt$TenantService$suspend fun suspendTenant( tenantId: String, reason: String? = null, ): TenantOperationResult</ID>
+    <ID>ReturnCount:TenantService.kt$TenantService$suspend fun updateTenant( tenantId: String, name: String, settings: TenantSettings, ): UpdateTenantResult</ID>
+    <ID>ReturnCount:UserService.kt$UserService$suspend fun activateUser(userId: String): UserStatusResult</ID>
+    <ID>ReturnCount:UserService.kt$UserService$suspend fun resetPassword(userId: String): PasswordResetResult</ID>
+    <ID>ReturnCount:UserService.kt$UserService$suspend fun suspendUser(userId: String): UserStatusResult</ID>
+    <ID>SpreadOperator:ControlPlaneApplication.kt$(*args)</ID>
+    <ID>SwallowedException:AuditEntryEntity.kt$AuditEntryEntity$e: Exception</ID>
+    <ID>SwallowedException:AuditModels.kt$AuditEntry$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:IamServiceTenantRepository.kt$IamServiceTenantRepository$e: Exception</ID>
+    <ID>SwallowedException:SecurityAuditTrailIntegrationTest.kt$SecurityAuditTrailIntegrationTest$e: Exception</ID>
+    <ID>SwallowedException:TenantId.kt$TenantId.Companion$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:TenantSecurityAspect.kt$TenantSecurityAspect$e: NoSuchFieldException</ID>
+    <ID>SwallowedException:TenantSecurityAspect.kt$TenantSecurityAspect$e: NoSuchMethodException</ID>
+    <ID>SwallowedException:UserId.kt$UserId.Companion$e: IllegalArgumentException</ID>
+    <ID>ThrowsCount:EndpointExceptionHandler.kt$EndpointExceptionHandler$inline fun &lt;T&gt; handleEndpointOperation( logger: Logger, operation: String, details: String, block: () -&gt; T, ): T?</ID>
+    <ID>ThrowsCount:EndpointExceptionHandler.kt$EndpointExceptionHandler$inline fun &lt;T&gt; handleSuspendingOperation( logger: Logger, operation: String, details: String, crossinline block: suspend () -&gt; T, ): T?</ID>
+    <ID>ThrowsCount:UserInfoEndpoint.kt$UserInfoEndpoint$private fun validatePreferencesRequest(request: UpdatePreferencesRequest)</ID>
+    <ID>TooGenericExceptionCaught:AuditEntryEntity.kt$AuditEntryEntity$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AuditService.kt$AuditService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:EafIamHealthIndicator.kt$EafIamHealthIndicator$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:EafIamHealthIndicator.kt$EafIamHealthIndicator$exception: Exception</ID>
+    <ID>TooGenericExceptionCaught:EafNatsHealthIndicator.kt$EafNatsHealthIndicator$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:EafNatsHealthIndicator.kt$EafNatsHealthIndicator$exception: Exception</ID>
+    <ID>TooGenericExceptionCaught:EndpointExceptionHandler.kt$EndpointExceptionHandler$e: RuntimeException</ID>
+    <ID>TooGenericExceptionCaught:EndpointExceptionHandler.kt$EndpointExceptionHandler$ex: Exception</ID>
+    <ID>TooGenericExceptionCaught:EndpointExceptionHandler.kt$EndpointExceptionHandler$ex: RuntimeException</ID>
+    <ID>TooGenericExceptionCaught:IamServiceTenantRepository.kt$IamServiceTenantRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:InvitationService.kt$InvitationService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NatsAuditEventPublisher.kt$NatsAuditEventPublisher$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SecurityMonitoringService.kt$SecurityMonitoringService$e: Exception</ID>
+    <ID>TooManyFunctions:AuditRepository.kt$AuditRepository</ID>
+    <ID>TooManyFunctions:AuditRepositoryAdapter.kt$AuditRepositoryAdapter : AuditRepository</ID>
+    <ID>TooManyFunctions:AuditService.kt$AuditService</ID>
+    <ID>TooManyFunctions:AuditTrailEndpoint.kt$AuditTrailEndpoint</ID>
+    <ID>TooManyFunctions:HealthEndpoint.kt$ControlPlaneHealthEndpoint</ID>
+    <ID>TooManyFunctions:IamServiceTenantRepository.kt$IamServiceTenantRepository : TenantRepository</ID>
+    <ID>TooManyFunctions:IamServiceUserRepository.kt$IamServiceUserRepository : UserRepository</ID>
+    <ID>TooManyFunctions:IamUserRepositoryAdapter.kt$IamUserRepositoryAdapter : UserRepository</ID>
+    <ID>TooManyFunctions:InvitationRepository.kt$InvitationRepository</ID>
+    <ID>TooManyFunctions:JpaAuditRepository.kt$JpaAuditRepository : JpaRepository</ID>
+    <ID>TooManyFunctions:JpaRoleRepository.kt$JpaRoleRepository : JpaRepository</ID>
+    <ID>TooManyFunctions:Role.kt$Role</ID>
+    <ID>TooManyFunctions:RoleManagementEndpoint.kt$RoleManagementEndpoint</ID>
+    <ID>TooManyFunctions:RoleRepository.kt$RoleRepository</ID>
+    <ID>TooManyFunctions:RoleRepositoryAdapter.kt$RoleRepositoryAdapter : RoleRepository</ID>
+    <ID>TooManyFunctions:RoleService.kt$RoleService</ID>
+    <ID>TooManyFunctions:TenantSecurityAspect.kt$TenantSecurityAspect</ID>
+    <ID>TooManyFunctions:User.kt$User</ID>
+    <ID>TooManyFunctions:UserRepository.kt$UserRepository</ID>
+    <ID>UnusedParameter:InvitationService.kt$InvitationService$request: AcceptInvitationRequest</ID>
+    <ID>UnusedParameter:ResponseConstants.kt$ResponseMetadataFactory$errorCode: String? = null</ID>
+    <ID>UnusedParameter:SecurityMonitoringConfiguration.kt$SecurityEventListener$authentication: Authentication</ID>
+    <ID>UnusedParameter:TenantSecurityAspect.kt$TenantSecurityAspect$requiresTenantAccess: RequiresTenantAccess</ID>
+    <ID>UnusedParameter:TenantService.kt$TenantService$reason: String? = null</ID>
+    <ID>UnusedParameter:UserInvitationEndpoint.kt$UserInvitationEndpoint$token: String</ID>
+    <ID>UnusedPrivateMember:AuditService.kt$AuditService$private fun getCurrentUserId(): UserId</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$AuditMetrics$private val auditLogEntriesCounter = Counter .builder("eaf.controlplane.audit.entries.total") .description("Total audit log entries created") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$AuditMetrics$private val configurationChangesCounter = Counter .builder("eaf.controlplane.config.changes.total") .description("Total configuration changes made") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$AuthenticationMetrics$private val loginAttemptsCounter = Counter .builder("eaf.controlplane.auth.login.attempts.total") .description("Total login attempts") .tag("status", "unknown") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$AuthenticationMetrics$private val loginFailureCounter = Counter .builder("eaf.controlplane.auth.login.failures.total") .description("Failed login attempts") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$AuthenticationMetrics$private val loginSuccessCounter = Counter .builder("eaf.controlplane.auth.login.success.total") .description("Successful login attempts") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$AuthenticationMetrics$private val sessionTimeoutCounter = Counter .builder("eaf.controlplane.auth.session.timeouts.total") .description("Total session timeouts") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$TenantMetrics$private val tenantsCreatedCounter = Counter .builder("eaf.controlplane.tenants.created.total") .description("Total number of tenants created") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$TenantMetrics$private val tenantsDeletedCounter = Counter .builder("eaf.controlplane.tenants.deleted.total") .description("Total number of tenants deleted") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$UserMetrics$private val passwordResetsCounter = Counter .builder("eaf.controlplane.users.password.resets.total") .description("Total number of password resets performed") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$UserMetrics$private val usersCreatedCounter = Counter .builder("eaf.controlplane.users.created.total") .description("Total number of users created") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:BusinessMetricsConfiguration.kt$UserMetrics$private val usersDeletedCounter = Counter .builder("eaf.controlplane.users.deleted.total") .description("Total number of users deleted") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$val sessionId = "session-abc123"</ID>
+    <ID>UnusedPrivateProperty:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$val user1 = "user-concurrent-1"</ID>
+    <ID>UnusedPrivateProperty:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$val user2 = "user-concurrent-2"</ID>
+    <ID>UnusedPrivateProperty:ContextPropagationIntegrationTest.kt$ContextPropagationIntegrationTest$val userRoles = listOf("TENANT_ADMIN")</ID>
+    <ID>UnusedPrivateProperty:ControlPlaneConfiguration.kt$ControlPlaneConfiguration$private val properties: ControlPlaneProperties</ID>
+    <ID>UnusedPrivateProperty:ControlPlaneE2EIntegrationTest.kt$ControlPlaneE2EIntegrationTest$@Autowired private lateinit var restTemplate: TestRestTemplate</ID>
+    <ID>UnusedPrivateProperty:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$@MockK private lateinit var mockEventPublisher: Any // TODO: Replace with actual EAF event publisher interface</ID>
+    <ID>UnusedPrivateProperty:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$val event = createConfigurationChangedEvent("feature.enabled", "true")</ID>
+    <ID>UnusedPrivateProperty:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$val event = createTenantCreatedEvent(tenantId, "Test Corporation")</ID>
+    <ID>UnusedPrivateProperty:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$val event = createTenantCreatedEvent(tenantId, "Test Tenant")</ID>
+    <ID>UnusedPrivateProperty:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$val event = createUserCreatedEvent(tenantId, "user-789", "admin@test.com")</ID>
+    <ID>UnusedPrivateProperty:EafEventingClientUnitTest.kt$EafEventingClientUnitTest$val expectedSubject = "controlplane.tenant.created"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$@MockK private lateinit var mockIamClient: Any // TODO: Replace with actual EAF IAM client interface</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val expectedTenantId = "tenant-123"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val expectedUserId = "user-456"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val invalidCredentials = mapOf("username" to "invalid", "password" to "wrong")</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val password = "secure123"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val requiredRole = "TENANT_ADMIN"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val tenantId = "tenant-123"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val tenantId = "tenant-456"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val userId = "user-123"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val userId = "user-456"</ID>
+    <ID>UnusedPrivateProperty:EafIamClientUnitTest.kt$EafIamClientUnitTest$val username = "admin@tenant.com"</ID>
+    <ID>UnusedPrivateProperty:HealthCheckIntegrationTest.kt$HealthCheckIntegrationTest$@LocalServerPort private var port: Int = 0</ID>
+    <ID>UnusedPrivateProperty:InvitationService.kt$InvitationService$private val logger = LoggerFactory.getLogger(InvitationService::class.java)</ID>
+    <ID>UnusedPrivateProperty:RoleService.kt$RoleService$private val tenantRepository: TenantRepository</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityEventListener$private val loginAttemptsCounter = Counter .builder("eaf.controlplane.security.login.attempts.total") .description("Total login attempts") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityEventListener$private val loginDurationTimer = Timer .builder("eaf.controlplane.security.login.duration") .description("Time taken for login process") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityEventListener$private val loginFailureCounter = Counter .builder("eaf.controlplane.security.login.failures.total") .description("Failed login attempts") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityEventListener$private val loginSuccessCounter = Counter .builder("eaf.controlplane.security.login.success.total") .description("Successful login attempts") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityMetrics$// Rate limiting and abuse detection private val rateLimitViolationsCounter = Counter .builder("eaf.controlplane.security.rate.limit.violations.total") .description("Rate limit violations detected") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityMetrics$// Session management private val sessionCreatedCounter = Counter .builder("eaf.controlplane.security.sessions.created.total") .description("Total sessions created") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityMetrics$private val sessionInvalidatedCounter = Counter .builder("eaf.controlplane.security.sessions.invalidated.total") .description("Total sessions invalidated") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringConfiguration.kt$SecurityMetrics$private val suspiciousActivityCounter = Counter .builder("eaf.controlplane.security.suspicious.activity.total") .description("Suspicious activity patterns detected") .register(meterRegistry)</ID>
+    <ID>UnusedPrivateProperty:SecurityMonitoringService.kt$SecurityMonitoringService$private val suspiciousActivities = ConcurrentHashMap&lt;String, AtomicLong&gt;()</ID>
+    <ID>UnusedPrivateProperty:TenantServiceTest.kt$TenantServiceTest$private val testTenantId = TenantId.generate()</ID>
+    <ID>UnusedPrivateProperty:UserService.kt$UserService$private val logger = LoggerFactory.getLogger(javaClass)</ID>
+    <ID>UseCheckOrError:AuditService.kt$AuditService$throw IllegalStateException("No authenticated user found")</ID>
+  </CurrentIssues>
+</SmellBaseline>

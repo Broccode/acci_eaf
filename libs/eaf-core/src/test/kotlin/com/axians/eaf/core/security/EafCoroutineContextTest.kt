@@ -127,10 +127,10 @@ class EafCoroutineContextTest {
             val newCorrelationId = "new-correlation-id"
 
             // When/Then
-            assertThrows(RuntimeException::class.java) {
+            assertThrows(IllegalStateException::class.java) {
                 runBlocking {
                     withContext<Unit>(EafContextElement(newSecurityContext, newCorrelationId)) {
-                        throw RuntimeException("Test exception")
+                        throw IllegalStateException("Test exception")
                     }
                 }
             }

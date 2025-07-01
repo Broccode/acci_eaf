@@ -143,7 +143,8 @@ data class RoleDto(
                 description = role.description,
                 scope = role.scope,
                 tenantId = role.tenantId?.value,
-                permissions = role.permissions.map { PermissionDto.fromDomain(it) }.toList(),
+                permissions =
+                    role.permissions.map { PermissionDto.fromDomain(it) }.toList(),
             )
     }
 }
@@ -193,25 +194,28 @@ data class UserStatusResponse(
     val timestamp: Instant,
 ) {
     companion object {
-        fun success(
-            userId: String,
-            email: String,
-            fullName: String,
-            oldStatus: UserStatus,
-            newStatus: UserStatus,
-            action: String,
-        ): UserStatusResponse =
+        fun success(context: UserStatusContext): UserStatusResponse =
             UserStatusResponse(
-                userId = userId,
-                email = email,
-                fullName = fullName,
-                oldStatus = oldStatus,
-                newStatus = newStatus,
-                message = "User $action successfully",
+                userId = context.userId,
+                email = context.email,
+                fullName = context.fullName,
+                oldStatus = context.oldStatus,
+                newStatus = context.newStatus,
+                message = "User ${context.action} successfully",
                 timestamp = Instant.now(),
             )
     }
 }
+
+/** Context data for creating user status responses. Addresses detekt LongParameterList issue. */
+data class UserStatusContext(
+    val userId: String,
+    val email: String,
+    val fullName: String,
+    val oldStatus: UserStatus,
+    val newStatus: UserStatus,
+    val action: String,
+)
 
 /** Response for role assignment operations. */
 data class UserRoleResponse(

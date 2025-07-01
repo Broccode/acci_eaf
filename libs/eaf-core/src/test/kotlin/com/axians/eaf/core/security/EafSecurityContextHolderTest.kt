@@ -57,7 +57,9 @@ class EafSecurityContextHolderTest {
 
                 override fun isAuthenticated() = true
 
-                override fun setAuthenticated(isAuthenticated: Boolean) {}
+                override fun setAuthenticated(isAuthenticated: Boolean) {
+                    // Mock implementation - no action needed
+                }
             }
         every { mockSecurityContext.authentication } returns mockAuthWithTenant
 
@@ -91,9 +93,7 @@ class EafSecurityContextHolderTest {
         every { mockSecurityContext.authentication } returns mockAuthentication
 
         // When & Then
-        assertThrows<IllegalStateException> {
-            contextHolder.getTenantId()
-        }
+        assertThrows<IllegalStateException> { contextHolder.getTenantId() }
     }
 
     @Test
@@ -128,7 +128,9 @@ class EafSecurityContextHolderTest {
 
                 override fun isAuthenticated() = true
 
-                override fun setAuthenticated(isAuthenticated: Boolean) {}
+                override fun setAuthenticated(isAuthenticated: Boolean) {
+                    // Mock implementation - no action needed
+                }
             }
         every { mockSecurityContext.authentication } returns mockAuthWithUser
 

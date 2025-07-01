@@ -5,8 +5,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 import java.security.Principal
 
 /**
- * Interface for accessing EAF security context information.
- * Provides a clean abstraction over Spring Security's SecurityContextHolder.
+ * Interface for accessing EAF security context information. Provides a clean abstraction over
+ * Spring Security's SecurityContextHolder.
  */
 interface EafSecurityContextHolder {
     /**
@@ -69,40 +69,26 @@ interface EafSecurityContextHolder {
 }
 
 /**
- * Default implementation of EafSecurityContextHolder.
- * Uses Spring Security's SecurityContextHolder to access authentication information.
+ * Default implementation of EafSecurityContextHolder. Uses Spring Security's SecurityContextHolder
+ * to access authentication information.
  */
 class DefaultEafSecurityContextHolder : EafSecurityContextHolder {
-    override fun getTenantId(): String =
-        getTenantIdOrNull()
-            ?: throw IllegalStateException("No tenant ID available in security context")
+    override fun getTenantId(): String = getTenantIdOrNull() ?: error("No tenant ID available in security context")
 
     override fun getTenantIdOrNull(): String? {
         val authentication = getAuthentication() ?: return null
 
-        // Try to get tenant ID from EafAuthentication (if using eaf-iam-client)
+        // Try to get tenant ID from EafAuthentication or principal
         val eafAuth = authentication as? HasTenantId
-        if (eafAuth != null) {
-            return eafAuth.getTenantId()
-        }
-
-        // Fallback: try to get from principal if it implements HasTenantId
-        val principal = authentication.principal as? HasTenantId
-        return principal?.getTenantId()
+        return eafAuth?.getTenantId() ?: (authentication.principal as? HasTenantId)?.getTenantId()
     }
 
     override fun getUserId(): String? {
         val authentication = getAuthentication() ?: return null
 
-        // Try to get user ID from EafAuthentication (if using eaf-iam-client)
+        // Try to get user ID from EafAuthentication or principal
         val eafAuth = authentication as? HasUserId
-        if (eafAuth != null) {
-            return eafAuth.getUserId()
-        }
-
-        // Fallback: try to get from principal if it implements HasUserId
-        val principal = authentication.principal as? HasUserId
-        return principal?.getUserId()
+        return eafAuth?.getUserId() ?: (authentication.principal as? HasUserId)?.getUserId()
     }
 
     override fun getPrincipal(): Principal? = getAuthentication()?.principal as? Principal
@@ -111,14 +97,13 @@ class DefaultEafSecurityContextHolder : EafSecurityContextHolder {
         val authentication = getAuthentication() ?: return false
         return authentication.authorities?.any {
             it.authority == "ROLE_$role" || it.authority == role
-        } ?: false
+        }
+            ?: false
     }
 
     override fun hasPermission(permission: String): Boolean {
         val authentication = getAuthentication() ?: return false
-        return authentication.authorities?.any {
-            it.authority == permission
-        } ?: false
+        return authentication.authorities?.any { it.authority == permission } ?: false
     }
 
     override fun hasAnyRole(vararg roles: String): Boolean = roles.any { hasRole(it) }
@@ -128,16 +113,12 @@ class DefaultEafSecurityContextHolder : EafSecurityContextHolder {
     override fun getAuthentication(): Authentication? = SecurityContextHolder.getContext()?.authentication
 }
 
-/**
- * Interface for objects that can provide a tenant ID.
- */
+/** Interface for objects that can provide a tenant ID. */
 interface HasTenantId {
     fun getTenantId(): String
 }
 
-/**
- * Interface for objects that can provide a user ID.
- */
+/** Interface for objects that can provide a user ID. */
 interface HasUserId {
     fun getUserId(): String?
 }

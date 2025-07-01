@@ -15,6 +15,7 @@ import com.axians.eaf.controlplane.domain.service.TenantDetailsResult
 import com.axians.eaf.controlplane.domain.service.TenantOperationResult
 import com.axians.eaf.controlplane.domain.service.TenantService
 import com.axians.eaf.controlplane.domain.service.UpdateTenantResult
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.EndpointExceptionHandler
 import com.axians.eaf.controlplane.infrastructure.security.annotation.RequiresTenantAccess
 import com.axians.eaf.core.annotations.HillaWorkaround
 import com.vaadin.flow.server.auth.AnonymousAllowed
@@ -46,11 +47,11 @@ class TenantManagementEndpoint(
     /** Creates a new tenant with the specified configuration. */
     fun createTenant(
         @Valid request: CreateTenantRequest,
-    ): CreateTenantResponse {
-        logger.info("Creating tenant: {}", request.name)
+    ): CreateTenantResponse =
+        EndpointExceptionHandler.handleEndpointExecution("createTenant", logger) {
+            logger.info("Creating tenant: {}", request.name)
 
-        return runBlocking {
-            try {
+            runBlocking {
                 val result =
                     tenantService.createTenant(
                         name = request.name,
@@ -64,7 +65,8 @@ class TenantManagementEndpoint(
                         CreateTenantResponse.success(
                             tenantId = result.tenantId,
                             name = result.tenantName,
-                            adminUserId = null, // Will be set when user service is implemented
+                            adminUserId =
+                            null, // Will be set when user service is implemented
                         )
                     }
                     is CreateTenantResult.Failure -> {
@@ -72,21 +74,17 @@ class TenantManagementEndpoint(
                         CreateTenantResponse.failure(result.message)
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error creating tenant: ${request.name}", exception)
-                CreateTenantResponse.failure("Failed to create tenant: ${exception.message}")
             }
         }
-    }
 
     /** Retrieves detailed information about a specific tenant. */
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
     @RequiresTenantAccess
-    fun getTenant(tenantId: String): TenantDetailsResponse? {
-        logger.debug("Retrieving tenant details: {}", tenantId)
+    fun getTenant(tenantId: String): TenantDetailsResponse? =
+        EndpointExceptionHandler.handleEndpointExecution("getTenant", logger) {
+            logger.debug("Retrieving tenant details: {}", tenantId)
 
-        return runBlocking {
-            try {
+            runBlocking {
                 when (val result = tenantService.getTenantDetails(tenantId)) {
                     is TenantDetailsResult.Success -> {
                         logger.debug("Tenant details retrieved: {}", tenantId)
@@ -102,23 +100,19 @@ class TenantManagementEndpoint(
                         null
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error retrieving tenant: $tenantId", exception)
-                null
             }
         }
-    }
 
     /** Updates an existing tenant's details. */
     @RequiresTenantAccess
     fun updateTenant(
         tenantId: String,
         @Valid request: UpdateTenantRequest,
-    ): TenantDetailsResponse? {
-        logger.info("Updating tenant: {}", tenantId)
+    ): TenantDetailsResponse? =
+        EndpointExceptionHandler.handleEndpointExecution("updateTenant", logger) {
+            logger.info("Updating tenant: {}", tenantId)
 
-        return runBlocking {
-            try {
+            runBlocking {
                 val result =
                     tenantService.updateTenant(
                         tenantId = tenantId,
@@ -129,7 +123,8 @@ class TenantManagementEndpoint(
                 when (result) {
                     is UpdateTenantResult.Success -> {
                         logger.info("Tenant updated successfully: {}", tenantId)
-                        // After updating, fetch the full details to return a consistent response
+                        // After updating, fetch the full details to return a consistent
+                        // response
                         getTenant(tenantId)
                     }
                     is UpdateTenantResult.NotFound -> {
@@ -141,23 +136,19 @@ class TenantManagementEndpoint(
                         null
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error updating tenant: $tenantId", exception)
-                null
             }
         }
-    }
 
     /** Suspends a tenant, preventing user access. */
     @RequiresTenantAccess
     fun suspendTenant(
         tenantId: String,
         reason: String?,
-    ): Boolean {
-        logger.info("Suspending tenant: {} with reason: {}", tenantId, reason)
+    ): Boolean =
+        EndpointExceptionHandler.handleEndpointExecution("suspendTenant", logger) {
+            logger.info("Suspending tenant: {} with reason: {}", tenantId, reason)
 
-        return runBlocking {
-            try {
+            runBlocking {
                 val result = tenantService.suspendTenant(tenantId, reason)
 
                 when (result) {
@@ -165,9 +156,7 @@ class TenantManagementEndpoint(
                         logger.info("Tenant suspended successfully: {}", tenantId)
                         true
                     }
-                    is TenantOperationResult.NotFound,
-                    is TenantOperationResult.Failure,
-                    -> {
+                    is TenantOperationResult.NotFound, is TenantOperationResult.Failure -> {
                         logger.warn(
                             "Failed to suspend tenant {}: {}",
                             tenantId,
@@ -180,19 +169,15 @@ class TenantManagementEndpoint(
                         false
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error suspending tenant: $tenantId", exception)
-                false
             }
         }
-    }
 
     /** Reactivates a suspended tenant. */
-    fun reactivateTenant(tenantId: String): Boolean {
-        logger.info("Reactivating tenant: {}", tenantId)
+    fun reactivateTenant(tenantId: String): Boolean =
+        EndpointExceptionHandler.handleEndpointExecution("reactivateTenant", logger) {
+            logger.info("Reactivating tenant: {}", tenantId)
 
-        return runBlocking {
-            try {
+            runBlocking {
                 val result = tenantService.reactivateTenant(tenantId)
 
                 when (result) {
@@ -200,9 +185,7 @@ class TenantManagementEndpoint(
                         logger.info("Tenant reactivated successfully: {}", tenantId)
                         true
                     }
-                    is TenantOperationResult.NotFound,
-                    is TenantOperationResult.Failure,
-                    -> {
+                    is TenantOperationResult.NotFound, is TenantOperationResult.Failure -> {
                         logger.warn(
                             "Failed to reactivate tenant {}: {}",
                             tenantId,
@@ -215,23 +198,19 @@ class TenantManagementEndpoint(
                         false
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error reactivating tenant: $tenantId", exception)
-                false
             }
         }
-    }
 
     /** Archives a tenant permanently. */
     @RolesAllowed("SUPER_ADMIN") // Only super admin can archive tenants
     fun archiveTenant(
         tenantId: String,
         reason: String?,
-    ): ArchiveTenantResponse? {
-        logger.info("Archiving tenant: {} with reason: {}", tenantId, reason)
+    ): ArchiveTenantResponse? =
+        EndpointExceptionHandler.handleEndpointExecution("archiveTenant", logger) {
+            logger.info("Archiving tenant: {} with reason: {}", tenantId, reason)
 
-        return runBlocking {
-            try {
+            runBlocking {
                 val result = tenantService.archiveTenant(tenantId, reason)
 
                 when (result) {
@@ -239,9 +218,7 @@ class TenantManagementEndpoint(
                         logger.info("Tenant archived successfully: {}", tenantId)
                         ArchiveTenantResponse.success(result.tenantId, result.archivedAt)
                     }
-                    is ArchiveTenantResult.NotFound,
-                    is ArchiveTenantResult.Failure,
-                    -> {
+                    is ArchiveTenantResult.NotFound, is ArchiveTenantResult.Failure -> {
                         logger.warn(
                             "Failed to archive tenant {}: {}",
                             tenantId,
@@ -254,39 +231,26 @@ class TenantManagementEndpoint(
                         null
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error archiving tenant: $tenantId", exception)
-                null
             }
         }
-    }
 
     /** Lists all tenants with optional filtering and pagination. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun listTenants(filter: TenantFilter): PagedResponse<TenantSummary> {
-        logger.debug("Listing tenants with filter: {}", filter)
+    fun listTenants(filter: TenantFilter): PagedResponse<TenantSummary> =
+        EndpointExceptionHandler.handleEndpointExecution("listTenants", logger) {
+            logger.debug("Listing tenants with filter: {}", filter)
 
-        return runBlocking {
-            try {
+            runBlocking {
                 val result = tenantService.listTenants(filter)
                 logger.debug("Retrieved {} tenants", result.content.size)
                 result
-            } catch (exception: Exception) {
-                logger.error("Error listing tenants", exception)
-                PagedResponse.of(emptyList(), filter.page, filter.size, 0)
             }
         }
-    }
 
     /** Checks if a tenant is operational. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
     fun isTenantOperational(tenantId: String): Boolean =
-        runBlocking {
-            try {
-                tenantService.isTenantOperational(tenantId)
-            } catch (exception: Exception) {
-                logger.error("Error checking tenant operational status: $tenantId", exception)
-                false
-            }
+        EndpointExceptionHandler.handleEndpointExecution("isTenantOperational", logger) {
+            runBlocking { tenantService.isTenantOperational(tenantId) }
         }
 }

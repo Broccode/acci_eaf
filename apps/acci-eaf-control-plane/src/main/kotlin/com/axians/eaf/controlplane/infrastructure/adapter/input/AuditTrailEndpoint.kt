@@ -6,6 +6,8 @@ import com.axians.eaf.controlplane.application.dto.audit.LogAdminActionRequest
 import com.axians.eaf.controlplane.domain.model.audit.AdminAction
 import com.axians.eaf.controlplane.domain.service.AuditResult
 import com.axians.eaf.controlplane.domain.service.AuditService
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.EndpointExceptionHandler
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ResponseConstants
 import com.axians.eaf.core.annotations.HillaWorkaround
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import com.vaadin.hilla.BrowserCallable
@@ -31,6 +33,17 @@ class AuditTrailEndpoint(
 ) {
     private val logger = LoggerFactory.getLogger(AuditTrailEndpoint::class.java)
 
+    /** Processes audit result and returns data or throws appropriate exception. */
+    private fun processAuditResult(result: AuditResult): Any =
+        when (result) {
+            is AuditResult.Success<*> ->
+                result.data
+                    ?: throw EndpointException(
+                        "Null result from successful audit operation",
+                    )
+            is AuditResult.Error -> throw EndpointException(result.message)
+        }
+
     /**
      * Retrieves audit trail entries with filtering and pagination. Available to administrators for
      * comprehensive audit analysis.
@@ -38,15 +51,10 @@ class AuditTrailEndpoint(
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
     fun getAuditTrail(
         @Valid request: AuditTrailRequest,
-    ): Any? =
-        try {
-            when (val result = runSuspending { auditService.getAuditTrail(request) }) {
-                is AuditResult.Success<*> -> result.data
-                is AuditResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to retrieve audit trail", e)
-            throw EndpointException("Failed to retrieve audit trail: ${e.message}")
+    ): Any =
+        EndpointExceptionHandler.handleEndpointExecution("getAuditTrail", logger) {
+            val result = runSuspending { auditService.getAuditTrail(request) }
+            processAuditResult(result)
         }
 
     /**
@@ -56,26 +64,21 @@ class AuditTrailEndpoint(
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
     fun generateAuditStatistics(
         @Valid request: AuditStatisticsRequest,
-    ): Any? =
-        try {
-            when (val result = runSuspending { auditService.generateStatistics(request) }) {
-                is AuditResult.Success<*> -> result.data
-                is AuditResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to generate audit statistics", e)
-            throw EndpointException("Failed to generate audit statistics: ${e.message}")
+    ): Any =
+        EndpointExceptionHandler.handleEndpointExecution("generateAuditStatistics", logger) {
+            val result = runSuspending { auditService.generateStatistics(request) }
+            processAuditResult(result)
         }
 
     /**
-     * Logs a custom administrative action for audit tracking. Used by administrators to create audit
-     * entries for manual operations.
+     * Logs a custom administrative action for audit tracking. Used by administrators to create
+     * audit entries for manual operations.
      */
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
     fun logAdminAction(
         @Valid request: LogAdminActionRequest,
     ): Any =
-        try {
+        EndpointExceptionHandler.handleEndpointExecution("logAdminAction", logger) {
             val action = AdminAction.valueOf(request.action)
             val result =
                 runSuspending {
@@ -91,12 +94,6 @@ class AuditTrailEndpoint(
                 "message" to "Administrative action logged successfully",
                 "timestamp" to Instant.now(),
             )
-        } catch (e: IllegalArgumentException) {
-            logger.warn("Invalid action provided: ${request.action}")
-            throw EndpointException("Invalid action: ${request.action}")
-        } catch (e: Exception) {
-            logger.error("Failed to log admin action", e)
-            throw EndpointException("Failed to log administrative action: ${e.message}")
         }
 
     /**
@@ -104,16 +101,11 @@ class AuditTrailEndpoint(
      * and quick overview.
      */
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN", "TENANT_ADMIN")
-    fun getRecentAuditEntries(limit: Int = 100): Any? =
-        try {
-            val effectiveLimit = minOf(limit, 1000) // Cap at 1000 for performance
-            when (val result = runSuspending { auditService.getRecentEntries(effectiveLimit) }) {
-                is AuditResult.Success<*> -> result.data
-                is AuditResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to get recent audit entries", e)
-            throw EndpointException("Failed to get recent audit entries: ${e.message}")
+    fun getRecentAuditEntries(limit: Int = ResponseConstants.DEFAULT_HEALTH_CHECK_LIMIT): Any =
+        EndpointExceptionHandler.handleEndpointExecution("getRecentAuditEntries", logger) {
+            val effectiveLimit = minOf(limit, ResponseConstants.MAX_PAGE_SIZE)
+            val result = runSuspending { auditService.getRecentEntries(effectiveLimit) }
+            processAuditResult(result)
         }
 
     /**
@@ -124,9 +116,8 @@ class AuditTrailEndpoint(
     fun getSecurityEvents(
         fromDate: Instant? = null,
         toDate: Instant? = null,
-    ): Any? =
-        try {
-            // For demonstration, we'll create a basic filter request for security events
+    ): Any =
+        EndpointExceptionHandler.handleEndpointExecution("getSecurityEvents", logger) {
             val request =
                 AuditTrailRequest(
                     fromDate =
@@ -134,20 +125,15 @@ class AuditTrailEndpoint(
                             ?: Instant
                                 .now()
                                 .minusSeconds(
-                                    24 * 60 * 60,
+                                    ResponseConstants
+                                        .AUDIT_LOOKBACK_SECONDS,
                                 ),
-                    // Last 24 hours default
                     toDate = toDate ?: Instant.now(),
-                    pageSize = 500, // Larger page size for security monitoring
+                    pageSize = ResponseConstants.SECURITY_EVENTS_PAGE_SIZE,
                 )
 
-            when (val result = runSuspending { auditService.getAuditTrail(request) }) {
-                is AuditResult.Success<*> -> result.data
-                is AuditResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to get security events", e)
-            throw EndpointException("Failed to get security events: ${e.message}")
+            val result = runSuspending { auditService.getAuditTrail(request) }
+            processAuditResult(result)
         }
 
     /**
@@ -158,8 +144,8 @@ class AuditTrailEndpoint(
     fun getHighRiskEvents(
         fromDate: Instant? = null,
         toDate: Instant? = null,
-    ): Any? =
-        try {
+    ): Any =
+        EndpointExceptionHandler.handleEndpointExecution("getHighRiskEvents", logger) {
             val request =
                 AuditTrailRequest(
                     fromDate =
@@ -167,20 +153,15 @@ class AuditTrailEndpoint(
                             ?: Instant
                                 .now()
                                 .minusSeconds(
-                                    7 * 24 * 60 * 60,
+                                    ResponseConstants
+                                        .EXTENDED_AUDIT_LOOKBACK_SECONDS,
                                 ),
-                    // Last 7 days default
                     toDate = toDate ?: Instant.now(),
-                    pageSize = 200,
+                    pageSize = ResponseConstants.HIGH_RISK_EVENTS_PAGE_SIZE,
                 )
 
-            when (val result = runSuspending { auditService.getAuditTrail(request) }) {
-                is AuditResult.Success<*> -> result.data
-                is AuditResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to get high-risk events", e)
-            throw EndpointException("Failed to get high-risk events: ${e.message}")
+            val result = runSuspending { auditService.getAuditTrail(request) }
+            processAuditResult(result)
         }
 
     /**
@@ -193,24 +174,19 @@ class AuditTrailEndpoint(
         targetId: String,
         fromDate: Instant? = null,
         toDate: Instant? = null,
-    ): Any? =
-        try {
+    ): Any =
+        EndpointExceptionHandler.handleEndpointExecution("getAuditTrailForTarget", logger) {
             val request =
                 AuditTrailRequest(
                     targetType = targetType,
                     targetId = targetId,
                     fromDate = fromDate,
                     toDate = toDate,
-                    pageSize = 100,
+                    pageSize = ResponseConstants.TARGET_AUDIT_PAGE_SIZE,
                 )
 
-            when (val result = runSuspending { auditService.getAuditTrail(request) }) {
-                is AuditResult.Success<*> -> result.data
-                is AuditResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: Exception) {
-            logger.error("Failed to get audit trail for target $targetType:$targetId", e)
-            throw EndpointException("Failed to get audit trail for target: ${e.message}")
+            val result = runSuspending { auditService.getAuditTrail(request) }
+            processAuditResult(result)
         }
 
     /**
@@ -219,16 +195,17 @@ class AuditTrailEndpoint(
      */
     @AnonymousAllowed
     fun getAvailableActions(): Map<String, String> =
-        AdminAction.values().associate { action -> action.name to action.getDescription() }
+        EndpointExceptionHandler.handleEndpointExecution("getAvailableActions", logger) {
+            AdminAction.values().associate { action -> action.name to action.getDescription() }
+        }
 
     /**
-     * Example endpoint for testing audit functionality. Creates sample audit entries for development
-     * and testing.
+     * Example endpoint for testing audit functionality. Creates sample audit entries for
+     * development and testing.
      */
     @RolesAllowed("SUPER_ADMIN")
     fun createSampleAuditEntries(): Map<String, Any> =
-        try {
-            // This is for testing only - log a sample action
+        EndpointExceptionHandler.handleEndpointExecution("createSampleAuditEntries", logger) {
             val result =
                 runSuspending {
                     auditService.logAdminAction(
@@ -248,9 +225,6 @@ class AuditTrailEndpoint(
                 "auditEntryId" to result.id.value,
                 "timestamp" to Instant.now(),
             )
-        } catch (e: Exception) {
-            logger.error("Failed to create sample audit entry", e)
-            throw EndpointException("Failed to create sample audit entry: ${e.message}")
         }
 
     /**

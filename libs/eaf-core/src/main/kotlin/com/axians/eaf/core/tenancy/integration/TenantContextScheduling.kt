@@ -1,5 +1,6 @@
 package com.axians.eaf.core.tenancy.integration
 
+import com.axians.eaf.core.tenancy.TenantContextException
 import com.axians.eaf.core.tenancy.TenantContextHolder
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Component
  * contexts, particularly useful for batch processing and maintenance tasks.
  */
 @Component
-class TenantContextScheduledExecutor(
-    private val bridge: SecurityTenantContextBridge,
-) {
+class TenantContextScheduledExecutor {
     private val logger = LoggerFactory.getLogger(TenantContextScheduledExecutor::class.java)
 
     /**
@@ -34,9 +33,25 @@ class TenantContextScheduledExecutor(
                 task.run()
                 logger.debug("Completed {} for tenant: {}", description, tenantId)
             }
-        } catch (e: Exception) {
+        } catch (e: TenantContextException) {
             logger.error(
-                "Failed to execute {} for tenant {}: {}",
+                "Tenant context error executing {} for tenant {}: {}",
+                description,
+                tenantId,
+                e.message,
+                e,
+            )
+        } catch (e: IllegalArgumentException) {
+            logger.error(
+                "Invalid argument executing {} for tenant {}: {}",
+                description,
+                tenantId,
+                e.message,
+                e,
+            )
+        } catch (e: IllegalStateException) {
+            logger.error(
+                "Invalid state executing {} for tenant {}: {}",
                 description,
                 tenantId,
                 e.message,
@@ -66,9 +81,25 @@ class TenantContextScheduledExecutor(
                     logger.debug("Executing {} for tenant: {}", description, tenantId)
                     task(tenantId)
                 }
-            } catch (e: Exception) {
+            } catch (e: TenantContextException) {
                 logger.error(
-                    "Failed to execute {} for tenant {}: {}",
+                    "Tenant context error executing {} for tenant {}: {}",
+                    description,
+                    tenantId,
+                    e.message,
+                    e,
+                )
+            } catch (e: IllegalArgumentException) {
+                logger.error(
+                    "Invalid argument executing {} for tenant {}: {}",
+                    description,
+                    tenantId,
+                    e.message,
+                    e,
+                )
+            } catch (e: IllegalStateException) {
+                logger.error(
+                    "Invalid state executing {} for tenant {}: {}",
                     description,
                     tenantId,
                     e.message,

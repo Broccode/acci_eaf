@@ -5,6 +5,7 @@ import com.axians.eaf.controlplane.domain.service.AuditService
 import com.axians.eaf.controlplane.infrastructure.configuration.SecurityProperties
 import com.axians.eaf.core.security.EafSecurityContextHolder
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -20,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLong
 @Service
 class SecurityMonitoringService(
     private val securityProperties: SecurityProperties,
-    private val auditService: AuditService,
+    @Lazy private val auditService: AuditService,
     private val securityContextHolder: EafSecurityContextHolder,
 ) {
     private val logger = LoggerFactory.getLogger(SecurityMonitoringService::class.java)

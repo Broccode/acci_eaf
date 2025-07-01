@@ -5,6 +5,12 @@ import org.slf4j.LoggerFactory
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 
+/** Exception thrown when message acknowledgment operations fail. */
+class MessageAcknowledgmentException(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)
+
 /**
  * Default implementation of MessageContext that wraps a NATS message.
  *
@@ -42,10 +48,10 @@ class DefaultMessageContext(
         try {
             message.ack()
             logger.debug("Acknowledged message: {}", message.subject)
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             acknowledged.set(false) // Reset on failure
             logger.error("Failed to acknowledge message {}: {}", message.subject, e.message, e)
-            throw RuntimeException("Failed to acknowledge message", e)
+            throw MessageAcknowledgmentException("Failed to acknowledge message", e)
         }
     }
 
@@ -58,10 +64,10 @@ class DefaultMessageContext(
         try {
             message.nak()
             logger.debug("Negatively acknowledged message: {}", message.subject)
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             acknowledged.set(false) // Reset on failure
             logger.error("Failed to nak message {}: {}", message.subject, e.message, e)
-            throw RuntimeException("Failed to nak message", e)
+            throw MessageAcknowledgmentException("Failed to nak message", e)
         }
     }
 
@@ -78,7 +84,7 @@ class DefaultMessageContext(
                 delay,
                 message.subject,
             )
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             acknowledged.set(false) // Reset on failure
             logger.error(
                 "Failed to nak message {} with delay {}: {}",
@@ -87,7 +93,7 @@ class DefaultMessageContext(
                 e.message,
                 e,
             )
-            throw RuntimeException("Failed to nak message with delay", e)
+            throw MessageAcknowledgmentException("Failed to nak message with delay", e)
         }
     }
 
@@ -100,10 +106,10 @@ class DefaultMessageContext(
         try {
             message.term()
             logger.debug("Terminated message: {}", message.subject)
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             acknowledged.set(false) // Reset on failure
             logger.error("Failed to terminate message {}: {}", message.subject, e.message, e)
-            throw RuntimeException("Failed to terminate message", e)
+            throw MessageAcknowledgmentException("Failed to terminate message", e)
         }
     }
 

@@ -20,6 +20,9 @@ class TenantAwareEventMetadata {
     companion object {
         private val logger = LoggerFactory.getLogger(TenantAwareEventMetadata::class.java)
 
+        /** Length of UUID suffix in correlation IDs */
+        private const val CORRELATION_UUID_SUFFIX_LENGTH = 8
+
         /** Standard metadata key for tenant ID */
         const val TENANT_ID_KEY = "tenant_id"
 
@@ -359,7 +362,9 @@ class TenantAwareEventMetadata {
      * @return A unique correlation ID
      */
     private fun generateCorrelationId(): String =
-        "corr-${System.currentTimeMillis()}-${java.util.UUID.randomUUID().toString().take(8)}"
+        "corr-${System.currentTimeMillis()}-${java.util.UUID.randomUUID().toString().take(
+            CORRELATION_UUID_SUFFIX_LENGTH,
+        )}"
 }
 
 /** Exception thrown when tenant validation fails during event processing. */

@@ -13,14 +13,13 @@ import java.util.UUID
  * - Propagate correlation IDs across async boundaries
  */
 object CorrelationIdManager {
-    private const val CORRELATION_ID_KEY = "correlationId"
     private const val MDC_CORRELATION_ID_KEY = "correlationId"
 
     private val correlationIdThreadLocal = InheritableThreadLocal<String>()
 
     /**
-     * Gets the current correlation ID from thread-local storage.
-     * If no correlation ID exists, generates a new one and stores it.
+     * Gets the current correlation ID from thread-local storage. If no correlation ID exists,
+     * generates a new one and stores it.
      *
      * @return the current correlation ID
      */
@@ -34,8 +33,8 @@ object CorrelationIdManager {
     fun getCurrentCorrelationIdOrNull(): String? = correlationIdThreadLocal.get()
 
     /**
-     * Sets the correlation ID for the current thread.
-     * Also updates the SLF4J MDC for logging integration.
+     * Sets the correlation ID for the current thread. Also updates the SLF4J MDC for logging
+     * integration.
      *
      * @param correlationId the correlation ID to set
      */
@@ -55,18 +54,15 @@ object CorrelationIdManager {
         return correlationId
     }
 
-    /**
-     * Clears the correlation ID from the current thread.
-     * Also removes it from the SLF4J MDC.
-     */
+    /** Clears the correlation ID from the current thread. Also removes it from the SLF4J MDC. */
     fun clearCorrelationId() {
         correlationIdThreadLocal.remove()
         MDC.remove(MDC_CORRELATION_ID_KEY)
     }
 
     /**
-     * Executes a block of code with a specific correlation ID.
-     * The correlation ID is automatically restored after execution.
+     * Executes a block of code with a specific correlation ID. The correlation ID is automatically
+     * restored after execution.
      *
      * @param correlationId the correlation ID to use during execution
      * @param block the code block to execute
@@ -90,8 +86,8 @@ object CorrelationIdManager {
     }
 
     /**
-     * Executes a block of code with a new correlation ID.
-     * The correlation ID is automatically restored after execution.
+     * Executes a block of code with a new correlation ID. The correlation ID is automatically
+     * restored after execution.
      *
      * @param block the code block to execute
      * @return the result of the block execution

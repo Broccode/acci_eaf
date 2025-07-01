@@ -4,11 +4,14 @@ import com.axians.eaf.controlplane.infrastructure.adapter.outbound.entity.Permis
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import org.springframework.stereotype.Repository
 import java.util.UUID
 
-/** JPA repository interface for PermissionEntity persistence operations. */
-@Repository
+/**
+ * JPA repository interface for PermissionEntity persistence operations.
+ *
+ * Note: Spring Data JPA interfaces should not be annotated with @Repository as they are
+ * automatically detected and proxied by Spring.
+ */
 interface JpaPermissionRepository : JpaRepository<PermissionEntity, UUID> {
     /** Find a permission by its unique name. */
     fun findByName(name: String): PermissionEntity?

@@ -28,7 +28,10 @@ data class User(
     }
 
     companion object {
-        private fun isValidEmail(email: String): Boolean = email.contains("@") && email.length <= 320
+        private const val MAX_EMAIL_LENGTH = 320
+        private const val MIN_PASSWORD_HASH_LENGTH = 60
+
+        private fun isValidEmail(email: String): Boolean = email.contains("@") && email.length <= MAX_EMAIL_LENGTH
 
         /** Factory method to create an initial Tenant Administrator. */
         fun createTenantAdmin(
@@ -48,8 +51,8 @@ data class User(
         }
 
         /**
-         * Factory method to create a SuperAdmin user. SuperAdmins have system-wide privileges and are
-         * associated with a tenant.
+         * Factory method to create a SuperAdmin user. SuperAdmins have system-wide privileges and
+         * are associated with a tenant.
          */
         fun createSuperAdmin(
             tenantId: String,
@@ -111,7 +114,9 @@ data class User(
     /** Domain method to set the password hash. */
     fun setPasswordHash(passwordHash: String): User {
         require(passwordHash.isNotBlank()) { "Password hash cannot be blank" }
-        require(passwordHash.length >= 60) { "Password hash appears to be invalid (too short)" }
+        require(passwordHash.length >= MIN_PASSWORD_HASH_LENGTH) {
+            "Password hash appears to be invalid (too short)"
+        }
 
         return copy(
             passwordHash = passwordHash,

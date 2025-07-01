@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing.consumer
 
 import com.axians.eaf.eventing.EventEnvelope
@@ -26,8 +28,8 @@ import java.util.UUID
 /**
  * Basic integration test for NATS JetStream functionality.
  *
- * This test requires a local NATS server with JetStream enabled.
- * To run this test, start a NATS server with:
+ * This test requires a local NATS server with JetStream enabled. To run this test, start a NATS
+ * server with:
  * ```
  * docker run --rm -p 4222:4222 -p 8222:8222 nats:2.10.22-alpine -js -m 8222
  * ```
@@ -116,10 +118,7 @@ class NatsJetStreamBasicIntegrationTest {
         val consumerInfo =
             jetStreamManagement.addOrUpdateConsumer(
                 streamName,
-                ConsumerConfiguration
-                    .builder()
-                    .durable("test-basic-consumer")
-                    .build(),
+                ConsumerConfiguration.builder().durable("test-basic-consumer").build(),
             )
 
         // Then
@@ -148,10 +147,7 @@ class NatsJetStreamBasicIntegrationTest {
             jetStreamManagement.addStream(streamConfig)
             jetStreamManagement.addOrUpdateConsumer(
                 streamName,
-                ConsumerConfiguration
-                    .builder()
-                    .durable("test-pubsub-consumer")
-                    .build(),
+                ConsumerConfiguration.builder().durable("test-pubsub-consumer").build(),
             )
 
             // Publish a test message
@@ -213,10 +209,7 @@ class NatsJetStreamBasicIntegrationTest {
             jetStreamManagement.addStream(streamConfig)
             jetStreamManagement.addOrUpdateConsumer(
                 streamName,
-                ConsumerConfiguration
-                    .builder()
-                    .durable("test-ack-consumer")
-                    .build(),
+                ConsumerConfiguration.builder().durable("test-ack-consumer").build(),
             )
 
             // Publish test messages

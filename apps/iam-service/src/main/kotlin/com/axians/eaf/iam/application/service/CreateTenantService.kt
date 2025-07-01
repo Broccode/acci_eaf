@@ -21,6 +21,10 @@ class CreateTenantService(
 ) : CreateTenantUseCase {
     private val logger = LoggerFactory.getLogger(CreateTenantService::class.java)
 
+    companion object {
+        private const val MAX_EMAIL_LENGTH = 320
+    }
+
     /**
      * Handles the tenant creation command by:
      * 1. Validating the command input
@@ -49,7 +53,8 @@ class CreateTenantService(
         val saveResult = saveTenantPort.saveTenantWithAdmin(tenant, tenantAdmin)
 
         // Log invitation details (placeholder for email notification - AC 5)
-        val invitationDetails = "Invitation link sent to $trimmedEmail for tenant $trimmedTenantName"
+        val invitationDetails =
+            "Invitation link sent to $trimmedEmail for tenant $trimmedTenantName"
         logger.info(
             "Tenant created successfully: {} with admin: {}. {}",
             tenant.tenantId,
@@ -76,14 +81,12 @@ class CreateTenantService(
         tenantName: String,
         email: String,
     ) {
-        if (saveTenantPort.existsByTenantName(tenantName)) {
-            throw IllegalArgumentException("Tenant with name '$tenantName' already exists")
+        require(!saveTenantPort.existsByTenantName(tenantName)) {
+            "Tenant with name '$tenantName' already exists"
         }
 
-        if (saveTenantPort.existsByEmail(email)) {
-            throw IllegalArgumentException("User with email '$email' already exists")
-        }
+        require(!saveTenantPort.existsByEmail(email)) { "User with email '$email' already exists" }
     }
 
-    private fun isValidEmail(email: String): Boolean = email.contains("@") && email.length <= 320
+    private fun isValidEmail(email: String): Boolean = email.contains("@") && email.length <= MAX_EMAIL_LENGTH
 }

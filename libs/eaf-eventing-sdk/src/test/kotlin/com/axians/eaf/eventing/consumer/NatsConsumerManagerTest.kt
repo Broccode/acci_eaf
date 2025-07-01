@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing.consumer
 
 import com.axians.eaf.eventing.config.NatsEventingProperties
@@ -58,7 +60,8 @@ class NatsConsumerManagerTest {
         val listenerDef = createTestListenerDefinition()
         val subscribeOptionsSlot = slot<PushSubscribeOptions>()
 
-        every { jetStream.subscribe(any<String>(), capture(subscribeOptionsSlot)) } returns subscription
+        every { jetStream.subscribe(any<String>(), capture(subscribeOptionsSlot)) } returns
+            subscription
 
         consumerManager =
             NatsConsumerManager(
@@ -79,7 +82,8 @@ class NatsConsumerManagerTest {
     fun `should stop consumer gracefully`() {
         // given
         val listenerDef = createTestListenerDefinition()
-        every { jetStream.subscribe(any<String>(), any<PushSubscribeOptions>()) } returns subscription
+        every { jetStream.subscribe(any<String>(), any<PushSubscribeOptions>()) } returns
+            subscription
         every { subscription.unsubscribe() } returns Unit
 
         consumerManager =
@@ -121,8 +125,23 @@ class NatsConsumerManagerTest {
 
     @Service
     class TestEventHandler {
-        fun handleEvent(event: String) {
+        @NatsJetStreamListener("test.events.>")
+        fun onTestEvent(
+            @Suppress("UNUSED_PARAMETER") event: TestEvent,
+        ) {
+            // Test method - no implementation needed
+        }
+
+        fun handleEvent(
+            @Suppress("UNUSED_PARAMETER") event: String,
+        ) {
             // Test handler implementation
         }
     }
+
+    /** Simple test event class for testing purposes. */
+    data class TestEvent(
+        val id: String,
+        val name: String,
+    )
 }

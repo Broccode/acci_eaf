@@ -252,6 +252,8 @@ class TenantContextSecurityValidatorTest {
                     validator.validateTenantIdSecurity(tenantId, "jwt", clientId)
                     true
                 } catch (e: TenantContextException) {
+                    // Expected: some calls may fail due to rate limiting in concurrent scenario
+                    println("Rate limit hit during concurrent test: ${e.message}")
                     false
                 }
             }

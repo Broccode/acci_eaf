@@ -1,3 +1,5 @@
+@file:Suppress("UnusedPrivateProperty")
+
 package com.axians.eaf.eventsourcing.axon
 
 import com.axians.eaf.core.tenancy.TenantContextException

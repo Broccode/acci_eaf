@@ -51,7 +51,7 @@ class WorkingTenantIntegration {
             }
 
             logger.info("Tenant context flow demonstration completed successfully")
-        } catch (exception: Exception) {
+        } catch (exception: IllegalStateException) {
             logger.error("Error in tenant context flow demonstration", exception)
         }
     }

@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing
 
 import com.axians.eaf.eventing.config.NatsEventingProperties
@@ -28,7 +30,8 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Enhanced integration tests for NatsEventPublisher using the local docker-compose NATS infrastructure.
+ * Enhanced integration tests for NatsEventPublisher using the local docker-compose NATS
+ * infrastructure.
  *
  * These tests use the NATS server from infra/docker-compose/docker-compose.yml and verify:
  * - Successful publishing and PublishAck handling
@@ -224,18 +227,14 @@ class NatsEventPublisherIntegrationTest {
     @Test
     fun `should throw IllegalArgumentException for empty tenant ID`() {
         assertThrows<IllegalArgumentException> {
-            runBlocking {
-                publisher.publish("test.subject", "", "test event")
-            }
+            runBlocking { publisher.publish("test.subject", "", "test event") }
         }
     }
 
     @Test
     fun `should throw IllegalArgumentException for blank tenant ID`() {
         assertThrows<IllegalArgumentException> {
-            runBlocking {
-                publisher.publish("test.subject", "   ", "test event")
-            }
+            runBlocking { publisher.publish("test.subject", "   ", "test event") }
         }
     }
 
@@ -248,9 +247,7 @@ class NatsEventPublisherIntegrationTest {
 
         // When/Then
         assertThrows<EventPublishingException> {
-            runBlocking {
-                publisher.publish(subject, tenantId, event)
-            }
+            runBlocking { publisher.publish(subject, tenantId, event) }
         }
     }
 
@@ -362,7 +359,9 @@ class NatsEventPublisherIntegrationTest {
                 .builder()
                 .name(streamName)
                 .subjects(subject)
-                .storageType(StorageType.File) // Use File storage like in docker-compose setup
+                .storageType(
+                    StorageType.File,
+                ) // Use File storage like in docker-compose setup
                 .maxMessages(1000)
                 .maxBytes(10485760) // 10MB
                 .maxAge(Duration.ofMinutes(10))

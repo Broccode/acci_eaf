@@ -72,6 +72,7 @@ dependencies {
   testImplementation(libs.testcontainers.junit.jupiter)
   testImplementation(libs.testcontainers.postgresql)
   testImplementation(libs.spring.boot.testcontainers)
+  testImplementation(libs.h2)
   testRuntimeOnly(libs.junit.platform.launcher)
 
   // ArchUnit for architectural testing

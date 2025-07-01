@@ -7,6 +7,7 @@ import com.axians.eaf.iam.domain.model.User
 import com.axians.eaf.iam.infrastructure.adapter.outbound.persistence.entity.toDomain
 import com.axians.eaf.iam.infrastructure.adapter.outbound.persistence.entity.toEntity
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -50,15 +51,24 @@ class TenantPersistenceAdapter(
             logger.debug("Saved tenant admin: {}", savedAdminEntity.userId)
 
             return SaveTenantResult(savedTenantEntity.toDomain(), savedAdminEntity.toDomain())
-        } catch (e: Exception) {
+        } catch (dataException: DataAccessException) {
             logger.error(
-                "Failed to save tenant {} with admin {}: {}",
+                "Database error while saving tenant {} with admin {}: {}",
                 tenant.tenantId,
                 tenantAdmin.userId,
-                e.message,
-                e,
+                dataException.message,
+                dataException,
             )
-            throw e
+            throw dataException
+        } catch (validationException: IllegalArgumentException) {
+            logger.error(
+                "Validation error while saving tenant {} with admin {}: {}",
+                tenant.tenantId,
+                tenantAdmin.userId,
+                validationException.message,
+                validationException,
+            )
+            throw validationException
         }
     }
 

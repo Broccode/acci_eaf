@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongMethod:AbstractAggregateRepository.kt$AbstractAggregateRepository$override suspend fun load( tenantId: String, aggregateId: ID, ): T?</ID>
+    <ID>LongMethod:AbstractAggregateRepository.kt$AbstractAggregateRepository$override suspend fun save( tenantId: String, aggregate: T, )</ID>
+    <ID>MaxLineLength:JdbcEventStoreRepository.kt$JdbcEventStoreRepository$"Snapshot aggregate ID must match the provided aggregate ID. Expected: $aggregateId, found: ${snapshot.aggregateId}"</ID>
+    <ID>MaxLineLength:TenantAwareCommandMetadata.kt$TenantAwareCommandMetadata$"Tenant authorization failed: command tenant '$commandTenantId' does not match required tenant '$requiredTenantId'"</ID>
+    <ID>ReturnCount:TenantAwareCommandMetadata.kt$TenantAwareCommandMetadata$private fun resolveTenantContext(explicitTenantId: String?): TenantContextInfo</ID>
+    <ID>ReturnCount:TenantAwareEventMetadata.kt$TenantAwareEventMetadata$private fun extractTenantIdFromMetadata(metaData: MetaData): String?</ID>
+    <ID>SerialVersionUIDInSerializableClass:GlobalSequenceTrackingToken.kt$GlobalSequenceTrackingToken : TrackingTokenSerializable</ID>
+    <ID>TooManyFunctions:AbstractAggregateRepository.kt$AbstractAggregateRepository&lt;T : AbstractAggregateRoot&lt;ID&gt;, ID : Any&gt; : AggregateRepository</ID>
+    <ID>TooManyFunctions:AxonEventMessageMapper.kt$AxonEventMessageMapper</ID>
+    <ID>TooManyFunctions:Ticket.kt$Ticket : AbstractAggregateRoot</ID>
+    <ID>UnusedPrivateProperty:AxonEventMessageMapper.kt$AxonEventMessageMapper.Companion$private const val CAUSATION_ID_META_KEY = "causation_id"</ID>
+    <ID>UnusedPrivateProperty:AxonEventMessageMapper.kt$AxonEventMessageMapper.Companion$private const val CORRELATION_ID_META_KEY = "correlation_id"</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -28,8 +28,8 @@ class CreateUserService(
         require(command.email.isNotBlank()) { "Email cannot be blank" }
 
         // Check if email already exists across all tenants
-        if (saveTenantPort.existsByEmail(command.email)) {
-            throw IllegalArgumentException("User with email ${command.email} already exists")
+        require(!saveTenantPort.existsByEmail(command.email)) {
+            "User with email ${command.email} already exists"
         }
 
         // Create user using domain factory method

@@ -1,5 +1,6 @@
 package com.axians.eaf.eventing.consumer
 
+import com.axians.eaf.eventing.config.NatsEventingProperties
 import io.nats.client.api.AckPolicy
 import io.nats.client.api.DeliverPolicy
 import org.springframework.core.annotation.AliasFor
@@ -8,8 +9,8 @@ import kotlin.reflect.KClass
 /**
  * Annotation to mark methods as NATS JetStream event listeners.
  *
- * This annotation enables declarative event consumption from NATS JetStream streams
- * with full support for multi-tenancy, ordered processing, and reliable acknowledgment.
+ * This annotation enables declarative event consumption from NATS JetStream streams with full
+ * support for multi-tenancy, ordered processing, and reliable acknowledgment.
  *
  * Example usage:
  * ```kotlin
@@ -35,24 +36,22 @@ annotation class NatsJetStreamListener(
     /**
      * The NATS subject pattern to subscribe to.
      *
-     * Can include wildcards (e.g., "events.user.>", "events.*.created").
-     * The tenant prefix will be automatically added by the EAF SDK
-     * (e.g., "events.user.>" becomes "TENANT_A.events.user.>").
+     * Can include wildcards (e.g., "events.user.>", "events.*.created"). The tenant prefix will
+     * be automatically added by the EAF SDK (e.g., "events.user.>" becomes
+     * "TENANT_A.events.user.>").
      */
-    @get:AliasFor("subject")
-    val value: String = "",
+    @get:AliasFor("subject") val value: String = "",
     /**
      * The NATS subject pattern to subscribe to.
      *
      * Alternative to [value] for explicit subject specification.
      */
-    @get:AliasFor("value")
-    val subject: String = "",
+    @get:AliasFor("value") val subject: String = "",
     /**
      * The durable name for the JetStream consumer.
      *
-     * Durable consumers persist their state and can resume processing
-     * from where they left off even after application restarts.
+     * Durable consumers persist their state and can resume processing from where they left off
+     * even after application restarts.
      *
      * If not specified, defaults to "{className}-{methodName}-consumer".
      */
@@ -80,8 +79,8 @@ annotation class NatsJetStreamListener(
     /**
      * Maximum number of delivery attempts for a message.
      *
-     * After this many attempts, the message will be considered a "poison pill"
-     * and moved to a dead letter queue or terminated.
+     * After this many attempts, the message will be considered a "poison pill" and moved to a
+     * dead letter queue or terminated.
      *
      * Default: 3 attempts
      */
@@ -97,35 +96,38 @@ annotation class NatsJetStreamListener(
     /**
      * Maximum number of outstanding (unacknowledged) messages.
      *
-     * Controls the maximum number of messages that can be delivered
-     * to this consumer without acknowledgment.
+     * Controls the maximum number of messages that can be delivered to this consumer without
+     * acknowledgment.
      *
      * Default: 1000 messages
      */
-    val maxAckPending: Int = 1000,
+    val maxAckPending: Int = NatsEventingProperties.DEFAULT_MAX_ACK_PENDING,
     /**
      * Expected event type for deserialization.
      *
-     * If not specified, the SDK will attempt to determine the type
-     * from the method parameter type. This can be used to override
-     * that behavior or provide additional type information.
+     * If not specified, the SDK will attempt to determine the type from the method parameter
+     * type. This can be used to override that behavior or provide additional type information.
      */
     val eventType: KClass<*> = Any::class,
     /**
      * Whether to automatically acknowledge successful message processing.
      *
-     * When true (default), messages are automatically acknowledged when
-     * the listener method completes without throwing an exception.
+     * When true (default), messages are automatically acknowledged when the listener method
+     * completes without throwing an exception.
      *
-     * When false, the listener method must manually call ack/nak/term
-     * on the provided message context.
+     * When false, the listener method must manually call ack/nak/term on the provided message
+     * context.
      */
     val autoAck: Boolean = true,
     /**
      * Custom configuration bean name.
      *
-     * References a Spring bean that implements additional consumer configuration.
-     * This allows for advanced customization beyond the annotation properties.
+     * References a Spring bean that implements additional consumer configuration. This allows
+     * for advanced customization beyond the annotation properties.
      */
     val configBean: String = "",
+    /** JetStream stream name containing the events. */
+    val streamName: String = "",
+    /** Action to take when processing fails. */
+    val onError: ErrorAction = ErrorAction.RETRY,
 )

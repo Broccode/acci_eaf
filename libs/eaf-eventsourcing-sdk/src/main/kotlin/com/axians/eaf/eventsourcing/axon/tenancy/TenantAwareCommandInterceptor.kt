@@ -35,23 +35,14 @@ class TenantAwareCommandInterceptor : MessageHandlerInterceptor<CommandMessage<*
         return if (tenantId != null) {
             logger.debug("Processing command with tenant context: {}", tenantId)
 
-            // Set tenant context and process command
+            // Set tenant context and process command (let exceptions propagate)
             TenantContextHolder.executeInTenantContext(tenantId) {
-                try {
-                    val result = interceptorChain.proceed()
-                    logger.debug(
-                        "Command processing completed successfully for tenant: {}",
-                        tenantId,
-                    )
-                    result
-                } catch (exception: Exception) {
-                    logger.warn(
-                        "Command processing failed for tenant: {} - {}",
-                        tenantId,
-                        exception.message,
-                    )
-                    throw exception
-                }
+                val result = interceptorChain.proceed()
+                logger.debug(
+                    "Command processing completed successfully for tenant: {}",
+                    tenantId,
+                )
+                result
             }
         } else {
             // Handle command without tenant context
@@ -72,13 +63,8 @@ class TenantAwareCommandInterceptor : MessageHandlerInterceptor<CommandMessage<*
 
         logger.debug("Processing command without tenant context: {}", commandType)
 
-        return try {
-            val result = interceptorChain.proceed()
-            logger.debug("System command processing completed: {}", commandType)
-            result
-        } catch (exception: Exception) {
-            logger.warn("System command processing failed: {} - {}", commandType, exception.message)
-            throw exception
-        }
+        val result = interceptorChain.proceed()
+        logger.debug("System command processing completed: {}", commandType)
+        return result
     }
 }

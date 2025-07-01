@@ -222,9 +222,9 @@ class TenantContextHolderTest {
             TenantContextHolder.setCurrentTenantId(originalTenant)
 
             // When/Then
-            assertThrows<RuntimeException> {
+            assertThrows<IllegalStateException> {
                 TenantContextHolder.executeInTenantContext("scoped-tenant") {
-                    throw RuntimeException("Test exception")
+                    throw IllegalStateException("Test exception")
                 }
             }
 

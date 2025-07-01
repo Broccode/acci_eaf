@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown", "SwallowedException", "MaxLineLength")
+
 package com.axians.eaf.eventsourcing.axon
 
 import com.axians.eaf.core.tenancy.TenantContextHolder

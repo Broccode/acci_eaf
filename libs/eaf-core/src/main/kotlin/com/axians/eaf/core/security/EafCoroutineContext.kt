@@ -8,8 +8,8 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
 /**
- * A coroutine context element that propagates Spring Security context.
- * This ensures that the security context is available in child coroutines.
+ * A coroutine context element that propagates Spring Security context. This ensures that the
+ * security context is available in child coroutines.
  */
 class SecurityContextElement(
     private val securityContext: SecurityContext = SecurityContextHolder.getContext(),
@@ -37,8 +37,8 @@ class SecurityContextElement(
 }
 
 /**
- * A coroutine context element that propagates correlation IDs.
- * This ensures that correlation IDs are available in child coroutines for distributed tracing.
+ * A coroutine context element that propagates correlation IDs. This ensures that correlation IDs
+ * are available in child coroutines for distributed tracing.
  */
 class CorrelationIdElement(
     private val correlationId: String? = CorrelationIdManager.getCurrentCorrelationIdOrNull(),
@@ -114,31 +114,25 @@ class EafContextElement(
     }
 }
 
-/**
- * Extension function to get the current security context element from the coroutine context.
- */
+/** Extension function to get the current security context element from the coroutine context. */
 fun CoroutineContext.securityContext(): SecurityContextElement =
     this[SecurityContextElement] ?: SecurityContextElement()
 
-/**
- * Extension function to get the current correlation ID element from the coroutine context.
- */
+/** Extension function to get the current correlation ID element from the coroutine context. */
 fun CoroutineContext.correlationIdContext(): CorrelationIdElement = this[CorrelationIdElement] ?: CorrelationIdElement()
 
-/**
- * Extension function to get the current EAF context element from the coroutine context.
- */
+/** Extension function to get the current EAF context element from the coroutine context. */
 fun CoroutineContext.eafContext(): EafContextElement = this[EafContextElement] ?: EafContextElement()
 
 /**
- * Creates a new SecurityContextElement with the current Spring Security context.
- * This can be used to manually propagate security context to coroutines.
+ * Creates a new SecurityContextElement with the current Spring Security context. This can be used
+ * to manually propagate security context to coroutines.
  */
 fun currentSecurityContextElement(): SecurityContextElement = SecurityContextElement(SecurityContextHolder.getContext())
 
 /**
- * Creates a new EafContextElement with the current security context and correlation ID.
- * This is the recommended way to propagate EAF context to coroutines.
+ * Creates a new EafContextElement with the current security context and correlation ID. This is the
+ * recommended way to propagate EAF context to coroutines.
  */
 fun currentEafContextElement(): EafContextElement =
     EafContextElement(
@@ -147,8 +141,9 @@ fun currentEafContextElement(): EafContextElement =
     )
 
 /**
- * Executes the given block with the current EAF context (security context + correlation ID) propagated to the coroutine.
- * This is a convenience function that automatically includes both security context and correlation ID.
+ * Executes the given block with the current EAF context (security context + correlation ID)
+ * propagated to the coroutine. This is a convenience function that automatically includes both
+ * security context and correlation ID.
  *
  * Example usage:
  * ```kotlin
@@ -162,9 +157,7 @@ fun currentEafContextElement(): EafContextElement =
  */
 suspend fun <T> withEafContext(block: suspend () -> T): T {
     val eafElement = currentEafContextElement()
-    return withContext(coroutineContext + eafElement) {
-        block()
-    }
+    return withContext(coroutineContext + eafElement) { block() }
 }
 
 /**
@@ -185,9 +178,7 @@ suspend fun <T> withEafContext(
     block: suspend () -> T,
 ): T {
     val eafElement = currentEafContextElement()
-    return withContext(coroutineContext + context + eafElement) {
-        block()
-    }
+    return withContext(coroutineContext + context + eafElement) { block() }
 }
 
 /**

@@ -25,36 +25,41 @@ class SecurityTenantContextBridge(
      * @param respectExisting If true, won't override existing tenant context in TenantContextHolder
      * @return true if synchronization was successful, false if no tenant context available
      */
-    fun synchronizeTenantContext(respectExisting: Boolean = true): Boolean {
+    fun synchronizeTenantContext(respectExisting: Boolean = true): Boolean =
         try {
-            // Check if we should respect existing tenant context
-            if (respectExisting && TenantContextHolder.hasTenantContext()) {
-                val existingTenantId = TenantContextHolder.getCurrentTenantId()
-                logger.debug(
-                    "Tenant context already exists: {}, skipping synchronization",
-                    existingTenantId,
-                )
-                return true
-            }
+            performSynchronization(respectExisting)
+        } catch (e: TenantContextException) {
+            logger.warn("Tenant context error during synchronization: {}", e.message)
+            false
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Invalid tenant ID during synchronization: {}", e.message)
+            false
+        } catch (e: IllegalStateException) {
+            logger.warn("Invalid state during tenant context synchronization: {}", e.message)
+            false
+        }
 
-            // Get tenant ID from Spring Security context
-            val tenantId = securityContextHolder.getTenantIdOrNull()
-
-            if (tenantId != null) {
-                TenantContextHolder.setCurrentTenantId(tenantId)
-                logger.debug("Synchronized tenant context: source=security, tenant={}", tenantId)
-                return true
-            } else {
-                logger.debug("No tenant ID available in security context")
-                return false
-            }
-        } catch (e: Exception) {
-            logger.warn(
-                "Failed to synchronize tenant context: error={}, type={}",
-                e.message,
-                e.javaClass.simpleName,
+    private fun performSynchronization(respectExisting: Boolean): Boolean {
+        // Check if we should respect existing tenant context
+        if (respectExisting && TenantContextHolder.getCurrentTenantId() != null) {
+            val existingTenantId = TenantContextHolder.getCurrentTenantId()
+            logger.debug(
+                "Tenant context already exists: {}, skipping synchronization",
+                existingTenantId,
             )
-            return false
+            return true
+        }
+
+        // Get tenant ID from Spring Security context
+        val tenantId = securityContextHolder.getTenantIdOrNull()
+
+        return if (tenantId != null) {
+            TenantContextHolder.setCurrentTenantId(tenantId)
+            logger.debug("Synchronized tenant context: source=security, tenant={}", tenantId)
+            true
+        } else {
+            logger.debug("No tenant ID available in security context")
+            false
         }
     }
 
@@ -81,27 +86,37 @@ class SecurityTenantContextBridge(
             return true
         }
 
-        // Try fallback if provided
-        if (fallbackTenantId != null && fallbackTenantId.isNotBlank()) {
-            return try {
-                if (!respectExisting || !TenantContextHolder.hasTenantContext()) {
-                    TenantContextHolder.setCurrentTenantId(fallbackTenantId)
-                    logger.debug(
-                        "Synchronized tenant context: source=fallback, tenant={}",
-                        fallbackTenantId,
-                    )
-                    true
-                } else {
-                    logger.debug("Existing tenant context found, not using fallback")
-                    true
-                }
-            } catch (e: Exception) {
-                logger.warn("Failed to set tenant context from fallback: {}", e.message)
-                false
-            }
+        // Try fallback if provided and appropriate
+        return tryFallbackSynchronization(fallbackTenantId, respectExisting)
+    }
+
+    private fun tryFallbackSynchronization(
+        fallbackTenantId: String?,
+        respectExisting: Boolean,
+    ): Boolean {
+        if (fallbackTenantId.isNullOrBlank()) {
+            return false
         }
 
-        return false
+        return try {
+            if (!respectExisting || TenantContextHolder.getCurrentTenantId() == null) {
+                TenantContextHolder.setCurrentTenantId(fallbackTenantId)
+                logger.debug(
+                    "Synchronized tenant context: source=fallback, tenant={}",
+                    fallbackTenantId,
+                )
+                true
+            } else {
+                logger.debug("Existing tenant context found, not using fallback")
+                true
+            }
+        } catch (e: TenantContextException) {
+            logger.warn("Tenant context error with fallback: {}", e.message)
+            false
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Failed to set tenant context from fallback: {}", e.message)
+            false
+        }
     }
 
     /**
@@ -161,7 +176,7 @@ class SecurityTenantContextBridge(
      */
     fun hasTenantContext(): Boolean =
         securityContextHolder.getTenantIdOrNull() != null ||
-            TenantContextHolder.hasTenantContext()
+            TenantContextHolder.getCurrentTenantId() != null
 
     /**
      * Clears tenant context from TenantContextHolder if it matches the security context. This is

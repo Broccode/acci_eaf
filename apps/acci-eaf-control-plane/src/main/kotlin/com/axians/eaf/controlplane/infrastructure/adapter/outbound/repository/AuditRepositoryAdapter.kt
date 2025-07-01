@@ -14,18 +14,16 @@ import com.axians.eaf.controlplane.domain.port.AuditRepository
 import com.axians.eaf.controlplane.infrastructure.adapter.outbound.entity.AuditEntryEntity
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 /**
- * JPA-based implementation of the AuditRepository domain port. Provides comprehensive audit trail
- * persistence and querying capabilities.
- *
- * This is an adapter that bridges the domain port with Spring Data JPA infrastructure.
+ * Repository adapter that implements the AuditRepository domain port using Spring Data JPA. This
+ * adapter bridges the domain layer with the JPA infrastructure.
  */
-@Component
-class JpaAuditRepositoryImpl(
+@Repository
+class AuditRepositoryAdapter(
     private val jpaRepository: JpaAuditRepository,
 ) : AuditRepository {
     override suspend fun save(auditEntry: AuditEntry): AuditEntry {
@@ -329,7 +327,6 @@ class JpaAuditRepositoryImpl(
                     request.tenantId,
                     request.performedBy,
                 ).associate { row ->
-                    // Convert date to string format
                     val date = row[0] as java.sql.Date
                     val localDate = date.toLocalDate()
                     localDate.format(DateTimeFormatter.ISO_LOCAL_DATE) to

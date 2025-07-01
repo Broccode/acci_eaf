@@ -10,9 +10,9 @@ import java.util.UUID
 /**
  * Example application service that implements the CreateUserUseCase.
  *
- * This demonstrates how application services should be structured in the EAF.
- * The service coordinates between the domain and infrastructure layers,
- * implementing the business logic while remaining independent of infrastructure concerns.
+ * This demonstrates how application services should be structured in the EAF. The service
+ * coordinates between the domain and infrastructure layers, implementing the business logic while
+ * remaining independent of infrastructure concerns.
  */
 class CreateUserService(
     private val userRepository: UserRepository,
@@ -23,10 +23,8 @@ class CreateUserService(
 
         // Check if user already exists
         val existingUser = userRepository.findByUsername(command.username, command.tenantId)
-        if (existingUser != null) {
-            throw IllegalArgumentException(
-                "User with username '${command.username}' already exists in tenant '${command.tenantId}'",
-            )
+        require(existingUser == null) {
+            "User with username '${command.username}' already exists in tenant '${command.tenantId}'"
         }
 
         // Create domain entity

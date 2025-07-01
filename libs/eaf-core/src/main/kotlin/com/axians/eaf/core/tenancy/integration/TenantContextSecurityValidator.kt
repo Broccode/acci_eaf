@@ -29,6 +29,13 @@ class TenantContextSecurityValidator(
         private const val DEFAULT_MAX_SUSPICIOUS_ATTEMPTS = 10
         private const val RATE_LIMIT_WINDOW_MINUTES = 1L
         private const val SUSPICIOUS_ACTIVITY_WINDOW_MINUTES = 5L
+
+        // Security validation constants
+        private const val TENANT_ID_LOG_TRUNCATE_LENGTH = 10
+        private const val MAX_TENANT_SWITCHES_THRESHOLD = 20
+        private const val MAX_HEADER_REQUESTS_THRESHOLD = 50
+        private const val HEADER_REQUEST_SUSPICIOUS_SCORE = 3
+        private const val INVALID_ATTEMPT_SUSPICIOUS_SCORE = 5
     }
 
     /**
@@ -63,29 +70,40 @@ class TenantContextSecurityValidator(
      * @throws TenantContextException if format is invalid
      */
     private fun validateTenantIdFormat(tenantId: String) {
-        when {
-            tenantId.isBlank() -> {
-                throw TenantContextException("Tenant ID cannot be blank")
-            }
-            tenantId.length > properties.maxTenantIdLength -> {
-                throw TenantContextException(
-                    "Tenant ID exceeds maximum length of ${properties.maxTenantIdLength} characters",
+        // Basic checks
+        if (tenantId.isBlank()) {
+            throw TenantContextException("Tenant ID cannot be blank")
+        }
+
+        if (tenantId.length > properties.maxTenantIdLength) {
+            throw TenantContextException(
+                "Tenant ID exceeds maximum length of ${properties.maxTenantIdLength} characters",
+            )
+        }
+
+        // Comprehensive format validation
+        val formatError = getFormatError(tenantId)
+        if (formatError != null) {
+            if (formatError.startsWith("Invalid characters")) {
+                logger.warn(
+                    "Invalid tenant ID format detected: {}",
+                    tenantId.take(TENANT_ID_LOG_TRUNCATE_LENGTH) + "...",
                 )
             }
-            !tenantId.matches(Regex("^[a-zA-Z0-9_-]+$")) -> {
-                logger.warn("Invalid tenant ID format detected: {}", tenantId.take(10) + "...")
-                throw TenantContextException(
-                    "Tenant ID contains invalid characters. Only alphanumeric, underscore, and hyphen are allowed.",
-                )
-            }
-            tenantId.startsWith("-") || tenantId.endsWith("-") -> {
-                throw TenantContextException("Tenant ID cannot start or end with hyphen")
-            }
-            tenantId.startsWith("_") || tenantId.endsWith("_") -> {
-                throw TenantContextException("Tenant ID cannot start or end with underscore")
-            }
+            error(formatError)
         }
     }
+
+    private fun getFormatError(tenantId: String): String? =
+        when {
+            !tenantId.matches(Regex("^[a-zA-Z0-9_-]+$")) ->
+                "Invalid characters detected. Only alphanumeric, underscore, and hyphen are allowed."
+            tenantId.startsWith("-") || tenantId.endsWith("-") ->
+                "Tenant ID cannot start or end with hyphen"
+            tenantId.startsWith("_") || tenantId.endsWith("_") ->
+                "Tenant ID cannot start or end with underscore"
+            else -> null
+        }
 
     /**
      * Checks rate limiting for tenant context operations.
@@ -155,7 +173,7 @@ class TenantContextSecurityValidator(
             // Pattern 1: Rapid tenant switching
             if (tracker.lastTenantId != null && tracker.lastTenantId != tenantId) {
                 tracker.tenantSwitchCount.incrementAndGet()
-                if (tracker.tenantSwitchCount.get() > 20) {
+                if (tracker.tenantSwitchCount.get() > MAX_TENANT_SWITCHES_THRESHOLD) {
                     suspiciousScore += 2
                 }
             }
@@ -164,8 +182,8 @@ class TenantContextSecurityValidator(
             // Pattern 2: Multiple header-based requests (possible injection attempts)
             if (source == "header") {
                 tracker.headerRequestCount.incrementAndGet()
-                if (tracker.headerRequestCount.get() > 50) {
-                    suspiciousScore += 3
+                if (tracker.headerRequestCount.get() > MAX_HEADER_REQUESTS_THRESHOLD) {
+                    suspiciousScore += HEADER_REQUEST_SUSPICIOUS_SCORE
                 }
             }
 
@@ -173,8 +191,12 @@ class TenantContextSecurityValidator(
             try {
                 validateTenantIdFormat(tenantId)
             } catch (e: TenantContextException) {
+                logger.debug(
+                    "Invalid tenant ID format detected during suspicious activity check: {}",
+                    e.message,
+                )
                 tracker.invalidAttemptCount.incrementAndGet()
-                suspiciousScore += 5
+                suspiciousScore += INVALID_ATTEMPT_SUSPICIOUS_SCORE
             }
 
             tracker.totalSuspiciousScore += suspiciousScore

@@ -4,6 +4,7 @@ import com.axians.eaf.eventing.config.NatsEventingProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.nats.client.Connection
 import io.nats.client.JetStream
+import io.nats.client.JetStreamApiException
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.core.annotation.AnnotationUtils
@@ -13,12 +14,12 @@ import java.lang.reflect.Method
 /**
  * Spring BeanPostProcessor that discovers and configures NATS JetStream listeners.
  *
- * This processor scans all Spring beans for methods annotated with @NatsJetStreamListener
- * and automatically sets up JetStream consumers to process events.
+ * This processor scans all Spring beans for methods annotated with @NatsJetStreamListener and
+ * automatically sets up JetStream consumers to process events.
  */
 @Component
 class NatsJetStreamListenerProcessor(
-    private val connection: Connection,
+    @Suppress("UNUSED_PARAMETER") private val connection: Connection,
     private val jetStream: JetStream,
     private val objectMapper: ObjectMapper,
     private val properties: NatsEventingProperties,
@@ -34,7 +35,8 @@ class NatsJetStreamListenerProcessor(
 
         // Scan all methods for @NatsJetStreamListener annotations
         beanClass.declaredMethods.forEach { method ->
-            val annotation = AnnotationUtils.findAnnotation(method, NatsJetStreamListener::class.java)
+            val annotation =
+                AnnotationUtils.findAnnotation(method, NatsJetStreamListener::class.java)
             if (annotation != null) {
                 try {
                     val listenerDef = createListenerDefinition(bean, method, annotation, beanName)
@@ -46,9 +48,18 @@ class NatsJetStreamListenerProcessor(
                         listenerDef.subject,
                         listenerDef.durableName,
                     )
-                } catch (e: Exception) {
+                } catch (e: IllegalArgumentException) {
                     logger.error(
                         "Failed to process @NatsJetStreamListener on {}.{}: {}",
+                        beanClass.simpleName,
+                        method.name,
+                        e.message,
+                        e,
+                    )
+                    throw IllegalStateException("Invalid @NatsJetStreamListener configuration", e)
+                } catch (e: java.lang.reflect.InvocationTargetException) {
+                    logger.error(
+                        "Reflection error while processing @NatsJetStreamListener on {}.{}: {}",
                         beanClass.simpleName,
                         method.name,
                         e.message,
@@ -62,9 +73,7 @@ class NatsJetStreamListenerProcessor(
         return bean
     }
 
-    /**
-     * Creates a listener definition from the annotated method.
-     */
+    /** Creates a listener definition from the annotated method. */
     private fun createListenerDefinition(
         bean: Any,
         method: Method,
@@ -76,7 +85,10 @@ class NatsJetStreamListenerProcessor(
             when {
                 annotation.subject.isNotBlank() -> annotation.subject
                 annotation.value.isNotBlank() -> annotation.value
-                else -> throw IllegalArgumentException("Subject must be specified in @NatsJetStreamListener")
+                else ->
+                    throw IllegalArgumentException(
+                        "Subject must be specified in @NatsJetStreamListener",
+                    )
             }
 
         // Determine durable name
@@ -110,48 +122,48 @@ class NatsJetStreamListenerProcessor(
         )
     }
 
-    /**
-     * Validates that the listener method has a supported signature.
-     */
+    /** Validates that the listener method has a supported signature. */
     private fun validateMethodSignature(method: Method) {
         val paramTypes = method.parameterTypes
+        val methodName = method.name
 
-        when (paramTypes.size) {
-            1 -> {
-                // Single parameter: the event object
-                if (paramTypes[0] == MessageContext::class.java) {
-                    throw IllegalArgumentException(
-                        "Method ${method.name} must have an event parameter before MessageContext",
-                    )
+        val isValidSignature =
+            when (paramTypes.size) {
+                1 -> {
+                    // Single parameter: the event object (not MessageContext)
+                    paramTypes[0] != MessageContext::class.java
                 }
-            }
-            2 -> {
-                // Two parameters: event object and MessageContext
-                if (paramTypes[1] != MessageContext::class.java) {
-                    throw IllegalArgumentException(
-                        "Method ${method.name} second parameter must be MessageContext",
-                    )
+                2 -> {
+                    // Two parameters: event object and MessageContext
+                    paramTypes[1] == MessageContext::class.java
                 }
+                else -> false
             }
-            else -> {
-                throw IllegalArgumentException(
-                    "Method ${method.name} must have 1 or 2 parameters: (event) or (event, MessageContext)",
-                )
+
+        require(isValidSignature) {
+            when (paramTypes.size) {
+                1 ->
+                    if (paramTypes[0] == MessageContext::class.java) {
+                        "Method $methodName must have an event parameter before MessageContext"
+                    } else {
+                        "Method $methodName has invalid parameter type"
+                    }
+                2 -> "Method $methodName second parameter must be MessageContext"
+                else ->
+                    "Method $methodName must have 1 or 2 parameters: (event) or (event, MessageContext)"
             }
         }
 
         // Method should not return anything meaningful
         if (method.returnType != Void.TYPE && method.returnType != Unit::class.java) {
             logger.warn(
-                "Listener method ${method.name} returns ${method.returnType.simpleName}, " +
+                "Listener method $methodName returns ${method.returnType.simpleName}, " +
                     "return value will be ignored",
             )
         }
     }
 
-    /**
-     * Determines the event type for deserialization.
-     */
+    /** Determines the event type for deserialization. */
     private fun determineEventType(
         method: Method,
         annotation: NatsJetStreamListener,
@@ -176,9 +188,7 @@ class NatsJetStreamListenerProcessor(
         )
     }
 
-    /**
-     * Starts all discovered listeners after the application context is fully initialized.
-     */
+    /** Starts all discovered listeners after the application context is fully initialized. */
     fun startListeners() {
         logger.info("Starting {} NATS JetStream listeners", listeners.size)
 
@@ -198,9 +208,17 @@ class NatsJetStreamListenerProcessor(
                     listenerDef.durableName,
                     listenerDef.subject,
                 )
-            } catch (e: Exception) {
+            } catch (e: java.io.IOException) {
                 logger.error(
                     "Failed to start NATS JetStream listener {}: {}",
+                    listenerDef.durableName,
+                    e.message,
+                    e,
+                )
+                throw IllegalStateException("Failed to start NATS listener", e)
+            } catch (e: JetStreamApiException) {
+                logger.error(
+                    "Failed to start NATS JetStream listener {} due to JetStream API error: {}",
                     listenerDef.durableName,
                     e.message,
                     e,
@@ -210,9 +228,7 @@ class NatsJetStreamListenerProcessor(
         }
     }
 
-    /**
-     * Internal data class to hold listener configuration.
-     */
+    /** Internal data class to hold listener configuration. */
     internal data class ListenerDefinition(
         val bean: Any,
         val method: Method,

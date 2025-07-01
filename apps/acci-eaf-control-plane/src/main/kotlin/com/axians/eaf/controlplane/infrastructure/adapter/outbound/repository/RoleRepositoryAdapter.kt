@@ -14,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 /**
- * JPA-based implementation of the RoleRepository domain port. Provides persistent storage for roles
- * and permissions using PostgreSQL database.
+ * Repository adapter that implements the RoleRepository domain port using Spring Data JPA. This
+ * adapter bridges the domain layer with the JPA infrastructure.
  */
 @Repository
 @Transactional
-class JpaRoleRepositoryImpl(
+class RoleRepositoryAdapter(
     private val jpaRoleRepository: JpaRoleRepository,
     private val jpaPermissionRepository: JpaPermissionRepository,
 ) : RoleRepository {
@@ -28,7 +28,9 @@ class JpaRoleRepositoryImpl(
         val permissionEntities =
             role.permissions
                 .mapNotNull { permission ->
-                    jpaPermissionRepository.findById(UUID.fromString(permission.id.value)).orElse(null)
+                    jpaPermissionRepository
+                        .findById(UUID.fromString(permission.id.value))
+                        .orElse(null)
                 }.toSet()
 
         // Create role entity with permissions

@@ -15,10 +15,14 @@ data class Tenant(
     val updatedAt: Instant = Instant.now(),
 ) {
     companion object {
+        private const val MAX_TENANT_NAME_LENGTH = 255
+
         /** Factory method to create a new tenant with proper domain validation. */
         fun create(name: String): Tenant {
             require(name.isNotBlank()) { "Tenant name cannot be blank" }
-            require(name.length <= 255) { "Tenant name cannot exceed 255 characters" }
+            require(name.length <= MAX_TENANT_NAME_LENGTH) {
+                "Tenant name cannot exceed $MAX_TENANT_NAME_LENGTH characters"
+            }
 
             return Tenant(
                 name = name.trim(),

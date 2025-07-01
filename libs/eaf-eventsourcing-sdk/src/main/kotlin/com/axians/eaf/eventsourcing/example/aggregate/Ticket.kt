@@ -42,8 +42,8 @@ class Ticket() : AbstractAggregateRoot<UUID>() {
     private var closedAt: Instant? = null
 
     /**
-     * Creates a ticket aggregate with a specific ID.
-     * This constructor is used by the repository when loading aggregates.
+     * Creates a ticket aggregate with a specific ID. This constructor is used by the repository
+     * when loading aggregates.
      */
     constructor(ticketId: UUID) : this() {
         this.aggregateId = ticketId
@@ -157,7 +157,9 @@ class Ticket() : AbstractAggregateRoot<UUID>() {
         }
 
     override fun restoreFromSnapshot(snapshot: Any) {
-        require(snapshot is TicketSnapshot) { "Invalid snapshot type: ${snapshot::class.simpleName}" }
+        require(snapshot is TicketSnapshot) {
+            "Invalid snapshot type: ${snapshot::class.simpleName}"
+        }
 
         this.aggregateId = snapshot.aggregateId
         this.title = snapshot.title
@@ -196,9 +198,7 @@ class Ticket() : AbstractAggregateRoot<UUID>() {
     fun isClosed(): Boolean = status == TicketStatus.CLOSED
 }
 
-/**
- * Snapshot data class for the Ticket aggregate.
- */
+/** Snapshot data class for the Ticket aggregate. */
 data class TicketSnapshot(
     val aggregateId: UUID,
     val title: String,

@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing.consumer
 
 import com.axians.eaf.eventing.config.NatsEventingProperties
@@ -81,7 +83,9 @@ class NatsJetStreamListenerProcessorTest {
 
     @Service
     class TestEventHandler {
-        fun handleEvent(event: String) {
+        fun handleEvent(
+            @Suppress("UNUSED_PARAMETER") event: String,
+        ) {
             // Test handler implementation
         }
     }

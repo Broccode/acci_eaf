@@ -26,6 +26,40 @@
       "options": {
         "taskName": "clean"
       }
+    },
+    "lint": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/tools/acci-eaf-cli/build/reports"],
+      "options": {
+        "taskName": ":tools:acci-eaf-cli:ktlintCheck"
+      }
+    },
+    "detekt": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/tools/acci-eaf-cli/build/reports"],
+      "options": {
+        "taskName": ":tools:acci-eaf-cli:detekt"
+      }
+    },
+    "detektBaseline": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/tools/acci-eaf-cli/build/reports"],
+      "options": {
+        "taskName": ":tools:acci-eaf-cli:detektBaseline"
+      }
+    },
+    "ktlintFormat": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": ":tools:acci-eaf-cli:ktlintFormat"
+      }
+    },
+    "ktlintCheck": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/tools/acci-eaf-cli/build/reports"],
+      "options": {
+        "taskName": ":tools:acci-eaf-cli:ktlintCheck"
+      }
     }
   },
   "tags": ["type:tool", "scope:cli", "platform:backend"]

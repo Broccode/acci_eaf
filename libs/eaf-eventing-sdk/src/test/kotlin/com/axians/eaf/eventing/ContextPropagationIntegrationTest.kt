@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing
 
 import com.axians.eaf.core.security.CorrelationIdManager
@@ -5,8 +7,6 @@ import com.axians.eaf.core.security.DefaultEafSecurityContextHolder
 import com.axians.eaf.core.security.EafContextElement
 import com.axians.eaf.core.security.HasTenantId
 import com.axians.eaf.core.security.HasUserId
-import com.axians.eaf.eventing.config.NatsEventingProperties
-import com.axians.eaf.eventing.config.RetryProperties
 import com.axians.eaf.eventing.consumer.ContextAwareMessageProcessor
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.clearAllMocks
@@ -14,7 +14,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import io.nats.client.Connection
 import io.nats.client.Message
 import io.nats.client.impl.Headers
 import kotlinx.coroutines.runBlocking
@@ -43,18 +42,12 @@ class ContextPropagationIntegrationTest {
     private lateinit var processor: ContextAwareMessageProcessor
     private lateinit var delegate: DefaultNatsEventPublisher
     private val securityContextHolder = DefaultEafSecurityContextHolder()
-    private val connection: Connection = mockk(relaxed = true)
 
     @BeforeEach
     fun setUp() {
         clearAllMocks()
         SecurityContextHolder.clearContext()
         CorrelationIdManager.clearCorrelationId()
-
-        val properties =
-            NatsEventingProperties(
-                retry = RetryProperties(maxAttempts = 1),
-            )
 
         delegate = mockk()
         publisher = ContextAwareNatsEventPublisher(delegate, securityContextHolder)
@@ -88,12 +81,11 @@ class ContextPropagationIntegrationTest {
             }
 
             val capturedHeaders = Headers()
-            metadataSlot.captured.forEach { (key, value) ->
-                capturedHeaders.add(key, value.toString())
-            }
+            metadataSlot.captured.forEach { (key, value) -> capturedHeaders.add(key, value.toString()) }
 
             every { mockMessage.headers } returns capturedHeaders
-            every { mockMessage.data } returns jacksonObjectMapper().writeValueAsBytes(mapOf("test" to "data"))
+            every { mockMessage.data } returns
+                jacksonObjectMapper().writeValueAsBytes(mapOf("test" to "data"))
             every { mockMessage.subject } returns "test.subject"
 
             var capturedTenantId: String? = null

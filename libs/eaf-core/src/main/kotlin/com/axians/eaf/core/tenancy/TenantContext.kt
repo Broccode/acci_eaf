@@ -24,6 +24,11 @@ data class TenantContext(
     /** Additional metadata as key-value pairs. */
     val metadata: Map<String, String> = emptyMap(),
 ) {
+    companion object {
+        /** Maximum allowed length for tenant IDs. */
+        private const val MAX_TENANT_ID_LENGTH = 64
+    }
+
     /** Creates a minimal TenantContext with just the tenant ID. */
     constructor(
         tenantId: String,
@@ -40,7 +45,9 @@ data class TenantContext(
     /** Validates that the tenant context has all required fields. */
     fun validate() {
         require(tenantId.isNotBlank()) { "Tenant ID cannot be blank" }
-        require(tenantId.length <= 64) { "Tenant ID cannot exceed 64 characters" }
+        require(tenantId.length <= MAX_TENANT_ID_LENGTH) {
+            "Tenant ID cannot exceed $MAX_TENANT_ID_LENGTH characters"
+        }
         require(tenantId.matches(Regex("[a-zA-Z0-9_-]+"))) {
             "Tenant ID can only contain alphanumeric characters, underscores, and hyphens"
         }

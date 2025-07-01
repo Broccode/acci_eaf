@@ -1,3 +1,5 @@
+@file:Suppress("UnusedPrivateProperty")
+
 package com.axians.eaf.eventsourcing.adapter
 
 import com.axians.eaf.eventsourcing.TestConfiguration
@@ -55,11 +57,9 @@ class AggregateRepositoryIntegrationTest {
         }
     }
 
-    @Autowired
-    private lateinit var eventStoreRepository: EventStoreRepository
+    @Autowired private lateinit var eventStoreRepository: EventStoreRepository
 
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    @Autowired private lateinit var objectMapper: ObjectMapper
 
     private lateinit var ticketRepository: TicketRepository
 
@@ -171,9 +171,7 @@ class AggregateRepositoryIntegrationTest {
 
             // Save second instance - should fail with optimistic locking exception
             assertThrows(OptimisticLockingFailureException::class.java) {
-                runBlocking {
-                    ticketRepository.save(tenantId, ticket2)
-                }
+                runBlocking { ticketRepository.save(tenantId, ticket2) }
             }
         }
 

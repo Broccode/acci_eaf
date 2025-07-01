@@ -32,7 +32,7 @@ sealed class AuditResult {
  * Domain service for comprehensive audit trail management and logging. Handles all audit operations
  * including action logging, event publishing, and trail querying.
  */
-class AuditService(
+open class AuditService(
     private val auditRepository: AuditRepository,
     private val auditEventPublisher: AuditEventPublisher,
     private val securityContextHolder: EafSecurityContextHolder,

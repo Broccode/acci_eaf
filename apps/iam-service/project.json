@@ -26,6 +26,40 @@
       "options": {
         "taskName": "clean"
       }
+    },
+    "lint": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/iam-service/build/reports"],
+      "options": {
+        "taskName": ":apps:iam-service:ktlintCheck"
+      }
+    },
+    "detekt": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/iam-service/build/reports"],
+      "options": {
+        "taskName": ":apps:iam-service:detekt"
+      }
+    },
+    "detektBaseline": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/iam-service/build/reports"],
+      "options": {
+        "taskName": ":apps:iam-service:detektBaseline"
+      }
+    },
+    "ktlintFormat": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": ":apps:iam-service:ktlintFormat"
+      }
+    },
+    "ktlintCheck": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/iam-service/build/reports"],
+      "options": {
+        "taskName": ":apps:iam-service:ktlintCheck"
+      }
     }
   },
   "implicitDependencies": [],

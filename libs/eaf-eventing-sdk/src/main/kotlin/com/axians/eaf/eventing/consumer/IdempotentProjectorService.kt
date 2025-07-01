@@ -45,9 +45,7 @@ open class IdempotentProjectorService(
     ) {
         val projectorDef =
             ProjectorRegistry.getProjector(projectorName)
-                ?: throw IllegalStateException(
-                    "Projector with name $projectorName not found",
-                )
+                ?: error("Projector with name $projectorName not found")
 
         val tenantId = extractTenantIdFromSubject(rawMessage.subject, projectorDef.subject)
         val context = DefaultMessageContext(rawMessage, tenantId)
@@ -97,9 +95,7 @@ open class IdempotentProjectorService(
 
             val projectorDef =
                 ProjectorRegistry.getProjector(projectorName)
-                    ?: throw IllegalStateException(
-                        "Projector with name $projectorName not found",
-                    )
+                    ?: error("Projector with name $projectorName not found")
 
             val bean = projectorDef.originalBean
             val method = projectorDef.originalMethod
@@ -114,25 +110,40 @@ open class IdempotentProjectorService(
                 projectorName,
             )
             context.ack()
-        } catch (e: Exception) {
+        } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
             logger.error(
-                "Error processing event for projector '{}': {}",
+                "Invalid JSON for projector '{}': {}",
                 projectorName,
                 e.message,
                 e,
             )
+            context.term() // unrecoverable – bad payload
+        } catch (e: java.lang.reflect.InvocationTargetException) {
+            val cause = e.cause ?: e
+            logger.error(
+                "Projector method error for '{}': {}",
+                projectorName,
+                cause.message,
+                cause,
+            )
             context.nak()
+        } catch (e: IllegalArgumentException) {
+            logger.error(
+                "Illegal argument while processing event for '{}': {}",
+                projectorName,
+                e.message,
+                e,
+            )
+            context.term()
         }
     }
 
     private fun extractTenantIdFromSubject(
         subject: String,
-        projectorSubject: String,
+        @Suppress("UNUSED_PARAMETER") projectorSubject: String,
     ): String {
         val tenantId = subject.split(".").firstOrNull()
-        if (tenantId == null) {
-            throw IllegalArgumentException("Cannot extract tenantId from subject: $subject")
-        }
+        require(tenantId != null) { "Cannot extract tenantId from subject: $subject" }
         return tenantId
     }
 }

@@ -103,12 +103,14 @@ class UserService(
         userRepository.save(activatedUser)
 
         return UserStatusResult.success(
-            userId = userId,
-            email = user.email,
-            fullName = user.getFullName(),
-            oldStatus = user.status,
-            newStatus = activatedUser.status,
-            action = "activated",
+            UserStatusContext(
+                userId = userId,
+                email = user.email,
+                fullName = user.getFullName(),
+                oldStatus = user.status,
+                newStatus = activatedUser.status,
+                action = "activated",
+            ),
         )
     }
 
@@ -126,12 +128,14 @@ class UserService(
         userRepository.save(suspendedUser)
 
         return UserStatusResult.success(
-            userId = userId,
-            email = user.email,
-            fullName = user.getFullName(),
-            oldStatus = user.status,
-            newStatus = suspendedUser.status,
-            action = "suspended",
+            UserStatusContext(
+                userId = userId,
+                email = user.email,
+                fullName = user.getFullName(),
+                oldStatus = user.status,
+                newStatus = suspendedUser.status,
+                action = "suspended",
+            ),
         )
     }
 
@@ -241,14 +245,15 @@ sealed class UserStatusResult {
     ) : UserStatusResult()
 
     companion object {
-        fun success(
-            userId: String,
-            email: String,
-            fullName: String,
-            oldStatus: UserStatus,
-            newStatus: UserStatus,
-            action: String,
-        ): UserStatusResult = Success(userId, email, fullName, oldStatus, newStatus, action)
+        fun success(context: UserStatusContext): UserStatusResult =
+            Success(
+                context.userId,
+                context.email,
+                context.fullName,
+                context.oldStatus,
+                context.newStatus,
+                context.action,
+            )
 
         fun notFound(message: String): UserStatusResult = NotFound(message)
 

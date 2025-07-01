@@ -1,5 +1,8 @@
+@file:Suppress("ReturnCount")
+
 package com.axians.eaf.iam.client
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.servlet.FilterChain
@@ -13,19 +16,17 @@ import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.core.publisher.Mono
+import java.io.IOException
 import java.time.Duration
 
 /**
- * JWT Authentication Filter for EAF services.
- * Validates JWT tokens by calling the IAM service introspection endpoint.
+ * JWT Authentication Filter for EAF services. Validates JWT tokens by calling the IAM service
+ * introspection endpoint.
  */
 open class JwtAuthenticationFilter(
     private val eafIamProperties: EafIamProperties,
     private val webClient: WebClient = WebClient.builder().build(),
-    private val objectMapper: ObjectMapper =
-        ObjectMapper().apply {
-            findAndRegisterModules()
-        },
+    private val objectMapper: ObjectMapper = ObjectMapper().apply { findAndRegisterModules() },
 ) : OncePerRequestFilter() {
     companion object {
         private const val AUTHORIZATION_HEADER = "Authorization"
@@ -49,14 +50,20 @@ open class JwtAuthenticationFilter(
                 if (principal != null) {
                     val authentication = EafAuthentication(principal, token)
                     SecurityContextHolder.getContext().authentication = authentication
-                    logger.debug("Successfully authenticated user: ${principal.name} for tenant: ${principal.tenantId}")
+                    logger.debug(
+                        "Successfully authenticated user: ${principal.name} for tenant: ${principal.tenantId}",
+                    )
                 } else {
                     logger.warn("Token validation failed - token is invalid or expired")
                     handleUnauthorized(response)
                     return
                 }
-            } catch (e: Exception) {
-                logger.error("Error during token validation", e)
+            } catch (e: IOException) {
+                logger.error("Network error during token validation", e)
+                handleUnauthorized(response)
+                return
+            } catch (e: JsonProcessingException) {
+                logger.error("Failed to parse introspection response", e)
                 handleUnauthorized(response)
                 return
             }
@@ -83,23 +90,30 @@ open class JwtAuthenticationFilter(
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .timeout(REQUEST_TIMEOUT)
-                .map { responseBody ->
-                    parseIntrospectionResponse(responseBody)
-                }.onErrorResume { e ->
+                .map { responseBody -> parseIntrospectionResponse(responseBody) }
+                .onErrorResume { e ->
                     when (e) {
                         is WebClientResponseException -> {
-                            if (e.statusCode == HttpStatus.UNAUTHORIZED || e.statusCode == HttpStatus.FORBIDDEN) {
+                            if (e.statusCode == HttpStatus.UNAUTHORIZED ||
+                                e.statusCode == HttpStatus.FORBIDDEN
+                            ) {
                                 logger.debug("Token validation failed: ${e.statusCode}")
                             } else {
-                                logger.error("IAM service error during token validation: ${e.statusCode}", e)
+                                logger.error(
+                                    "IAM service error during token validation: ${e.statusCode}",
+                                    e,
+                                )
                             }
                         }
                         else -> logger.error("Network error during token validation", e)
                     }
                     Mono.empty()
                 }.block()
-        } catch (e: Exception) {
-            logger.error("Token validation failed", e)
+        } catch (e: IOException) {
+            logger.error("Network error during token validation", e)
+            null
+        } catch (e: JsonProcessingException) {
+            logger.error("Failed to parse introspection response", e)
             null
         }
 
@@ -115,7 +129,9 @@ open class JwtAuthenticationFilter(
 
             val tenantId =
                 response["tenant_id"] as? String
-                    ?: throw IllegalArgumentException("Missing tenant_id in introspection response")
+                    ?: throw IllegalArgumentException(
+                        "Missing tenant_id in introspection response",
+                    )
 
             val userId = response["user_id"] as? String
             val username = response["username"] as? String
@@ -135,7 +151,10 @@ open class JwtAuthenticationFilter(
                 roles = roles,
                 permissions = permissions,
             )
-        } catch (e: Exception) {
+        } catch (e: IOException) {
+            logger.error("Failed to parse introspection response", e)
+            null
+        } catch (e: JsonProcessingException) {
             logger.error("Failed to parse introspection response", e)
             null
         }
@@ -144,6 +163,8 @@ open class JwtAuthenticationFilter(
     private fun handleUnauthorized(response: HttpServletResponse) {
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = "application/json"
-        response.writer.write("""{"error": "Unauthorized", "message": "Invalid or missing JWT token"}""")
+        response.writer.write(
+            """{"error": "Unauthorized", "message": "Invalid or missing JWT token"}""",
+        )
     }
 }

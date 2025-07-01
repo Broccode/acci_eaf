@@ -3,12 +3,14 @@ package com.axians.eaf.eventsourcing.axon
 import com.axians.eaf.eventsourcing.axon.exception.EventSerializationException
 import com.axians.eaf.eventsourcing.model.AggregateSnapshot
 import com.axians.eaf.eventsourcing.model.PersistedEvent
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.axonframework.eventhandling.DomainEventMessage
 import org.axonframework.eventhandling.GenericDomainEventMessage
 import org.axonframework.messaging.MetaData
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import java.io.IOException
 import java.util.UUID
 
 /**
@@ -185,7 +187,7 @@ class AxonEventMessageMapper(
             } else {
                 objectMapper.writeValueAsString(payload)
             }
-        } catch (e: Exception) {
+        } catch (e: JsonProcessingException) {
             logger.error(
                 "Failed to serialize event payload of type {}: {}",
                 payload?.javaClass?.name,
@@ -209,7 +211,7 @@ class AxonEventMessageMapper(
                 // on eventType
                 objectMapper.readValue(payloadJson, Any::class.java)
             }
-        } catch (e: Exception) {
+        } catch (e: JsonProcessingException) {
             logger.error(
                 "Failed to deserialize event payload for type {}: {}",
                 eventType,
@@ -258,9 +260,22 @@ class AxonEventMessageMapper(
                     }
                 objectMapper.writeValueAsString(enhancedMetadata)
             }
-        } catch (e: Exception) {
-            logger.error("Failed to serialize event metadata: {}", e.message, e)
-            throw EventSerializationException("Failed to serialize event metadata", e)
+        } catch (e: JsonProcessingException) {
+            logger.error(
+                "Failed to serialize event metadata for event {}: {}",
+                event.type,
+                e.message,
+                e,
+            )
+            null
+        } catch (e: IllegalArgumentException) {
+            logger.error(
+                "Invalid metadata format for event {}: {}",
+                event.type,
+                e.message,
+                e,
+            )
+            null
         }
 
     /** Deserializes event metadata from JSON. */
@@ -277,7 +292,7 @@ class AxonEventMessageMapper(
                 val stringMap = map.mapValues { it.value?.toString() ?: "" }
                 MetaData.from(stringMap)
             }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             logger.warn(
                 "Failed to deserialize event metadata, returning empty metadata: {}",
                 e.message,

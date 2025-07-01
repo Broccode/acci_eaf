@@ -72,7 +72,11 @@ class CoroutineContextIntegrationTest {
             // Then: Verify only the basic propagation
             assertEquals(tenantId, results["direct_tenant"], "Direct tenant should be propagated")
             assertEquals(userId, results["direct_user"], "Direct user should be propagated")
-            assertEquals(correlationId, results["direct_correlation"], "Direct correlation should be propagated")
+            assertEquals(
+                correlationId,
+                results["direct_correlation"],
+                "Direct correlation should be propagated",
+            )
         }
     }
 
@@ -80,9 +84,21 @@ class CoroutineContextIntegrationTest {
     fun `should maintain context isolation between concurrent coroutines`() {
         val tenants =
             listOf(
-                Triple("concurrent-tenant-1", "concurrent-user-1", "concurrent-correlation-1"),
-                Triple("concurrent-tenant-2", "concurrent-user-2", "concurrent-correlation-2"),
-                Triple("concurrent-tenant-3", "concurrent-user-3", "concurrent-correlation-3"),
+                Triple(
+                    "concurrent-tenant-1",
+                    "concurrent-user-1",
+                    "concurrent-correlation-1",
+                ),
+                Triple(
+                    "concurrent-tenant-2",
+                    "concurrent-user-2",
+                    "concurrent-correlation-2",
+                ),
+                Triple(
+                    "concurrent-tenant-3",
+                    "concurrent-user-3",
+                    "concurrent-correlation-3",
+                ),
             )
 
         val results = java.util.concurrent.ConcurrentHashMap<String, String?>()
@@ -96,25 +112,20 @@ class CoroutineContextIntegrationTest {
                     setupSecurityContext(tenantId, userId, listOf("USER"))
                     CorrelationIdManager.setCorrelationId(correlationId)
 
-                    try {
-                        withContext(EafContextElement()) {
-                            // Simulate some async work
-                            delay(100)
+                    withContext(EafContextElement()) {
+                        // Simulate some async work
+                        delay(100)
 
-                            // Capture context information
-                            val t = getSecurityTenantId()
-                            val u = getSecurityUserId()
-                            val c = CorrelationIdManager.getCurrentCorrelationId()
+                        // Capture context information
+                        val t = getSecurityTenantId()
+                        val u = getSecurityUserId()
+                        val c = CorrelationIdManager.getCurrentCorrelationId()
 
-                            results["${tenantId}_tenant"] = t
-                            results["${tenantId}_user"] = u
-                            results["${tenantId}_correlation"] = c
+                        results["${tenantId}_tenant"] = t
+                        results["${tenantId}_user"] = u
+                        results["${tenantId}_correlation"] = c
 
-                            latch.countDown()
-                        }
-                    } catch (e: Exception) {
-                        println("DEBUG exception in coroutine $tenantId: ${e.message}")
-                        throw e
+                        latch.countDown()
                     }
                 }
             }
@@ -124,9 +135,17 @@ class CoroutineContextIntegrationTest {
 
             // Then: Verify each context was maintained independently
             tenants.forEach { (tenantId, userId, correlationId) ->
-                assertEquals(tenantId, results["${tenantId}_tenant"], "Tenant ID should be isolated")
+                assertEquals(
+                    tenantId,
+                    results["${tenantId}_tenant"],
+                    "Tenant ID should be isolated",
+                )
                 assertEquals(userId, results["${tenantId}_user"], "User ID should be isolated")
-                assertEquals(correlationId, results["${tenantId}_correlation"], "Correlation ID should be isolated")
+                assertEquals(
+                    correlationId,
+                    results["${tenantId}_correlation"],
+                    "Correlation ID should be isolated",
+                )
             }
         }
     }
@@ -148,12 +167,17 @@ class CoroutineContextIntegrationTest {
                 withContext(EafContextElement()) {
                     // Verify context is available
                     assertEquals(originalTenantId, getSecurityTenantId())
-                    assertEquals(originalCorrelationId, CorrelationIdManager.getCurrentCorrelationId())
+                    assertEquals(
+                        originalCorrelationId,
+                        CorrelationIdManager.getCurrentCorrelationId(),
+                    )
 
                     // Throw exception to test cleanup
-                    throw RuntimeException("Test exception")
+                    error("Test exception")
                 }
-            } catch (e: RuntimeException) {
+            } catch (e: IllegalStateException) {
+                // Expected exception during context cleanup test
+                println("Caught expected test exception: ${e.message}")
                 exceptionCaught = true
             }
 
@@ -190,8 +214,16 @@ class CoroutineContextIntegrationTest {
                 val innerCorrelationId = CorrelationIdManager.getCurrentCorrelationId()
 
                 // Then: Verify nested context behavior
-                assertEquals("nested-tenant-2", innerTenantId, "Inner context should have new tenant")
-                assertEquals("nested-correlation-2", innerCorrelationId, "Inner context should have new correlation")
+                assertEquals(
+                    "nested-tenant-2",
+                    innerTenantId,
+                    "Inner context should have new tenant",
+                )
+                assertEquals(
+                    "nested-correlation-2",
+                    innerCorrelationId,
+                    "Inner context should have new correlation",
+                )
             }
         }
     }
@@ -214,11 +246,13 @@ class CoroutineContextIntegrationTest {
                     // Create CompletableFuture that should inherit context
                     val future =
                         CompletableFuture.supplyAsync {
-                            // This runs on a different thread, context should not be available
+                            // This runs on a different thread, context should not be
+                            // available
                             // unless explicitly propagated
                             mapOf(
                                 "thread_tenant" to getSecurityTenantId(),
-                                "thread_correlation" to CorrelationIdManager.getCurrentCorrelationId(),
+                                "thread_correlation" to
+                                    CorrelationIdManager.getCurrentCorrelationId(),
                             )
                         }
 
@@ -229,7 +263,8 @@ class CoroutineContextIntegrationTest {
                         // Verify context is available in coroutine after Future completion
                         mapOf(
                             "coroutine_tenant" to getSecurityTenantId(),
-                            "coroutine_correlation" to CorrelationIdManager.getCurrentCorrelationId(),
+                            "coroutine_correlation" to
+                                CorrelationIdManager.getCurrentCorrelationId(),
                             "thread_tenant" to threadResult["thread_tenant"],
                             "thread_correlation" to threadResult["thread_correlation"],
                         )
@@ -237,7 +272,11 @@ class CoroutineContextIntegrationTest {
                 }
 
             // Then: Inspect result
-            assertEquals(tenantId, futureResult["coroutine_tenant"], "Coroutine context should be maintained")
+            assertEquals(
+                tenantId,
+                futureResult["coroutine_tenant"],
+                "Coroutine context should be maintained",
+            )
             assertEquals(
                 correlationId,
                 futureResult["coroutine_correlation"],
@@ -246,7 +285,11 @@ class CoroutineContextIntegrationTest {
 
             // Only correlation id inherited via InheritableThreadLocal
             assertNull(futureResult["thread_tenant"], "Thread should not have security context")
-            assertEquals(correlationId, futureResult["thread_correlation"], "Thread should inherit correlation id")
+            assertEquals(
+                correlationId,
+                futureResult["thread_correlation"],
+                "Thread should inherit correlation id",
+            )
         }
     }
 

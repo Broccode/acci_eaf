@@ -1,12 +1,20 @@
-# Formatting Guide
+# Formatting & Code Quality Guide
 
-This guide explains how to use the comprehensive formatting setup that ensures your local
-development environment matches CI exactly.
+This guide explains how to use the comprehensive formatting and code quality setup that ensures your
+local development environment matches CI exactly.
 
 ## 🎯 Overview
 
-The formatting system is designed to prevent CI failures by ensuring your local environment can
-catch and fix all the same formatting issues that CI checks.
+The formatting and code quality system is designed to prevent CI failures by ensuring your local
+environment can catch and fix all the same formatting issues and code quality violations that CI
+checks.
+
+### Tools Used
+
+- **Prettier**: Formats TypeScript, JavaScript, JSON, YAML, Markdown, and other frontend files
+- **ESLint**: Lints TypeScript and JavaScript code
+- **ktlint**: Formats and lints Kotlin code for style consistency
+- **Detekt**: Static code analysis for Kotlin to detect code smells and potential bugs
 
 ## 🛠️ Available Commands
 
@@ -30,6 +38,9 @@ catch and fix all the same formatting issues that CI checks.
 | `npm run format:prettier`       | Format all files with Prettier        |
 | `npm run format:check:prettier` | Check all files with Prettier         |
 | `npm run format:ci`             | Run exact CI formatting check         |
+| `npm run detekt`                | Run Detekt code quality analysis      |
+| `npm run detekt:check`          | Run Detekt code quality analysis      |
+| `npm run detekt:baseline`       | Create Detekt baseline files          |
 
 ## 🚀 Recommended Workflow
 
@@ -65,7 +76,7 @@ npm run format
 npm run format:check
 ```
 
-## 🔧 What Gets Formatted
+## 🔧 What Gets Formatted & Analyzed
 
 ### Nx Format (`npx nx format:write`)
 
@@ -83,6 +94,25 @@ npm run format:check
   - GitHub workflow files
   - Configuration files
 
+### Kotlin Tools
+
+#### ktlint (`nx run-many --target=ktlintFormat --all`)
+
+- Kotlin source files (`.kt`, `.kts`)
+- Enforces Kotlin coding conventions
+- Automatically fixes formatting issues
+
+#### Detekt (`nx run-many --target=detekt --all`)
+
+- Kotlin source files (`.kt`, `.kts`)
+- Static code analysis for:
+  - Code smells detection
+  - Complexity analysis
+  - Potential bugs
+  - Performance issues
+  - Style violations
+  - Best practices enforcement
+
 ## 🛡️ Automatic Protection
 
 ### Pre-commit Hooks
@@ -92,6 +122,8 @@ Every commit automatically runs:
 1. Comprehensive formatting check (`format:check:all`)
 2. Lint-staged formatting for changed files
 3. ESLint fixes for staged TypeScript/JavaScript files
+4. ktlint formatting for staged Kotlin files
+5. Detekt analysis for staged Kotlin files
 
 ### VS Code Integration
 
@@ -152,6 +184,40 @@ find . -name "*.yml" -o -name "*.yaml" | grep -v node_modules | xargs npx pretti
 2. Check that `.prettierrc` exists in the project root
 3. Reload VS Code window: `Cmd+Shift+P` → "Developer: Reload Window"
 
+### "Detekt analysis failing"
+
+Detekt performs static code analysis and may find issues that need to be addressed:
+
+```bash
+# Run detekt to see all issues
+npm run detekt
+
+# Create a baseline to suppress existing issues (for legacy code)
+npm run detekt:baseline
+
+# Run detekt on specific project
+nx run iam-service:detekt
+```
+
+**Known Issue - Kotlin Version Compatibility:** Currently, Detekt 1.23.8 (built with Kotlin 2.0.21)
+may show compatibility warnings when used with Kotlin 2.1.20. This is a known limitation. The
+analysis will still work, but you may see warnings. This will be resolved when a compatible Detekt
+version is released.
+
+**Common Detekt Issues:**
+
+- **Complexity violations**: Reduce method/class complexity
+- **Magic numbers**: Extract constants for numeric literals
+- **Long parameter lists**: Consider using data classes or builder patterns
+- **Unused imports/variables**: Remove unused code
+- **Naming conventions**: Follow Kotlin naming standards
+
+### "Kotlin formatting vs. code quality issues"
+
+- **ktlint**: Handles code formatting (spacing, indentation, etc.)
+- **Detekt**: Handles code quality (complexity, smells, best practices)
+- Both tools complement each other and should both pass
+
 ## 📝 Configuration Files
 
 ### Prettier Configuration (`.prettierrc`)
@@ -179,6 +245,20 @@ Key settings:
 - `"files.eol": "\n"` (LF line endings)
 - `"editor.defaultFormatter": "esbenp.prettier-vscode"`
 
+### Kotlin Configuration Files
+
+#### ktlint Configuration (`.ktlint.conf`)
+
+- Configures ktlint formatting rules
+- Sets indentation, line length, and other style preferences
+
+#### Detekt Configuration (`detekt.yml`)
+
+- Configures static analysis rules
+- Defines thresholds for complexity, naming conventions, etc.
+- Can be customized per project needs
+- Supports baseline files to suppress existing issues
+
 ### Lint-staged Configuration (`package.json`)
 
 ```json
@@ -186,7 +266,11 @@ Key settings:
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md,html}": ["prettier --write"],
     "*.{yml,yaml}": ["prettier --write"],
-    "*.{ts,tsx,js,jsx}": ["eslint --fix"]
+    "*.{ts,tsx,js,jsx}": ["eslint --fix"],
+    "**/*.kt": [
+      "nx affected --target=ktlintFormat --uncommitted",
+      "nx affected --target=detekt --uncommitted"
+    ]
   }
 }
 ```
@@ -198,6 +282,9 @@ Key settings:
 3. **Don't disable pre-commit hooks** - they prevent CI failures
 4. **When in doubt, run `npm run format:fix`** - it fixes everything
 5. **Review formatting changes** before committing to understand what was wrong
+6. **Address Detekt issues promptly** - they indicate potential code quality problems
+7. **Use baseline files sparingly** - only for legacy code, not new development
+8. **Run `npm run detekt` regularly** during development to catch issues early
 
 ## 🚨 Common Issues & Solutions
 
@@ -207,6 +294,8 @@ Key settings:
 | YAML quotes wrong                 | Prettier config uses single quotes | Run `npm run format:fix`          |
 | Line endings differ               | macOS vs Linux differences         | VS Code enforces LF automatically |
 | Git hooks not working             | Husky not installed properly       | Run `npm run prepare`             |
+| Detekt analysis fails             | Code quality issues found          | Fix issues or create baseline     |
+| Kotlin formatting inconsistent    | ktlint and IDE settings differ     | Use `npm run format:kotlin`       |
 
 ## 📚 Related Documentation
 

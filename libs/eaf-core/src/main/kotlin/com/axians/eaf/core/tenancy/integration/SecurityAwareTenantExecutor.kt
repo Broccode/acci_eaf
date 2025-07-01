@@ -22,11 +22,16 @@ class SecurityAwareTenantExecutor(
     private val logger = LoggerFactory.getLogger(SecurityAwareTenantExecutor::class.java)
 
     companion object {
+        // Default thread pool configuration
+        private const val DEFAULT_CORE_POOL_SIZE = 2
+        private const val DEFAULT_MAX_POOL_SIZE = 10
+        private const val DEFAULT_QUEUE_CAPACITY = 100
+
         private fun createDefaultExecutor(): ThreadPoolTaskExecutor =
             ThreadPoolTaskExecutor().apply {
-                corePoolSize = 2
-                maxPoolSize = 10
-                queueCapacity = 100
+                corePoolSize = DEFAULT_CORE_POOL_SIZE
+                maxPoolSize = DEFAULT_MAX_POOL_SIZE
+                queueCapacity = DEFAULT_QUEUE_CAPACITY
                 setThreadNamePrefix("tenant-async-")
                 initialize()
             }

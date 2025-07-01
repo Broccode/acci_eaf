@@ -17,6 +17,10 @@ import java.util.UUID
 class EafProjectorEventHandlerProcessor : BeanPostProcessor {
     private val logger = LoggerFactory.getLogger(EafProjectorEventHandlerProcessor::class.java)
 
+    companion object {
+        private const val EXPECTED_PARAMETER_COUNT = 3
+    }
+
     override fun postProcessAfterInitialization(
         bean: Any,
         beanName: String,
@@ -41,9 +45,21 @@ class EafProjectorEventHandlerProcessor : BeanPostProcessor {
                         projectorDef.projectorName,
                         projectorDef.subject,
                     )
-                } catch (e: Exception) {
+                } catch (e: IllegalArgumentException) {
                     logger.error(
                         "Failed to process @EafProjectorEventHandler on {}.{}: {}",
+                        beanClass.simpleName,
+                        method.name,
+                        e.message,
+                        e,
+                    )
+                    throw IllegalStateException(
+                        "Invalid @EafProjectorEventHandler configuration",
+                        e,
+                    )
+                } catch (e: java.lang.reflect.InvocationTargetException) {
+                    logger.error(
+                        "Reflection error while processing @EafProjectorEventHandler on {}.{}: {}",
                         beanClass.simpleName,
                         method.name,
                         e.message,
@@ -101,31 +117,25 @@ class EafProjectorEventHandlerProcessor : BeanPostProcessor {
     /** Validates that the projector method has the expected signature. */
     private fun validateProjectorMethodSignature(method: Method) {
         val paramTypes = method.parameterTypes
+        val methodName = method.name
 
-        if (paramTypes.size != 3) {
-            throw IllegalArgumentException(
-                "Method ${method.name} must have exactly 3 parameters: (event, eventId: UUID, tenantId: String)",
-            )
+        require(paramTypes.size == EXPECTED_PARAMETER_COUNT) {
+            "Method $methodName must have exactly $EXPECTED_PARAMETER_COUNT parameters: " +
+                "(event, eventId: UUID, tenantId: String)"
         }
 
-        // Second parameter must be UUID (eventId)
-        if (paramTypes[1] != UUID::class.java) {
-            throw IllegalArgumentException(
-                "Method ${method.name} second parameter must be UUID (eventId)",
-            )
+        require(paramTypes[1] == UUID::class.java) {
+            "Method $methodName second parameter must be UUID (eventId)"
         }
 
-        // Third parameter must be String (tenantId)
-        if (paramTypes[2] != String::class.java) {
-            throw IllegalArgumentException(
-                "Method ${method.name} third parameter must be String (tenantId)",
-            )
+        require(paramTypes[2] == String::class.java) {
+            "Method $methodName third parameter must be String (tenantId)"
         }
 
         // Method should not return anything meaningful
         if (method.returnType != Void.TYPE && method.returnType != Unit::class.java) {
             logger.warn(
-                "Projector method ${method.name} returns ${method.returnType.simpleName}, " +
+                "Projector method $methodName returns ${method.returnType.simpleName}, " +
                     "return value will be ignored",
             )
         }

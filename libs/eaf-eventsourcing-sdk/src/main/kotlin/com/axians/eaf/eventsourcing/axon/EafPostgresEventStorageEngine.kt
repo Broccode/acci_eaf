@@ -1,3 +1,5 @@
+@file:Suppress("NestedBlockDepth")
+
 package com.axians.eaf.eventsourcing.axon
 
 import com.axians.eaf.core.tenancy.TenantContextHolder
@@ -11,6 +13,7 @@ import org.axonframework.eventhandling.TrackingToken
 import org.axonframework.eventsourcing.eventstore.DomainEventStream
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessException
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.Optional
@@ -55,7 +58,7 @@ class EafPostgresEventStorageEngine(
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: DataAccessException) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleAppendException(
                 "appendEvents",
@@ -87,13 +90,12 @@ class EafPostgresEventStorageEngine(
 
             val domainEvents = persistedEvents.map { eventMessageMapper.mapToDomainEvent(it) }
             DomainEventStream.of(domainEvents)
-        } catch (e: Exception) {
+        } catch (e: DataAccessException) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleReadException(
-                "readEvents",
+                "event loading",
                 tenantId,
                 aggregateIdentifier,
-                null,
                 e,
             )
         }
@@ -126,13 +128,12 @@ class EafPostgresEventStorageEngine(
                         eventMessageMapper.mapToDomainEvent(event),
                     )
                 }.asStream()
-        } catch (e: Exception) {
+        } catch (e: DataAccessException) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleReadException(
-                "readEventsTracking",
+                "event loading",
                 tenantId,
-                null,
-                null,
+                aggregateIdentifier,
                 e,
             )
         }
@@ -146,7 +147,7 @@ class EafPostgresEventStorageEngine(
                     eventStoreRepository.getMaxGlobalSequence(tenantId)
                 }
             GlobalSequenceTrackingToken(maxSequence)
-        } catch (e: Exception) {
+        } catch (e: DataAccessException) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             logger.warn(
                 "Failed to create head token for tenant {}, returning initial token: {}",
@@ -172,7 +173,7 @@ class EafPostgresEventStorageEngine(
                     snapshot.aggregateIdentifier,
                 )
             }
-        } catch (e: Exception) {
+        } catch (e: DataAccessException) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleAppendException(
                 "storeSnapshot",
@@ -198,7 +199,7 @@ class EafPostgresEventStorageEngine(
             } else {
                 Optional.empty()
             }
-        } catch (e: Exception) {
+        } catch (e: DataAccessException) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             logger.warn("Failed to read snapshot {}", e.message)
             Optional.empty()

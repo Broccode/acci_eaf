@@ -28,7 +28,10 @@
     "prepare": "husky",
     "format:kotlin": "nx run-many --target=ktlintFormat --all",
     "format:kotlin:check": "nx run-many --target=ktlintCheck --all",
-    "lint:kotlin": "nx run-many --target=ktlintCheck --all"
+    "lint:kotlin": "nx run-many --target=ktlintCheck --all",
+    "detekt": "nx run-many --target=detekt --all -- --auto-correct",
+    "detekt:check": "nx run-many --target=detekt --all",
+    "detekt:baseline": "nx run-many --target=detektBaseline --all"
   },
   "private": true,
   "devDependencies": {
@@ -87,7 +90,8 @@
       "eslint --fix"
     ],
     "**/*.kt": [
-      "nx affected --target=ktlintFormat --uncommitted"
+      "nx affected --target=ktlintFormat --uncommitted",
+      "nx affected --target=detekt --uncommitted"
     ]
   }
 }

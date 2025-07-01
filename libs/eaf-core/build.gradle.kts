@@ -36,12 +36,19 @@ dependencies {
   // Coroutines for async context propagation
   implementation(libs.kotlin.coroutines.core)
 
+  // Axon Framework for correlation data provider
+  implementation(libs.axon.messaging)
+
+  // Jackson for JSON serialization
+  implementation(libs.jackson.module.kotlin)
+
   // Logging
   implementation(libs.slf4j.api)
 
   // Testing dependencies using version catalog
   testImplementation(libs.junit.jupiter)
   testImplementation(libs.mockk)
+  testImplementation(libs.mockk.agent.jvm)
   testImplementation(libs.archunit.junit5)
   testImplementation(libs.kotlin.test)
   testImplementation(libs.kotlin.coroutines.test)

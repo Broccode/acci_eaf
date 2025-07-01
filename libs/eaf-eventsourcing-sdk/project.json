@@ -20,6 +20,40 @@
       "options": {
         "task": "check"
       }
+    },
+    "lint": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/libs/eaf-eventsourcing-sdk/build/reports"],
+      "options": {
+        "taskName": ":libs:eaf-eventsourcing-sdk:ktlintCheck"
+      }
+    },
+    "detekt": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/libs/eaf-eventsourcing-sdk/build/reports"],
+      "options": {
+        "taskName": ":libs:eaf-eventsourcing-sdk:detekt"
+      }
+    },
+    "detektBaseline": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/libs/eaf-eventsourcing-sdk/build/reports"],
+      "options": {
+        "taskName": ":libs:eaf-eventsourcing-sdk:detektBaseline"
+      }
+    },
+    "ktlintFormat": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": ":libs:eaf-eventsourcing-sdk:ktlintFormat"
+      }
+    },
+    "ktlintCheck": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/libs/eaf-eventsourcing-sdk/build/reports"],
+      "options": {
+        "taskName": ":libs:eaf-eventsourcing-sdk:ktlintCheck"
+      }
     }
   },
   "tags": ["type:library", "domain:eventsourcing", "platform:backend"]

@@ -13,10 +13,13 @@ import com.axians.eaf.controlplane.domain.model.tenant.TenantId
 import com.axians.eaf.controlplane.domain.model.user.UserId
 import com.axians.eaf.controlplane.domain.service.InvitationResult
 import com.axians.eaf.controlplane.domain.service.InvitationService
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.EndpointExceptionHandler
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ResponseConstants
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import com.vaadin.hilla.exception.EndpointException
 import jakarta.validation.Valid
+import org.slf4j.LoggerFactory
 import org.springframework.security.access.prepost.PreAuthorize
 
 // @Endpoint
@@ -32,13 +35,23 @@ import org.springframework.security.access.prepost.PreAuthorize
 class UserInvitationEndpoint(
     private val invitationService: InvitationService,
 ) {
+    private val logger = LoggerFactory.getLogger(UserInvitationEndpoint::class.java)
+
+    /** Processes invitation result and returns data or throws appropriate exception. */
+    private fun processInvitationResult(result: InvitationResult): Any =
+        when (result) {
+            is InvitationResult.Success<*> ->
+                result.data
+                    ?: throw EndpointException("Null result from successful operation")
+            is InvitationResult.Error -> throw EndpointException(result.message)
+        }
+
     /** Invite a new user to join the current tenant. Requires tenant admin privileges or higher. */
     suspend fun inviteUser(
         @Valid request: InviteUserRequest,
         tenantId: String,
-    ): InvitationResponse {
-        try {
-            // TODO: Get current user from security context
+    ): InvitationResponse =
+        EndpointExceptionHandler.handleSuspendEndpointExecution("inviteUser", logger) {
             val currentUserId = UserId("current-admin-user") // Placeholder
 
             val result =
@@ -48,21 +61,12 @@ class UserInvitationEndpoint(
                     invitedBy = currentUserId,
                 )
 
-            return when (result) {
-                is InvitationResult.Success<*> -> result.data as InvitationResponse
-                is InvitationResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: EndpointException) {
-            throw e
-        } catch (e: Exception) {
-            throw EndpointException("Failed to invite user: ${e.message}")
+            processInvitationResult(result) as InvitationResponse
         }
-    }
 
     /** Resend an existing invitation. Generates a new token and extends expiration. */
-    suspend fun resendInvitation(invitationId: String): InvitationResponse {
-        try {
-            // TODO: Get current user from security context
+    suspend fun resendInvitation(invitationId: String): InvitationResponse =
+        EndpointExceptionHandler.handleSuspendEndpointExecution("resendInvitation", logger) {
             val currentUserId = UserId("current-admin-user") // Placeholder
 
             val result =
@@ -71,24 +75,15 @@ class UserInvitationEndpoint(
                     resentBy = currentUserId,
                 )
 
-            return when (result) {
-                is InvitationResult.Success<*> -> result.data as InvitationResponse
-                is InvitationResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: EndpointException) {
-            throw e
-        } catch (e: Exception) {
-            throw EndpointException("Failed to resend invitation: ${e.message}")
+            processInvitationResult(result) as InvitationResponse
         }
-    }
 
     /** Cancel an existing invitation. Only pending invitations can be cancelled. */
     suspend fun cancelInvitation(
         invitationId: String,
         reason: String = "Cancelled by administrator",
-    ): CancelInvitationResponse {
-        try {
-            // TODO: Get current user from security context
+    ): CancelInvitationResponse =
+        EndpointExceptionHandler.handleSuspendEndpointExecution("cancelInvitation", logger) {
             val currentUserId = UserId("current-admin-user") // Placeholder
 
             val result =
@@ -98,102 +93,71 @@ class UserInvitationEndpoint(
                     reason = reason,
                 )
 
-            return when (result) {
-                is InvitationResult.Success<*> -> result.data as CancelInvitationResponse
-                is InvitationResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: EndpointException) {
-            throw e
-        } catch (e: Exception) {
-            throw EndpointException("Failed to cancel invitation: ${e.message}")
+            processInvitationResult(result) as CancelInvitationResponse
         }
-    }
 
     /**
-     * Accept an invitation using the secure token. This endpoint is accessible without authentication
-     * for new users.
+     * Accept an invitation using the secure token. This endpoint is accessible without
+     * authentication for new users.
      */
     @AnonymousAllowed
     suspend fun acceptInvitation(
-        token: String,
         @Valid request: AcceptInvitationRequest,
-    ): AcceptInvitationResponse {
-        try {
+    ): AcceptInvitationResponse =
+        EndpointExceptionHandler.handleSuspendEndpointExecution("acceptInvitation", logger) {
             val result =
                 invitationService.acceptInvitation(
-                    token = token,
+                    token = request.token,
                     request = request,
                 )
 
-            return when (result) {
-                is InvitationResult.Success<*> -> result.data as AcceptInvitationResponse
-                is InvitationResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: EndpointException) {
-            throw e
-        } catch (e: Exception) {
-            throw EndpointException("Failed to accept invitation: ${e.message}")
+            processInvitationResult(result) as AcceptInvitationResponse
         }
-    }
 
     /**
-     * List invitations with optional filtering and pagination. Tenant admins can only see invitations
-     * for their tenant.
+     * List invitations with optional filtering and pagination. Tenant admins can only see
+     * invitations for their tenant.
      */
     suspend fun listInvitations(
-        email: String? = null,
-        status: String? = null,
-        invitedBy: String? = null,
-        includeExpired: Boolean = false,
-        pageSize: Int = 20,
-        pageNumber: Int = 0,
-    ): PagedResponse<InvitationSummary> {
-        try {
+        params: InvitationListParameters = InvitationListParameters(),
+    ): PagedResponse<InvitationSummary> =
+        EndpointExceptionHandler.handleSuspendEndpointExecution("listInvitations", logger) {
             val filter =
                 InvitationFilter(
-                    email = email,
+                    email = params.email,
                     status =
-                        status?.let {
-                            try {
-                                com.axians.eaf.controlplane.domain.model.invitation.InvitationStatus.valueOf(
+                        params.status?.let {
+                            com.axians.eaf.controlplane.domain.model.invitation
+                                .InvitationStatus
+                                .valueOf(
                                     it,
                                 )
-                            } catch (e: IllegalArgumentException) {
-                                throw EndpointException("Invalid status value: $it")
-                            }
                         },
-                    invitedBy = invitedBy,
-                    includeExpired = includeExpired,
-                    pageSize = pageSize,
-                    pageNumber = pageNumber,
+                    invitedBy = params.invitedBy,
+                    includeExpired = params.includeExpired,
+                    pageSize = params.pageSize,
+                    pageNumber = params.pageNumber,
                 )
 
             val result = invitationService.listInvitations(filter)
 
-            return when (result) {
-                is InvitationResult.Success<*> -> {
-                    @Suppress("UNCHECKED_CAST")
-                    result.data as PagedResponse<InvitationSummary>
-                }
-                is InvitationResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: EndpointException) {
-            throw e
-        } catch (e: Exception) {
-            throw EndpointException("Failed to list invitations: ${e.message}")
+            @Suppress("UNCHECKED_CAST")
+            processInvitationResult(result) as PagedResponse<InvitationSummary>
         }
-    }
 
     /**
      * Get a public invitation details for the acceptance page. This endpoint is accessible without
      * authentication.
      */
     @AnonymousAllowed
-    suspend fun getInvitationByToken(token: String): InvitationPublicDetails {
-        try {
+    suspend fun getInvitationByToken(token: String): InvitationPublicDetails =
+        EndpointExceptionHandler.handleSuspendEndpointExecution(
+            "getInvitationByToken",
+            logger,
+        ) {
             // This would typically call a service method to get public invitation info
             // For now, we'll create a placeholder response
-            return InvitationPublicDetails(
+            InvitationPublicDetails(
                 email = "placeholder@example.com",
                 firstName = "Placeholder",
                 lastName = "User",
@@ -202,31 +166,35 @@ class UserInvitationEndpoint(
                 expiresAt =
                     java.time.Instant
                         .now()
-                        .plusSeconds(7 * 24 * 60 * 60),
+                        .plusSeconds(ResponseConstants.INVITATION_EXPIRY_SECONDS),
                 isValid = true,
             )
-        } catch (e: Exception) {
-            throw EndpointException("Failed to get invitation details: ${e.message}")
         }
-    }
 
     /** Administrative function to process expired invitations. Only super admins can call this. */
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    suspend fun processExpiredInvitations(): String {
-        try {
+    suspend fun processExpiredInvitations(): String =
+        EndpointExceptionHandler.handleSuspendEndpointExecution(
+            "processExpiredInvitations",
+            logger,
+        ) {
             val result = invitationService.processExpiredInvitations()
-
-            return when (result) {
-                is InvitationResult.Success<*> -> result.data as String
-                is InvitationResult.Error -> throw EndpointException(result.message)
-            }
-        } catch (e: EndpointException) {
-            throw e
-        } catch (e: Exception) {
-            throw EndpointException("Failed to process expired invitations: ${e.message}")
+            processInvitationResult(result) as String
         }
-    }
 }
+
+/**
+ * Parameters for listing invitations with optional filtering and pagination. Addresses detekt
+ * LongParameterList issue by grouping related parameters.
+ */
+data class InvitationListParameters(
+    val email: String? = null,
+    val status: String? = null,
+    val invitedBy: String? = null,
+    val includeExpired: Boolean = false,
+    val pageSize: Int = ResponseConstants.DEFAULT_PAGE_SIZE,
+    val pageNumber: Int = ResponseConstants.DEFAULT_PAGE_NUMBER,
+)
 
 /**
  * Public invitation details for the acceptance page. Contains only information needed for

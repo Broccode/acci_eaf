@@ -12,14 +12,14 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * Simple integration test demonstrating the EAF Security Context functionality
- * working with Spring Security integration in a realistic scenario.
+ * Simple integration test demonstrating the EAF Security Context functionality working with Spring
+ * Security integration in a realistic scenario.
  */
 class SimpleSecurityContextIntegrationTest {
     // Create a simple test implementation instead of relying on Spring configuration
     private val securityContextHolder: EafSecurityContextHolder =
         object : EafSecurityContextHolder {
-            override fun getTenantId(): String = getTenantIdOrNull() ?: throw IllegalStateException("No tenant context")
+            override fun getTenantId(): String = getTenantIdOrNull() ?: error("No tenant context")
 
             override fun getTenantIdOrNull(): String? {
                 val context = SecurityContextHolder.getContext()
@@ -46,7 +46,8 @@ class SimpleSecurityContextIntegrationTest {
                 val auth = context.authentication ?: return false
                 return auth.authorities?.any {
                     it.authority == "ROLE_$role" || it.authority == role
-                } ?: false
+                }
+                    ?: false
             }
 
             override fun hasPermission(permission: String): Boolean = false // Not implemented for this test

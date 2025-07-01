@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing.consumer
 
 import io.mockk.every
@@ -11,9 +13,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import java.util.UUID
 import kotlin.test.assertEquals
 
-/**
- * Unit tests for the ProcessedEventRepository implementations.
- */
+/** Unit tests for the ProcessedEventRepository implementations. */
 class ProcessedEventRepositoryTest {
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
     private lateinit var repository: JdbcProcessedEventRepository

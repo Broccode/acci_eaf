@@ -17,6 +17,7 @@ import com.axians.eaf.controlplane.domain.service.DeleteRoleResult
 import com.axians.eaf.controlplane.domain.service.RolePermissionResult
 import com.axians.eaf.controlplane.domain.service.RoleService
 import com.axians.eaf.controlplane.domain.service.UpdateRoleResult
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.EndpointExceptionHandler
 import com.axians.eaf.core.annotations.HillaWorkaround
 import com.vaadin.flow.server.auth.AnonymousAllowed
 import com.vaadin.hilla.Endpoint
@@ -49,11 +50,13 @@ class RoleManagementEndpoint(
     /** Creates a new role with the specified configuration. */
     fun createRole(
         @Valid request: CreateRoleRequest,
-    ): CreateRoleResponse {
-        logger.info("Creating role: {} with scope: {}", request.name, request.scope)
-
-        return runBlocking {
-            try {
+    ): CreateRoleResponse =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "createRole",
+            details = "name=${request.name}, scope=${request.scope}",
+        ) {
+            runBlocking {
                 val result =
                     roleService.createRole(
                         name = request.name,
@@ -73,22 +76,20 @@ class RoleManagementEndpoint(
                         CreateRoleResponse.failure(result.message)
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error creating role: ${request.name}", exception)
-                CreateRoleResponse.failure("Failed to create role: ${exception.message}")
             }
         }
-    }
 
     /** Updates an existing role's details. */
     fun updateRole(
         roleId: String,
         @Valid request: UpdateRoleRequest,
-    ): UpdateRoleResponse? {
-        logger.info("Updating role: {}", roleId)
-
-        return runBlocking {
-            try {
+    ): UpdateRoleResponse? =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "updateRole",
+            details = "roleId=$roleId",
+        ) {
+            runBlocking {
                 val result =
                     roleService.updateRole(
                         roleId = roleId,
@@ -110,20 +111,18 @@ class RoleManagementEndpoint(
                         null
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error updating role: $roleId", exception)
-                null
             }
         }
-    }
 
     /** Deletes a role by ID. */
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN") // Only platform admins can delete roles
-    fun deleteRole(roleId: String): DeleteRoleResponse? {
-        logger.info("Deleting role: {}", roleId)
-
-        return runBlocking {
-            try {
+    fun deleteRole(roleId: String): DeleteRoleResponse? =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "deleteRole",
+            details = "roleId=$roleId",
+        ) {
+            runBlocking {
                 val role = roleService.getRoleById(roleId)
                 if (role == null) {
                     logger.warn("Role not found for deletion: {}", roleId)
@@ -146,22 +145,20 @@ class RoleManagementEndpoint(
                         null
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error deleting role: $roleId", exception)
-                null
             }
         }
-    }
 
     /** Assigns a permission to a role. */
     fun assignPermission(
         roleId: String,
         permissionId: String,
-    ): RolePermissionResponse? {
-        logger.info("Assigning permission {} to role {}", permissionId, roleId)
-
-        return runBlocking {
-            try {
+    ): RolePermissionResponse? =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "assignPermission",
+            details = "roleId=$roleId, permissionId=$permissionId",
+        ) {
+            runBlocking {
                 val role = roleService.getRoleById(roleId)
                 val permission = roleService.getPermissionById(permissionId)
 
@@ -199,22 +196,20 @@ class RoleManagementEndpoint(
                         null
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error assigning permission $permissionId to role $roleId", exception)
-                null
             }
         }
-    }
 
     /** Removes a permission from a role. */
     fun removePermission(
         roleId: String,
         permissionId: String,
-    ): RolePermissionResponse? {
-        logger.info("Removing permission {} from role {}", permissionId, roleId)
-
-        return runBlocking {
-            try {
+    ): RolePermissionResponse? =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "removePermission",
+            details = "roleId=$roleId, permissionId=$permissionId",
+        ) {
+            runBlocking {
                 val role = roleService.getRoleById(roleId)
                 val permission = roleService.getPermissionById(permissionId)
 
@@ -252,20 +247,18 @@ class RoleManagementEndpoint(
                         null
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error removing permission $permissionId from role $roleId", exception)
-                null
             }
         }
-    }
 
     /** Gets a role by ID. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun getRole(roleId: String): RoleDto? {
-        logger.debug("Retrieving role: {}", roleId)
-
-        return runBlocking {
-            try {
+    fun getRole(roleId: String): RoleDto? =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "getRole",
+            details = "roleId=$roleId",
+        ) {
+            runBlocking {
                 val role = roleService.getRoleById(roleId)
                 if (role != null) {
                     logger.debug("Role retrieved: {}", roleId)
@@ -274,49 +267,43 @@ class RoleManagementEndpoint(
                     logger.warn("Role not found: {}", roleId)
                     null
                 }
-            } catch (exception: Exception) {
-                logger.error("Error retrieving role: $roleId", exception)
-                null
             }
         }
-    }
 
     /** Lists roles by scope and optional tenant ID. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
     fun listRoles(
         scope: RoleScope,
         tenantId: String? = null,
-    ): List<RoleDto> {
-        logger.debug("Listing roles with scope: {} and tenantId: {}", scope, tenantId)
-
-        return runBlocking {
-            try {
+    ): List<RoleDto> =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "listRoles",
+            details = "scope=$scope, tenantId=$tenantId",
+        ) {
+            runBlocking {
                 val roles = roleService.listRoles(scope, tenantId)
                 logger.debug("Retrieved {} roles", roles.size)
                 roles.map { RoleDto.fromDomain(it) }
-            } catch (exception: Exception) {
-                logger.error("Error listing roles", exception)
-                emptyList()
             }
         }
-    }
+            ?: emptyList()
 
     /** Gets all roles available for a specific tenant (platform + tenant-scoped). */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun getRolesForTenant(tenantId: String): List<RoleDto> {
-        logger.debug("Getting roles for tenant: {}", tenantId)
-
-        return runBlocking {
-            try {
+    fun getRolesForTenant(tenantId: String): List<RoleDto> =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "getRolesForTenant",
+            details = "tenantId=$tenantId",
+        ) {
+            runBlocking {
                 val roles = roleService.getRolesForTenant(tenantId)
                 logger.debug("Retrieved {} roles for tenant {}", roles.size, tenantId)
                 roles.map { RoleDto.fromDomain(it) }
-            } catch (exception: Exception) {
-                logger.error("Error getting roles for tenant: $tenantId", exception)
-                emptyList()
             }
         }
-    }
+            ?: emptyList()
 
     // Permission Management Operations
 
@@ -324,11 +311,13 @@ class RoleManagementEndpoint(
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN") // Only platform admins can create permissions
     fun createPermission(
         @Valid request: CreatePermissionRequest,
-    ): CreatePermissionResponse {
-        logger.info("Creating permission: {} for resource: {}", request.name, request.resource)
-
-        return runBlocking {
-            try {
+    ): CreatePermissionResponse =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "createPermission",
+            details = "name=${request.name}, resource=${request.resource}",
+        ) {
+            runBlocking {
                 val result =
                     roleService.createPermission(
                         name = request.name,
@@ -350,56 +339,54 @@ class RoleManagementEndpoint(
                         CreatePermissionResponse.failure(result.message)
                     }
                 }
-            } catch (exception: Exception) {
-                logger.error("Error creating permission: ${request.name}", exception)
-                CreatePermissionResponse.failure(
-                    "Failed to create permission: ${exception.message}",
-                )
             }
         }
-    }
 
     /** Gets all available permissions. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun listPermissions(): List<PermissionDto> {
-        logger.debug("Listing all permissions")
-
-        return runBlocking {
-            try {
+    fun listPermissions(): List<PermissionDto> =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "listPermissions",
+            details = "",
+        ) {
+            runBlocking {
                 val permissions = roleService.getAllPermissions()
                 logger.debug("Retrieved {} permissions", permissions.size)
                 permissions.map { PermissionDto.fromDomain(it) }
-            } catch (exception: Exception) {
-                logger.error("Error listing permissions", exception)
-                emptyList()
             }
         }
-    }
+            ?: emptyList()
 
     /** Gets permissions by resource. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun getPermissionsByResource(resource: String): List<PermissionDto> {
-        logger.debug("Getting permissions for resource: {}", resource)
-
-        return runBlocking {
-            try {
+    fun getPermissionsByResource(resource: String): List<PermissionDto> =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "getPermissionsByResource",
+            details = "resource=$resource",
+        ) {
+            runBlocking {
                 val permissions = roleService.getPermissionsByResource(resource)
-                logger.debug("Retrieved {} permissions for resource {}", permissions.size, resource)
+                logger.debug(
+                    "Retrieved {} permissions for resource {}",
+                    permissions.size,
+                    resource,
+                )
                 permissions.map { PermissionDto.fromDomain(it) }
-            } catch (exception: Exception) {
-                logger.error("Error getting permissions for resource: $resource", exception)
-                emptyList()
             }
         }
-    }
+            ?: emptyList()
 
     /** Gets a permission by ID. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun getPermission(permissionId: String): PermissionDto? {
-        logger.debug("Retrieving permission: {}", permissionId)
-
-        return runBlocking {
-            try {
+    fun getPermission(permissionId: String): PermissionDto? =
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "getPermission",
+            details = "permissionId=$permissionId",
+        ) {
+            runBlocking {
                 val permission = roleService.getPermissionById(permissionId)
                 if (permission != null) {
                     logger.debug("Permission retrieved: {}", permissionId)
@@ -408,10 +395,6 @@ class RoleManagementEndpoint(
                     logger.warn("Permission not found: {}", permissionId)
                     null
                 }
-            } catch (exception: Exception) {
-                logger.error("Error retrieving permission: $permissionId", exception)
-                null
             }
         }
-    }
 }

@@ -5,6 +5,7 @@ import com.axians.eaf.iam.infrastructure.config.SystemInitializationProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
+import org.springframework.dao.DataAccessException
 import org.springframework.stereotype.Component
 
 /**
@@ -35,10 +36,12 @@ class DataInitializerAdapter(
             } else {
                 logger.info("System initialization skipped: ${result.message}")
             }
-        } catch (exception: Exception) {
-            logger.error("System initialization failed", exception)
+        } catch (dataException: DataAccessException) {
+            logger.error("Database error during system initialization", dataException)
             // Don't rethrow - allow application to start even if initialization fails
-            // This prevents the application from failing to start due to initialization issues
+        } catch (validationException: IllegalArgumentException) {
+            logger.error("Validation error during system initialization", validationException)
+            // Don't rethrow - allow application to start even if initialization fails
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.axians.eaf.core.tenancy.integration
 
+import com.axians.eaf.core.tenancy.TenantContextException
 import com.axians.eaf.core.tenancy.TenantContextHolder
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -34,6 +35,9 @@ class TenantContextSynchronizationFilter(
 
         /** Headers to check for fallback tenant ID */
         private val TENANT_ID_HEADERS = arrayOf("X-Tenant-ID", "Tenant-ID")
+
+        /** Maximum length for tenant ID from headers to prevent abuse */
+        private const val MAX_TENANT_ID_LENGTH = 64
     }
 
     override fun getOrder(): Int = FILTER_ORDER
@@ -49,57 +53,96 @@ class TenantContextSynchronizationFilter(
         filterLogger.debug("Processing tenant context synchronization for request: {}", requestPath)
 
         try {
-            // Synchronize tenant context from security context with fallback to headers
-            val fallbackTenantId = extractTenantIdFromHeaders(request)
-            val syncResult =
-                bridge.synchronizeWithFallback(fallbackTenantId, respectExisting = true)
-
-            if (syncResult) {
-                val tenantId = TenantContextHolder.getCurrentTenantId()
-                filterLogger.debug(
-                    "Tenant context synchronized: tenant={}, request={}, method={}",
-                    tenantId,
-                    requestPath,
-                    request.method,
-                )
-
-                // Add tenant ID to response headers for debugging/tracing
-                response.setHeader("X-Resolved-Tenant-ID", tenantId)
-            } else {
-                filterLogger.debug("No tenant context available for request: {}", requestPath)
-            }
-
-            // Proceed with the request
+            // Synchronize tenant context and proceed with request
+            processTenantSynchronization(request, response, requestPath)
             filterChain.doFilter(request, response)
-        } catch (e: Exception) {
-            filterLogger.error(
-                "Error during tenant context synchronization for request {}: {}",
-                requestPath,
-                e.message,
+        } catch (e: TenantContextException) {
+            handleTenantSyncError(e, requestPath, "Tenant context error")
+            filterChain.doFilter(request, response)
+        } catch (e: IllegalArgumentException) {
+            handleTenantSyncError(e, requestPath, "Invalid tenant context data")
+            filterChain.doFilter(request, response)
+        } catch (e: IllegalStateException) {
+            handleTenantSyncError(
                 e,
+                requestPath,
+                "Invalid state during tenant context synchronization",
             )
-            // Continue with request processing even if tenant sync fails
             filterChain.doFilter(request, response)
         } finally {
-            try {
-                // Clear tenant context if it was synchronized from security context
-                // This prevents context leaks between requests
-                bridge.clearIfSynchronized()
+            performCleanup(requestPath, startTime)
+        }
+    }
 
-                val duration = System.currentTimeMillis() - startTime
-                filterLogger.debug(
-                    "Completed tenant context processing: request={}, method={}, duration={}ms",
-                    requestPath,
-                    request.method,
-                    duration,
-                )
-            } catch (e: Exception) {
-                filterLogger.warn(
-                    "Error during tenant context cleanup for request {}: {}",
-                    requestPath,
-                    e.message,
-                )
-            }
+    /** Processes tenant synchronization and adds response headers. */
+    private fun processTenantSynchronization(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        requestPath: String,
+    ) {
+        // Synchronize tenant context from security context with fallback to headers
+        val fallbackTenantId = extractTenantIdFromHeaders(request)
+        val syncResult = bridge.synchronizeWithFallback(fallbackTenantId, respectExisting = true)
+
+        if (syncResult) {
+            val tenantId = TenantContextHolder.getCurrentTenantId()
+            filterLogger.debug(
+                "Tenant context synchronized: tenant={}, request={}, method={}",
+                tenantId,
+                requestPath,
+                request.method,
+            )
+
+            // Add tenant ID to response headers for debugging/tracing
+            response.setHeader("X-Resolved-Tenant-ID", tenantId)
+        } else {
+            filterLogger.debug("No tenant context available for request: {}", requestPath)
+        }
+    }
+
+    /** Handles tenant synchronization errors with consistent logging. */
+    private fun handleTenantSyncError(
+        exception: Exception,
+        requestPath: String,
+        messagePrefix: String,
+    ) {
+        filterLogger.error(
+            "{} for request {}: {}",
+            messagePrefix,
+            requestPath,
+            exception.message,
+            exception,
+        )
+    }
+
+    /** Performs cleanup and logging of request processing completion. */
+    private fun performCleanup(
+        requestPath: String,
+        startTime: Long,
+    ) {
+        try {
+            // Clear tenant context if it was synchronized from security context
+            // This prevents context leaks between requests
+            bridge.clearIfSynchronized()
+
+            val duration = System.currentTimeMillis() - startTime
+            filterLogger.debug(
+                "Completed tenant context processing: request={}, duration={}ms",
+                requestPath,
+                duration,
+            )
+        } catch (e: TenantContextException) {
+            filterLogger.warn(
+                "Tenant context error during cleanup for request {}: {}",
+                requestPath,
+                e.message,
+            )
+        } catch (e: IllegalStateException) {
+            filterLogger.warn(
+                "Invalid state during tenant context cleanup for request {}: {}",
+                requestPath,
+                e.message,
+            )
         }
     }
 
@@ -127,7 +170,10 @@ class TenantContextSynchronizationFilter(
      * @return Sanitized tenant ID
      */
     private fun sanitizeTenantId(tenantId: String): String {
-        return tenantId.trim().replace(Regex("[^a-zA-Z0-9_-]"), "").take(64) // Limit length
+        return tenantId
+            .trim()
+            .replace(Regex("[^a-zA-Z0-9_-]"), "")
+            .take(MAX_TENANT_ID_LENGTH) // Limit length
     }
 
     /**
@@ -137,20 +183,35 @@ class TenantContextSynchronizationFilter(
     public override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val requestPath = request.requestURI
 
-        // Skip for health checks and monitoring endpoints
-        if (requestPath.startsWith("/actuator/") ||
-            requestPath.startsWith("/health") ||
-            requestPath.startsWith("/metrics")
-        ) {
+        // Skip for health checks, monitoring endpoints, and static resources
+        val shouldSkip = isMonitoringEndpoint(requestPath) || isStaticResource(requestPath)
+
+        if (shouldSkip) {
+            val resourceType =
+                if (isMonitoringEndpoint(requestPath)) {
+                    "monitoring endpoint"
+                } else {
+                    "static resource"
+                }
             filterLogger.trace(
-                "Skipping tenant context synchronization for monitoring endpoint: {}",
+                "Skipping tenant context synchronization for {}: {}",
+                resourceType,
                 requestPath,
             )
-            return true
         }
 
-        // Skip for static resources
-        if (requestPath.startsWith("/static/") ||
+        return shouldSkip
+    }
+
+    /** Checks if the request path is a monitoring endpoint. */
+    private fun isMonitoringEndpoint(requestPath: String): Boolean =
+        requestPath.startsWith("/actuator/") ||
+            requestPath.startsWith("/health") ||
+            requestPath.startsWith("/metrics")
+
+    /** Checks if the request path is a static resource. */
+    private fun isStaticResource(requestPath: String): Boolean =
+        requestPath.startsWith("/static/") ||
             requestPath.startsWith("/webjars/") ||
             requestPath.startsWith("/css/") ||
             requestPath.startsWith("/js/") ||
@@ -160,14 +221,4 @@ class TenantContextSynchronizationFilter(
             requestPath.endsWith(".jpg") ||
             requestPath.endsWith(".css") ||
             requestPath.endsWith(".js")
-        ) {
-            filterLogger.trace(
-                "Skipping tenant context synchronization for static resource: {}",
-                requestPath,
-            )
-            return true
-        }
-
-        return false
-    }
 }

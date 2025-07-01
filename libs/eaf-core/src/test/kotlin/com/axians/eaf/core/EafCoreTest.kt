@@ -9,3 +9,4 @@ class EafCoreTest {
         assertEquals("0.1.0-SNAPSHOT", EafCore.getVersion())
     }
 }
+// Test comment for pre-commit integration

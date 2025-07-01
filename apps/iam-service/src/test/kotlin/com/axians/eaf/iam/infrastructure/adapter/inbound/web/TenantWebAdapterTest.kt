@@ -1,6 +1,5 @@
 package com.axians.eaf.iam.infrastructure.adapter.inbound.web
 
-import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.iam.application.port.inbound.CreateTenantResult
 import com.axians.eaf.iam.application.port.inbound.CreateTenantUseCase
 import com.axians.eaf.iam.test.TestIamServiceApplication
@@ -24,8 +23,6 @@ class TenantWebAdapterTest {
     @Autowired private lateinit var mockMvc: MockMvc
 
     @MockkBean private lateinit var createTenantUseCase: CreateTenantUseCase
-
-    @MockkBean private lateinit var securityContextHolder: EafSecurityContextHolder
 
     @Autowired private lateinit var objectMapper: ObjectMapper
 

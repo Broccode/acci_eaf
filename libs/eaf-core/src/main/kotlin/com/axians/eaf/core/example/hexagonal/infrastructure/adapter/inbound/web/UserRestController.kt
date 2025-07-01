@@ -6,16 +6,19 @@ import com.axians.eaf.core.example.hexagonal.application.port.inbound.CreateUser
 /**
  * Example inbound adapter - REST controller.
  *
- * This demonstrates how inbound adapters should be structured in the EAF.
- * The adapter translates HTTP requests into domain commands and delegates
- * to the application core via inbound ports.
+ * This demonstrates how inbound adapters should be structured in the EAF. The adapter translates
+ * HTTP requests into domain commands and delegates to the application core via inbound ports.
  *
- * Note: This is a simplified example. In a real Spring application, this would
- * be annotated with @RestController and use proper Spring Web annotations.
+ * Note: This is a simplified example. In a real Spring application, this would be annotated with
+ * @RestController and use proper Spring Web annotations.
  */
 class UserRestController(
     private val createUserUseCase: CreateUserUseCase,
 ) {
+    companion object {
+        private const val EXAMPLE_TENANT_ID = "example-tenant-id"
+    }
+
     /**
      * Example REST endpoint for creating a user.
      *
@@ -29,7 +32,9 @@ class UserRestController(
             CreateUserCommand(
                 username = request.username,
                 email = request.email,
-                tenantId = extractTenantId(), // In real implementation, extract from security context
+                tenantId =
+                EXAMPLE_TENANT_ID, // In real implementation, extract from security
+                // context
             )
 
         // Delegate to application core
@@ -42,28 +47,15 @@ class UserRestController(
             email = result.email,
         )
     }
-
-    private fun extractTenantId(): String {
-        // In a real implementation, this would extract the tenant ID from:
-        // - JWT token claims
-        // - Security context
-        // - HTTP headers
-        // - Path variables
-        return "example-tenant-id"
-    }
 }
 
-/**
- * Example HTTP request DTO.
- */
+/** Example HTTP request DTO. */
 data class CreateUserRequest(
     val username: String,
     val email: String,
 )
 
-/**
- * Example HTTP response DTO.
- */
+/** Example HTTP response DTO. */
 data class CreateUserResponse(
     val userId: String,
     val username: String,

@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing.consumer
 
 import com.axians.eaf.eventing.EventEnvelope
@@ -24,7 +26,8 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * Enhanced integration test for NATS JetStream message consumption using docker-compose infrastructure.
+ * Enhanced integration test for NATS JetStream message consumption using docker-compose
+ * infrastructure.
  *
  * These tests use the NATS server from infra/docker-compose/docker-compose.yml and verify:
  * - Stream and consumer creation
@@ -103,10 +106,7 @@ class NatsJetStreamConsumerIntegrationTest {
         val consumerInfo =
             jetStreamManagement.addOrUpdateConsumer(
                 "TEST_CONSUMER_STREAM",
-                ConsumerConfiguration
-                    .builder()
-                    .durable("test-consumer")
-                    .build(),
+                ConsumerConfiguration.builder().durable("test-consumer").build(),
             )
 
         // Then
@@ -136,10 +136,7 @@ class NatsJetStreamConsumerIntegrationTest {
             jetStreamManagement.addStream(streamConfig)
             jetStreamManagement.addOrUpdateConsumer(
                 "TEST_CONSUMER_STREAM",
-                ConsumerConfiguration
-                    .builder()
-                    .durable("test-consumer")
-                    .build(),
+                ConsumerConfiguration.builder().durable("test-consumer").build(),
             )
 
             // Publish a test message
@@ -199,10 +196,7 @@ class NatsJetStreamConsumerIntegrationTest {
             jetStreamManagement.addStream(streamConfig)
             jetStreamManagement.addOrUpdateConsumer(
                 "TEST_CONSUMER_STREAM",
-                ConsumerConfiguration
-                    .builder()
-                    .durable("test-ack-consumer")
-                    .build(),
+                ConsumerConfiguration.builder().durable("test-ack-consumer").build(),
             )
 
             // Publish test messages
@@ -281,16 +275,16 @@ class NatsJetStreamConsumerIntegrationTest {
             jetStreamManagement.addStream(tenantAStream)
             jetStreamManagement.addOrUpdateConsumer(
                 "TEST_CONSUMER_STREAM",
-                ConsumerConfiguration
-                    .builder()
-                    .durable("tenant-a-consumer")
-                    .build(),
+                ConsumerConfiguration.builder().durable("tenant-a-consumer").build(),
             )
 
             // Publish different types of events for TENANT_A
             jetStream.publish("TENANT_A.events.user.created", "user-event".toByteArray())
             jetStream.publish("TENANT_A.events.order.placed", "order-event".toByteArray())
-            jetStream.publish("TENANT_A.events.notification.sent", "notification-event".toByteArray())
+            jetStream.publish(
+                "TENANT_A.events.notification.sent",
+                "notification-event".toByteArray(),
+            )
 
             // When - Consume all messages
             val pullSubscription =

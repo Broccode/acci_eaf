@@ -7,8 +7,8 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 /**
- * Spring Security Authentication implementation for EAF.
- * Wraps an EafPrincipal and provides access to authorities based on roles and permissions.
+ * Spring Security Authentication implementation for EAF. Wraps an EafPrincipal and provides access
+ * to authorities based on roles and permissions.
  */
 class EafAuthentication(
     private val eafPrincipal: EafPrincipal,
@@ -24,9 +24,7 @@ class EafAuthentication(
         val authorities = mutableSetOf<GrantedAuthority>()
 
         // Add role-based authorities with ROLE_ prefix (Spring Security convention)
-        eafPrincipal.roles.forEach { role ->
-            authorities.add(SimpleGrantedAuthority("ROLE_$role"))
-        }
+        eafPrincipal.roles.forEach { role -> authorities.add(SimpleGrantedAuthority("ROLE_$role")) }
 
         // Add permission-based authorities
         eafPrincipal.permissions.forEach { permission ->
@@ -45,21 +43,15 @@ class EafAuthentication(
     override fun isAuthenticated(): Boolean = authenticated
 
     override fun setAuthenticated(isAuthenticated: Boolean) {
-        if (isAuthenticated) {
-            throw IllegalArgumentException(
-                "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead",
-            )
+        require(!isAuthenticated) {
+            "Cannot set this token to trusted - use constructor which takes a GrantedAuthority list instead"
         }
         this.authenticated = false
     }
 
-    /**
-     * Convenience method to get the tenant ID.
-     */
+    /** Convenience method to get the tenant ID. */
     override fun getTenantId(): String = eafPrincipal.tenantId
 
-    /**
-     * Convenience method to get the user ID.
-     */
+    /** Convenience method to get the user ID. */
     override fun getUserId(): String? = eafPrincipal.userId
 }

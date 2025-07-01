@@ -219,9 +219,9 @@ class TenantContextHolderEnhancedTest {
             TenantContextHolder.setCurrentTenantContext(originalContext)
 
             // When/Then
-            assertThrows<RuntimeException> {
+            assertThrows<IllegalStateException> {
                 TenantContextHolder.executeInTenantContext(scopedContext) {
-                    throw RuntimeException("Test exception")
+                    throw IllegalStateException("Test exception")
                 }
             }
 

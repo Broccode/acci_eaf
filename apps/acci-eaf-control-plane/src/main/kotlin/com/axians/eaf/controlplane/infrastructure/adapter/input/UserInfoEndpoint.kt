@@ -1,7 +1,10 @@
 package com.axians.eaf.controlplane.infrastructure.adapter.input
 
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.EndpointExceptionHandler
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ResponseConstants
+import com.axians.eaf.controlplane.infrastructure.adapter.input.common.ValidationException
 import com.vaadin.hilla.Endpoint
-import com.vaadin.hilla.exception.EndpointException
+import org.slf4j.LoggerFactory
 import org.springframework.security.access.prepost.PreAuthorize
 import java.time.Instant
 
@@ -14,16 +17,33 @@ import java.time.Instant
  */
 @Endpoint
 class UserInfoEndpoint {
+    companion object {
+        private val logger = LoggerFactory.getLogger(UserInfoEndpoint::class.java)
+
+        // Validation constants
+        private val VALID_THEMES = listOf("light", "dark", "auto")
+        private val VALID_LANGUAGES = listOf("en", "de", "fr", "es")
+        private const val MIN_ITEMS_PER_PAGE = 5
+        private const val MAX_ITEMS_PER_PAGE = 100
+        private const val DEFAULT_ITEMS_PER_PAGE = 25
+        private const val DEFAULT_LAST_LOGIN_OFFSET_SECONDS = 300L // 5 minutes ago
+    }
+
     // TODO: Inject EAF security context holder when available
     // @Autowired
     // private lateinit var eafSecurityContextHolder: EafSecurityContextHolder
 
     /**
-     * Get current authenticated user information with tenant context. Requires valid authentication.
+     * Get current authenticated user information with tenant context. Requires valid
+     * authentication.
      */
     @PreAuthorize("isAuthenticated()")
     fun getCurrentUser(): UserInfoResponse =
-        try {
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "getCurrentUser",
+            details = "",
+        ) {
             // TODO: Replace with actual EAF security context when available
             // val userId = eafSecurityContextHolder.getUserId()
             // val tenantId = eafSecurityContextHolder.getTenantId()
@@ -46,7 +66,12 @@ class UserInfoEndpoint {
                         roles = userRoles,
                         tenantId = tenantId,
                         tenantName = "Demo Tenant Corporation",
-                        lastLoginAt = Instant.now().minusSeconds(300), // 5 minutes ago
+                        lastLoginAt =
+                            Instant
+                                .now()
+                                .minusSeconds(
+                                    DEFAULT_LAST_LOGIN_OFFSET_SECONDS,
+                                ),
                         accountStatus = "ACTIVE",
                     ),
                 permissions =
@@ -60,19 +85,20 @@ class UserInfoEndpoint {
                     ResponseMetadata(
                         timestamp = Instant.now(),
                         requestId = "req-${System.currentTimeMillis()}",
-                        version = "1.0.0",
+                        version = ResponseConstants.API_VERSION,
                     ),
             )
-        } catch (exception: Exception) {
-            throw EndpointException(
-                "Failed to retrieve user information: ${exception.message}",
-            )
         }
+            ?: throw ValidationException("Failed to retrieve user information")
 
     /** Get user preferences and settings. Demonstrates complex object handling in Hilla. */
     @PreAuthorize("isAuthenticated()")
     fun getUserPreferences(): UserPreferencesResponse =
-        try {
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "getUserPreferences",
+            details = "",
+        ) {
             UserPreferencesResponse(
                 success = true,
                 preferences =
@@ -81,7 +107,7 @@ class UserInfoEndpoint {
                         language = "en",
                         timezone = "UTC",
                         dateFormat = "yyyy-MM-dd",
-                        itemsPerPage = 25,
+                        itemsPerPage = DEFAULT_ITEMS_PER_PAGE,
                         enableNotifications = true,
                         dashboardLayout =
                             mapOf(
@@ -98,19 +124,22 @@ class UserInfoEndpoint {
                     ResponseMetadata(
                         timestamp = Instant.now(),
                         requestId = "pref-${System.currentTimeMillis()}",
-                        version = "1.0.0",
+                        version = ResponseConstants.API_VERSION,
                     ),
             )
-        } catch (exception: Exception) {
-            throw EndpointException(
-                "Failed to retrieve user preferences: ${exception.message}",
-            )
         }
+            ?: throw ValidationException("Failed to retrieve user preferences")
 
-    /** Update user preferences with validation. Demonstrates input validation and error handling. */
+    /**
+     * Update user preferences with validation. Demonstrates input validation and error handling.
+     */
     @PreAuthorize("isAuthenticated()")
     fun updateUserPreferences(request: UpdatePreferencesRequest): UserPreferencesResponse =
-        try {
+        EndpointExceptionHandler.handleEndpointOperation(
+            logger = logger,
+            operation = "updateUserPreferences",
+            details = "request=$request",
+        ) {
             // Validate request
             validatePreferencesRequest(request)
 
@@ -126,7 +155,9 @@ class UserInfoEndpoint {
                         language = request.language ?: "en",
                         timezone = request.timezone ?: "UTC",
                         dateFormat = request.dateFormat ?: "yyyy-MM-dd",
-                        itemsPerPage = request.itemsPerPage ?: 25,
+                        itemsPerPage =
+                            request.itemsPerPage
+                                ?: DEFAULT_ITEMS_PER_PAGE,
                         enableNotifications = request.enableNotifications ?: true,
                         dashboardLayout = request.dashboardLayout ?: emptyMap(),
                     ),
@@ -134,36 +165,29 @@ class UserInfoEndpoint {
                     ResponseMetadata(
                         timestamp = Instant.now(),
                         requestId = "update-${System.currentTimeMillis()}",
-                        version = "1.0.0",
+                        version = ResponseConstants.API_VERSION,
                     ),
             )
-        } catch (exception: ValidationException) {
-            throw EndpointException("Invalid preferences: ${exception.message}")
-        } catch (exception: Exception) {
-            throw EndpointException(
-                "Failed to update preferences: ${exception.message}",
-            )
         }
+            ?: throw ValidationException("Failed to update preferences")
 
     private fun validatePreferencesRequest(request: UpdatePreferencesRequest) {
         request.theme?.let { theme ->
-            if (theme !in listOf("light", "dark", "auto")) {
-                throw ValidationException(
-                    "Invalid theme: $theme. Must be 'light', 'dark', or 'auto'",
-                )
+            if (theme !in VALID_THEMES) {
+                throw ValidationException("Invalid theme: $theme. Must be one of: $VALID_THEMES")
             }
         }
 
         request.language?.let { language ->
-            if (language !in listOf("en", "de", "fr", "es")) {
+            if (language !in VALID_LANGUAGES) {
                 throw ValidationException("Unsupported language: $language")
             }
         }
 
         request.itemsPerPage?.let { itemsPerPage ->
-            if (itemsPerPage < 5 || itemsPerPage > 100) {
+            if (itemsPerPage < MIN_ITEMS_PER_PAGE || itemsPerPage > MAX_ITEMS_PER_PAGE) {
                 throw ValidationException(
-                    "Items per page must be between 5 and 100",
+                    "Items per page must be between $MIN_ITEMS_PER_PAGE and $MAX_ITEMS_PER_PAGE",
                 )
             }
         }

@@ -1,0 +1,91 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ForbiddenComment:TemplateEngine.kt$TemplateEngine$// Frontend Templates - TODO: Implement these properly</ID>
+    <ID>LargeClass:TemplateEngine.kt$TemplateEngine</ID>
+    <ID>LongMethod:TemplateEngine.kt$TemplateEngine$fun generateAggregateRoot( packageName: String, aggregateName: String, ): String</ID>
+    <ID>LongMethod:TemplateEngine.kt$TemplateEngine$fun generateAggregateTest( packageName: String, aggregateName: String, ): String</ID>
+    <ID>LongParameterList:CommandGenerator.kt$CommandGenerator$( serviceDir: File, packagePath: String, packageName: String, commandName: String, aggregateName: String, serviceName: String, )</ID>
+    <ID>LongParameterList:EventGenerator.kt$EventGenerator$( serviceDir: File, packagePath: String, packageName: String, eventName: String, aggregateName: String, serviceName: String, )</ID>
+    <ID>LongParameterList:ProjectorGenerator.kt$ProjectorGenerator$( serviceDir: File, packagePath: String, packageName: String, projectorName: String, eventName: String, serviceName: String, )</ID>
+    <ID>MaxLineLength:AggregateGenerator.kt$AggregateGenerator$"Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'"</ID>
+    <ID>MaxLineLength:CommandGenerator.kt$CommandGenerator$"Aggregate file does not exist: ${aggregateFile.path}. Generate the aggregate first using 'eaf generate aggregate $aggregateName --service=$serviceName'"</ID>
+    <ID>MaxLineLength:CommandGenerator.kt$CommandGenerator$"Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'"</ID>
+    <ID>MaxLineLength:EventGenerator.kt$EventGenerator$"Aggregate file does not exist: ${aggregateFile.path}. Generate the aggregate first using 'eaf generate aggregate $aggregateName --service=$serviceName'"</ID>
+    <ID>MaxLineLength:EventGenerator.kt$EventGenerator$"Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'"</ID>
+    <ID>MaxLineLength:GenerateCommandCommand.kt$GenerateCommandCommand$"Command name must be PascalCase and start with a capital letter (e.g., 'UpdateUser', 'DeactivateOrder')"</ID>
+    <ID>MaxLineLength:GenerateEventCommand.kt$GenerateEventCommand$"Event name must be PascalCase and start with a capital letter (e.g., 'UserUpdated', 'OrderDeactivated')"</ID>
+    <ID>MaxLineLength:GenerateProjectorCommand.kt$GenerateProjectorCommand$"Projector name must be PascalCase and start with a capital letter (e.g., 'UserReadModelProjector', 'OrderReportProjector')"</ID>
+    <ID>MaxLineLength:ProjectorGenerator.kt$ProjectorGenerator$"Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/analytics-service/src/main/kotlin/com/axians/eaf/analyticsservice/infrastructure/adapter/input/messaging/ReportProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/notification-service/src/main/kotlin/com/axians/eaf/notificationservice/infrastructure/adapter/input/messaging/NotificationProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/payment-service/src/main/kotlin/com/axians/eaf/paymentservice/infrastructure/adapter/input/messaging/PaymentProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/test-service/src/main/kotlin/com/axians/eaf/testservice/infrastructure/adapter/input/messaging/TestProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/test-service/src/main/kotlin/com/axians/eaf/testservice/infrastructure/adapter/input/messaging/UserReadModelProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/user-management-service/src/main/kotlin/com/axians/eaf/usermanagementservice/infrastructure/adapter/input/messaging/OrderReportProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/user-service/src/main/kotlin/com/axians/eaf/userservice/infrastructure/adapter/input/messaging/UserActivityProjector.kt"</ID>
+    <ID>MaxLineLength:ServiceGeneratorTest.kt$ServiceGeneratorTest$"apps/notification-service/src/main/kotlin/com/axians/eaf/notificationservice/NotificationServiceApplication.kt"</ID>
+    <ID>SpreadOperator:AcciEafCliApplication.kt$(*args)</ID>
+    <ID>ThrowsCount:FrontendComponentGenerator.kt$FrontendComponentGenerator$fun generateComponentInApp( componentName: String, appName: String, )</ID>
+    <ID>ThrowsCount:GenerateAggregateCommand.kt$GenerateAggregateCommand$private fun validateInputs()</ID>
+    <ID>ThrowsCount:GenerateCommandCommand.kt$GenerateCommandCommand$private fun validateInputs()</ID>
+    <ID>ThrowsCount:GenerateEventCommand.kt$GenerateEventCommand$private fun validateInputs()</ID>
+    <ID>ThrowsCount:GenerateProjectorCommand.kt$GenerateProjectorCommand$private fun validateInputs()</ID>
+    <ID>ThrowsCount:GenerateServiceCommand.kt$GenerateServiceCommand$private fun validateInputs()</ID>
+    <ID>TooGenericExceptionCaught:GenerateAggregateCommand.kt$GenerateAggregateCommand$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GenerateCommandCommand.kt$GenerateCommandCommand$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GenerateEventCommand.kt$GenerateEventCommand$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GenerateFrontendComponentCommand.kt$GenerateFrontendComponentCommand$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GenerateFrontendViewCommand.kt$GenerateFrontendViewCommand$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GenerateProjectorCommand.kt$GenerateProjectorCommand$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:GenerateServiceCommand.kt$GenerateServiceCommand$e: Exception</ID>
+    <ID>TooManyFunctions:TemplateEngine.kt$TemplateEngine</ID>
+    <ID>UnusedParameter:EventGenerator.kt$EventGenerator$aggregateName: String</ID>
+    <ID>UnusedParameter:TemplateEngine.kt$TemplateEngine$aggregateName: String</ID>
+    <ID>UnusedParameter:TemplateEngine.kt$TemplateEngine$className: String</ID>
+    <ID>UnusedParameter:TemplateEngine.kt$TemplateEngine$serviceName: String</ID>
+    <ID>UnusedPrivateMember:TemplateEngine.kt$private fun String.toSnakeCase(): String</ID>
+    <ID>UseCheckOrError:AggregateGenerator.kt$AggregateGenerator$throw IllegalStateException( "Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'", )</ID>
+    <ID>UseCheckOrError:CommandGenerator.kt$CommandGenerator$throw IllegalStateException( "Aggregate file does not exist: ${aggregateFile.path}. Generate the aggregate first using 'eaf generate aggregate $aggregateName --service=$serviceName'", )</ID>
+    <ID>UseCheckOrError:CommandGenerator.kt$CommandGenerator$throw IllegalStateException( "Could not find the end of the $aggregateName class to add the command handler", )</ID>
+    <ID>UseCheckOrError:CommandGenerator.kt$CommandGenerator$throw IllegalStateException( "Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'", )</ID>
+    <ID>UseCheckOrError:EventGenerator.kt$EventGenerator$throw IllegalStateException( "Aggregate file does not exist: ${aggregateFile.path}. Generate the aggregate first using 'eaf generate aggregate $aggregateName --service=$serviceName'", )</ID>
+    <ID>UseCheckOrError:EventGenerator.kt$EventGenerator$throw IllegalStateException( "Could not find the end of the $aggregateName class to add the event sourcing handler", )</ID>
+    <ID>UseCheckOrError:EventGenerator.kt$EventGenerator$throw IllegalStateException( "Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'", )</ID>
+    <ID>UseCheckOrError:FrontendComponentGenerator.kt$FrontendComponentGenerator$throw IllegalStateException( "Frontend directory does not exist. Generate a view first to initialize the frontend structure.", )</ID>
+    <ID>UseCheckOrError:FrontendComponentGenerator.kt$FrontendComponentGenerator$throw IllegalStateException("Application directory does not exist: ${appDir.path}")</ID>
+    <ID>UseCheckOrError:FrontendComponentGenerator.kt$FrontendComponentGenerator$throw IllegalStateException("Component directory already exists: ${componentDir.path}")</ID>
+    <ID>UseCheckOrError:FrontendComponentGenerator.kt$FrontendComponentGenerator$throw IllegalStateException("UI Foundation Kit library does not exist: ${libDir.path}")</ID>
+    <ID>UseCheckOrError:FrontendViewGenerator.kt$FrontendViewGenerator$throw IllegalStateException("Application directory does not exist: ${appDir.path}")</ID>
+    <ID>UseCheckOrError:FrontendViewGenerator.kt$FrontendViewGenerator$throw IllegalStateException("View file already exists: ${viewFile.path}")</ID>
+    <ID>UseCheckOrError:ProjectorGenerator.kt$ProjectorGenerator$throw IllegalStateException( "Service directory does not exist: ${serviceDir.path}. Generate the service first using 'eaf generate service $serviceName'", )</ID>
+    <ID>UseCheckOrError:ServiceGenerator.kt$ServiceGenerator$throw IllegalStateException("Could not find settings.gradle.kts in project hierarchy")</ID>
+    <ID>UseCheckOrError:ServiceGenerator.kt$ServiceGenerator$throw IllegalStateException("Service directory already exists: ${serviceDir.path}")</ID>
+    <ID>UseRequire:GenerateAggregateCommand.kt$GenerateAggregateCommand$throw IllegalArgumentException( "Aggregate name must be PascalCase and start with a capital letter (e.g., 'User', 'OrderItem')", )</ID>
+    <ID>UseRequire:GenerateAggregateCommand.kt$GenerateAggregateCommand$throw IllegalArgumentException( "Service name must be lowercase, start with a letter, and contain only letters, numbers, and hyphens", )</ID>
+    <ID>UseRequire:GenerateAggregateCommand.kt$GenerateAggregateCommand$throw IllegalArgumentException("Aggregate name cannot be blank")</ID>
+    <ID>UseRequire:GenerateAggregateCommand.kt$GenerateAggregateCommand$throw IllegalArgumentException("Service name cannot be blank")</ID>
+    <ID>UseRequire:GenerateCommandCommand.kt$GenerateCommandCommand$throw IllegalArgumentException( "Aggregate name must be PascalCase and start with a capital letter (e.g., 'User', 'Order')", )</ID>
+    <ID>UseRequire:GenerateCommandCommand.kt$GenerateCommandCommand$throw IllegalArgumentException( "Command name must be PascalCase and start with a capital letter (e.g., 'UpdateUser', 'DeactivateOrder')", )</ID>
+    <ID>UseRequire:GenerateCommandCommand.kt$GenerateCommandCommand$throw IllegalArgumentException( "Service name must be lowercase, start with a letter, and contain only letters, numbers, and hyphens", )</ID>
+    <ID>UseRequire:GenerateCommandCommand.kt$GenerateCommandCommand$throw IllegalArgumentException("Aggregate name cannot be blank")</ID>
+    <ID>UseRequire:GenerateCommandCommand.kt$GenerateCommandCommand$throw IllegalArgumentException("Command name cannot be blank")</ID>
+    <ID>UseRequire:GenerateCommandCommand.kt$GenerateCommandCommand$throw IllegalArgumentException("Service name cannot be blank")</ID>
+    <ID>UseRequire:GenerateEventCommand.kt$GenerateEventCommand$throw IllegalArgumentException( "Aggregate name must be PascalCase and start with a capital letter (e.g., 'User', 'Order')", )</ID>
+    <ID>UseRequire:GenerateEventCommand.kt$GenerateEventCommand$throw IllegalArgumentException( "Event name must be PascalCase and start with a capital letter (e.g., 'UserUpdated', 'OrderDeactivated')", )</ID>
+    <ID>UseRequire:GenerateEventCommand.kt$GenerateEventCommand$throw IllegalArgumentException( "Service name must be lowercase, start with a letter, and contain only letters, numbers, and hyphens", )</ID>
+    <ID>UseRequire:GenerateEventCommand.kt$GenerateEventCommand$throw IllegalArgumentException("Aggregate name cannot be blank")</ID>
+    <ID>UseRequire:GenerateEventCommand.kt$GenerateEventCommand$throw IllegalArgumentException("Event name cannot be blank")</ID>
+    <ID>UseRequire:GenerateEventCommand.kt$GenerateEventCommand$throw IllegalArgumentException("Service name cannot be blank")</ID>
+    <ID>UseRequire:GenerateProjectorCommand.kt$GenerateProjectorCommand$throw IllegalArgumentException( "Event name must be PascalCase and start with a capital letter (e.g., 'UserCreated', 'OrderCompleted')", )</ID>
+    <ID>UseRequire:GenerateProjectorCommand.kt$GenerateProjectorCommand$throw IllegalArgumentException( "Projector name must be PascalCase and start with a capital letter (e.g., 'UserReadModelProjector', 'OrderReportProjector')", )</ID>
+    <ID>UseRequire:GenerateProjectorCommand.kt$GenerateProjectorCommand$throw IllegalArgumentException( "Service name must be lowercase, start with a letter, and contain only letters, numbers, and hyphens", )</ID>
+    <ID>UseRequire:GenerateProjectorCommand.kt$GenerateProjectorCommand$throw IllegalArgumentException("Event name cannot be blank")</ID>
+    <ID>UseRequire:GenerateProjectorCommand.kt$GenerateProjectorCommand$throw IllegalArgumentException("Projector name cannot be blank")</ID>
+    <ID>UseRequire:GenerateProjectorCommand.kt$GenerateProjectorCommand$throw IllegalArgumentException("Service name cannot be blank")</ID>
+    <ID>UseRequire:GenerateServiceCommand.kt$GenerateServiceCommand$throw IllegalArgumentException( "Service name must be lowercase, start with a letter, and contain only letters, numbers, and hyphens", )</ID>
+    <ID>UseRequire:GenerateServiceCommand.kt$GenerateServiceCommand$throw IllegalArgumentException("Service name cannot be blank")</ID>
+    <ID>UseRequire:GenerateServiceCommand.kt$GenerateServiceCommand$throw IllegalArgumentException("Target path must be either 'apps' or 'libs'")</ID>
+  </CurrentIssues>
+</SmellBaseline>

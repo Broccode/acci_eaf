@@ -42,10 +42,8 @@ class UserWebAdapter(
      */
     private fun validateTenantAccess(tenantId: String) {
         val authenticatedTenantId = securityContextHolder.getTenantId()
-        if (authenticatedTenantId != tenantId) {
-            throw IllegalArgumentException(
-                "Access denied: User from tenant '$authenticatedTenantId' cannot access tenant '$tenantId'",
-            )
+        require(authenticatedTenantId == tenantId) {
+            "Access denied: User from tenant '$authenticatedTenantId' cannot access tenant '$tenantId'"
         }
     }
 

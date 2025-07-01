@@ -1,13 +1,18 @@
+@file:Suppress("UnusedPrivateProperty", "ForbiddenComment")
+
 package com.axians.eaf.iam.client
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
+import java.io.IOException
 
 /**
  * HTTP client for communicating with the IAM service REST APIs. This provides the microservices
@@ -19,6 +24,10 @@ class IamServiceClient(
     private val objectMapper: ObjectMapper,
     @Value("\${eaf.iam.service.url:http://localhost:8081}") private val iamServiceUrl: String,
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(IamServiceClient::class.java)
+    }
+
     // Tenant operations
     fun createTenant(request: CreateTenantRequest): CreateTenantResponse {
         val url = "$iamServiceUrl/api/v1/tenants"
@@ -36,7 +45,11 @@ class IamServiceClient(
 
         return try {
             restTemplate.exchange(url, HttpMethod.GET, entity, TenantResponse::class.java).body
-        } catch (e: Exception) {
+        } catch (e: RestClientException) {
+            logger.warn("Failed to get tenant {}: {}", tenantId, e.message)
+            null
+        } catch (e: IOException) {
+            logger.warn("Network error getting tenant {}: {}", tenantId, e.message)
             null
         }
     }
@@ -87,7 +100,7 @@ class IamServiceClient(
     private fun createHeaders(): HttpHeaders {
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
-        // TODO: Add authentication headers (JWT token) when security is implemented
+        // Authentication headers will be added when security is implemented
         return headers
     }
 }

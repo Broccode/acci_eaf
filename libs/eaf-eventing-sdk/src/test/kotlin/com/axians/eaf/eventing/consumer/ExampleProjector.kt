@@ -1,3 +1,5 @@
+@file:Suppress("TooGenericExceptionThrown")
+
 package com.axians.eaf.eventing.consumer
 
 import org.slf4j.LoggerFactory
@@ -7,8 +9,8 @@ import java.util.UUID
 /**
  * Example projector demonstrating the usage of @EafProjectorEventHandler.
  *
- * This projector listens to UserCreatedEvent messages and updates a read model
- * with idempotency guarantees provided by the EAF Eventing SDK.
+ * This projector listens to UserCreatedEvent messages and updates a read model with idempotency
+ * guarantees provided by the EAF Eventing SDK.
  */
 @Component
 class ExampleUserProjector(
@@ -65,9 +67,7 @@ class ExampleUserProjector(
     }
 }
 
-/**
- * Example event representing a user creation.
- */
+/** Example event representing a user creation. */
 data class UserCreatedEvent(
     val userId: String,
     val email: String,
@@ -75,9 +75,7 @@ data class UserCreatedEvent(
     val createdAt: java.time.Instant,
 )
 
-/**
- * Example read model for user data.
- */
+/** Example read model for user data. */
 data class UserReadModel(
     val id: String,
     val email: String,
@@ -87,8 +85,8 @@ data class UserReadModel(
 )
 
 /**
- * Example repository interface for user read models.
- * In a real implementation, this would be backed by JPA, JDBC, or another persistence mechanism.
+ * Example repository interface for user read models. In a real implementation, this would be backed
+ * by JPA, JDBC, or another persistence mechanism.
  */
 interface ExampleUserReadModelRepository {
     fun save(userReadModel: UserReadModel)
@@ -101,9 +99,7 @@ interface ExampleUserReadModelRepository {
     fun findAllByTenantId(tenantId: String): List<UserReadModel>
 }
 
-/**
- * Simple in-memory implementation for demonstration purposes.
- */
+/** Simple in-memory implementation for demonstration purposes. */
 @Component
 class InMemoryUserReadModelRepository : ExampleUserReadModelRepository {
     private val storage = mutableMapOf<Pair<String, String>, UserReadModel>()
@@ -118,7 +114,5 @@ class InMemoryUserReadModelRepository : ExampleUserReadModelRepository {
     ): UserReadModel? = storage[Pair(id, tenantId)]
 
     override fun findAllByTenantId(tenantId: String): List<UserReadModel> =
-        storage.values.filter {
-            it.tenantId == tenantId
-        }
+        storage.values.filter { it.tenantId == tenantId }
 }

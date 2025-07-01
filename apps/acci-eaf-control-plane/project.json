@@ -32,6 +32,33 @@
       "options": {
         "taskName": ":apps:acci-eaf-control-plane:ktlintCheck"
       }
+    },
+    "detekt": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/acci-eaf-control-plane/build/reports"],
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:detekt"
+      }
+    },
+    "detektBaseline": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/acci-eaf-control-plane/build/reports"],
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:detektBaseline"
+      }
+    },
+    "ktlintFormat": {
+      "executor": "@nx/gradle:gradle",
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:ktlintFormat"
+      }
+    },
+    "ktlintCheck": {
+      "executor": "@nx/gradle:gradle",
+      "outputs": ["{workspaceRoot}/apps/acci-eaf-control-plane/build/reports"],
+      "options": {
+        "taskName": ":apps:acci-eaf-control-plane:ktlintCheck"
+      }
     }
   },
   "tags": ["type:app", "scope:control-plane"]

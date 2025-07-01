@@ -4,6 +4,7 @@ import com.axians.eaf.eventing.EventEnvelope
 import com.axians.eaf.eventing.config.NatsEventingProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.nats.client.JetStream
+import io.nats.client.JetStreamApiException
 import io.nats.client.JetStreamSubscription
 import io.nats.client.Message
 import io.nats.client.PushSubscribeOptions
@@ -12,6 +13,12 @@ import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
+
+/** Exception thrown when listener method invocation fails. */
+class ListenerInvocationException(
+    message: String,
+    cause: Throwable? = null,
+) : Exception(message, cause)
 
 /**
  * Manages a NATS JetStream consumer for a specific listener.
@@ -35,9 +42,12 @@ internal class NatsConsumerManager(
     private val executor = Executors.newSingleThreadExecutor()
     private var processingTask: Future<*>? = null
 
-    /**
-     * Starts the consumer and begins processing messages.
-     */
+    companion object {
+        /** Default sleep duration in milliseconds when encountering errors */
+        private const val ERROR_SLEEP_DURATION_MS = 1000L
+    }
+
+    /** Starts the consumer and begins processing messages. */
     fun start() {
         if (running.getAndSet(true)) {
             logger.warn("Consumer {} is already running", listenerDefinition.durableName)
@@ -48,10 +58,7 @@ internal class NatsConsumerManager(
             val tenantAwareSubject = buildTenantAwareSubject(listenerDefinition.subject)
 
             val subscribeOptions =
-                PushSubscribeOptions
-                    .builder()
-                    .durable(listenerDefinition.durableName)
-                    .build()
+                PushSubscribeOptions.builder().durable(listenerDefinition.durableName).build()
 
             subscription =
                 jetStream.subscribe(
@@ -60,26 +67,35 @@ internal class NatsConsumerManager(
                 )
 
             // Start message processing in a separate thread
-            processingTask =
-                executor.submit {
-                    processMessages()
-                }
+            processingTask = executor.submit { processMessages() }
 
             logger.info(
                 "Started NATS JetStream consumer: {} for subject: {}",
                 listenerDefinition.durableName,
                 tenantAwareSubject,
             )
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             running.set(false)
-            logger.error("Failed to start consumer {}: {}", listenerDefinition.durableName, e.message, e)
+            logger.error(
+                "I/O error while starting consumer {}: {}",
+                listenerDefinition.durableName,
+                e.message,
+                e,
+            )
+            throw e
+        } catch (e: JetStreamApiException) {
+            running.set(false)
+            logger.error(
+                "JetStream API error while starting consumer {}: {}",
+                listenerDefinition.durableName,
+                e.message,
+                e,
+            )
             throw e
         }
     }
 
-    /**
-     * Stops the consumer and cleans up resources.
-     */
+    /** Stops the consumer and cleans up resources. */
     fun stop() {
         if (!running.getAndSet(false)) {
             logger.debug("Consumer {} is not running", listenerDefinition.durableName)
@@ -97,14 +113,24 @@ internal class NatsConsumerManager(
             executor.shutdown()
 
             logger.info("Stopped NATS JetStream consumer: {}", listenerDefinition.durableName)
-        } catch (e: Exception) {
-            logger.error("Error stopping consumer {}: {}", listenerDefinition.durableName, e.message, e)
+        } catch (e: java.io.IOException) {
+            logger.error(
+                "I/O error while stopping consumer {}: {}",
+                listenerDefinition.durableName,
+                e.message,
+                e,
+            )
+        } catch (e: JetStreamApiException) {
+            logger.error(
+                "JetStream API error while stopping consumer {}: {}",
+                listenerDefinition.durableName,
+                e.message,
+                e,
+            )
         }
     }
 
-    /**
-     * Continuously processes messages from the subscription.
-     */
+    /** Continuously processes messages from the subscription. */
     private fun processMessages() {
         while (running.get() && !Thread.currentThread().isInterrupted) {
             try {
@@ -115,22 +141,27 @@ internal class NatsConsumerManager(
             } catch (e: InterruptedException) {
                 Thread.currentThread().interrupt()
                 break
-            } catch (e: Exception) {
+            } catch (e: java.io.IOException) {
                 logger.error(
-                    "Error in message processing loop for {}: {}",
+                    "I/O error in message processing loop for {}: {}",
                     listenerDefinition.durableName,
                     e.message,
                     e,
                 )
-                // Short delay before retrying
-                Thread.sleep(1000)
+                Thread.sleep(ERROR_SLEEP_DURATION_MS)
+            } catch (e: JetStreamApiException) {
+                logger.error(
+                    "JetStream API error in processing loop for {}: {}",
+                    listenerDefinition.durableName,
+                    e.message,
+                    e,
+                )
+                Thread.sleep(ERROR_SLEEP_DURATION_MS)
             }
         }
     }
 
-    /**
-     * Processes an incoming NATS message.
-     */
+    /** Processes an incoming NATS message. */
     private fun processMessage(message: Message) {
         val tenantId = extractTenantIdFromSubject(message.subject)
         val messageContext = DefaultMessageContext(message, tenantId)
@@ -146,6 +177,14 @@ internal class NatsConsumerManager(
             if (listenerDefinition.autoAck && !messageContext.isAcknowledged()) {
                 messageContext.ack()
             }
+        } catch (e: java.io.IOException) {
+            logger.error(
+                "I/O error during event deserialization for {}: {}",
+                listenerDefinition.durableName,
+                e.message,
+                e,
+            )
+            throw PoisonPillEventException("Invalid event format: ${e.message}", e)
         } catch (e: RetryableEventException) {
             logger.warn(
                 "Retryable error processing message for {}: {}",
@@ -166,24 +205,20 @@ internal class NatsConsumerManager(
             if (!messageContext.isAcknowledged()) {
                 messageContext.term()
             }
-        } catch (e: Exception) {
-            logger.error(
-                "Unexpected error processing message for {}: {}",
-                listenerDefinition.durableName,
-                e.message,
-                e,
-            )
-
-            // For unexpected exceptions, default to retryable behavior
-            if (!messageContext.isAcknowledged()) {
-                messageContext.nak()
+        } catch (e: java.lang.reflect.InvocationTargetException) {
+            val cause = e.cause ?: e
+            when (cause) {
+                is RetryableEventException, is PoisonPillEventException -> throw cause
+                else -> throw ListenerInvocationException("Error invoking listener method", cause)
             }
+        } catch (e: IllegalAccessException) {
+            throw ListenerInvocationException("Listener method not accessible", e)
+        } catch (e: IllegalArgumentException) {
+            throw ListenerInvocationException("Invalid arguments for listener method", e)
         }
     }
 
-    /**
-     * Deserializes a NATS message into an event object.
-     */
+    /** Deserializes a NATS message into an event object. */
     private fun deserializeEvent(
         message: Message,
         eventType: Class<*>,
@@ -196,9 +231,9 @@ internal class NatsConsumerManager(
 
             // Then deserialize the payload to the target event type
             objectMapper.convertValue(envelope.payload, eventType)
-        } catch (e: Exception) {
+        } catch (e: java.io.IOException) {
             logger.error(
-                "Failed to deserialize event for {}: {}",
+                "I/O error during event deserialization for {}: {}",
                 listenerDefinition.durableName,
                 e.message,
                 e,
@@ -207,9 +242,7 @@ internal class NatsConsumerManager(
         }
     }
 
-    /**
-     * Invokes the listener method with the appropriate parameters.
-     */
+    /** Invokes the listener method with the appropriate parameters. */
     private fun invokeListenerMethod(
         event: Any,
         messageContext: MessageContext,
@@ -223,28 +256,22 @@ internal class NatsConsumerManager(
             when (method.parameterCount) {
                 1 -> method.invoke(bean, event)
                 2 -> method.invoke(bean, event, messageContext)
-                else -> throw IllegalStateException("Invalid method signature")
+                else -> error("Invalid method signature")
             }
-        } catch (e: Exception) {
-            // Unwrap InvocationTargetException
-            val cause =
-                if (e is java.lang.reflect.InvocationTargetException && e.cause != null) {
-                    e.cause!!
-                } else {
-                    e
-                }
-
-            // Re-throw as appropriate exception type
+        } catch (e: java.lang.reflect.InvocationTargetException) {
+            val cause = e.cause ?: e
             when (cause) {
                 is RetryableEventException, is PoisonPillEventException -> throw cause
-                else -> throw RuntimeException("Error invoking listener method", cause)
+                else -> throw ListenerInvocationException("Error invoking listener method", cause)
             }
+        } catch (e: IllegalAccessException) {
+            throw ListenerInvocationException("Listener method not accessible", e)
+        } catch (e: IllegalArgumentException) {
+            throw ListenerInvocationException("Invalid arguments for listener method", e)
         }
     }
 
-    /**
-     * Builds a tenant-aware subject by prefixing with tenant ID.
-     */
+    /** Builds a tenant-aware subject by prefixing with tenant ID. */
     private fun buildTenantAwareSubject(subject: String): String {
         // For now, we'll use a default tenant prefix
         // This will be enhanced when full tenant context is available
@@ -256,9 +283,7 @@ internal class NatsConsumerManager(
         }
     }
 
-    /**
-     * Extracts tenant ID from a NATS subject.
-     */
+    /** Extracts tenant ID from a NATS subject. */
     private fun extractTenantIdFromSubject(subject: String): String {
         val parts = subject.split(".")
         return if (parts.isNotEmpty() && parts[0].startsWith("TENANT_")) {

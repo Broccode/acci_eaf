@@ -6,17 +6,20 @@ import com.axians.eaf.eventsourcing.model.AggregateSnapshot
 import com.axians.eaf.eventsourcing.model.PersistedEvent
 import com.axians.eaf.eventsourcing.port.AggregateRepository
 import com.axians.eaf.eventsourcing.port.EventStoreRepository
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessException
+import java.lang.IllegalStateException
 import java.time.Instant
 import java.util.UUID
 
 /**
  * Abstract base implementation of AggregateRepository.
  *
- * This class provides the common logic for loading and saving aggregates using the
- * Event Store SDK. Concrete implementations need to provide event serialization/deserialization
- * and aggregate creation logic.
+ * This class provides the common logic for loading and saving aggregates using the Event Store SDK.
+ * Concrete implementations need to provide event serialization/deserialization and aggregate
+ * creation logic.
  */
 abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : Any>(
     private val eventStoreRepository: EventStoreRepository,
@@ -24,6 +27,11 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
     private val eventPublisher: EventPublisher? = null,
 ) : AggregateRepository<T, ID> {
     private val logger = LoggerFactory.getLogger(this::class.java)
+
+    companion object {
+        /** Default interval for creating snapshots (every N events) */
+        private const val DEFAULT_SNAPSHOT_INTERVAL = 100L
+    }
 
     override suspend fun load(
         tenantId: String,
@@ -49,9 +57,18 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
                     fromVersion,
                     tenantId,
                 )
-            } catch (e: Exception) {
+            } catch (e: JsonProcessingException) {
                 logger.warn(
                     "Failed to restore aggregate {} from snapshot for tenant {}, loading from events: {}",
+                    aggregateIdString,
+                    tenantId,
+                    e.message,
+                )
+                aggregate = null
+                fromVersion = 0L
+            } catch (e: IllegalStateException) {
+                logger.warn(
+                    "Invalid snapshot state for aggregate {} in tenant {}, loading from events: {}",
                     aggregateIdString,
                     tenantId,
                     e.message,
@@ -65,7 +82,11 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
         val events = eventStoreRepository.getEvents(tenantId, aggregateIdString, fromVersion + 1)
 
         if (events.isEmpty() && aggregate == null) {
-            logger.debug("No events found for aggregate {} in tenant {}", aggregateIdString, tenantId)
+            logger.debug(
+                "No events found for aggregate {} in tenant {}",
+                aggregateIdString,
+                tenantId,
+            )
             return null
         }
 
@@ -98,7 +119,11 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
         val uncommittedEvents = aggregate.getUncommittedEvents()
 
         if (uncommittedEvents.isEmpty()) {
-            logger.debug("No uncommitted events for aggregate {} in tenant {}", aggregateIdString, tenantId)
+            logger.debug(
+                "No uncommitted events for aggregate {} in tenant {}",
+                aggregateIdString,
+                tenantId,
+            )
             return
         }
 
@@ -160,9 +185,18 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
                 e.message,
             )
             throw e
-        } catch (e: Exception) {
+        } catch (e: DataAccessException) {
             logger.error(
                 "Failed to save aggregate {} in tenant {}: {}",
+                aggregateIdString,
+                tenantId,
+                e.message,
+                e,
+            )
+            throw e
+        } catch (e: JsonProcessingException) {
+            logger.error(
+                "Failed to serialize event for aggregate {} in tenant {}: {}",
                 aggregateIdString,
                 tenantId,
                 e.message,
@@ -185,20 +219,18 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
         aggregateId: ID,
     ): Long? = eventStoreRepository.getCurrentVersion(tenantId, aggregateId.toString())
 
-    /**
-     * Serializes a domain event to JSON.
-     */
+    /** Serializes a domain event to JSON. */
     protected open fun serializeEvent(event: Any): String = objectMapper.writeValueAsString(event)
 
     /**
-     * Deserializes a persisted event back to a domain event.
-     * Subclasses must implement this to handle their specific event types.
+     * Deserializes a persisted event back to a domain event. Subclasses must implement this to
+     * handle their specific event types.
      */
     protected abstract fun deserializeEvent(persistedEvent: PersistedEvent): Any
 
     /**
-     * Creates event metadata for the given domain event.
-     * Subclasses can override this to add custom metadata.
+     * Creates event metadata for the given domain event. Subclasses can override this to add custom
+     * metadata.
      */
     protected open fun createEventMetadata(
         event: Any,
@@ -213,19 +245,13 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
         return objectMapper.writeValueAsString(metadata)
     }
 
-    /**
-     * Serializes a snapshot to JSON.
-     */
+    /** Serializes a snapshot to JSON. */
     protected open fun serializeSnapshot(snapshot: Any): String = objectMapper.writeValueAsString(snapshot)
 
-    /**
-     * Deserializes a snapshot from JSON.
-     */
+    /** Deserializes a snapshot from JSON. */
     protected abstract fun deserializeSnapshot(snapshotPayload: String): Any
 
-    /**
-     * Publishes events to the event bus.
-     */
+    /** Publishes events to the event bus. */
     private suspend fun publishEvents(
         persistedEvents: List<PersistedEvent>,
         domainEvents: List<Any>,
@@ -233,21 +259,21 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
     ) {
         try {
             eventPublisher?.publishEvents(persistedEvents, domainEvents, tenantId)
-        } catch (e: Exception) {
+        } catch (e: IllegalStateException) {
             logger.error(
-                "Failed to publish events for tenant {}: {}",
+                "Failed to publish events due to illegal state for tenant {}: {}",
                 tenantId,
                 e.message,
                 e,
             )
-            // In a production system, this might trigger a retry mechanism or dead letter queue
+            throw e
+        } catch (e: JsonProcessingException) {
+            logger.error("Failed to serialize events for tenant {}: {}", tenantId, e.message, e)
             throw e
         }
     }
 
-    /**
-     * Creates and saves a snapshot if the aggregate meets snapshotting criteria.
-     */
+    /** Creates and saves a snapshot if the aggregate meets snapshotting criteria. */
     private suspend fun createSnapshotIfNeeded(
         aggregate: T,
         tenantId: String,
@@ -263,18 +289,23 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
                             lastSequenceNumber = aggregate.version,
                             snapshotPayloadJsonb = serializeSnapshot(snapshotData),
                             tenantId = tenantId,
-                            version = 1, // This could be incremented for snapshot versioning
+                            version = 1, // This could be incremented for
+                            // snapshot versioning
                             timestampUtc = Instant.now(),
                         )
 
-                    eventStoreRepository.saveSnapshot(snapshot, tenantId, aggregate.aggregateId.toString())
+                    eventStoreRepository.saveSnapshot(
+                        snapshot,
+                        tenantId,
+                        aggregate.aggregateId.toString(),
+                    )
                     logger.debug(
                         "Created snapshot for aggregate {} at version {} in tenant {}",
                         aggregate.aggregateId,
                         aggregate.version,
                         tenantId,
                     )
-                } catch (e: Exception) {
+                } catch (e: JsonProcessingException) {
                     logger.warn(
                         "Failed to create snapshot for aggregate {} in tenant {}: {}",
                         aggregate.aggregateId,
@@ -282,24 +313,25 @@ abstract class AbstractAggregateRepository<T : AbstractAggregateRoot<ID>, ID : A
                         e.message,
                         e,
                     )
-                    // Snapshot failures should not fail the overall save operation
+                    // Snapshot failures should not fail the overall save
+                    // operation
                 }
             }
         }
     }
 
     /**
-     * Determines whether a snapshot should be created for the given aggregate.
-     * Default implementation creates snapshots every 100 events.
-     * Subclasses can override this for custom snapshotting strategies.
+     * Determines whether a snapshot should be created for the given aggregate. Default
+     * implementation creates snapshots every 100 events. Subclasses can override this for custom
+     * snapshotting strategies.
      */
     protected open fun shouldCreateSnapshot(aggregate: T): Boolean =
-        aggregate.version % 100 == 0L && aggregate.version > 0
+        aggregate.version % DEFAULT_SNAPSHOT_INTERVAL == 0L && aggregate.version > 0
 }
 
 /**
- * Interface for publishing events to the event bus.
- * This will be implemented by the Eventing SDK integration.
+ * Interface for publishing events to the event bus. This will be implemented by the Eventing SDK
+ * integration.
  */
 interface EventPublisher {
     suspend fun publishEvents(

@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/analytics-service/src/main/kotlin/com/axians/eaf/analyticsservice/infrastructure/adapter/input/messaging/ReportProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/notification-service/src/main/kotlin/com/axians/eaf/notificationservice/infrastructure/adapter/input/messaging/NotificationProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/payment-service/src/main/kotlin/com/axians/eaf/paymentservice/infrastructure/adapter/input/messaging/PaymentProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/test-service/src/main/kotlin/com/axians/eaf/testservice/infrastructure/adapter/input/messaging/TestProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/test-service/src/main/kotlin/com/axians/eaf/testservice/infrastructure/adapter/input/messaging/UserReadModelProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/user-management-service/src/main/kotlin/com/axians/eaf/usermanagementservice/infrastructure/adapter/input/messaging/OrderReportProjector.kt"</ID>
+    <ID>MaxLineLength:ProjectorGeneratorTest.kt$ProjectorGeneratorTest$"apps/user-service/src/main/kotlin/com/axians/eaf/userservice/infrastructure/adapter/input/messaging/UserActivityProjector.kt"</ID>
+    <ID>MaxLineLength:ServiceGeneratorTest.kt$ServiceGeneratorTest$"apps/notification-service/src/main/kotlin/com/axians/eaf/notificationservice/NotificationServiceApplication.kt"</ID>
+  </CurrentIssues>
+</SmellBaseline>

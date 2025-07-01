@@ -155,10 +155,10 @@ class SecurityAwareTenantExecutorTest {
                 wrappedTask.run()
             }
 
-        val task = Runnable { throw RuntimeException("Task failed") }
+        val task = Runnable { throw IllegalStateException("Task failed") }
 
         // Act & Assert
-        assertThrows<RuntimeException> { executor.execute(task) }
+        assertThrows<IllegalStateException> { executor.execute(task) }
         verify { mockExecutor.execute(any()) }
     }
 

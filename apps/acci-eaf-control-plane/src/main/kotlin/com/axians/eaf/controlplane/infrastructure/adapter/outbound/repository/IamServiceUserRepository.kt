@@ -10,9 +10,12 @@ import com.axians.eaf.controlplane.domain.model.user.UserStatus
 import com.axians.eaf.controlplane.domain.port.UserRepository
 import com.axians.eaf.iam.client.CreateUserRequest
 import com.axians.eaf.iam.client.IamServiceClient
+import com.axians.eaf.iam.client.IamServiceException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
+import org.springframework.web.client.RestClientException
 import java.time.Instant
 
 /**
@@ -24,6 +27,8 @@ import java.time.Instant
 class IamServiceUserRepository(
     private val iamServiceClient: IamServiceClient,
 ) : UserRepository {
+    private val logger = LoggerFactory.getLogger(IamServiceUserRepository::class.java)
+
     override suspend fun save(user: User): User =
         withContext(Dispatchers.IO) {
             if (user.id.value.startsWith("new-")) {
@@ -60,7 +65,14 @@ class IamServiceUserRepository(
                 val response = iamServiceClient.listUsers(tenantId.value)
                 val userSummary = response.users.find { it.email == email }
                 userSummary?.let { convertToUser(it, tenantId) }
-            } catch (e: Exception) {
+            } catch (e: IamServiceException) {
+                logger.error(
+                    "IAM service error finding user by email and tenant: {}",
+                    e.message,
+                )
+                null
+            } catch (e: RestClientException) {
+                logger.error("Communication error with IAM service: {}", e.message)
                 null
             }
         }
@@ -88,7 +100,8 @@ class IamServiceUserRepository(
                         response.users.filter { user ->
                             (filter.status == null || user.status == filter.status.name) &&
                                 run {
-                                    val searchTerm = filter.emailPattern ?: filter.namePattern
+                                    val searchTerm =
+                                        filter.emailPattern ?: filter.namePattern
                                     if (searchTerm == null) {
                                         true
                                     } else {
@@ -123,24 +136,19 @@ class IamServiceUserRepository(
                         totalElements = filteredUsers.size.toLong(),
                         totalPages = (filteredUsers.size + filter.size - 1) / filter.size,
                     )
-                } catch (e: Exception) {
-                    PagedResponse(
-                        content = emptyList(),
-                        page = filter.page,
-                        size = filter.size,
-                        totalElements = 0,
-                        totalPages = 0,
+                } catch (e: IamServiceException) {
+                    logger.error("IAM service error listing users: {}", e.message)
+                    createEmptyPagedResponse(filter)
+                } catch (e: RestClientException) {
+                    logger.error(
+                        "Communication error with IAM service while listing users: {}",
+                        e.message,
                     )
+                    createEmptyPagedResponse(filter)
                 }
             } else {
                 // Would need cross-tenant user listing API
-                PagedResponse(
-                    content = emptyList(),
-                    page = filter.page,
-                    size = filter.size,
-                    totalElements = 0,
-                    totalPages = 0,
-                )
+                createEmptyPagedResponse(filter)
             }
         }
 
@@ -149,7 +157,14 @@ class IamServiceUserRepository(
             try {
                 val response = iamServiceClient.listUsers(tenantId.value)
                 response.users.map { convertToUser(it, tenantId) }
-            } catch (e: Exception) {
+            } catch (e: IamServiceException) {
+                logger.error("IAM service error finding users by tenant: {}", e.message)
+                emptyList()
+            } catch (e: RestClientException) {
+                logger.error(
+                    "Communication error with IAM service while finding users by tenant: {}",
+                    e.message,
+                )
                 emptyList()
             }
         }
@@ -161,8 +176,20 @@ class IamServiceUserRepository(
         withContext(Dispatchers.IO) {
             try {
                 val response = iamServiceClient.listUsers(tenantId.value)
-                response.users.filter { it.status == status.name }.map { convertToUser(it, tenantId) }
-            } catch (e: Exception) {
+                response.users.filter { it.status == status.name }.map {
+                    convertToUser(it, tenantId)
+                }
+            } catch (e: IamServiceException) {
+                logger.error(
+                    "IAM service error finding users by tenant and status: {}",
+                    e.message,
+                )
+                emptyList()
+            } catch (e: RestClientException) {
+                logger.error(
+                    "Communication error with IAM service while finding users by tenant and status: {}",
+                    e.message,
+                )
                 emptyList()
             }
         }
@@ -179,7 +206,14 @@ class IamServiceUserRepository(
             try {
                 val response = iamServiceClient.listUsers(tenantId.value)
                 response.users.size.toLong()
-            } catch (e: Exception) {
+            } catch (e: IamServiceException) {
+                logger.error("IAM service error counting users by tenant: {}", e.message)
+                0L
+            } catch (e: RestClientException) {
+                logger.error(
+                    "Communication error with IAM service while counting users: {}",
+                    e.message,
+                )
                 0L
             }
         }
@@ -192,7 +226,17 @@ class IamServiceUserRepository(
             try {
                 val response = iamServiceClient.listUsers(tenantId.value)
                 response.users.count { it.status == status.name }.toLong()
-            } catch (e: Exception) {
+            } catch (e: IamServiceException) {
+                logger.error(
+                    "IAM service error counting users by tenant and status: {}",
+                    e.message,
+                )
+                0L
+            } catch (e: RestClientException) {
+                logger.error(
+                    "Communication error with IAM service while counting users by status: {}",
+                    e.message,
+                )
                 0L
             }
         }
@@ -220,6 +264,15 @@ class IamServiceUserRepository(
             // For now, not implemented
             0
         }
+
+    private fun createEmptyPagedResponse(filter: UserFilter): PagedResponse<UserSummary> =
+        PagedResponse(
+            content = emptyList(),
+            page = filter.page,
+            size = filter.size,
+            totalElements = 0,
+            totalPages = 0,
+        )
 
     private fun convertToUser(
         userSummary: com.axians.eaf.iam.client.UserSummaryResponse,

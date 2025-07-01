@@ -35,9 +35,17 @@ class UpdateUserStatusService(
             try {
                 UserStatus.valueOf(command.newStatus)
             } catch (e: IllegalArgumentException) {
+                logger.warn(
+                    "Invalid status provided: {} for user: {} in tenant: {}. Error: {}",
+                    command.newStatus,
+                    command.userId,
+                    command.tenantId,
+                    e.message,
+                )
                 val validStatuses = UserStatus.entries.joinToString(", ") { it.name }
                 throw IllegalArgumentException(
                     "Invalid status: ${command.newStatus}. Valid statuses are: $validStatuses",
+                    e,
                 )
             }
 
@@ -56,7 +64,8 @@ class UpdateUserStatusService(
                 UserStatus.ACTIVE -> existingUser.activate()
                 UserStatus.INACTIVE -> existingUser.deactivate()
                 UserStatus.SUSPENDED -> existingUser.suspend()
-                UserStatus.PENDING_ACTIVATION -> existingUser.copy(status = UserStatus.PENDING_ACTIVATION)
+                UserStatus.PENDING_ACTIVATION ->
+                    existingUser.copy(status = UserStatus.PENDING_ACTIVATION)
             }
 
         // Save the updated user
