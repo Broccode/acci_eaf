@@ -12,7 +12,9 @@ import com.axians.eaf.iam.client.CreateTenantRequest
 import com.axians.eaf.iam.client.IamServiceClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
+import java.io.IOException
 import java.time.Instant
 
 /**
@@ -24,28 +26,67 @@ import java.time.Instant
 class IamServiceTenantRepository(
     private val iamServiceClient: IamServiceClient,
 ) : TenantRepository {
+    private val logger = LoggerFactory.getLogger(IamServiceTenantRepository::class.java)
+
     override suspend fun save(tenant: Tenant): Tenant =
         withContext(Dispatchers.IO) {
-            if (tenant.id.value.startsWith("new-")) {
-                // Create new tenant via IAM service
-                val request =
-                    CreateTenantRequest(
-                        tenantName = tenant.name,
-                        initialAdminEmail =
-                            "admin@${tenant.name.lowercase().replace(" ", "")}.com", // TODO: Get from
-                        // tenant settings
-                    )
-                val response = iamServiceClient.createTenant(request)
+            try {
+                // Try to get existing tenant first to determine if this is create or update
+                val existingTenant = findById(tenant.id)
 
-                // Convert response back to domain model
-                tenant.copy(
-                    id = TenantId.fromString(response.tenantId),
-                    lastModified = Instant.now(),
+                if (existingTenant == null) {
+                    // Create new tenant via IAM service
+                    val request =
+                        CreateTenantRequest(
+                            tenantName = tenant.name,
+                            initialAdminEmail =
+                                "admin@${tenant.name.lowercase().replace(" ", "")}.com",
+                        )
+                    val response = iamServiceClient.createTenant(request)
+
+                    // Convert response back to domain model
+                    tenant.copy(
+                        id = TenantId.fromString(response.tenantId),
+                        lastModified = Instant.now(),
+                    )
+                } else {
+                    // Update existing tenant - would need additional IAM service API
+                    // For now, return the tenant as-is
+                    tenant
+                }
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception,
+            ) {
+                // If there's an error, it might be a new tenant creation
+                // Try to create it via IAM service
+                logger.warn(
+                    "Failed to find existing tenant, attempting creation: {}",
+                    e.message,
                 )
-            } else {
-                // Update existing tenant - would need additional IAM service API
-                // For now, return the tenant as-is
-                tenant
+                try {
+                    val request =
+                        CreateTenantRequest(
+                            tenantName = tenant.name,
+                            initialAdminEmail =
+                                "admin@${tenant.name.lowercase().replace(" ", "")}.com",
+                        )
+                    val response = iamServiceClient.createTenant(request)
+
+                    // Convert response back to domain model
+                    tenant.copy(
+                        id = TenantId.fromString(response.tenantId),
+                        lastModified = Instant.now(),
+                    )
+                } catch (
+                    @Suppress("TooGenericExceptionCaught") createException: Exception,
+                ) {
+                    logger.error(
+                        "Failed to create tenant after initial find failed. Original error will be thrown.",
+                        createException,
+                    )
+                    // If creation also fails, throw the original exception
+                    throw e
+                }
             }
         }
 
@@ -54,7 +95,11 @@ class IamServiceTenantRepository(
             try {
                 val response = iamServiceClient.getTenant(tenantId.value)
                 response?.let { convertToTenant(it) }
+            } catch (e: IOException) {
+                logger.warn("Failed to get tenant {} from IAM service: {}", tenantId, e.message)
+                null
             } catch (e: Exception) {
+                logger.error("Unexpected error getting tenant {} from IAM service", tenantId, e)
                 null
             }
         }
@@ -69,7 +114,28 @@ class IamServiceTenantRepository(
     override suspend fun existsById(tenantId: TenantId): Boolean =
         withContext(Dispatchers.IO) { findById(tenantId) != null }
 
-    override suspend fun existsByName(name: String): Boolean = withContext(Dispatchers.IO) { findByName(name) != null }
+    override suspend fun existsByName(name: String): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                findByName(name) != null
+            } catch (e: IOException) {
+                logger.warn(
+                    "Failed to check existence of tenant {} from IAM service: {}",
+                    name,
+                    e.message,
+                )
+                // If we can't check, assume it doesn't exist to allow creation to proceed
+                false
+            } catch (e: Exception) {
+                logger.error(
+                    "Unexpected error checking existence of tenant {} from IAM service",
+                    name,
+                    e,
+                )
+                // If we can't check, assume it doesn't exist to allow creation to proceed
+                false
+            }
+        }
 
     override suspend fun findAll(filter: TenantFilter): PagedResponse<TenantSummary> =
         withContext(Dispatchers.IO) {
@@ -89,7 +155,19 @@ class IamServiceTenantRepository(
             try {
                 val response = iamServiceClient.listUsers(tenantId.value)
                 response.users.size
+            } catch (e: IOException) {
+                logger.warn(
+                    "Failed to count users for tenant {} from IAM service: {}",
+                    tenantId,
+                    e.message,
+                )
+                0
             } catch (e: Exception) {
+                logger.error(
+                    "Unexpected error counting users for tenant {} from IAM service",
+                    tenantId,
+                    e,
+                )
                 0
             }
         }
@@ -99,7 +177,19 @@ class IamServiceTenantRepository(
             try {
                 val response = iamServiceClient.listUsers(tenantId.value)
                 response.users.count { it.status == "ACTIVE" }
+            } catch (e: IOException) {
+                logger.warn(
+                    "Failed to count active users for tenant {} from IAM service: {}",
+                    tenantId,
+                    e.message,
+                )
+                0
             } catch (e: Exception) {
+                logger.error(
+                    "Unexpected error counting active users for tenant {} from IAM service",
+                    tenantId,
+                    e,
+                )
                 0
             }
         }

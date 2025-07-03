@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.LoggerFactory
 import org.springframework.core.Ordered
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.filter.OncePerRequestFilter
 
 /**
@@ -42,6 +44,9 @@ class TenantContextSynchronizationFilter(
 
     override fun getOrder(): Int = FILTER_ORDER
 
+    @Suppress(
+        "TooGenericExceptionCaught",
+    ) // Robustly handle any error to prevent filter chain break
     public override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -59,6 +64,12 @@ class TenantContextSynchronizationFilter(
         } catch (e: TenantContextException) {
             handleTenantSyncError(e, requestPath, "Tenant context error")
             filterChain.doFilter(request, response)
+        } catch (e: AuthenticationException) {
+            handleTenantSyncError(e, requestPath, "Authentication error during tenant sync")
+            filterChain.doFilter(request, response)
+        } catch (e: AccessDeniedException) {
+            handleTenantSyncError(e, requestPath, "Access denied during tenant sync")
+            filterChain.doFilter(request, response)
         } catch (e: IllegalArgumentException) {
             handleTenantSyncError(e, requestPath, "Invalid tenant context data")
             filterChain.doFilter(request, response)
@@ -67,6 +78,13 @@ class TenantContextSynchronizationFilter(
                 e,
                 requestPath,
                 "Invalid state during tenant context synchronization",
+            )
+            filterChain.doFilter(request, response)
+        } catch (e: Exception) {
+            handleTenantSyncError(
+                e,
+                requestPath,
+                "Unexpected error during tenant context synchronization",
             )
             filterChain.doFilter(request, response)
         } finally {
@@ -116,6 +134,7 @@ class TenantContextSynchronizationFilter(
     }
 
     /** Performs cleanup and logging of request processing completion. */
+    @Suppress("TooGenericExceptionCaught") // Ensure cleanup never crashes the request thread
     private fun performCleanup(
         requestPath: String,
         startTime: Long,
@@ -137,9 +156,27 @@ class TenantContextSynchronizationFilter(
                 requestPath,
                 e.message,
             )
+        } catch (e: AuthenticationException) {
+            filterLogger.warn(
+                "Authentication error during tenant context cleanup for request {}: {}",
+                requestPath,
+                e.message,
+            )
+        } catch (e: AccessDeniedException) {
+            filterLogger.warn(
+                "Access denied during tenant context cleanup for request {}: {}",
+                requestPath,
+                e.message,
+            )
         } catch (e: IllegalStateException) {
             filterLogger.warn(
                 "Invalid state during tenant context cleanup for request {}: {}",
+                requestPath,
+                e.message,
+            )
+        } catch (e: Exception) {
+            filterLogger.warn(
+                "Unexpected error during tenant context cleanup for request {}: {}",
                 requestPath,
                 e.message,
             )

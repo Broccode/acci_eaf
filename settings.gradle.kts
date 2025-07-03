@@ -7,21 +7,14 @@ pluginManagement {
   }
 }
 
+plugins {
+  id("com.fueledbycaffeine.spotlight") version "1.2.1"
+}
+
 dependencyResolutionManagement {
   repositories {
     mavenCentral()
   }
 }
 
-// Include backend applications
-include(":apps:iam-service")
-include(":apps:acci-eaf-control-plane")
-
-// Include backend libraries
-include(":libs:eaf-core")
-include(":libs:eaf-eventing-sdk")
-include(":libs:eaf-eventsourcing-sdk")
-include(":libs:eaf-iam-client")
-
-// Include tools
-include(":tools:acci-eaf-cli")
+// Project includes are now managed by Spotlight via gradle/all-projects.txt

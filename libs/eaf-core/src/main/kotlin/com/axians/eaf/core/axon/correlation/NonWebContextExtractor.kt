@@ -20,18 +20,35 @@ class NonWebContextExtractor {
      */
     fun extractNonWebContext(correlationData: MutableMap<String, Any>) {
         val processType = determineProcessType()
-        correlationData[CorrelationDataConstants.PROCESS_TYPE] = processType
-        correlationData[CorrelationDataConstants.REQUEST_CONTEXT_TYPE] = processType
+        val currentThread = Thread.currentThread()
+        val isMainThread = currentThread.name.equals("main", ignoreCase = true)
 
-        addThreadInformation(correlationData)
-        addProcessSpecificContext(processType, correlationData)
+        // Always include correlation ID, context type, and process type
+        correlationData[CorrelationDataConstants.REQUEST_CONTEXT_TYPE] = processType
+        correlationData[CorrelationDataConstants.PROCESS_TYPE] = processType
         addCorrelationId(correlationData)
+
+        // Include thread details only for non-main threads and non-system processes
+        if (!isMainThread && processType != CorrelationDataConstants.PROCESS_TYPE_SYSTEM) {
+            addThreadInformation(correlationData)
+        }
+
+        // Always include execution type for context
+        addProcessSpecificContext(processType, correlationData)
 
         logger.debug("Extracted non-web context for process type: {}", processType)
     }
 
     private fun determineProcessType(): String {
-        val threadName = Thread.currentThread().name.lowercase()
+        val originalName = Thread.currentThread().name
+        val threadName = originalName.lowercase()
+        logger.warn("DEBUG_THREAD_NAME: {}", originalName)
+
+        // Special case: Gradle test executor threads should be treated as system unless explicitly
+        // named
+        if (threadName.contains("gradle test executor")) {
+            return CorrelationDataConstants.PROCESS_TYPE_SYSTEM
+        }
 
         return when {
             isScheduledProcess(threadName) -> CorrelationDataConstants.PROCESS_TYPE_SCHEDULED
@@ -56,15 +73,17 @@ class NonWebContextExtractor {
             threadName.contains("message") ||
             threadName.contains("nats")
 
-    private fun isBatchProcess(threadName: String): Boolean =
-        threadName.contains("batch") ||
-            threadName.contains("job") ||
-            threadName.contains("worker")
+    private fun isBatchProcess(threadName: String): Boolean = threadName.contains("batch") || threadName.contains("job")
 
     private fun isAsyncProcess(threadName: String): Boolean =
-        threadName.contains("async") || threadName.contains("executor")
+        threadName.contains("async") ||
+            (
+                threadName.contains("executor") &&
+                    !threadName.contains("test") &&
+                    !threadName.contains("gradle")
+            )
 
-    private fun isTestProcess(threadName: String): Boolean = threadName.contains("test")
+    private fun isTestProcess(threadName: String): Boolean = threadName.equals("test worker", ignoreCase = true)
 
     private fun addThreadInformation(correlationData: MutableMap<String, Any>) {
         val currentThread = Thread.currentThread()

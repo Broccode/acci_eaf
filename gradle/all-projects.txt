@@ -1,0 +1,16 @@
+# EAF Monorepo - All Projects
+# This file replaces the include() statements in settings.gradle.kts
+# Each line represents a project path
+
+# Backend Applications
+:apps:iam-service
+:apps:acci-eaf-control-plane
+
+# Backend Libraries
+:libs:eaf-core
+:libs:eaf-eventing-sdk
+:libs:eaf-eventsourcing-sdk
+:libs:eaf-iam-client
+
+# Tools
+:tools:acci-eaf-cli

@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.time.Duration
+import java.time.Instant
 
 /**
  * Category 7: Health Check Integration Tests. Tests all health indicators and actuator endpoints.
@@ -31,12 +33,27 @@ class HealthCheckIntegrationTest {
 
     @Test
     fun `should provide overall health status via actuator endpoint`() {
-        // When
-        val response = restTemplate.getForEntity("/actuator/health", String::class.java)
-
-        // Then
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).contains("UP")
+        // Wait/retry logic: poll /actuator/health until it contains "UP" or timeout
+        val timeout = Duration.ofSeconds(30)
+        val pollInterval = Duration.ofMillis(500)
+        val start = Instant.now()
+        var lastResponse: String? = null
+        var lastStatus: org.springframework.http.HttpStatusCode? = null
+        while (Duration.between(start, Instant.now()) < timeout) {
+            val response = restTemplate.getForEntity("/actuator/health", String::class.java)
+            lastResponse = response.body
+            lastStatus = response.statusCode
+            if (response.statusCode.is2xxSuccessful && response.body?.contains("UP") == true) {
+                // Success
+                assertThat(response.statusCode.is2xxSuccessful).isTrue()
+                assertThat(response.body).contains("UP")
+                return
+            }
+            Thread.sleep(pollInterval.toMillis())
+        }
+        // If we reach here, the endpoint never returned the expected result
+        assertThat(lastStatus?.is2xxSuccessful).isTrue()
+        assertThat(lastResponse).contains("UP")
     }
 
     @Test

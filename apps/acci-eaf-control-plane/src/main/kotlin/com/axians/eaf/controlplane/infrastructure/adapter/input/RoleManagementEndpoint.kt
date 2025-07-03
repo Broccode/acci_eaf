@@ -50,7 +50,7 @@ class RoleManagementEndpoint(
     /** Creates a new role with the specified configuration. */
     fun createRole(
         @Valid request: CreateRoleRequest,
-    ): CreateRoleResponse =
+    ): CreateRoleResponse? =
         EndpointExceptionHandler.handleEndpointOperation(
             logger = logger,
             operation = "createRole",
@@ -311,7 +311,7 @@ class RoleManagementEndpoint(
     @RolesAllowed("SUPER_ADMIN", "PLATFORM_ADMIN") // Only platform admins can create permissions
     fun createPermission(
         @Valid request: CreatePermissionRequest,
-    ): CreatePermissionResponse =
+    ): CreatePermissionResponse? =
         EndpointExceptionHandler.handleEndpointOperation(
             logger = logger,
             operation = "createPermission",

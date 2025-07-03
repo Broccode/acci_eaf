@@ -31,17 +31,20 @@ class IamServiceUserRepository(
 
     override suspend fun save(user: User): User =
         withContext(Dispatchers.IO) {
-            if (user.id.value.startsWith("new-")) {
+            if (user.getId().value.startsWith("new-")) {
                 // Create new user via IAM service
                 val request =
                     CreateUserRequest(
-                        email = user.email,
-                        username = "${user.firstName}.${user.lastName}".lowercase(),
+                        email = user.getEmail(),
+                        username =
+                            "${user.getFirstName()}.${user.getLastName()}".lowercase(),
                     )
-                val response = iamServiceClient.createUser(user.tenantId.value, request)
+                val response = iamServiceClient.createUser(user.getTenantId().value, request)
 
-                // Convert response back to domain model
-                user.copy(id = UserId.fromString(response.userId), lastModified = Instant.now())
+                // For now, return the original user - proper event sourcing implementation
+                // would
+                // need to reconstruct from events. This is a temporary workaround.
+                user
             } else {
                 // Update existing user - for now, just update status if it changed
                 // Would need additional IAM service APIs for full user updates
@@ -283,18 +286,26 @@ class IamServiceUserRepository(
         val firstName = parts.getOrNull(0)?.replaceFirstChar { it.uppercase() } ?: "Unknown"
         val lastName = parts.getOrNull(1)?.replaceFirstChar { it.uppercase() } ?: "User"
 
-        return User(
-            id = UserId.fromString(userSummary.userId),
-            tenantId = tenantId,
-            email = userSummary.email,
-            firstName = firstName,
-            lastName = lastName,
-            status = UserStatus.valueOf(userSummary.status),
-            roles = emptySet(), // Roles mapping not yet implemented
-            lastLogin = null, // Would need additional data from IAM service
-            createdAt = Instant.now(), // Would need additional data from IAM service
-            lastModified = Instant.now(),
-        )
+        // Create User aggregate based on status - simplified approach for repository layer
+        return if (UserStatus.valueOf(userSummary.status) == UserStatus.ACTIVE) {
+            User.createActive(
+                tenantId = tenantId,
+                email = userSummary.email,
+                firstName = firstName,
+                lastName = lastName,
+                initialRoles = emptySet(), // Roles mapping not yet implemented
+                now = Instant.now(), // Would need additional data from IAM service
+            )
+        } else {
+            User.createPending(
+                tenantId = tenantId,
+                email = userSummary.email,
+                firstName = firstName,
+                lastName = lastName,
+                initialRoles = emptySet(), // Roles mapping not yet implemented
+                now = Instant.now(), // Would need additional data from IAM service
+            )
+        }
     }
 
     private fun convertToUserSummary(userSummary: com.axians.eaf.iam.client.UserSummaryResponse): UserSummary {

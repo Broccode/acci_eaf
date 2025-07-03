@@ -24,15 +24,26 @@ class CorrelationDataValidator {
                 .mapValues { (_, value) -> processFieldValue(value) }
                 .filter { (key, value) -> isValidEntry(key, value) }
 
-        if (filteredData.size != correlationData.size) {
+        // Add security metadata flags only when security context was present
+        val enriched = filteredData.toMutableMap()
+        val containsSecurityContext =
+            enriched.containsKey(CorrelationDataConstants.USER_ID) ||
+                enriched.containsKey(CorrelationDataConstants.TENANT_ID)
+
+        if (containsSecurityContext) {
+            enriched[CorrelationDataConstants.DATA_SANITIZED] = "true"
+            enriched[CorrelationDataConstants.COLLECTION_ENABLED] = "true"
+        }
+
+        if (enriched.size != correlationData.size) {
             logger.debug(
                 "Filtered {} entries, keeping {} valid entries",
-                correlationData.size - filteredData.size,
-                filteredData.size,
+                correlationData.size - enriched.size,
+                enriched.size,
             )
         }
 
-        return filteredData.toMap()
+        return enriched.toMap()
     }
 
     private fun isAllowedField(fieldName: String): Boolean =

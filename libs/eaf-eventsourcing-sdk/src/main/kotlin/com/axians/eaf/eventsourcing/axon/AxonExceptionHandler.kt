@@ -1,11 +1,13 @@
 package com.axians.eaf.eventsourcing.axon
 
+import com.axians.eaf.core.tenancy.TenantContextException
 import com.axians.eaf.eventsourcing.axon.exception.EventSerializationException
 import com.axians.eaf.eventsourcing.exception.OptimisticLockingFailureException
 import com.fasterxml.jackson.core.JsonProcessingException
 import org.axonframework.eventsourcing.eventstore.EventStoreException
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import java.io.IOException
 import java.sql.SQLException
@@ -54,8 +56,22 @@ class AxonExceptionHandler {
                     "Concurrent modification detected: ${context.summary}",
                     exception,
                 )
-            is DataAccessException ->
+            is TenantContextException ->
+                EventStoreException(
+                    "Tenant context error: ${context.summary}",
+                    exception,
+                )
+            is EventSerializationException ->
+                EventStoreException("Serialization error: ${context.summary}", exception)
+            is SQLException ->
                 EventStoreException("Database error: ${context.summary}", exception)
+            is DataIntegrityViolationException ->
+                EventStoreException(
+                    "Data integrity violation: ${context.summary}",
+                    exception,
+                )
+            is DataAccessException ->
+                EventStoreException("Data access error: ${context.summary}", exception)
             is JsonProcessingException ->
                 EventStoreException("Serialization error: ${context.summary}", exception)
             is IOException -> EventStoreException("I/O error: ${context.summary}", exception)
@@ -118,59 +134,7 @@ class AxonExceptionHandler {
         exception: Exception,
     ): RuntimeException {
         val context = ExceptionContext(operation, tenantId, aggregateId, null)
-
-        return when (exception) {
-            is SQLException -> {
-                logger.error(
-                    "Database error during {}: {} - SQL State: {}, Error Code: {}, Message: {}",
-                    operation,
-                    context.summary,
-                    exception.sqlState,
-                    exception.errorCode,
-                    exception.message,
-                    exception,
-                )
-
-                val message = "Database error during $operation in tenant $tenantId"
-                EventStoreException(message, exception)
-            }
-            is DataAccessException -> {
-                logger.error(
-                    "Data access error during {}: {} - {}",
-                    operation,
-                    context.summary,
-                    exception.message,
-                    exception,
-                )
-
-                val message = "Data access error during $operation in tenant $tenantId"
-                EventStoreException(message, exception)
-            }
-            is EventSerializationException -> {
-                logger.error(
-                    "Snapshot serialization error during {}: {} - {}",
-                    operation,
-                    context.summary,
-                    exception.message,
-                    exception,
-                )
-
-                val message = "Event serialization error during $operation in tenant $tenantId"
-                EventStoreException(message, exception)
-            }
-            else -> {
-                logger.error(
-                    "Unexpected error during {}: {} - {}",
-                    operation,
-                    context.summary,
-                    exception.message,
-                    exception,
-                )
-
-                val message = "Unexpected error during $operation in tenant $tenantId"
-                EventStoreException(message, exception)
-            }
-        }
+        return mapExceptionToEventStoreException(context, exception)
     }
 
     /**

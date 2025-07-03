@@ -1,0 +1,16 @@
+# EAF IDE Focus - Projects to load in IDE
+# Edit this file to focus on specific parts of the monorepo
+# Spotlight will automatically include transitive dependencies
+
+# Focus on IAM Service development only
+# :apps:iam-service
+
+# Spotlight will automatically include dependencies like:
+# - :libs:eaf-core
+# - :libs:eaf-iam-client
+# - etc.
+
+# To focus on other areas, uncomment these:
+:apps:acci-eaf-control-plane
+# :libs:eaf-eventing-sdk
+# :tools:acci-eaf-cli

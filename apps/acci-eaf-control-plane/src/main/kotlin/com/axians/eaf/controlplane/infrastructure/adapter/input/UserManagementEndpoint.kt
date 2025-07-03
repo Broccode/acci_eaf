@@ -7,6 +7,7 @@ import com.axians.eaf.controlplane.application.dto.user.PasswordResetResponse
 import com.axians.eaf.controlplane.application.dto.user.UserDetailsResponse
 import com.axians.eaf.controlplane.application.dto.user.UserDto
 import com.axians.eaf.controlplane.application.dto.user.UserFilter
+import com.axians.eaf.controlplane.application.dto.user.UserStatusContext
 import com.axians.eaf.controlplane.application.dto.user.UserStatusResponse
 import com.axians.eaf.controlplane.application.dto.user.UserSummary
 import com.axians.eaf.controlplane.domain.model.user.UserStatus
@@ -49,7 +50,7 @@ class UserManagementEndpoint(
     /** Creates a new user with the specified details. */
     fun createUser(
         @Valid request: CreateUserRequest,
-    ): CreateUserResponse =
+    ): CreateUserResponse? =
         EndpointExceptionHandler.handleEndpointOperation(
             logger = logger,
             operation = "createUser",
@@ -113,12 +114,14 @@ class UserManagementEndpoint(
                 when (result) {
                     is UserStatusResult.Success ->
                         UserStatusResponse.success(
-                            userId = result.userId,
-                            email = result.email,
-                            fullName = result.fullName,
-                            oldStatus = result.oldStatus,
-                            newStatus = result.newStatus,
-                            action = result.action,
+                            UserStatusContext(
+                                userId = result.userId,
+                                email = result.email,
+                                fullName = result.fullName,
+                                oldStatus = result.oldStatus,
+                                newStatus = result.newStatus,
+                                action = result.action,
+                            ),
                         )
                     is UserStatusResult.NotFound, is UserStatusResult.Failure -> null
                 }
@@ -141,12 +144,14 @@ class UserManagementEndpoint(
                 when (result) {
                     is UserStatusResult.Success ->
                         UserStatusResponse.success(
-                            userId = result.userId,
-                            email = result.email,
-                            fullName = result.fullName,
-                            oldStatus = result.oldStatus,
-                            newStatus = result.newStatus,
-                            action = result.action,
+                            UserStatusContext(
+                                userId = result.userId,
+                                email = result.email,
+                                fullName = result.fullName,
+                                oldStatus = result.oldStatus,
+                                newStatus = result.newStatus,
+                                action = result.action,
+                            ),
                         )
                     is UserStatusResult.NotFound, is UserStatusResult.Failure -> null
                 }
@@ -154,7 +159,7 @@ class UserManagementEndpoint(
         }
 
     /** Initiates a password reset for a user. */
-    fun resetPassword(userId: String): PasswordResetResponse =
+    fun resetPassword(userId: String): PasswordResetResponse? =
         EndpointExceptionHandler.handleEndpointOperation(
             logger = logger,
             operation = "resetPassword",
@@ -182,7 +187,7 @@ class UserManagementEndpoint(
 
     /** Lists all users with optional filtering and pagination. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun listUsers(filter: UserFilter): PagedResponse<UserSummary> =
+    fun listUsers(filter: UserFilter): PagedResponse<UserSummary>? =
         EndpointExceptionHandler.handleEndpointOperation(
             logger = logger,
             operation = "listUsers",
@@ -203,12 +208,12 @@ class UserManagementEndpoint(
                 page = page,
                 size = size,
             )
-        return listUsers(filter)
+        return listUsers(filter) ?: PagedResponse.of(emptyList(), filter.page, filter.size, 0)
     }
 
     /** Checks if a user exists and can access the system. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun canUserAccess(userId: String): Boolean =
+    fun canUserAccess(userId: String): Boolean? =
         EndpointExceptionHandler.handleEndpointOperation(
             logger = logger,
             operation = "canUserAccess",
@@ -217,7 +222,8 @@ class UserManagementEndpoint(
             runBlocking {
                 when (val result = userService.getUserDetails(userId)) {
                     is UserDetailsResult.Success ->
-                        result.details.user.status
+                        result.details.user
+                            .getStatus()
                             .canAccess()
                     is UserDetailsResult.NotFound -> false
                 }
@@ -227,7 +233,7 @@ class UserManagementEndpoint(
 
     /** Gets user statistics for dashboard purposes. */
     @AnonymousAllowed // Temporarily for testing - will be secured later
-    fun getUserStatistics(tenantId: String): UserStatistics =
+    fun getUserStatistics(tenantId: String): UserStatistics? =
         EndpointExceptionHandler.handleEndpointOperation(
             logger = logger,
             operation = "getUserStatistics",

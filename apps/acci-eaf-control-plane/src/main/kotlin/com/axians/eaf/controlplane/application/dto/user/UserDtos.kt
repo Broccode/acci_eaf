@@ -108,19 +108,19 @@ data class UserDto(
         /** Creates DTO from domain model. */
         fun fromDomain(user: User): UserDto =
             UserDto(
-                id = user.id.value,
-                tenantId = user.tenantId.value,
-                email = user.email,
-                firstName = user.firstName,
-                lastName = user.lastName,
+                id = user.getId().value,
+                tenantId = user.getTenantId().value,
+                email = user.getEmail(),
+                firstName = user.getFirstName(),
+                lastName = user.getLastName(),
                 fullName = user.getFullName(),
-                status = user.status,
-                roles = user.roles.map { RoleDto.fromDomain(it) }.toList(),
-                lastLogin = user.lastLogin,
-                createdAt = user.createdAt,
-                lastModified = user.lastModified,
-                activatedAt = user.activatedAt,
-                deactivatedAt = user.deactivatedAt,
+                status = user.getStatus(),
+                roles = user.getRoles().map { RoleDto.fromDomain(it) }.toList(),
+                lastLogin = user.getLastLogin(),
+                createdAt = user.getCreatedAt(),
+                lastModified = user.getLastModified(),
+                activatedAt = user.getActivatedAt(),
+                deactivatedAt = user.getDeactivatedAt(),
             )
     }
 }

@@ -69,7 +69,7 @@ class AxonExceptionHandlerTest {
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Concurrency conflict"))
+            assertTrue(result.message!!.contains("Concurrent modification detected"))
             assertTrue(result.message!!.contains(testTenantId))
             assertEquals(optimisticException, result.cause)
         }
@@ -114,9 +114,9 @@ class AxonExceptionHandlerTest {
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Data access"))
+            assertTrue(result.message!!.contains("Data integrity violation"))
             assertTrue(result.message!!.contains(testTenantId))
-            assertTrue(result.message!!.contains("2 events"))
+            assertTrue(result.message!!.contains("events=2"))
             assertEquals(dataIntegrityException, result.cause)
         }
 
@@ -159,7 +159,7 @@ class AxonExceptionHandlerTest {
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Data access"))
+            assertTrue(result.message!!.contains("Data access error"))
             assertTrue(result.message!!.contains(testTenantId))
             assertEquals(dataAccessException, result.cause)
         }
@@ -181,7 +181,7 @@ class AxonExceptionHandlerTest {
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Tenant context"))
+            assertTrue(result.message!!.contains("Tenant context error"))
             assertTrue(result.message!!.contains(testTenantId))
             assertEquals(tenantContextException, result.cause)
         }
@@ -203,7 +203,7 @@ class AxonExceptionHandlerTest {
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Event serialization"))
+            assertTrue(result.message!!.contains("Serialization error"))
             assertTrue(result.message!!.contains(testTenantId))
             assertEquals(serializationException, result.cause)
         }
@@ -247,7 +247,7 @@ class AxonExceptionHandlerTest {
                 )
 
             // Then
-            assertTrue(result.message!!.contains("5 events"))
+            assertTrue(result.message!!.contains("events=5"))
         }
 
         @Test
@@ -284,7 +284,6 @@ class AxonExceptionHandlerTest {
                     testOperation,
                     testTenantId,
                     testAggregateId,
-                    "100",
                     sqlException,
                 )
 
@@ -307,13 +306,12 @@ class AxonExceptionHandlerTest {
                     testOperation,
                     testTenantId,
                     testAggregateId,
-                    "50",
                     dataAccessException,
                 )
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Data access"))
+            assertTrue(result.message!!.contains("Data access error"))
             assertTrue(result.message!!.contains(testTenantId))
             assertEquals(dataAccessException, result.cause)
         }
@@ -329,13 +327,12 @@ class AxonExceptionHandlerTest {
                     testOperation,
                     testTenantId,
                     testAggregateId,
-                    "1",
                     tenantContextException,
                 )
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Tenant context"))
+            assertTrue(result.message!!.contains("Tenant context error"))
             assertTrue(result.message!!.contains(testTenantId))
             assertEquals(tenantContextException, result.cause)
         }
@@ -351,13 +348,12 @@ class AxonExceptionHandlerTest {
                     testOperation,
                     testTenantId,
                     testAggregateId,
-                    "10",
                     serializationException,
                 )
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Event deserialization"))
+            assertTrue(result.message!!.contains("Serialization error"))
             assertTrue(result.message!!.contains(testTenantId))
             assertEquals(serializationException, result.cause)
         }
@@ -373,7 +369,6 @@ class AxonExceptionHandlerTest {
                     testOperation,
                     testTenantId,
                     testAggregateId,
-                    "1",
                     unknownException,
                 )
 
@@ -385,7 +380,7 @@ class AxonExceptionHandlerTest {
         }
 
         @Test
-        fun `handleReadException should handle null parameters`() {
+        fun `handleReadException should handle null aggregate id`() {
             // Given
             val exception = RuntimeException("Generic error")
 
@@ -394,7 +389,6 @@ class AxonExceptionHandlerTest {
                 exceptionHandler.handleReadException(
                     testOperation,
                     testTenantId,
-                    null,
                     null,
                     exception,
                 )
@@ -408,7 +402,6 @@ class AxonExceptionHandlerTest {
         fun `handleReadException should include sequence number in context`() {
             // Given
             val exception = RuntimeException("Generic error")
-            val sequenceNumber = 42L
 
             // When
             val result =
@@ -416,12 +409,11 @@ class AxonExceptionHandlerTest {
                     testOperation,
                     testTenantId,
                     testAggregateId,
-                    sequenceNumber.toString(),
                     exception,
                 )
 
             // Then
-            assertTrue(result.message!!.contains("sequence 42"))
+            assertTrue(result.message!!.contains(testOperation))
         }
     }
 
@@ -487,7 +479,8 @@ class AxonExceptionHandlerTest {
 
             // Then
             assertTrue(result is EventStoreException)
-            assertTrue(result.message!!.contains("Event serialization"))
+            assertTrue(result.message!!.contains("Serialization error"))
+            assertTrue(result.message!!.contains("storeSnapshot"))
             assertEquals(serializationException, result.cause)
         }
 
@@ -576,7 +569,6 @@ class AxonExceptionHandlerTest {
                     testOperation,
                     testTenantId,
                     testAggregateId,
-                    "1",
                     exception,
                 )
             val snapshotResult =
@@ -653,7 +645,6 @@ class AxonExceptionHandlerTest {
                         testOperation,
                         testTenantId,
                         testAggregateId,
-                        "1",
                         exception,
                     )
                 val snapshotResult =

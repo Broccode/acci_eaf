@@ -2,6 +2,7 @@ package com.axians.eaf.controlplane.domain.service
 
 import com.axians.eaf.controlplane.application.dto.tenant.PagedResponse
 import com.axians.eaf.controlplane.application.dto.user.UserFilter
+import com.axians.eaf.controlplane.application.dto.user.UserStatusContext
 import com.axians.eaf.controlplane.application.dto.user.UserSummary
 import com.axians.eaf.controlplane.domain.model.tenant.TenantId
 import com.axians.eaf.controlplane.domain.model.user.User
@@ -61,10 +62,10 @@ class UserService(
         val savedUser = userRepository.save(user)
 
         return CreateUserResult.success(
-            userId = savedUser.id.value,
-            email = savedUser.email,
+            userId = savedUser.getId().value,
+            email = savedUser.getEmail(),
             fullName = savedUser.getFullName(),
-            status = savedUser.status,
+            status = savedUser.getStatus(),
         )
     }
 
@@ -75,8 +76,8 @@ class UserService(
                 ?: return UserDetailsResult.notFound("User not found: $userId")
 
         val permissions = user.getAllPermissions().map { it.toPermissionString() }.toSet()
-        val lastLoginFormatted = user.lastLogin?.let { formatRelativeTime(it) }
-        val accountAge = formatRelativeTime(user.createdAt)
+        val lastLoginFormatted = user.getLastLogin()?.let { formatRelativeTime(it) }
+        val accountAge = formatRelativeTime(user.getCreatedAt())
 
         val response =
             UserDetails(
@@ -95,20 +96,23 @@ class UserService(
             userRepository.findById(UserId.fromString(userId))
                 ?: return UserStatusResult.notFound("User not found: $userId")
 
-        if (!user.status.canBeActivated()) {
-            return UserStatusResult.failure("Cannot activate user in status: ${user.status}")
+        if (!user.getStatus().canBeActivated()) {
+            return UserStatusResult.failure(
+                "Cannot activate user in status: ${user.getStatus()}",
+            )
         }
 
-        val activatedUser = user.activate()
-        userRepository.save(activatedUser)
+        val oldStatus = user.getStatus()
+        user.activate()
+        userRepository.save(user)
 
         return UserStatusResult.success(
             UserStatusContext(
                 userId = userId,
-                email = user.email,
+                email = user.getEmail(),
                 fullName = user.getFullName(),
-                oldStatus = user.status,
-                newStatus = activatedUser.status,
+                oldStatus = oldStatus,
+                newStatus = user.getStatus(),
                 action = "activated",
             ),
         )
@@ -120,20 +124,23 @@ class UserService(
             userRepository.findById(UserId.fromString(userId))
                 ?: return UserStatusResult.notFound("User not found: $userId")
 
-        if (!user.status.canBeSuspended()) {
-            return UserStatusResult.failure("Cannot suspend user in status: ${user.status}")
+        if (!user.getStatus().canBeSuspended()) {
+            return UserStatusResult.failure(
+                "Cannot suspend user in status: ${user.getStatus()}",
+            )
         }
 
-        val suspendedUser = user.suspend()
-        userRepository.save(suspendedUser)
+        val oldStatus = user.getStatus()
+        user.suspend()
+        userRepository.save(user)
 
         return UserStatusResult.success(
             UserStatusContext(
                 userId = userId,
-                email = user.email,
+                email = user.getEmail(),
                 fullName = user.getFullName(),
-                oldStatus = user.status,
-                newStatus = suspendedUser.status,
+                oldStatus = oldStatus,
+                newStatus = user.getStatus(),
                 action = "suspended",
             ),
         )
@@ -145,8 +152,10 @@ class UserService(
             userRepository.findById(UserId.fromString(userId))
                 ?: return PasswordResetResult.notFound("User not found: $userId")
 
-        if (user.status == UserStatus.DEACTIVATED) {
-            return PasswordResetResult.failure("Cannot reset password for deactivated user")
+        if (user.getStatus() == UserStatus.DEACTIVATED) {
+            return PasswordResetResult.failure(
+                "Cannot reset password for deactivated user",
+            )
         }
 
         // Generate secure reset token
@@ -155,7 +164,7 @@ class UserService(
 
         return PasswordResetResult.success(
             userId = userId,
-            email = user.email,
+            email = user.getEmail(),
             resetToken = resetToken,
             expiresAt = expiresAt,
         )

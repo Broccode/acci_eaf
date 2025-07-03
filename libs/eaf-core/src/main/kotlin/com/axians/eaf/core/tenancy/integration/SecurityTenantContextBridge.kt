@@ -4,6 +4,8 @@ import com.axians.eaf.core.security.EafSecurityContextHolder
 import com.axians.eaf.core.tenancy.TenantContextException
 import com.axians.eaf.core.tenancy.TenantContextHolder
 import org.slf4j.LoggerFactory
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Component
 
 /**
@@ -25,17 +27,27 @@ class SecurityTenantContextBridge(
      * @param respectExisting If true, won't override existing tenant context in TenantContextHolder
      * @return true if synchronization was successful, false if no tenant context available
      */
+    @Suppress("TooGenericExceptionCaught") // Ensure bridge failures do not crash the calling thread
     fun synchronizeTenantContext(respectExisting: Boolean = true): Boolean =
         try {
             performSynchronization(respectExisting)
         } catch (e: TenantContextException) {
             logger.warn("Tenant context error during synchronization: {}", e.message)
             false
+        } catch (e: AuthenticationException) {
+            logger.warn("Authentication error during tenant synchronization: {}", e.message)
+            false
+        } catch (e: AccessDeniedException) {
+            logger.warn("Access denied during tenant synchronization: {}", e.message)
+            false
         } catch (e: IllegalArgumentException) {
             logger.warn("Invalid tenant ID during synchronization: {}", e.message)
             false
         } catch (e: IllegalStateException) {
             logger.warn("Invalid state during tenant context synchronization: {}", e.message)
+            false
+        } catch (e: Exception) {
+            logger.warn("Unexpected error during tenant context synchronization: {}", e.message)
             false
         }
 

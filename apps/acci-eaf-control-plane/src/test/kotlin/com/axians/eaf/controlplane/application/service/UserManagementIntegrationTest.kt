@@ -8,6 +8,10 @@ import com.axians.eaf.controlplane.domain.service.TenantService
 import com.axians.eaf.controlplane.domain.service.UserService
 import com.axians.eaf.controlplane.test.ControlPlaneTestcontainerConfiguration
 import com.axians.eaf.controlplane.test.TestControlPlaneApplication
+import com.axians.eaf.controlplane.test.TestDomainServiceConfiguration
+import com.axians.eaf.controlplane.test.TestJpaConfiguration
+import com.axians.eaf.controlplane.test.TestMockServiceConfiguration
+import com.axians.eaf.controlplane.test.TestNatsEventPublisherConfiguration
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +30,16 @@ import kotlin.test.fail
  * and lifecycle management.
  */
 @SpringBootTest(classes = [TestControlPlaneApplication::class])
-@ContextConfiguration(classes = [ControlPlaneTestcontainerConfiguration::class])
+@ContextConfiguration(
+    classes =
+        [
+            ControlPlaneTestcontainerConfiguration::class,
+            TestNatsEventPublisherConfiguration::class,
+            TestJpaConfiguration::class,
+            TestDomainServiceConfiguration::class,
+            TestMockServiceConfiguration::class,
+        ],
+)
 @ActiveProfiles("test")
 @Transactional
 class UserManagementIntegrationTest {
@@ -48,7 +61,8 @@ class UserManagementIntegrationTest {
             val createdTenant =
                 when (tenantResult) {
                     is CreateTenantResult.Success -> tenantResult
-                    is CreateTenantResult.Failure -> fail("Tenant creation failed: ${tenantResult.message}")
+                    is CreateTenantResult.Failure ->
+                        fail("Tenant creation failed: ${tenantResult.message}")
                 }
 
             assertEquals("Acme Corporation", createdTenant.tenantName)
@@ -95,7 +109,8 @@ class UserManagementIntegrationTest {
             assertEquals("John User", regularUser.fullName)
             assertEquals(UserStatus.ACTIVE, regularUser.status)
 
-            // Note: Additional test operations would require implementing the missing service methods
+            // Note: Additional test operations would require implementing the missing service
+            // methods
             // like getUsersByTenant, updateUser, deactivateUser, reactivateUser
         }
 
@@ -113,7 +128,8 @@ class UserManagementIntegrationTest {
             val tenant =
                 when (tenantResult) {
                     is CreateTenantResult.Success -> tenantResult
-                    is CreateTenantResult.Failure -> fail("Tenant creation failed: ${tenantResult.message}")
+                    is CreateTenantResult.Failure ->
+                        fail("Tenant creation failed: ${tenantResult.message}")
                 }
 
             // Test successful user creation
@@ -129,7 +145,8 @@ class UserManagementIntegrationTest {
             val user =
                 when (userResult) {
                     is CreateUserResult.Success -> userResult
-                    is CreateUserResult.Failure -> fail("User creation failed: ${userResult.message}")
+                    is CreateUserResult.Failure ->
+                        fail("User creation failed: ${userResult.message}")
                 }
 
             assertEquals("valid@test.com", user.email)
@@ -149,7 +166,8 @@ class UserManagementIntegrationTest {
             val tenant =
                 when (tenantResult) {
                     is CreateTenantResult.Success -> tenantResult
-                    is CreateTenantResult.Failure -> fail("Tenant creation failed: ${tenantResult.message}")
+                    is CreateTenantResult.Failure ->
+                        fail("Tenant creation failed: ${tenantResult.message}")
                 }
 
             val userResult =
@@ -164,7 +182,8 @@ class UserManagementIntegrationTest {
             val user =
                 when (userResult) {
                     is CreateUserResult.Success -> userResult
-                    is CreateUserResult.Failure -> fail("User creation failed: ${userResult.message}")
+                    is CreateUserResult.Failure ->
+                        fail("User creation failed: ${userResult.message}")
                 }
 
             // Basic validation
@@ -172,7 +191,8 @@ class UserManagementIntegrationTest {
             assertEquals("Lifecycle User", user.fullName)
             assertEquals(UserStatus.ACTIVE, user.status)
 
-            // Note: Additional lifecycle operations require implementing missing service methods
+            // Note: Additional lifecycle operations require implementing missing service
+            // methods
             // like getUserById, updateUser, deactivateUser, reactivateUser
         }
 
@@ -197,13 +217,15 @@ class UserManagementIntegrationTest {
             val tenant1 =
                 when (tenant1Result) {
                     is CreateTenantResult.Success -> tenant1Result
-                    is CreateTenantResult.Failure -> fail("Tenant1 creation failed: ${tenant1Result.message}")
+                    is CreateTenantResult.Failure ->
+                        fail("Tenant1 creation failed: ${tenant1Result.message}")
                 }
 
             val tenant2 =
                 when (tenant2Result) {
                     is CreateTenantResult.Success -> tenant2Result
-                    is CreateTenantResult.Failure -> fail("Tenant2 creation failed: ${tenant2Result.message}")
+                    is CreateTenantResult.Failure ->
+                        fail("Tenant2 creation failed: ${tenant2Result.message}")
                 }
 
             // Create users in different tenants
@@ -219,7 +241,8 @@ class UserManagementIntegrationTest {
                         )
                     when (result) {
                         is CreateUserResult.Success -> result
-                        is CreateUserResult.Failure -> fail("User creation failed: ${result.message}")
+                        is CreateUserResult.Failure ->
+                            fail("User creation failed: ${result.message}")
                     }
                 }
 
@@ -235,7 +258,8 @@ class UserManagementIntegrationTest {
                         )
                     when (result) {
                         is CreateUserResult.Success -> result
-                        is CreateUserResult.Failure -> fail("User creation failed: ${result.message}")
+                        is CreateUserResult.Failure ->
+                            fail("User creation failed: ${result.message}")
                     }
                 }
 

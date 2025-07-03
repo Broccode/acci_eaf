@@ -68,16 +68,20 @@ class SystemInitializationServiceTest {
     fun `should not initialize when default tenant already exists`() {
         // Given
         every { saveTenantPort.existsByTenantName("TestTenant") } returns true
+        every { saveTenantPort.existsByEmail("admin@test.com") } returns false
 
         // When
         val result = systemInitializationService.initializeDefaultTenantIfRequired()
 
         // Then
         assertFalse(result.wasInitialized)
-        assertEquals("System already initialized - default tenant 'TestTenant' exists", result.message)
+        assertEquals(
+            "System already initialized - default tenant 'TestTenant' exists",
+            result.message,
+        )
 
         verify { saveTenantPort.existsByTenantName("TestTenant") }
-        verify(exactly = 0) { saveTenantPort.existsByEmail(any()) }
+        verify { saveTenantPort.existsByEmail("admin@test.com") }
         verify(exactly = 0) { saveTenantPort.saveTenantWithAdmin(any(), any()) }
     }
 

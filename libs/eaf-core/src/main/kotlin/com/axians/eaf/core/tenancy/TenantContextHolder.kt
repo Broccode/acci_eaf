@@ -13,6 +13,7 @@ import kotlin.coroutines.CoroutineContext
  * This implementation uses ThreadLocal storage for thread safety and provides enhanced context
  * management including scoped execution and coroutine support.
  */
+@Suppress("TooManyFunctions")
 object TenantContextHolder {
     private val logger = LoggerFactory.getLogger(TenantContextHolder::class.java)
 
@@ -177,6 +178,49 @@ object TenantContextHolder {
             .trim()
             .replace(Regex("[^a-zA-Z0-9_-]"), "")
             .take(MAX_TENANT_ID_LENGTH) // Limit length to reasonable maximum
+    }
+
+    // Utility helpers added for backward compatibility with existing tests and components
+
+    /** Checks if tenant context is currently set. */
+    @JvmStatic fun hasTenantContext(): Boolean = getCurrentTenantId() != null
+
+    /**
+     * Validates that tenant context is present. Throws [TenantContextException] if absent.
+     *
+     * @param operation descriptive name of the calling operation for error context
+     * @throws TenantContextException when no tenant context is available
+     */
+    @JvmStatic
+    fun validateTenantContext(operation: String = "operation") {
+        if (!hasTenantContext()) {
+            throw TenantContextException(
+                "Tenant context is required during $operation but was not found. " +
+                    "Ensure tenant context is set before calling this operation.",
+            )
+        }
+    }
+
+    /** Returns a metadata value for the current tenant context, or null if not present. */
+    @JvmStatic
+    fun getTenantMetadata(key: String): String? = fullTenantContext.get()?.metadata?.get(key)
+
+    /**
+     * Adds or updates a metadata entry in the current tenant context.
+     *
+     * @throws TenantContextException if no tenant context is set
+     */
+    @JvmStatic
+    fun addTenantMetadata(
+        key: String,
+        value: String,
+    ) {
+        val current =
+            fullTenantContext.get()
+                ?: throw TenantContextException(
+                    "Cannot add metadata: no tenant context available",
+                )
+        fullTenantContext.set(current.withMetadata(key, value))
     }
 }
 

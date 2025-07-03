@@ -307,8 +307,7 @@ class EafPostgresEventStorageEngineTest {
                     "readEvents",
                     "unknown",
                     testAggregateId,
-                    null,
-                    any(),
+                    any<Exception>(),
                 )
             } returns expectedException
 
@@ -328,8 +327,7 @@ class EafPostgresEventStorageEngineTest {
                     "readEventsTracking",
                     "unknown",
                     null,
-                    null,
-                    any(),
+                    any<Exception>(),
                 )
             } returns expectedException
 
@@ -538,9 +536,7 @@ class EafPostgresEventStorageEngineTest {
             verify(atLeast = 1) {
                 exceptionHandler.handleAppendException(any(), any(), any(), any(), any())
             }
-            verify(atLeast = 1) {
-                exceptionHandler.handleReadException(any(), any(), any(), any(), any())
-            }
+            verify(atLeast = 1) { exceptionHandler.handleReadException(any(), any(), any(), any()) }
         }
     }
 

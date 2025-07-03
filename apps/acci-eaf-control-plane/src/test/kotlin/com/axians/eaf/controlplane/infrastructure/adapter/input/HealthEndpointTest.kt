@@ -18,7 +18,7 @@ class HealthEndpointTest {
         // Then - Validate basic response structure
         assertThat(result.status).isEqualTo("UP")
         assertThat(result.service).isEqualTo("ACCI EAF Control Plane")
-        assertThat(result.version).isEqualTo("0.0.1-SNAPSHOT")
+        assertThat(result.version).isEqualTo("1.0.0-SNAPSHOT")
         assertThat(result.timestamp).isNotEmpty()
     }
 
@@ -30,7 +30,7 @@ class HealthEndpointTest {
         // Then - Validate detailed response structure
         assertThat(result.status).isIn("UP", "DOWN", "DEGRADED", "UNKNOWN")
         assertThat(result.service).isEqualTo("ACCI EAF Control Plane")
-        assertThat(result.version).isEqualTo("0.0.1-SNAPSHOT")
+        assertThat(result.version).isEqualTo("1.0.0-SNAPSHOT")
         assertThat(result.timestamp).isNotEmpty()
         assertThat(result.serviceChecks).isNotNull
         assertThat(result.summary).isNotNull
@@ -143,7 +143,7 @@ class HealthEndpointTest {
 
         // Then - All should have consistent timestamp and version patterns
         assertThat(healthResult.timestamp).isNotEmpty()
-        assertThat(healthResult.version).isEqualTo("0.0.1-SNAPSHOT")
+        assertThat(healthResult.version).isEqualTo("1.0.0-SNAPSHOT")
 
         assertThat(systemResult.metadata.timestamp).isBeforeOrEqualTo(Instant.now())
         assertThat(systemResult.metadata.version).isEqualTo("1.0.0")

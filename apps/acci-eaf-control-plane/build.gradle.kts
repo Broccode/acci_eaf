@@ -25,6 +25,10 @@ dependencies {
   implementation(project(":libs:eaf-iam-client"))
   implementation(project(":libs:eaf-eventing-sdk"))
 
+  // Axon Framework
+  implementation(libs.axon.modelling)
+  implementation(libs.axon.eventsourcing)
+
   // Hilla / Vaadin
   implementation(libs.vaadin.spring.boot.starter)
 
@@ -73,6 +77,8 @@ dependencies {
   testImplementation(libs.testcontainers.postgresql)
   testImplementation(libs.spring.boot.testcontainers)
   testImplementation(libs.h2)
+  testImplementation(libs.awaitility)
+  testImplementation(libs.axon.test)
   testRuntimeOnly(libs.junit.platform.launcher)
 
   // ArchUnit for architectural testing

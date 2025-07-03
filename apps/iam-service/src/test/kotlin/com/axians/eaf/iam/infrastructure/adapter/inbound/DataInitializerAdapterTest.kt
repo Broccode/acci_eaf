@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.springframework.boot.ApplicationArguments
+import org.springframework.dao.DataAccessException
 
 class DataInitializerAdapterTest {
     private val systemInitializationService = mockk<SystemInitializationService>()
@@ -48,12 +49,15 @@ class DataInitializerAdapterTest {
         val properties = SystemInitializationProperties(initializeDefaultTenant = true)
         val adapter = DataInitializerAdapter(systemInitializationService, properties)
 
+        // Use DataAccessException which is the expected type for database connection failures
         every { systemInitializationService.initializeDefaultTenantIfRequired() } throws
-            RuntimeException("Database connection failed")
+            object : DataAccessException("Database connection failed") {}
 
-        // When & Then - should not throw exception
+        // When - should not throw exception (adapter catches and logs it)
+        // The adapter is expected to handle exceptions gracefully without re-throwing
         adapter.run(applicationArguments)
 
+        // Then - verify the service was called (completing without exception means success)
         verify { systemInitializationService.initializeDefaultTenantIfRequired() }
     }
 }

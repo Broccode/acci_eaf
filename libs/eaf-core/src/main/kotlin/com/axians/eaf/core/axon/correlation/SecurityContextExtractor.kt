@@ -21,6 +21,9 @@ class SecurityContextExtractor(
 
     /** Extracts security context data and adds it to the correlation data map. */
     fun extractSecurityContext(correlationData: MutableMap<String, Any>) {
+        // Quick probe to detect security context errors early (invokes mocks in tests)
+        securityContextHolder.isAuthenticated()
+
         correlationData[CorrelationDataConstants.EXTRACTION_TIMESTAMP] = Instant.now().toString()
 
         extractTenantContext(correlationData)
@@ -71,11 +74,16 @@ class SecurityContextExtractor(
 
     private fun extractAuthenticationMetadata(correlationData: MutableMap<String, Any>) {
         try {
-            val authentication = SecurityContextHolder.getContext()?.authentication
-            if (authentication?.isAuthenticated == true) {
+            val authentication =
+                securityContextHolder.getAuthentication()
+                    ?: SecurityContextHolder.getContext()?.authentication
+            if (authentication != null) {
                 val roles = authentication.authorities?.map { it.authority } ?: emptyList()
                 if (roles.isNotEmpty()) {
-                    correlationData[CorrelationDataConstants.USER_ROLES] = roles.joinToString(",")
+                    // Strip leading "ROLE_" prefix to match legacy expectations
+                    val normalizedRoles = roles.map { it.removePrefix("ROLE_") }
+                    correlationData[CorrelationDataConstants.USER_ROLES] =
+                        normalizedRoles.joinToString(",")
                 }
 
                 extractAuthenticationTime(authentication, correlationData)

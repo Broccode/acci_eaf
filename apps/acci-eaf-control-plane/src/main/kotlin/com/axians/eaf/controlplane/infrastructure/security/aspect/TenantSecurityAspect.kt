@@ -1,6 +1,7 @@
 package com.axians.eaf.controlplane.infrastructure.security.aspect
 
 import com.axians.eaf.controlplane.domain.event.SecurityAuditEvent
+import com.axians.eaf.controlplane.domain.event.TenantAccessContext
 import com.axians.eaf.controlplane.domain.exception.AuthenticationRequiredException
 import com.axians.eaf.controlplane.domain.exception.InsufficientPermissionException
 import com.axians.eaf.controlplane.infrastructure.security.annotation.RequiresTenantAccess
@@ -15,7 +16,6 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.stereotype.Component
-import java.util.concurrent.ConcurrentModificationException
 import java.util.concurrent.TimeoutException
 
 /**
@@ -122,14 +122,6 @@ class TenantSecurityAspect(
                 e,
             )
             throw IllegalStateException("Security validation timeout", e)
-        } catch (e: ConcurrentModificationException) {
-            logger.error(
-                "Concurrency error during tenant access validation for {}: {}",
-                securityContext.methodName,
-                e.message,
-                e,
-            )
-            throw IllegalStateException("Security validation concurrency error", e)
         }
 
     private fun extractSecurityContext(
@@ -515,7 +507,11 @@ class TenantSecurityAspect(
         } catch (e: NoSuchFieldException) {
             null
         } catch (e: SecurityException) {
-            logger.debug("Security exception accessing field {}: {}", tenantIdParamName, e.message)
+            logger.debug(
+                "Security exception accessing field {}: {}",
+                tenantIdParamName,
+                e.message,
+            )
             null
         } catch (e: IllegalAccessException) {
             logger.debug("Illegal access to field {}: {}", tenantIdParamName, e.message)

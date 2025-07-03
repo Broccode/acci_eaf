@@ -109,17 +109,17 @@ class TenantServiceTest {
     fun `should return not found when getting details for non-existent tenant`() =
         runTest {
             // Given
-            val tenantId = "non-existent-id"
+            val tenantId = TenantId.generate()
 
-            coEvery { tenantRepository.findById(TenantId.fromString(tenantId)) } returns null
+            coEvery { tenantRepository.findById(tenantId) } returns null
 
             // When
-            val result = tenantService.getTenantDetails(tenantId)
+            val result = tenantService.getTenantDetails(tenantId.value)
 
             // Then
             assertTrue(result is TenantDetailsResult.NotFound)
             val notFound = result as TenantDetailsResult.NotFound
-            assertContains(notFound.message, "Tenant not found: $tenantId")
+            assertContains(notFound.message, "Tenant not found: ${tenantId.value}")
         }
 
     @Test
@@ -356,11 +356,12 @@ class TenantServiceTest {
 
             coEvery { tenantRepository.findById(activeTenant.id) } returns activeTenant
             coEvery { tenantRepository.findById(suspendedTenant.id) } returns suspendedTenant
-            coEvery { tenantRepository.findById(TenantId.fromString("non-existent")) } returns null
+            val nonExistentId = TenantId.generate()
+            coEvery { tenantRepository.findById(nonExistentId) } returns null
 
             // When & Then
             assertTrue(tenantService.isTenantOperational(activeTenant.id.value))
             assertFalse(tenantService.isTenantOperational(suspendedTenant.id.value))
-            assertFalse(tenantService.isTenantOperational("non-existent"))
+            assertFalse(tenantService.isTenantOperational(nonExistentId.value))
         }
 }

@@ -15,8 +15,15 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
             "com.axians.eaf.controlplane.infrastructure",
             "com.axians.eaf.iam.client",
         ],
+    exclude =
+        [
+            org.springframework.boot.autoconfigure.security.servlet
+                .SecurityAutoConfiguration::class,
+        ],
 )
-@EnableJpaRepositories("com.axians.eaf.controlplane.infrastructure.adapter.outbound.repository")
+@EnableJpaRepositories(
+    basePackages = ["com.axians.eaf.controlplane.infrastructure.adapter.outbound.repository"],
+)
 class TestControlPlaneApplication
 
 fun main(args: Array<String>) {

@@ -13,12 +13,20 @@ import java.time.Instant
 
 @Entity
 @Table(name = "users")
+@Deprecated(
+    message =
+        "This JPA entity is being replaced by the event-sourced User aggregate. " +
+            "Use com.axians.eaf.controlplane.domain.model.user.User instead.",
+    replaceWith = ReplaceWith("com.axians.eaf.controlplane.domain.model.user.User"),
+    level = DeprecationLevel.WARNING,
+)
 data class UserEntity(
     @Id @Column(name = "user_id", nullable = false, unique = true) val userId: String,
     @Column(name = "tenant_id", nullable = false) val tenantId: String,
     @Column(name = "email", nullable = false, length = 320, unique = true) val email: String,
     @Column(name = "username", nullable = true, length = 255) val username: String? = null,
-    @Column(name = "password_hash", nullable = true, length = 255) val passwordHash: String? = null,
+    @Column(name = "password_hash", nullable = true, length = 255)
+    val passwordHash: String? = null,
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 50)
     val role: UserRole,

@@ -1,0 +1,442 @@
+
+ NX   Running target build for project acci-eaf-control-plane and 45 tasks it depends on:
+
+
+
+> nx run acci-eaf-control-plane:checkKotlinGradlePluginConfigurationErrors
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:checkKotlinGradlePluginConfigurationErrors
+
+> nx run acci-eaf-control-plane:loadKtlintReporters  [local cache]
+
+> nx run acci-eaf-control-plane:loadKtlintReporters
+
+
+
+[2A[1m<[0;1m-------------> 0% INITIALIZING [30ms][m[38D[1B[1m> Evaluating settings[m[21D[1B[2A[1m<[0;1m-------------> 0% INITIALIZING [131ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [231ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [333ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [429ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [532ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [630ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [734ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [831ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [933ms][m[39D[2B[2A[1m<[0;1m-------------> 0% INITIALIZING [1s][m[0K[36D[2B[2A[1m<[0;1m-------------> 0% CONFIGURING [1s][m[0K[35D[1B[1m> root project > Resolve files of configuration 'classpath'[m[59D[1B[1A[1m> root project[m[0K[14D[1B[2A[1m<[0;32;1m====[0;39;1m---------> 36% CONFIGURING [2s][m[36D[1B[1m> :apps:acci-eaf-control-plane > Resolve files of configuration 'classpath'[m[75D[1B[2A[1m<[0;32;1m=====[0;39;1m--------> 45% CONFIGURING [2s][m[36D[1B[1m> :apps:iam-service[m[0K[19D[1B[2A[1m<[0;32;1m=============[0;39;1m> 100% CONFIGURING [2s][m[37D[1B[1m> Resolve dependencies of :apps:acci-eaf-control-plane:detachedConfiguration7[m[77D[1B[2A[1m<[0;1m-------------> 0% EXECUTING [2s][m[0K[33D[1B[1m> :apps:acci-eaf-control-plane:loadKtlintReporters > Resolve files of configuration ':apps:acci-eaf-control-plane:ktlint'[m[121D[1B[2A[0K
+[32;1mBUILD SUCCESSFUL[0;39m in 2s[0K
+1 actionable task: 1 up-to-date
+[0K
+[0K
+[2A[1m<[0;1m-------------> 0% WAITING[m[26D[1B[1m> :apps:acci-eaf-control-plane:loadKtlintReporters > Resolve files of configuration ':apps:acci-eaf-control-plane:ktlint'[m[121D[1B[2A[2K[1B[2K[1A[0m[?12l[?25h
+> nx run acci-eaf-control-plane:runKtlintCheckOverTestSourceSet
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:runKtlintCheckOverTestSourceSet
+Starting a Gradle Daemon, 1 busy Daemon could not be reused, use --status for details
+Starting a Gradle Daemon, 1 busy Daemon could not be reused, use --status for details
+
+> nx run acci-eaf-monorepo:validateDependencies
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :validateDependencies
+
+Spotlight included 1 projects
+
+> Task :validateDependencies
+✅ All modules comply with the Gradle Version Catalog!
+
+[Incubating] Problems report is available at: file:///Users/michael/CursorProjects/acci_eaf/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 933ms
+1 actionable task: 1 executed
+
+> nx run acci-eaf-control-plane:detekt
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:detekt
+Spotlight included 5 projects
+> Task :apps:acci-eaf-control-plane:detekt UP-TO-DATE
+BUILD SUCCESSFUL in 2s
+1 actionable task: 1 up-to-date
+
+> nx run acci-eaf-control-plane:hillaConfigure
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:hillaConfigure
+Spotlight included 5 projects
+Spotlight included 5 projects
+Spotlight included 5 projects
+> Task :apps:acci-eaf-control-plane:hillaConfigure
+BUILD SUCCESSFUL in 6s
+1 actionable task: 1 executed
+
+> nx run acci-eaf-control-plane:runKtlintCheckOverMainSourceSet
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:runKtlintCheckOverMainSourceSet
+> Task :apps:acci-eaf-control-plane:loadKtlintReporters UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:runKtlintCheckOverTestSourceSet UP-TO-DATE
+BUILD SUCCESSFUL in 14s
+2 actionable tasks: 2 up-to-date
+> Task :apps:acci-eaf-control-plane:checkKotlinGradlePluginConfigurationErrors SKIPPED
+BUILD SUCCESSFUL in 15s
+Spotlight included 5 projects
+
+> nx run eaf-core:checkKotlinGradlePluginConfigurationErrors
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors
+
+Spotlight included 2 projects
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+BUILD SUCCESSFUL in 1s
+> Task :apps:acci-eaf-control-plane:loadKtlintReporters
+ UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:runKtlintCheckOverMainSourceSet UP-TO-DATE
+BUILD SUCCESSFUL in 3s
+2 actionable tasks: 2 up-to-date
+
+> nx run eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors
+
+Spotlight included 3 projects
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+BUILD SUCCESSFUL in 1s
+
+> nx run acci-eaf-control-plane:runKtlintCheckOverKotlinScripts
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:runKtlintCheckOverKotlinScripts
+
+> nx run eaf-iam-client:checkKotlinGradlePluginConfigurationErrors
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors
+
+Spotlight included 3 projects
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+BUILD SUCCESSFUL in 2s
+
+> nx run eaf-core:processResources  [existing outputs match the cache, left as is]
+
+Spotlight included 5 projects
+
+> nx run acci-eaf-control-plane:ktlintTestSourceSetCheck  [local cache]
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:ktlintTestSourceSetCheck
+
+> Task :apps:acci-eaf-control-plane:loadKtlintReporters UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:runKtlintCheckOverTestSourceSet UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:ktlintTestSourceSetCheck
+
+BUILD SUCCESSFUL in 2s
+3 actionable tasks: 1 executed, 2 up-to-date
+> Task :apps:acci-eaf-control-plane:loadKtlintReporters
+ UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:runKtlintCheckOverKotlinScripts UP-TO-DATE
+BUILD SUCCESSFUL in 2s
+2 actionable tasks: 2 up-to-date
+
+> nx run eaf-core:compileKotlin
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-core:compileKotlin
+
+Spotlight included 2 projects
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+
+BUILD SUCCESSFUL in 4s
+1 actionable task: 1 up-to-date
+
+> nx run acci-eaf-control-plane:ktlintMainSourceSetCheck  [local cache]
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:ktlintMainSourceSetCheck
+
+> Task :apps:acci-eaf-control-plane:loadKtlintReporters UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:runKtlintCheckOverMainSourceSet UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:ktlintMainSourceSetCheck
+
+BUILD SUCCESSFUL in 1s
+3 actionable tasks: 1 executed, 2 up-to-date
+
+> nx run acci-eaf-control-plane:ktlintKotlinScriptCheck  [local cache]
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:ktlintKotlinScriptCheck
+
+> Task :apps:acci-eaf-control-plane:loadKtlintReporters UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:runKtlintCheckOverKotlinScripts UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:ktlintKotlinScriptCheck
+
+BUILD SUCCESSFUL in 2s
+3 actionable tasks: 1 executed, 2 up-to-date
+
+> nx run eaf-core:compileJava  [existing outputs match the cache, left as is]
+
+
+> nx run eaf-eventing-sdk:processResources  [existing outputs match the cache, left as is]
+
+
+> nx run acci-eaf-control-plane:processTestResources  [local cache]
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:processTestResources
+
+> Task :apps:acci-eaf-control-plane:processTestResources UP-TO-DATE
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 up-to-date
+
+> nx run eaf-iam-client:compileKotlin  [local cache]
+
+
+> nx run eaf-core:classes
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-core:classes
+
+Spotlight included 2 projects
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-core:processResources UP-TO-DATE
+> Task :libs:eaf-core:classes UP-TO-DATE
+
+BUILD SUCCESSFUL in 1s
+2 actionable tasks: 2 up-to-date
+
+> nx run eaf-eventing-sdk:compileKotlin
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-eventing-sdk:compileKotlin
+
+Spotlight included 3 projects
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:compileKotlin UP-TO-DATE
+
+BUILD SUCCESSFUL in 2s
+2 actionable tasks: 2 up-to-date
+
+> nx run eaf-iam-client:compileJava  [existing outputs match the cache, left as is]
+
+
+> nx run eaf-core:jar  [local cache]
+
+
+> nx run eaf-eventing-sdk:compileJava  [existing outputs match the cache, left as is]
+
+
+> nx run eaf-iam-client:processResources  [existing outputs match the cache, left as is]
+
+
+> nx run acci-eaf-control-plane:compileKotlin
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:compileKotlin
+
+> nx run eaf-eventing-sdk:classes
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-eventing-sdk:classes
+
+Spotlight included 3 projects
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:processResources UP-TO-DATE
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:compileKotlin UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:classes UP-TO-DATE
+
+BUILD SUCCESSFUL in 1s
+3 actionable tasks: 3 up-to-date
+
+> nx run eaf-eventing-sdk:jar  [local cache]
+
+Spotlight included 5 projects
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :apps:acci-eaf-control-plane:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:compileKotlin UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileJava NO-SOURCE
+
+> nx run eaf-iam-client:classes
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :libs:eaf-iam-client:classes
+
+Spotlight included 3 projects
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-iam-client:processResources UP-TO-DATE
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-iam-client:compileKotlin FROM-CACHE
+> Task :libs:eaf-iam-client:compileJava NO-SOURCE
+> Task :libs:eaf-iam-client:classes UP-TO-DATE
+
+BUILD SUCCESSFUL in 4s
+3 actionable tasks: 1 from cache, 2 up-to-date
+
+> nx run eaf-iam-client:jar  [existing outputs match the cache, left as is]
+
+
+> nx run acci-eaf-control-plane:vaadinPrepareFrontend
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:vaadinPrepareFrontend
+Spotlight included 5 projects
+> Task :libs:eaf-iam-client:compileKotlin
+> Task :libs:eaf-iam-client:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:processResources UP-TO-DATE
+> Task :libs:eaf-iam-client:processResources UP-TO-DATE
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-core:processResources UP-TO-DATE
+> Task :libs:eaf-core:classes UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileKotlin
+ UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:classes UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:jar
+> Task :libs:eaf-core:jar
+> Task :libs:eaf-iam-client:compileKotlin UP-TO-DATE
+> Task :libs:eaf-iam-client:compileJava
+ NO-SOURCE
+> Task :libs:eaf-iam-client:classes UP-TO-DATE
+> Task :libs:eaf-iam-client:jar UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:compileKotlin UP-TO-DATE
+BUILD SUCCESSFUL in 11s
+4 actionable tasks: 1 executed, 3 up-to-date
+
+> nx run acci-eaf-control-plane:compileJava  [existing outputs match the cache, left as is]
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:compileJava
+
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :apps:acci-eaf-control-plane:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-iam-client:compileKotlin UP-TO-DATE
+> Task :libs:eaf-iam-client:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:compileKotlin UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileJava NO-SOURCE
+> Task :apps:acci-eaf-control-plane:compileKotlin UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:compileJava NO-SOURCE
+
+BUILD SUCCESSFUL in 3s
+4 actionable tasks: 4 up-to-date
+> Task :apps:acci-eaf-control-plane:vaadinPrepareFrontend
+BUILD SUCCESSFUL in 12s
+10 actionable tasks: 3 executed, 7 up-to-date
+
+> nx run acci-eaf-control-plane:processResources  [local cache]
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:processResources
+
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-iam-client:processResources UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:processResources UP-TO-DATE
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-core:processResources UP-TO-DATE
+> Task :libs:eaf-core:classes UP-TO-DATE
+> Task :libs:eaf-core:jar UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileKotlin UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:classes UP-TO-DATE
+> Task :libs:eaf-iam-client:compileKotlin UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:jar UP-TO-DATE
+> Task :libs:eaf-iam-client:compileJava NO-SOURCE
+> Task :libs:eaf-iam-client:classes UP-TO-DATE
+> Task :libs:eaf-iam-client:jar UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:vaadinPrepareFrontend UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:processResources
+
+BUILD SUCCESSFUL in 7s
+11 actionable tasks: 1 executed, 10 up-to-date
+
+> nx run acci-eaf-control-plane:classes
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:classes
+Spotlight included 5 projects
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :apps:acci-eaf-control-plane:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:processResources UP-TO-DATE
+> Task :libs:eaf-iam-client:processResources UP-TO-DATE
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-core:processResources
+ UP-TO-DATE
+> Task :libs:eaf-core:classes UP-TO-DATE
+> Task :libs:eaf-core:jar UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileKotlin UP-TO-DATE
+> Task :libs:eaf-iam-client:compileKotlin UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileJava NO-SOURCE
+> Task :libs:eaf-eventing-sdk:classes UP-TO-DATE
+> Task :libs:eaf-iam-client:compileJava NO-SOURCE
+> Task :libs:eaf-iam-client:classes UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:jar UP-TO-DATE
+> Task :libs:eaf-iam-client:jar UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:compileKotlin UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:compileJava NO-SOURCE
+> Task :apps:acci-eaf-control-plane:vaadinPrepareFrontend UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:processResources UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:classes UP-TO-DATE
+BUILD SUCCESSFUL
+ in 4s
+12 actionable tasks: 12 up-to-date
+
+> nx run acci-eaf-control-plane:vaadinBuildFrontend
+
+[2m> [22m/Users/michael/CursorProjects/acci_eaf/gradlew :apps:acci-eaf-control-plane:vaadinBuildFrontend
+Spotlight included 5 projects
+> Task :apps:acci-eaf-control-plane:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:checkKotlinGradlePluginConfigurationErrors
+ SKIPPED
+> Task :libs:eaf-iam-client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :libs:eaf-eventing-sdk:processResources UP-TO-DATE
+> Task :libs:eaf-iam-client:processResources UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:hillaConfigure
+> Task :libs:eaf-core:compileKotlin UP-TO-DATE
+> Task :libs:eaf-core:compileJava NO-SOURCE
+> Task :libs:eaf-core:processResources UP-TO-DATE
+> Task :libs:eaf-core:classes UP-TO-DATE
+> Task :libs:eaf-core:jar UP-TO-DATE
+> Task :libs:eaf-iam-client:compileKotlin UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileKotlin UP-TO-DATE
+> Task :libs:eaf-iam-client:compileJava NO-SOURCE
+> Task :libs:eaf-iam-client:classes UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:compileJava NO-SOURCE
+> Task :libs:eaf-iam-client:jar UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:classes UP-TO-DATE
+> Task :libs:eaf-eventing-sdk:jar UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:compileKotlin UP-TO-DATE
+> Task :apps:acci-eaf-control-plane:compileJava NO-SOURCE
+> Task :apps:acci-eaf-control-plane:vaadinPrepareFrontend
+> Task :apps:acci-eaf-control-plane:processResources
+> Task :apps:acci-eaf-control-plane:classes
+> Task :apps:acci-eaf-control-plane:vaadinBuildFrontend
+BUILD SUCCESSFUL
+ in 41s
+14 actionable tasks: 4 executed, 10 up-to-date
+
+> nx run acci-eaf-control-plane:resolveMainClassName  [local cache]
+
+> nx run acci-eaf-control-plane:resolveMainClassName
+
+
+
+[2A[1m<[0;1m-------------> 0% CONFIGURING [65ms][m[37D[1B[1m> root project[m[14D[1B[2A[1m<[0;32;1m=========[0;39;1m----> 72% CONFIGURING [164ms][m[39D[1B[1m> :libs:eaf-eventsourcing-sdk[m[29D[1B[2A[1m<[0;32;1m=============[0;39;1m> 100% CONFIGURING [265ms][m[40D[1B[1m> Resolve dependencies of :apps:acci-eaf-control-plane:detachedConfiguration9[m[77D[1B[2A[1m<[0;32;1m=============[0;39;1m> 100% CONFIGURING [363ms][m[40D[1B> IDLE[0K[6D[1B[2A[1m<[0;32;1m=============[0;39;1m> 100% CONFIGURING [465ms][m[40D[1B[1m> Resolve dependencies of :apps:acci-eaf-control-plane:detachedConfiguration202[m[79D[1B[2A[1m<[0;32;1m=============[0;39;1m> 100% CONFIGURING [562ms][m[40D[1B> IDLE[0K[6D[1B[2A[1m<[0;32;1m=============[0;39;1m> 100% CONFIGURING [661ms][m[40D[2B[2A[1m<[0;32;1m=============[0;39;1m> 100% CONFIGURING [762ms][m[40D[2B[2A[1m<[0;32;1m==========[0;39;1m---> 84% EXECUTING [863ms][m[0K[37D[1B[1m> :apps:acci-eaf-control-plane:vaadinPrepareFrontend > Resolve dependencies of :apps:acci-eaf-control-plan[m[106D[1B[2A[1m<[0;32;1m==========[0;39;1m---> 84% EXECUTING [965ms][m[37D[1B[1m> :apps:acci-eaf-control-plane:vaadinPrepareFrontend[m[0K[52D[1B[2A[1m<[0;32;1m==========[0;39;1m---> 84% EXECUTING [1s][m[0K[34D[2B[2A[1m<[0;32;1m============[0;39;1m-> 96% EXECUTING [1s][m[34D[1B[1m> :apps:acci-eaf-control-plane:resolveMainClassName[m[0K[51D[1B[2A[0K
+[32;1mBUILD SUCCESSFUL[0;39m in 1s[0K
+13 actionable tasks: 1 executed, 12 up-to-date
+[0K
+[0K
+[2A[1m<[0;1m-------------> 0% WAITING[m[26D[1B> IDLE[6D[1B[2A[2K[1B[2K[1A[0m[?12l[?25h
+ NX   Daemon process terminated and closed the connection
+
+Please rerun the command, which will restart the daemon.
+If you get this error again, check for any errors in the daemon process logs found in: /Users/michael/CursorProjects/acci_eaf/.nx/workspace-data/d/daemon.log
+

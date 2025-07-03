@@ -89,6 +89,7 @@ class DefaultNatsEventPublisher(
     }
 
     /** Attempts a single publish operation and categorizes the result. */
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun attemptPublish(
         subject: String,
         eventEnvelope: EventEnvelope,
@@ -138,6 +139,16 @@ class DefaultNatsEventPublisher(
                 e,
             )
             PublishResult.NonRetryableFailure(e)
+        } catch (e: Exception) {
+            logger.warn(
+                "Unexpected error during publish attempt {} to subject: {} for tenant: {} - {}",
+                attempt,
+                subject,
+                tenantId,
+                e.message,
+                e,
+            )
+            PublishResult.RetryableFailure(e)
         }
 
     /** Categorizes exceptions into retryable and non-retryable failures. */

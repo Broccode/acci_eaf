@@ -9,6 +9,177 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+/**
+ * Test utility for creating User instances without Axon event sourcing. This allows testing domain
+ * logic in isolation by using the event sourcing handlers directly.
+ */
+data class UserParams(
+    val tenantId: TenantId,
+    val email: String,
+    val firstName: String,
+    val lastName: String,
+    val initialRoles: Set<Role> = emptySet(),
+    val now: Instant = Instant.now(),
+)
+
+object UserTestFactory {
+    fun createPendingUser(params: UserParams): User {
+        require(params.email.isNotBlank()) { "User email cannot be blank" }
+        require(params.firstName.isNotBlank()) { "User first name cannot be blank" }
+        require(params.lastName.isNotBlank()) { "User last name cannot be blank" }
+        val user = User()
+        val userId = UserId.generate()
+        val event =
+            UserCreatedEvent(
+                userId = userId,
+                tenantId = params.tenantId,
+                email = params.email.trim().lowercase(),
+                firstName = params.firstName.trim(),
+                lastName = params.lastName.trim(),
+                status = UserStatus.PENDING,
+                initialRoles = params.initialRoles.map { it.name }.toSet(),
+                timestamp = params.now,
+            )
+        user.on(event)
+        return user
+    }
+
+    fun createActiveUser(params: UserParams): User {
+        require(params.email.isNotBlank()) { "User email cannot be blank" }
+        require(params.firstName.isNotBlank()) { "User first name cannot be blank" }
+        require(params.lastName.isNotBlank()) { "User last name cannot be blank" }
+        val user = User()
+        val userId = UserId.generate()
+        val createdEvent =
+            UserCreatedEvent(
+                userId = userId,
+                tenantId = params.tenantId,
+                email = params.email.trim().lowercase(),
+                firstName = params.firstName.trim(),
+                lastName = params.lastName.trim(),
+                status = UserStatus.ACTIVE,
+                initialRoles = params.initialRoles.map { it.name }.toSet(),
+                timestamp = params.now,
+            )
+        user.on(createdEvent)
+        val activatedEvent =
+            UserActivatedEvent(
+                userId = userId,
+                tenantId = params.tenantId,
+                email = params.email.trim().lowercase(),
+                fullName = "${params.firstName.trim()} ${params.lastName.trim()}",
+                timestamp = params.now,
+            )
+        user.on(activatedEvent)
+        return user
+    }
+
+    /** Test helper to activate a user without using Axon events */
+    fun activateUser(
+        user: User,
+        now: Instant = Instant.now(),
+    ) {
+        val event =
+            UserActivatedEvent(
+                userId = user.getId(),
+                tenantId = user.getTenantId(),
+                email = user.getEmail(),
+                fullName = user.getFullName(),
+                timestamp = now,
+            )
+        user.on(event)
+    }
+
+    /** Test helper to suspend a user without using Axon events */
+    fun suspendUser(
+        user: User,
+        reason: String? = null,
+        now: Instant = Instant.now(),
+    ) {
+        val event =
+            UserSuspendedEvent(
+                userId = user.getId(),
+                tenantId = user.getTenantId(),
+                email = user.getEmail(),
+                fullName = user.getFullName(),
+                reason = reason,
+                timestamp = now,
+            )
+        user.on(event)
+    }
+
+    /** Test helper to reactivate a user without using Axon events */
+    fun reactivateUser(
+        user: User,
+        now: Instant = Instant.now(),
+    ) {
+        val event =
+            UserReactivatedEvent(
+                userId = user.getId(),
+                tenantId = user.getTenantId(),
+                email = user.getEmail(),
+                fullName = user.getFullName(),
+                timestamp = now,
+            )
+        user.on(event)
+    }
+
+    /** Test helper to deactivate a user without using Axon events */
+    fun deactivateUser(
+        user: User,
+        reason: String? = null,
+        now: Instant = Instant.now(),
+    ) {
+        val event =
+            UserDeactivatedEvent(
+                userId = user.getId(),
+                tenantId = user.getTenantId(),
+                email = user.getEmail(),
+                fullName = user.getFullName(),
+                reason = reason,
+                timestamp = now,
+            )
+        user.on(event)
+    }
+
+    /** Test helper to update user profile without using Axon events */
+    fun updateUserProfile(
+        user: User,
+        newFirstName: String,
+        newLastName: String,
+        now: Instant = Instant.now(),
+    ) {
+        val event =
+            UserProfileUpdatedEvent(
+                userId = user.getId(),
+                tenantId = user.getTenantId(),
+                email = user.getEmail(),
+                oldFirstName = user.getFirstName(),
+                newFirstName = newFirstName.trim(),
+                oldLastName = user.getLastName(),
+                newLastName = newLastName.trim(),
+                timestamp = now,
+            )
+        user.on(event)
+    }
+
+    /** Test helper to record user login without using Axon events */
+    fun recordUserLogin(
+        user: User,
+        now: Instant = Instant.now(),
+    ) {
+        val event =
+            UserLoginEvent(
+                userId = user.getId(),
+                tenantId = user.getTenantId(),
+                email = user.getEmail(),
+                fullName = user.getFullName(),
+                timestamp = now,
+            )
+        user.on(event)
+    }
+}
+
 class UserTest {
     private val testTenantId = TenantId.fromString("550e8400-e29b-41d4-a716-446655440000")
     private val testEmail = "test@example.com"
@@ -18,78 +189,78 @@ class UserTest {
 
     @Test
     fun `should create pending user with valid data`() {
-        // When
-        val user =
-            User.createPending(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
                 now = now,
             )
+        val user = UserTestFactory.createPendingUser(params)
 
         // Then
-        assertEquals(testTenantId, user.tenantId)
-        assertEquals(testEmail, user.email)
-        assertEquals(testFirstName, user.firstName)
-        assertEquals(testLastName, user.lastName)
-        assertEquals(UserStatus.PENDING, user.status)
-        assertTrue(user.roles.isEmpty())
-        assertNull(user.lastLogin)
-        assertNull(user.activatedAt)
-        assertNull(user.deactivatedAt)
-        assertEquals(now, user.createdAt)
-        assertEquals(now, user.lastModified)
+        assertEquals(testTenantId, user.getTenantId())
+        assertEquals(testEmail, user.getEmail())
+        assertEquals(testFirstName, user.getFirstName())
+        assertEquals(testLastName, user.getLastName())
+        assertEquals(UserStatus.PENDING, user.getStatus())
+        assertTrue(user.getRoles().isEmpty())
+        assertNull(user.getLastLogin())
+        assertNull(user.getActivatedAt())
+        assertNull(user.getDeactivatedAt())
+        assertEquals(now, user.getCreatedAt())
+        assertEquals(now, user.getLastModified())
         assertEquals("John Doe", user.getFullName())
     }
 
     @Test
     fun `should create active user with valid data`() {
-        // When
-        val user =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
                 now = now,
             )
+        val user = UserTestFactory.createActiveUser(params)
 
         // Then
-        assertEquals(UserStatus.ACTIVE, user.status)
-        assertEquals(now, user.activatedAt)
+        assertEquals(UserStatus.ACTIVE, user.getStatus())
+        assertEquals(now, user.getActivatedAt())
         assertTrue(user.canAccess())
     }
 
     @Test
     fun `should normalize email to lowercase`() {
-        // When
-        val user =
-            User.createPending(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = "TEST@EXAMPLE.COM",
                 firstName = testFirstName,
                 lastName = testLastName,
             )
+        val user = UserTestFactory.createPendingUser(params)
 
         // Then
-        assertEquals("test@example.com", user.email)
+        assertEquals("test@example.com", user.getEmail())
     }
 
     @Test
     fun `should trim whitespace from name fields`() {
-        // When
-        val user =
-            User.createPending(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = "  John  ",
                 lastName = "  Doe  ",
             )
+        val user = UserTestFactory.createPendingUser(params)
 
         // Then
-        assertEquals("John", user.firstName)
-        assertEquals("Doe", user.lastName)
+        assertEquals("John", user.getFirstName())
+        assertEquals("Doe", user.getLastName())
     }
 
     @Test
@@ -172,282 +343,259 @@ class UserTest {
 
     @Test
     fun `should activate pending user`() {
-        // Given
-        val user =
-            User.createPending(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
-
-        // When
-        val activatedUser = user.activate(now)
+        val user = UserTestFactory.createPendingUser(params)
+        UserTestFactory.activateUser(user, now)
 
         // Then
-        assertEquals(UserStatus.ACTIVE, activatedUser.status)
-        assertEquals(now, activatedUser.activatedAt)
-        assertEquals(now, activatedUser.lastModified)
-        assertTrue(activatedUser.canAccess())
+        assertEquals(UserStatus.ACTIVE, user.getStatus())
+        assertEquals(now, user.getActivatedAt())
+        assertEquals(now, user.getLastModified())
+        assertTrue(user.canAccess())
     }
 
     @Test
     fun `should activate suspended user`() {
-        // Given
-        val user =
-            User
-                .createActive(
-                    tenantId = testTenantId,
-                    email = testEmail,
-                    firstName = testFirstName,
-                    lastName = testLastName,
-                ).suspend()
-
-        // When
-        val reactivatedUser = user.activate(now)
-
-        // Then
-        assertEquals(UserStatus.ACTIVE, reactivatedUser.status)
-        assertEquals(now, reactivatedUser.lastModified)
-    }
-
-    @Test
-    fun `should not activate already active user`() {
-        // Given
-        val user =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.suspendUser(user)
+        UserTestFactory.activateUser(user, now)
 
-        // When & Then
+        // Then
+        assertEquals(UserStatus.ACTIVE, user.getStatus())
+        assertEquals(now, user.getLastModified())
+    }
+
+    @Test
+    fun `should not activate already active user`() {
+        val params =
+            UserParams(
+                tenantId = testTenantId,
+                email = testEmail,
+                firstName = testFirstName,
+                lastName = testLastName,
+            )
+        val user = UserTestFactory.createActiveUser(params)
         assertThrows<IllegalArgumentException> { user.activate() }
     }
 
     @Test
     fun `should not activate deactivated user`() {
-        // Given
-        val user =
-            User
-                .createActive(
-                    tenantId = testTenantId,
-                    email = testEmail,
-                    firstName = testFirstName,
-                    lastName = testLastName,
-                ).deactivate()
-
-        // When & Then
+        val params =
+            UserParams(
+                tenantId = testTenantId,
+                email = testEmail,
+                firstName = testFirstName,
+                lastName = testLastName,
+            )
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.deactivateUser(user)
         assertThrows<IllegalArgumentException> { user.activate() }
     }
 
     @Test
     fun `should suspend active user`() {
-        // Given
-        val user =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
-
-        // When
-        val suspendedUser = user.suspend(now)
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.suspendUser(user, now = now)
 
         // Then
-        assertEquals(UserStatus.SUSPENDED, suspendedUser.status)
-        assertEquals(now, suspendedUser.lastModified)
-        assertFalse(suspendedUser.canAccess())
+        assertEquals(UserStatus.SUSPENDED, user.getStatus())
+        assertEquals(now, user.getLastModified())
+        assertFalse(user.canAccess())
     }
 
     @Test
     fun `should not suspend pending user`() {
-        // Given
-        val user =
-            User.createPending(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
-
-        // When & Then
+        val user = UserTestFactory.createPendingUser(params)
         assertThrows<IllegalArgumentException> { user.suspend() }
     }
 
     @Test
     fun `should reactivate suspended user`() {
-        // Given
-        val user =
-            User
-                .createActive(
-                    tenantId = testTenantId,
-                    email = testEmail,
-                    firstName = testFirstName,
-                    lastName = testLastName,
-                ).suspend()
-
-        // When
-        val reactivatedUser = user.reactivate(now)
-
-        // Then
-        assertEquals(UserStatus.ACTIVE, reactivatedUser.status)
-        assertEquals(now, reactivatedUser.lastModified)
-        assertTrue(reactivatedUser.canAccess())
-    }
-
-    @Test
-    fun `should not reactivate active user`() {
-        // Given
-        val user =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.suspendUser(user)
+        UserTestFactory.reactivateUser(user, now)
 
-        // When & Then
+        // Then
+        assertEquals(UserStatus.ACTIVE, user.getStatus())
+        assertEquals(now, user.getLastModified())
+        assertTrue(user.canAccess())
+    }
+
+    @Test
+    fun `should not reactivate active user`() {
+        val params =
+            UserParams(
+                tenantId = testTenantId,
+                email = testEmail,
+                firstName = testFirstName,
+                lastName = testLastName,
+            )
+        val user = UserTestFactory.createActiveUser(params)
         assertThrows<IllegalArgumentException> { user.reactivate() }
     }
 
     @Test
     fun `should deactivate any user except already deactivated`() {
-        // Given
-        val activeUser =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
-
-        // When
-        val deactivatedUser = activeUser.deactivate(now)
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.deactivateUser(user, now = now)
 
         // Then
-        assertEquals(UserStatus.DEACTIVATED, deactivatedUser.status)
-        assertEquals(now, deactivatedUser.deactivatedAt)
-        assertEquals(now, deactivatedUser.lastModified)
-        assertFalse(deactivatedUser.canAccess())
+        assertEquals(UserStatus.DEACTIVATED, user.getStatus())
+        assertEquals(now, user.getDeactivatedAt())
+        assertEquals(now, user.getLastModified())
+        assertFalse(user.canAccess())
     }
 
     @Test
     fun `should not deactivate already deactivated user`() {
-        // Given
-        val user =
-            User
-                .createActive(
-                    tenantId = testTenantId,
-                    email = testEmail,
-                    firstName = testFirstName,
-                    lastName = testLastName,
-                ).deactivate()
-
-        // When & Then
+        val params =
+            UserParams(
+                tenantId = testTenantId,
+                email = testEmail,
+                firstName = testFirstName,
+                lastName = testLastName,
+            )
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.deactivateUser(user)
         assertThrows<IllegalArgumentException> { user.deactivate() }
     }
 
     @Test
     fun `should update user profile`() {
-        // Given
-        val user =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
-
-        // When
-        val updatedUser = user.updateProfile("Jane", "Smith", now)
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.updateUserProfile(user, "Jane", "Smith", now)
 
         // Then
-        assertEquals("Jane", updatedUser.firstName)
-        assertEquals("Smith", updatedUser.lastName)
-        assertEquals("Jane Smith", updatedUser.getFullName())
-        assertEquals(now, updatedUser.lastModified)
+        assertEquals("Jane", user.getFirstName())
+        assertEquals("Smith", user.getLastName())
+        assertEquals("Jane Smith", user.getFullName())
+        assertEquals(now, user.getLastModified())
     }
 
     @Test
     fun `should not update profile of deactivated user`() {
-        // Given
-        val user =
-            User
-                .createActive(
-                    tenantId = testTenantId,
-                    email = testEmail,
-                    firstName = testFirstName,
-                    lastName = testLastName,
-                ).deactivate()
-
-        // When & Then
-        assertThrows<IllegalArgumentException> { user.updateProfile("Jane", "Smith") }
+        val params =
+            UserParams(
+                tenantId = testTenantId,
+                email = testEmail,
+                firstName = testFirstName,
+                lastName = testLastName,
+            )
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.deactivateUser(user)
+        assertThrows<IllegalStateException> { user.updateProfile("Jane", "Smith") }
     }
 
     @Test
     fun `should record user login`() {
-        // Given
-        val user =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
-
-        // When
-        val userWithLogin = user.recordLogin(now)
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.recordUserLogin(user, now)
 
         // Then
-        assertEquals(now, userWithLogin.lastLogin)
-        assertEquals(now, userWithLogin.lastModified)
+        assertEquals(now, user.getLastLogin())
+        assertEquals(now, user.getLastModified())
     }
 
     @Test
-    fun `should not record login for suspended user`() {
-        // Given
-        val user =
-            User
-                .createActive(
-                    tenantId = testTenantId,
-                    email = testEmail,
-                    firstName = testFirstName,
-                    lastName = testLastName,
-                ).suspend()
-
-        // When & Then
-        assertThrows<IllegalArgumentException> { user.recordLogin() }
+    fun `should not allow suspended user to access system`() {
+        val params =
+            UserParams(
+                tenantId = testTenantId,
+                email = testEmail,
+                firstName = testFirstName,
+                lastName = testLastName,
+            )
+        val user = UserTestFactory.createActiveUser(params)
+        UserTestFactory.suspendUser(user)
+        assertFalse(user.canAccess())
+        assertEquals(UserStatus.SUSPENDED, user.getStatus())
     }
 
     @Test
     fun `should check if user belongs to tenant`() {
-        // Given
-        val user =
-            User.createActive(
+        val params =
+            UserParams(
                 tenantId = testTenantId,
                 email = testEmail,
                 firstName = testFirstName,
                 lastName = testLastName,
             )
+        val user = UserTestFactory.createActiveUser(params)
         val otherTenantId = TenantId.fromString("550e8400-e29b-41d4-a716-446655440001")
-
-        // Then
         assertTrue(user.belongsToTenant(testTenantId))
         assertFalse(user.belongsToTenant(otherTenantId))
     }
 
     @Test
     fun `should check user operational status`() {
-        // Given
-        val pendingUser = User.createPending(testTenantId, testEmail, testFirstName, testLastName)
-        val activeUser = User.createActive(testTenantId, testEmail, testFirstName, testLastName)
-        val suspendedUser = activeUser.suspend()
-        val deactivatedUser = activeUser.deactivate()
-
-        // Then
+        val params =
+            UserParams(
+                tenantId = testTenantId,
+                email = testEmail,
+                firstName = testFirstName,
+                lastName = testLastName,
+            )
+        val pendingUser = UserTestFactory.createPendingUser(params)
+        val activeUser = UserTestFactory.createActiveUser(params)
+        val suspendedUser = UserTestFactory.createActiveUser(params)
+        UserTestFactory.suspendUser(suspendedUser)
+        val deactivatedUser = UserTestFactory.createActiveUser(params)
+        UserTestFactory.deactivateUser(deactivatedUser)
         assertFalse(pendingUser.isOperational())
         assertTrue(activeUser.isOperational())
         assertTrue(suspendedUser.isOperational())

@@ -486,33 +486,39 @@ data class IamUserResponse(
     val lastLogin: Instant? = null,
 ) {
     fun toDomainUser(): User {
-        // Note: For now, we'll create a simplified User object
-        // In a real implementation, we'd need to fetch role details from the role service
-        return User
-            .createActive(
+        // Note: This is a simplified conversion for the current implementation
+        // In a real scenario, we'd need to properly reconstruct the aggregate from events
+        // For now, we'll create based on status and let the aggregate handle the state
+        return if (status == UserStatus.ACTIVE) {
+            User.createActive(
                 tenantId = TenantId.fromString(tenantId),
                 email = email,
                 firstName = firstName,
                 lastName = lastName,
                 initialRoles = emptySet(), // Roles would be resolved separately
                 now = createdAt,
-            ).copy(
-                id = UserId.fromString(id),
-                status = status,
-                lastLogin = lastLogin,
-                lastModified = updatedAt,
             )
+        } else {
+            User.createPending(
+                tenantId = TenantId.fromString(tenantId),
+                email = email,
+                firstName = firstName,
+                lastName = lastName,
+                initialRoles = emptySet(), // Roles would be resolved separately
+                now = createdAt,
+            )
+        }
     }
 }
 
 /** Extension function to convert domain User to IAM request */
 private fun User.toIamRequest(): IamUserRequest =
     IamUserRequest(
-        id = id.value,
-        email = email,
-        firstName = firstName,
-        lastName = lastName,
-        tenantId = tenantId.value,
-        status = status,
-        roles = roles.map { it.id.value },
+        id = getId().value,
+        email = getEmail(),
+        firstName = getFirstName(),
+        lastName = getLastName(),
+        tenantId = getTenantId().value,
+        status = getStatus(),
+        roles = getRoles().map { it.id.value },
     )

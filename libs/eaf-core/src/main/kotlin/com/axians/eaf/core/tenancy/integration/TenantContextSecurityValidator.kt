@@ -31,7 +31,6 @@ class TenantContextSecurityValidator(
         private const val SUSPICIOUS_ACTIVITY_WINDOW_MINUTES = 5L
 
         // Security validation constants
-        private const val TENANT_ID_LOG_TRUNCATE_LENGTH = 10
         private const val MAX_TENANT_SWITCHES_THRESHOLD = 20
         private const val MAX_HEADER_REQUESTS_THRESHOLD = 50
         private const val HEADER_REQUEST_SUSPICIOUS_SCORE = 3
@@ -70,40 +69,25 @@ class TenantContextSecurityValidator(
      * @throws TenantContextException if format is invalid
      */
     private fun validateTenantIdFormat(tenantId: String) {
-        // Basic checks
-        if (tenantId.isBlank()) {
-            throw TenantContextException("Tenant ID cannot be blank")
-        }
-
-        if (tenantId.length > properties.maxTenantIdLength) {
-            throw TenantContextException(
-                "Tenant ID exceeds maximum length of ${properties.maxTenantIdLength} characters",
-            )
-        }
-
-        // Comprehensive format validation
-        val formatError = getFormatError(tenantId)
-        if (formatError != null) {
-            if (formatError.startsWith("Invalid characters")) {
-                logger.warn(
-                    "Invalid tenant ID format detected: {}",
-                    tenantId.take(TENANT_ID_LOG_TRUNCATE_LENGTH) + "...",
-                )
+        val validationError =
+            when {
+                tenantId.isBlank() -> "Tenant ID cannot be blank"
+                tenantId.length > properties.maxTenantIdLength ->
+                    "Tenant ID exceeds maximum length of ${properties.maxTenantIdLength} characters"
+                !tenantId.matches(Regex("^[a-zA-Z0-9_-]+$")) ->
+                    "Invalid characters detected. Only alphanumeric, underscore, and hyphen are allowed."
+                tenantId.startsWith("-") || tenantId.endsWith("-") ->
+                    "Tenant ID cannot start or end with hyphen"
+                tenantId.startsWith("_") || tenantId.endsWith("_") ->
+                    "Tenant ID cannot start or end with underscore"
+                else -> null
             }
-            error(formatError)
+
+        if (validationError != null) {
+            logger.warn("Invalid tenant ID format: {}", validationError)
+            throw TenantContextException(validationError)
         }
     }
-
-    private fun getFormatError(tenantId: String): String? =
-        when {
-            !tenantId.matches(Regex("^[a-zA-Z0-9_-]+$")) ->
-                "Invalid characters detected. Only alphanumeric, underscore, and hyphen are allowed."
-            tenantId.startsWith("-") || tenantId.endsWith("-") ->
-                "Tenant ID cannot start or end with hyphen"
-            tenantId.startsWith("_") || tenantId.endsWith("_") ->
-                "Tenant ID cannot start or end with underscore"
-            else -> null
-        }
 
     /**
      * Checks rate limiting for tenant context operations.

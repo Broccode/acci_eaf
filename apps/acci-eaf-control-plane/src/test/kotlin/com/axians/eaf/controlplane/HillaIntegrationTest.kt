@@ -2,11 +2,14 @@ package com.axians.eaf.controlplane
 
 import com.axians.eaf.controlplane.infrastructure.adapter.input.ControlPlaneHealthEndpoint
 import com.axians.eaf.controlplane.infrastructure.adapter.input.EchoRequest
+import com.axians.eaf.controlplane.test.TestMockServiceConfiguration
+import com.axians.eaf.controlplane.test.TestNatsEventPublisherConfiguration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
@@ -16,10 +19,10 @@ import org.testcontainers.junit.jupiter.Testcontainers
  * Integration test for Hilla endpoints within Spring Boot context. This test verifies that
  *
  * @BrowserCallable endpoints are properly registered and can be called within the Spring
- *   application context. Uses PostgreSQL with Testcontainers for proper database integration
- *   testing.
+ * application context. Uses PostgreSQL with Testcontainers for proper database integration testing.
  */
 @SpringBootTest(classes = [ControlPlaneApplication::class])
+@Import(TestNatsEventPublisherConfiguration::class, TestMockServiceConfiguration::class)
 @Testcontainers
 @ActiveProfiles("test")
 class HillaIntegrationTest {
@@ -45,7 +48,7 @@ class HillaIntegrationTest {
         // Then
         assertThat(result).isNotNull
         assertThat(result.status).isEqualTo("UP")
-        assertThat(result.version).isEqualTo("0.0.1-SNAPSHOT")
+        assertThat(result.version).isEqualTo("1.0.0-SNAPSHOT")
     }
 
     @Test

@@ -24,6 +24,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 
 class TenantManagementEndpointTest {
@@ -110,14 +111,15 @@ class TenantManagementEndpointTest {
             // Then
             assertThat(response.tenantId).isEmpty()
             assertThat(response.name).isEmpty()
-            assertThat(response.message).contains("Tenant with name 'Duplicate Name' already exists")
+            assertThat(response.message)
+                .contains("Tenant with name 'Duplicate Name' already exists")
         }
 
     @Test
     fun `should get tenant details successfully via endpoint`() =
         runTest {
             // Given
-            val tenantId = "tenant-456"
+            val tenantId = "550e8400-e29b-41d4-a716-446655440001"
             val now = Instant.now()
             val tenant =
                 Tenant(
@@ -175,7 +177,7 @@ class TenantManagementEndpointTest {
     fun `should update tenant successfully via endpoint`() =
         runTest {
             // Given
-            val tenantId = "tenant-789"
+            val tenantId = "550e8400-e29b-41d4-a716-446655440002"
             val now = Instant.now()
             val updateRequest =
                 UpdateTenantRequest(
@@ -423,15 +425,18 @@ class TenantManagementEndpointTest {
     fun `should handle service exceptions gracefully in endpoint`() =
         runTest {
             // Given
-            val tenantId = "error-tenant"
+            val tenantId = "550e8400-e29b-41d4-a716-446655440003"
             coEvery { tenantService.getTenantDetails(tenantId) } throws
                 RuntimeException("Database connection failed")
 
-            // When
-            val response = endpoint.getTenant(tenantId)
+            // When & Then - Expect EndpointException to be thrown
+            val exception =
+                assertThrows<com.vaadin.hilla.exception.EndpointException> {
+                    endpoint.getTenant(tenantId)
+                }
 
-            // Then
-            assertThat(response).isNull()
+            assertThat(exception.message)
+                .contains("getTenant failed: Runtime error - Database connection failed")
 
             coVerify { tenantService.getTenantDetails(tenantId) }
         }

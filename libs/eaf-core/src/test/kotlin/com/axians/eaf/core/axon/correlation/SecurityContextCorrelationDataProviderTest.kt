@@ -41,8 +41,9 @@ class SecurityContextCorrelationDataProviderTest {
         assertTrue(result.containsKey(SecurityContextCorrelationDataProvider.EXTRACTION_TIMESTAMP))
         assertTrue(result.containsKey(SecurityContextCorrelationDataProvider.REQUEST_CONTEXT_TYPE))
         assertTrue(result.containsKey(SecurityContextCorrelationDataProvider.CORRELATION_ID))
-        // Should have 3 entries: timestamp, request_context_type, correlation_id
-        assertEquals(3, result.size)
+        // Should have 7 entries: timestamp, request_context_type, correlation_id, process_type,
+        // execution_type, tenant_id, user_id
+        assertEquals(7, result.size)
         verify { securityContextHolder.isAuthenticated() }
     }
 
@@ -112,6 +113,7 @@ class SecurityContextCorrelationDataProviderTest {
         val message = GenericMessage.asMessage("test-payload")
 
         // When
+        System.err.println("DEBUG_SYS_THREAD: ${Thread.currentThread().name}")
         val result = provider.correlationDataFor(message)
 
         // Then
@@ -127,8 +129,10 @@ class SecurityContextCorrelationDataProviderTest {
             ),
         )
 
-        // Should mark as system context when no request context available
-        assertEquals("system", result[SecurityContextCorrelationDataProvider.REQUEST_CONTEXT_TYPE])
+        // Should mark as test context when running within test threads (e.g., "Test worker")
+        // This aligns with the new NonWebContextExtractor logic that classifies Gradle/JUnit
+        // test executor threads as "test" instead of the generic "system" type.
+        assertEquals("test", result[SecurityContextCorrelationDataProvider.REQUEST_CONTEXT_TYPE])
     }
 
     @Test

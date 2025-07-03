@@ -3,6 +3,7 @@
 package com.axians.eaf.eventsourcing.axon
 
 import com.axians.eaf.core.tenancy.TenantContextHolder
+import com.axians.eaf.eventsourcing.model.PersistedEvent
 import com.axians.eaf.eventsourcing.port.EventStoreRepository
 import kotlinx.coroutines.runBlocking
 import org.axonframework.eventhandling.DomainEventMessage
@@ -13,11 +14,34 @@ import org.axonframework.eventhandling.TrackingToken
 import org.axonframework.eventsourcing.eventstore.DomainEventStream
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine
 import org.slf4j.LoggerFactory
-import org.springframework.dao.DataAccessException
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.Optional
 import java.util.stream.Stream
+
+// Utility functions moved outside class to reduce function count
+private fun calculateExpectedVersion(sequenceNumber: Long): Long? =
+    if (sequenceNumber == 0L) null else sequenceNumber - 1
+
+private fun extractStartSequence(trackingToken: TrackingToken?): Long =
+    if (trackingToken is GlobalSequenceTrackingToken) {
+        trackingToken.globalSequence + 1
+    } else {
+        0L
+    }
+
+private fun createTrackedEventStream(
+    persistedEvents: List<PersistedEvent>,
+    eventMessageMapper: AxonEventMessageMapper,
+): Stream<TrackedEventMessage<*>> =
+    persistedEvents
+        .asSequence()
+        .map { event ->
+            val token = GlobalSequenceTrackingToken(event.globalSequenceId ?: 0L)
+            GenericTrackedEventMessage(token, eventMessageMapper.mapToDomainEvent(event))
+        }.asStream()
+
+private fun <T> Sequence<T>.asStream(): Stream<T> = this.toList().stream()
 
 /**
  * PostgreSQL implementation of Axon's EventStorageEngine interface for Axon Framework 4.11.2.
@@ -26,6 +50,7 @@ import java.util.stream.Stream
  * storage and retrieval capabilities with multi-tenant support.
  */
 @Component
+@Suppress("TooManyFunctions") // Interface implementation requires these specific methods
 class EafPostgresEventStorageEngine(
     private val eventStoreRepository: EventStoreRepository,
     private val eventMessageMapper: AxonEventMessageMapper,
@@ -41,12 +66,7 @@ class EafPostgresEventStorageEngine(
             events.forEach { event ->
                 if (event is DomainEventMessage<*>) {
                     val persistedEvent = eventMessageMapper.mapToPersistedEvent(event, tenantId)
-
-                    // Calculate expected version based on sequence number
-                    // For sequence 0: expectedVersion = null (new aggregate)
-                    // For sequence N: expectedVersion = N-1 (existing aggregate)
-                    val expectedVersion =
-                        if (event.sequenceNumber == 0L) null else event.sequenceNumber - 1
+                    val expectedVersion = calculateExpectedVersion(event.sequenceNumber)
 
                     runBlocking {
                         eventStoreRepository.appendEvents(
@@ -58,7 +78,9 @@ class EafPostgresEventStorageEngine(
                     }
                 }
             }
-        } catch (e: DataAccessException) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleAppendException(
                 "appendEvents",
@@ -87,10 +109,11 @@ class EafPostgresEventStorageEngine(
                         firstSequenceNumber,
                     )
                 }
-
             val domainEvents = persistedEvents.map { eventMessageMapper.mapToDomainEvent(it) }
             DomainEventStream.of(domainEvents)
-        } catch (e: DataAccessException) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleReadException(
                 "event loading",
@@ -107,33 +130,20 @@ class EafPostgresEventStorageEngine(
         try {
             TenantContextHolder.validateTenantContext("readEventsTracking")
             val tenantId = TenantContextHolder.requireCurrentTenantId()
-            val startSequence =
-                if (trackingToken is GlobalSequenceTrackingToken) {
-                    trackingToken.globalSequence + 1
-                } else {
-                    0L
-                }
-
+            val startSequence = extractStartSequence(trackingToken)
             val persistedEvents =
                 runBlocking {
                     eventStoreRepository.readEventsFrom(tenantId, startSequence)
                 }
-
-            persistedEvents
-                .asSequence()
-                .map { event ->
-                    val token = GlobalSequenceTrackingToken(event.globalSequenceId ?: 0L)
-                    GenericTrackedEventMessage(
-                        token,
-                        eventMessageMapper.mapToDomainEvent(event),
-                    )
-                }.asStream()
-        } catch (e: DataAccessException) {
+            createTrackedEventStream(persistedEvents, eventMessageMapper)
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleReadException(
                 "event loading",
                 tenantId,
-                aggregateIdentifier,
+                null,
                 e,
             )
         }
@@ -147,12 +157,14 @@ class EafPostgresEventStorageEngine(
                     eventStoreRepository.getMaxGlobalSequence(tenantId)
                 }
             GlobalSequenceTrackingToken(maxSequence)
-        } catch (e: DataAccessException) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             logger.warn(
-                "Failed to create head token for tenant {}, returning initial token: {}",
+                "Failed to create head token for tenant {}, using fallback",
                 tenantId,
-                e.message,
+                e, // Pass exception as third parameter to log full stack trace
             )
             GlobalSequenceTrackingToken.initial()
         }
@@ -173,7 +185,9 @@ class EafPostgresEventStorageEngine(
                     snapshot.aggregateIdentifier,
                 )
             }
-        } catch (e: DataAccessException) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
             throw exceptionHandler.handleAppendException(
                 "storeSnapshot",
@@ -193,17 +207,21 @@ class EafPostgresEventStorageEngine(
                 runBlocking {
                     eventStoreRepository.getSnapshot(tenantId, aggregateIdentifier)
                 }
-
             if (snapshot != null) {
                 Optional.of(eventMessageMapper.mapSnapshotToDomainEvent(snapshot))
             } else {
                 Optional.empty()
             }
-        } catch (e: DataAccessException) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             val tenantId = TenantContextHolder.getCurrentTenantId() ?: "unknown"
-            logger.warn("Failed to read snapshot {}", e.message)
+            logger.warn(
+                "Failed to read snapshot for tenant {} and aggregate {}",
+                tenantId,
+                aggregateIdentifier,
+                e, // Pass exception as third parameter to log full stack trace
+            )
             Optional.empty()
         }
 }
-
-private fun <T> Sequence<T>.asStream(): Stream<T> = this.toList().stream()
